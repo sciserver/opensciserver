@@ -3,6 +3,7 @@ import requests
 import random
 from testutil import sciserverBase, writeUserInfo, tokenHeader
 
+
 class TestRegister(unittest.TestCase):
 
     def test_register(self):
