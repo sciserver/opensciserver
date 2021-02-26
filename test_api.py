@@ -3,14 +3,15 @@ import requests
 import random
 from testutil import sciserverBase, tokenHeader, getUser, getEmail, getToken
 
+
 class TestApi(unittest.TestCase):
 
     def test_fileservice_basic_volumes(self):
         r = requests.get(f'{sciserverBase()}/fileservice/api/volumes/', headers=tokenHeader())
         storage = [i for i in r.json()['rootVolumes'] if i['name'] == 'Storage'][0]
-        persistent = [i for i in storage['userVolumes'] if i['name'] == 'persistent'][0]
+        [i for i in storage['userVolumes'] if i['name'] == 'persistent'][0]
         temporary = [i for i in r.json()['rootVolumes'] if i['name'] == 'Temporary'][0]
-        scratch = [i for i in temporary['userVolumes'] if i['name'] == 'scratch'][0]
+        [i for i in temporary['userVolumes'] if i['name'] == 'scratch'][0]
 
     def test_fileservice_upload_file(self):
         data = 'this is some test data'
@@ -48,7 +49,8 @@ class TestApi(unittest.TestCase):
         assert(group['groupName'] in grouplist)
         # Check we are the OWNER
         userid = [i['id'] for i in r.json()['_embedded']['userList'] if i['username'] == getUser()][0]
-        members = [i['members'] for i in r.json()['_embedded']['collaborationList'] if i['name'] == group['groupName']][0]
+        members = [i['members'] for i in r.json()['_embedded']['collaborationList']
+                   if i['name'] == group['groupName']][0]
         assert(len(members) == 1)
         userrole = [i['role'] for i in members if i['id'] == userid][0]
         assert(userrole == 'OWNER')
@@ -82,3 +84,28 @@ class TestApi(unittest.TestCase):
         assert(r.json()['username'] == getUser())
         assert(type(r.json()['user_id']) == str)
         assert(r.json()['user_id'] != '')
+
+    def test_compute_create_container(self):
+        r = requests.get(f'{sciserverBase()}/racm/jobm/rest/computedomains', headers=tokenHeader())
+        domains = r.json()
+        if len(domains) == 0:
+            raise Exception('no compute domains for test!')
+        domain = domains[0]
+        domainId = domain['publisherDID']
+        if len(domain['images']) == 0:
+            raise Exception('no images found in compute domain!')
+        testImage = domain['images'][-1]['name']
+        payload = {
+            'dockerImageName': testImage,
+            'volumeContainers': [],
+            'userVolumes': [],
+        }
+        headers = {
+            'X-Auth-Token': getToken(),
+            'Content-Type': 'application/json',
+            'X-Description': 'NOTEBOOK',  # allows API creation and auto-cleans
+        }
+        url = f'{sciserverBase()}/compute/api/domains/{domainId}/containers'
+        r = requests.post(url, json=payload, headers=headers)
+        assert(r.status_code == 200)
+        int(r.text)  # the return value should be just container ID
