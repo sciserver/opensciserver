@@ -8,7 +8,7 @@ class TestRegister(unittest.TestCase):
 
     def test_register(self):
         username = 'test_user_' + str(random.getrandbits(64))
-        password = str(random.getrandbits(64))
+        password = '_#Aa.0283303932'
         email = f'{username}@example.com'
         data = f'username={username}&email={email}&password={password}&confirmPassword={password}'
         headers = {'content-type': 'application/x-www-form-urlencoded'}
