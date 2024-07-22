@@ -6,7 +6,7 @@
 SciServer documentation
 =======================
 
-.. image:: _static/Sciserver_tagline_box.png
+.. image:: _static/SciServer_tagline_box.png
    :align: center
 
 Add your content using ``reStructuredText`` syntax. See the
