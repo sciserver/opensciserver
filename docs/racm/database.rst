@@ -1,3 +1,5 @@
+.. _racm_database:
+
 RACM Database
 =============
 

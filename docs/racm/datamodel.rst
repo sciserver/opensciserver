@@ -1,8 +1,8 @@
 .. _racm_datamodel:
 
-===============
-RACM Data Model
-===============
+==========
+Data Model
+==========
 RACM stores information about resources and the pemrissions users and groups have on these in a relational database, 
 and provides the code to interact with this database through REST APIs. 
 
