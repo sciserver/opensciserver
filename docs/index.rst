@@ -17,4 +17,13 @@ documentation for details.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   login/login
+   racm/racm
+   fileservice/fileservice
+   compute/compute
+   compm/compm
+   sciquery/sciquery   
+   sciscript/sciscript
+   clients/clients
+   springutils/springutils

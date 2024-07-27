@@ -3,8 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+   
 Resource Access Control Management (RACM)
 =========================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   role
+   datamodel
+   database
+   orm
+   api   
 
 This part of the documentation describes the Resource Access Control Management component in SciServer, referred to as RACM.
 RACM stores information about (the existence of) general SciServer *resources* and the rights to execute certain actions on those resources as they are 
@@ -21,14 +32,6 @@ We used an automated pipeline to derive alternate "representations" of the UML, 
 to create tables and views in a relational database. 
 That pipeline, named VO-URP, was originally developed for the Simulation Data Model effort in the IVOA.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-   role.rst
-   datamodel.rst
-   database.rst
-   orm.rst
-   api.rst
    
    
