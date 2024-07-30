@@ -8,13 +8,12 @@ Resource Access Control Management (RACM)
 =========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    concepts
    datamodel
-   database
-   orm
+   representations
    role
    api   
 
@@ -25,8 +24,8 @@ assigned to users or groups of users.
 The links below point to documentation describing the data model and the database that stores this information, the object-relational mapping (ORM) layer for interacting with the database
 and the API for interacting with RACM itself through REST calls. Here we describe the role RACM plays in the running of SciServer.
 
-History and background
-----------------------
+**History and background**
+
 RACM is based on an abstract data model expressed in UML and described in :ref:`racm_datamodel`.
 The UML model was designed using a modelling tool, `MagicDraw <https://www.magicdraw.com/>`_ Community Edition v12.1, and was stored as an 
 `XMI <https://www.omg.org/spec/XMI/>`_ file. 

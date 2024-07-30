@@ -1,2 +1,0 @@
-RACM Object-Relational Mapping
-==============================
