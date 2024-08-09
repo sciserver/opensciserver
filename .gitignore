@@ -25,3 +25,8 @@ replay_pid*
 
 # docs
 docs/_build/
+
+.vscode/
+.idea
+.project
+.classpath
