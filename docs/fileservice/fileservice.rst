@@ -18,12 +18,12 @@ users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolum
     By default, users are able to access 2 ``Root Volumes`` with distinct names:
 
     a) The ``Storage`` root volume has a limit on the total amount of data over all ``userVolumes`` each user creates under it.
-       This limit over all ``userVolumes`` created by a single user, is set by the SciServer Quota Manager service (REF).
+       This limit over all ``userVolumes`` created by a single user, is physically set on the file system by the stand-alone SciServer Quota Manager application.
        Users are always given a ``UserVolume`` under ``Storage`` by default, named ``persistent``.
 
 
     b) The ``Temporary``` root volume has no limit in the amount of data users can store in the ``User volumes`` they create under it, 
-       although data is periodically deleted by REF.
+       although data is periodically deleted by a stand-alone crawler application.
        Users are always given a ``UserVolume`` under ``Temporary`` by default, named ``scratch``.
 
     Users can create and share ``userVolumes`` in Files tab in the SciServer Dashboard or methods in the SciScript libraries, 
@@ -35,10 +35,10 @@ users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolum
 
 
 3)  ``ServiceVolumes``: follow the same pattern in the file system as ``RootVolumes``, although the creation or deletion of the respective ``UserVolumes`` 
-     is not managed by SciServer users, but by separate SciServer services such as CourseWWare (REF).
+     is not managed by SciServer users, but by separate SciServer services such as CourseWare.
 
 
-The names and metadata about top volumes, including their patch to the mounted NFS file system, need to be registered by calls to RACM's STOREM API (REF), 
+The names and metadata about top volumes, including their patch to the mounted NFS file system, need to be registered by calls to RACM's STOREM API, 
 before these volumes can be given access to and be available to users.
 
 The FileService API contains several endpoints for checking the status of the application, 
