@@ -1,7 +1,7 @@
 .. _compm:
 
-Compute Jobs
-============
+Compute and Query Jobs
+======================
 
 Although interactive Jupyter Notebook sessions are very convenient for exploring
 data sets and developing/creating analysis pipelines, the
@@ -16,9 +16,8 @@ for teaching a class, for example.
 As a solution, SciServer incorporates several components that allow users to run 
 asynchronous jobs on dedicated hardware supporting more demanding 
 computational and data-intensive workflows. SciServer supports so far 2 classes of jobs: computational jobs that 
-run in Docker containers in :ref:`compute` (Docker Jobs), which we discuss 
-in this section, and asynchronous SQL queries that run in Relational Databases (RDB Jobs) and managed by :ref:`sciquery`, 
-which is discussed in the next section.
+run in Docker containers in :ref:`compute` (Docker Jobs), and asynchronous SQL queries that run in Relational Databases (RDB Jobs) 
+and managed by :ref:`sciquery`.
 
 A job can be submitted and run in a particular :ref:`racm_compute_domain`, which in the case of Docker jobs it correspond 
 to a group of hardware nodes in :ref:`compute` (such as Virtual Machines or Kubernetes nodes)
@@ -27,13 +26,96 @@ allocated for the Docker Containers that is spawned on any on the nodes to run t
 These domains might be are available to all users or only a selected group of them,
 depending on the respective access controls in :ref:`racm`.
 
-When running a job, a job directory (aka `resultsFolderURI`) is created by 
-default in the SciServer file system if not defined by the user, 
-and is used to store job metadata and/or results, as well as automatically writing 
-the standard output and error as the ``stdout.txt`` and ``stderr.txt`` files 
-under that directory, respectively. The default location of this directory falls 
-under the ``jobs`` user volume under the ``Temporary`` root volume, 
+When running a job, a job working directory (aka `resultsFolderURI`) is created by 
+default in the SciServer file system (if not explicitly defined by the user), 
+and is used to store job metadata and/or results. The default location of this directory falls 
+under the ``jobs`` user volume, under the ``Temporary`` root volume, 
 which has no data size quota in case the job results size is big.
+
+
+
+**Compute-Manager**
+
+The ``Compute-Manager`` or ``COMPM`` is a Spring Boot service that manages the life-cycle of jobs. There is a one-to-one relation between a 
+an individual instance of a COMPM, and the Compute domain it is associated/registered to.
+There are 2 types of COMPMs: Docker COMPM, for managing Docker Jobs, and RDB COMPMs for managing SQL Query jobs for :ref:`sciquery`.
+COMPMs run a main (master) thread, which spawns worker treads that are individually in charge of running one job at a time. The main thread 
+has an infinite loop, that each time gets new jobs from the JOBM API, and stores them in a queue in memory. Whenever a worker thread is 
+available for a new job, it takes it from the queue and starts processing it. Docker COMPMs spawn DockerJob worker threads, whereas RDB COMPMs spawn RDBJob worker threads.
+The main thread is also in charge of getting the list of cancelled jobs from the JOBM API.
+
+Each COMPM needs to be registered in SciServer's RACM database and matched 
+to the corresponding Compute Domain it manages the jobs for.
+In the case of Docker COMPMs, SciServer admins can register them interactively on the `RACM UI <https://apps.sciserver.org/racm/compm/mvc/new>`_, 
+whereas RDB COMPMs are registered with an HTTP POST request to `RACM's REST API <https://apps.sciserver.org/racm/jobm/rest/dbcompm>`_.
+In both cases, admins need to specify the job timeout and the maximum number of concurrently running jobs per user, 
+and are returned the Universally Unique Identifier (UUID) or ``CompmID`` for the new COMPM .
+This CompmID needs to be later saved in the COMPM configuration, so that it can be passed as the ``X-Service-Auth-ID`` entry 
+in request header when calling the RACM/JOBM or SciServer-Compute APIs as a means of authenticating itself.
+
+
+**Configuring, Building and Running COMPMs**
+
+The configuration variables for the Compute-Manager are placed in the ``config.properties`` and ``log4j2.xml`` files under 
+``/src/main/resources/``. Example instances of those can be found under ``/conf.examples/``.
+
+Both COMPM types share common configuration variables, stored in the ``config.properties`` file:
+
+1) ``jobType``: the COMPM type. Can be ``docker`` or ``rdb``.
+
+2)  The REST API URLs of JOBM and the FileService. For the latter, one should also include variables defining the path to the default job directory:
+    ``basePath`` ,  ``rootVolume``, ``userVolume``, and ``jobsFolderRelativePath``.
+
+3)  ``compmId``: unique identifier of this compm as registered in RACM. 
+    Is is used for authenticating itself when communicating with other SciServer APIs.
+
+4) ``numWorkers``: The number of worker treads, and same as the maximum number of jobs a COMPM can manage at a time.
+
+5) ``idleTimeBetweenJobs``: idle time interval (measured in seconds) at the end of each JobWorker's cycle where the worker asks the main thread for a new job.
+
+6) ``idleTimeBetweenJobmRequests``: idle time interval (measured in seconds) at the end of the main thread's loop, after it asks JOBM for new jobs and new messages for its managed jobs.
+
+7) ``idleTimeBetweenFailedRequests``: idle time interval (measured in seconds) at the end of loops that repeatedly make calls to a REST API in case the API is unresponsive at the time.
+
+8) ``maxTries``: max number tries before exiting after failed requests for submitting a job to the SciServer-Compute REST API.
+
+9) ``maxNumberOfJobs``: maximum number of jobs asked to JOBM for COMPM to manage at a time.
+
+10) ``minNumberOfJobs``: minimum number of jobs that COMPM can reach in its local queue, before COMPM starts asking JOBM for a new batch of available jobs.
+
+11) RabbitMQ settings: For logging, activity and error messages can be sent to and queued on an external RabbitMQ instance in 
+   order to be subsequently logged. One must set the RabbitMQ host, exchange and queue names.
+
+On the other hand, ``log4j2.xml`` file contains configuration in relation to logging messages to a file.
+
+
+Additionally, Docker COMPMs have the following extra configuration variable:
+
+1) Compute.domainUrl: base url pointing to the SciServer-Compute REST API, associated to the Docker Compute Domain that COMPM is registered to.
+
+whereas RDB COMPMs additionally require:
+
+1) ``sciquery_db_jdbc_url``: JDBC URL, pointing to the SciQuery database.
+
+2) ``sciquery_db_conn_pool_size``: pool size of the connection to the SciQuery database.
+
+3) ``result_fetch_size``: batch size (number of rows) fetched at a time from a SQL query result set.
+
+4) ``numRowsPerFlush``: batch size (number of rows) written at a time in an output writer (e.g. when writing to a CSV file).
+
+5) ``httpRequestTimeout``: timeout for establishing an http connection to the SciServer FileService, 
+   when using it to write a SQL query output result into the SciServer file system.
+
+6) ``dbConnectionTimeout``: timeout for the table row insert statement for the case of writing a query result set into a database (might be deprecated).
+
+Since the COMPM source code is integrated with `Gradle <https://gradle.org>`_ , 
+one can build and run it locally by executing the respective Gradle targets in Visual Studio/Eclipse, or explicitly by executing ``./gradlew build`` or ``./gradlew run``
+on the base level of the project directory. For running it in a production-grade environment, refer to the SciServer Kubernetes setup.
+
+
+
+
+**Docker Jobs Life Cycle**
 
 There are 2 types of Docker Jobs:
 
@@ -43,18 +125,9 @@ There are 2 types of Docker Jobs:
    In case the notebook takes input parameters, these parameters can be passed to the job object during submission time, 
    and are automatically written into  ``parameters.txt`` file in the jobs directory, so that the Jupyter Notebook can easily read it during execution time.
 
+In both cases, the standard output and error are automatically written into the ``stdout.txt`` and ``stderr.txt`` files 
+under the job directory.
 
-**Docker Jobs Life Cycle**
-
-
-The life-cycle of a job running in each Compute domain is managed by an individual instance of the ``Compute-Manager``, 
-a Spring Boot service that needs to be registered by means of a call to the :ref:`racm_api` to the corresponding Compute Domain it manages the jobs for.
-Upon registration, the COMPM service is given a Universally Unique Identifier (UUID) or CompmID, 
-which needs to be passed as ``X-Service-Auth-ID`` in request header when calling the JOBM 
-or SciServer-Compute APIs as a means of authentication.
-The maximum number of concurrently running jobs for each user in the Domain and the job timeout are variables 
-that are defined when registering a COMPM in RACM, whereas the total maximum number of concurrent jobs a COMPM can manage 
-and store in its local queue is defined in COMPM's local configuration.
 
 Running a Docker job requires a particular set of interactions between several SciServer components, as shown in the UML 
 Sequence Diagram in :numref:`DockerJobLifeCycle` below and detailed as follows:

@@ -25,4 +25,8 @@ If not set and invoked within SciServer-Compute, the cluster connection properti
 the ``/home/idies/dask-cluster.json`` file injected into new SciServer Compute containers automatically when they are 
 created with an attached Dask cluster.
 
+The configuration module `Config` contains variables pointing to the default URLs of the SciServer REST APIs mentioned above.
+If SciScript is loaded within SciServer Compute, those variables are automatically set from reading the ``sciscript.json`` file, 
+which is searched for in either the ``/etc/`` or ``~/.config/`` directories, 
+or the the directory set in the ``XDG_CONFIG_HOME`` environmental variable.
 

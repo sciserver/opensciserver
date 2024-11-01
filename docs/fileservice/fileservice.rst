@@ -17,13 +17,15 @@ users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolum
 
     By default, users are able to access 2 ``Root Volumes`` with distinct names:
 
-    a) The ``Storage`` root volume has a limit on the total amount of data over all ``userVolumes`` each user creates under it.
-       This limit over all ``userVolumes`` created by a single user, is physically set on the file system by the stand-alone SciServer Quota Manager application.
-       Users are always given a ``UserVolume`` under ``Storage`` by default, named ``persistent``.
+    a) The ``Storage`` root volume, with a limit on the total amount of data over all ``userVolumes`` each user creates under it.
+       This limit over all ``userVolumes`` created by a single user, is physically set on the file system by the stand-alone 
+       SciServer Quota-Manager application, after the FileService sends to it a request to create a new userVolume.
+       If the FileService configuration is missing information about the Quota-Manager, then it will simply locally create a UserVolume folder 
+       without a quota. Users are given a ``UserVolume`` under ``Storage`` by default, named ``persistent``.
 
 
     b) The ``Temporary``` root volume has no limit in the amount of data users can store in the ``User volumes`` they create under it, 
-       although data is periodically deleted by a stand-alone crawler application.
+       although data is periodically deleted by a stand-alone crawler application (if it is installed).
        Users are always given a ``UserVolume`` under ``Temporary`` by default, named ``scratch``.
 
     Users can create and share ``userVolumes`` in Files tab in the SciServer Dashboard or methods in the SciScript libraries, 
@@ -47,3 +49,31 @@ for verifying the ta the application is running,
 and the `HEALTH endpoint <https://apps.sciserver.org/fileservice/swagger-ui/index.html#/api-controller/getHealthReport>`_ 
 for checking whether files can be written and deleted from the Root and Data Volumes registered in the FileService.
 
+
+**Configuring, Building and Running the ScIServer FileService**
+
+The configuration variables for the FileService are placed in the ``applications.properties`` and ``log4j2.xml`` files under 
+``/src/main/resources/``. Example instances of those can be found under ``/conf-example/``.
+
+Some important variables in the ``applications.properties`` file include:
+
+1)  The URLs pointing to the RACM and LoginPortal REST APIs. If user volume quotas are desired, also include 
+    the Quota-Manager's URL and authentication password.
+   
+2)  ``RACM.resourcecontext.uuid``: the UUID of the FileService resource context instance as registered in RACM, 
+which is sent along several HTTP requests to the APIs in order to uniquely identify the FileService instance.
+
+3) ``RACM.resourceContext.serviceToken``: the unique identifier of the FileService instance as a Service in RACM.
+
+4) ``File-service.default.uservolumes``: a JSON structure with metadata associated to the default user volumes that are automatically 
+   created for all SciServer users.
+
+5) RabbitMQ settings: For logging, activity and error messages can be sent to and queued on an external RabbitMQ instance in 
+   order to be subsequently logged. One must set the RabbitMQ host, exchange and queue names.
+
+On the other hand, ``log4j2.xml`` file contains configuration in relation to logging messages to a file.
+
+
+Since the SciServer FileService source code is integrated with `Gradle <https://gradle.org>`_ , 
+one can build and run it locally by executing the respective Gradle targets in Visual Studio/Eclipse, or explicitly by executing ``./gradlew build`` or ``./gradlew run``
+on the base level of the project directory. For running it in a production-grade environment, refer to the SciServer Kubernetes setup.
