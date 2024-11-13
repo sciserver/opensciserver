@@ -15,7 +15,7 @@ users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolum
     Under these volumes users can create their own folders, called ``UserVolumes``, and share them with other SciServer users or groups.
     The path of those in the file system is ``/home/idies/workspace/<RootVolumeName>/<UserName>/<UserVolumeName>``.
 
-    By default, users are able to access 2 ``Root Volumes`` with distinct names:
+    By default, users are able to access two ``Root Volumes`` with distinct names:
 
     a) The ``Storage`` root volume, with a limit on the total amount of data over all ``userVolumes`` each user creates under it.
        This limit over all ``userVolumes`` created by a single user, is physically set on the file system by the stand-alone 
@@ -40,7 +40,7 @@ users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolum
      is not managed by SciServer users, but by separate SciServer services such as CourseWare.
 
 
-The names and metadata about top volumes, including their patch to the mounted NFS file system, need to be registered by calls to RACM's STOREM API, 
+The names and metadata about top volumes, including their patch to the mounted NFS file system, need to be registered by calls to RACM's :ref:`racm_storem_api`, 
 before these volumes can be given access to and be available to users.
 
 The FileService API contains several endpoints for checking the status of the application, 
@@ -50,7 +50,7 @@ and the `HEALTH endpoint <https://apps.sciserver.org/fileservice/swagger-ui/inde
 for checking whether files can be written and deleted from the Root and Data Volumes registered in the FileService.
 
 
-**Configuring, Building and Running the ScIServer FileService**
+**Configuring, Building and Running the SciServer FileService**
 
 The configuration variables for the FileService are placed in the ``applications.properties`` and ``log4j2.xml`` files under 
 ``/src/main/resources/``. Example instances of those can be found under ``/conf-example/``.

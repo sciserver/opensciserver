@@ -10,3 +10,10 @@ RACM API
 ========
 JOBM API
 ========
+
+
+.. _racm_storem_api:
+
+==========
+STOREM API
+==========
