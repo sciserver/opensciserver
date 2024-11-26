@@ -16,8 +16,12 @@ for teaching a class, for example.
 As a solution, SciServer incorporates several components that allow users to run 
 asynchronous jobs on dedicated hardware supporting more demanding 
 computational and data-intensive workflows. SciServer supports so far 2 classes of jobs: computational jobs that 
-run in containerized environments (Containers) currently derived from Docker images in :ref:`compute` (Compute Jobs), 
+run in containerized environments (Containers) in :ref:`compute` (Compute Jobs), 
 and asynchronous SQL queries that run in Relational Databases (RDB Jobs) and managed by :ref:`sciquery`.
+Note that although the job Containers currently derive from Docker Images, other containerization technologies 
+could in principle also be used, as long as Kubernetes supports them.
+
+
 
 A job can be submitted and run in a particular :ref:`racm_compute_domain`, which in the case of Compute Jobs, corresponds 
 to a group of hardware nodes in :ref:`compute` (such as Virtual Machines or Kubernetes nodes)
