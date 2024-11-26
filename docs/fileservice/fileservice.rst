@@ -9,9 +9,10 @@ the SciServer file system. This includes listing, downloading, uploading, deleti
 and giving access to data resources such as user or service volumes, among other functions.
 
 A new FileService instance needs to be registered in SciServer by making an HTTP request to RACM's :ref:`racm_storem_api`.
-As a result, the FileService instance will be assigned a UUID, used for uniqqhely identifying the FileServie, and a Service Token. 
-This token needs to be saved in the FiLeService configuration, and is passed as the ``X-Service-Auth-ID`` entry 
-in request header when the FileService makes HTTP calls to the :ref:`racm_storem_api`, as a mean for authenticating itself.
+As a result, the FileService instance will be assigned a UUID, used for uniquely identifying the FileService, and a ServiceID token.
+The UUID and ServiceID need to be saved in the FileService configuration as ``RACM.resourcecontext.uuid`` and ``File-service.serviceId``, 
+respectively (see configuration parameters list below). The ServiceID is passed as the ``X-Service-Auth-ID`` entry in request header 
+when the FileService makes HTTP calls to the :ref:`racm_storem_api`, as a mean for authenticating itself.
 
 In :ref:`compute`, users can find and save data in folders under a particular ``basePath``, namely ``/home/idies/workspace``. 
 Under this path, users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolumes``, usually mounted on NFS shares:
@@ -39,8 +40,8 @@ Under this path, users can find 2 types of ``topVolumes``, namely ``RootVolumes`
    
 2)  ``DataVolumes``:
 
-    These ``topVolumes`` in general contain big science data sets that SciServer admins make available to the public or a specific group of users.
-    The path of those in the file system is ``/home/idies/workspace/<DataVolumeName>``.
+    These ``topVolumes`` in general contain trusted, curated, and potentially large-scale science datasets that SciServer admins make available to the public 
+    or a specific group of users, typically in read-only mode. The path of those in the file system is ``/home/idies/workspace/<DataVolumeName>``.
 
 3)  ``ServiceVolumes``:
  
@@ -72,7 +73,7 @@ Some important variables in the ``applications.properties`` file include:
 2) ``RACM.resourcecontext.uuid``: the UUID of the FileService resource context instance as registered in RACM, 
    which is sent along several HTTP requests to the APIs in order to uniquely identify the FileService instance.
 
-3) ``RACM.resourceContext.serviceToken``: unique authentication token the FileService instance, used for authenticating itself as a Service in RACM.
+3) ``File-service.serviceId``: unique authentication token the FileService instance, used for authenticating itself as a Service in RACM.
 
 4) ``File-service.default.uservolumes``: a JSON structure with metadata associated to the default user volumes that are automatically 
    created for all SciServer users.

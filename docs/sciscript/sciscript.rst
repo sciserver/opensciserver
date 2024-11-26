@@ -19,14 +19,19 @@ by reading its auth token under ``/home/idies/keystone.token`` and passing it al
 On the other hand, running SciScript in a remote computer required users to explicitly login with their SciServer credentials 
 using its ``Authentication.login`` method before being able to interact with other SciServer components.
 
-The SciScript-Python library additionally contains a module for creating a client pointing to a Dask Cluster in SciServer, which  
-needs to be provided with a `ref_id` label to the cluster, if the module is invoked run in remote mode. 
-If not set and invoked within SciServer-Compute, the cluster connection properties will be read from 
-the ``/home/idies/dask-cluster.json`` file injected into new SciServer Compute containers automatically when they are 
-created with an attached Dask cluster.
-
-The configuration module `Config` contains variables pointing to the default URLs of the SciServer REST APIs mentioned above.
+The configuration module ``Config`` contains variables pointing to the default URLs of the SciServer REST APIs mentioned above.
 If SciScript is loaded within SciServer Compute, those variables are automatically set from reading the ``sciscript.json`` file, 
 which is searched for in either the ``/etc/`` or ``~/.config/`` directories, 
 or the the directory set in the ``XDG_CONFIG_HOME`` environmental variable.
+
+**Dask module**
+
+The SciScript-Python library additionally contains a module for creating a client pointing to a Dask Cluster in SciServer, which  
+needs to be provided with a `ref_id` label to the cluster, if the module is invoked and run in remote mode. 
+If not set and invoked within SciServer-Compute, the cluster connection properties will be read from 
+the ``/home/idies/dask-cluster.json`` file injected into new SciServer Compute containers automatically when they are 
+created with an attached Dask cluster. Using a Dask Cluster also depends on configurations set 
+within SciServer Compute itself. For more details, please refer to the :ref:`compute` section.
+
+
 
