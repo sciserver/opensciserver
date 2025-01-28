@@ -15,6 +15,18 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  build:
+    name: Build all SciServer components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - run: make
+
   docs:
     name: Build docs with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest

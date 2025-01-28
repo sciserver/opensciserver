@@ -1,0 +1,17 @@
+[
+    {
+	"entityId": 1,
+	"resourceUUID": "fakeuuid",
+	"name": "fakename",
+	"description": "this is a test",
+	"allowedActions": [],
+	"possibleActions": [
+	    {
+		"name": "action",
+		"description": "test",
+		"category": "G"
+	    }
+	],
+	"type": "GenericResource"
+    }
+]

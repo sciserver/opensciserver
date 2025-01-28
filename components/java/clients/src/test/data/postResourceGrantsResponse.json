@@ -1,0 +1,19 @@
+{
+    "id": 1,
+    "publisherDID": "fake",
+    "contextuuid": "fake",
+    "resourceName": "fake",
+    "resourceId": "fakeid",
+    "resourceUUID": "fake",
+    "resourceDescription": "fake",
+    "contextClass": "fake",
+    "rtm": {
+	"contextClassId": 1,
+	"name": "fake",
+	"description": "fake",
+	"roles": [],
+	"actions": []
+    },
+    "privileges": [],
+    "roles": []
+}

@@ -1,0 +1,18 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
+    id 'java'
+    id 'eclipse'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+springBoot {
+    mainClassName = 'org.sciserver.springapp.Application'
+}
+
+dependencies {
+    implementation project(':clients')
+    implementation project(':springutils:base-app')
+    implementation project(':springutils:authenticator')
+    implementation project(':springutils:logging-interceptor')
+}

@@ -1,0 +1,32 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under the Apache License, Version 2.0. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<div id="confirmDeleteDialog" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Delete cluster</h4>
+			</div>
+			<div class="modal-body">Are you sure?</div>
+			<div class="modal-footer">
+				<a onclick="return $('#confirmDeleteDialog').modal('hide');"
+					href="#" class="btn btn-default">Cancel</a> <a
+					id="confirmDeleteButton"
+					onclick="$('#confirmDeleteDialog').modal('hide'); return $('#deletingMessage').modal('show')"
+					href="#" class="btn btn-danger">Delete</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="deletingMessage" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h4>Deleting cluster. Please wait...</h4>
+			</div>
+		</div>
+	</div>
+</div>

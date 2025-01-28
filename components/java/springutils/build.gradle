@@ -1,0 +1,44 @@
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'eclipse'
+    apply plugin: 'maven-publish'
+    apply plugin: 'checkstyle'
+
+    group 'org.sciserver.springapp'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        api 'org.springframework.boot:spring-boot-starter-web:2.6.6'
+        implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+        api 'org.sciserver:sciserver-logging-java:1.0+'
+        testImplementation 'org.testng:testng:6.14.3'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    checkstyle {
+        toolVersion '8.39'
+        config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle.xml")
+        maxWarnings 0
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.java
+                versionMapping {
+                    usage('java-api'){
+                        fromResolutionResult()
+                    }
+                }
+            }
+        }
+    }
+
+    test {
+        useTestNG()
+    }
+
+}

@@ -1,0 +1,37 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under the Apache License, Version 2.0. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<%@ page import="org.sciserver.compute.AppConfig, org.sciserver.compute.AppSettings"%>
+
+<%! AppSettings appSettingsFooter = AppConfig.getInstance().getAppSettings(); %>
+
+<script src="<spring:url value="/static/lib/js-cookie/js.cookie.js"/>"></script>
+<script async src="<spring:url value="/static/js/common.js"/>"></script>
+
+  <footer>
+    <span>
+		<c:if test="${not empty AppConfig.getInstance().getAppSettings().getSciserverVersion()}">
+			<%=appSettingsFooter.getSciserverVersion()%>&nbsp;
+		</c:if>
+		<small class="text-muted">Compute <%=AppConfig.getInstance().getVersion()%></small>
+	</span>
+	<span class="logo-holder">
+		<span>Powered by:</span>
+         <a class="logo" href="https://www.nsf.gov" target="_blank">
+            <img src="<spring:url value="/static/img/nsflogo.png"/>" style="max-height:50px;" alt="National Science Foundation" />
+          </a>
+          <a class="logo" href="http://idies.jhu.edu" target="_blank">
+            <img src="<spring:url value="/static/img/idieslogo.png"/>" style="max-height:24px;" alt="IDIES" />
+          </a>
+          <a class="logo" href="https://jhu.edu" target="_blank">
+            <img src="<spring:url value="/static/img/jhulogo.png"/>" style="max-height:32px;" alt="Johns Hopkins University" />
+          </a>
+    </span>
+  </footer>
+
+<script>
+  document.querySelector('.navbar-default').style.setProperty('background-color', '<%=appSettingsFooter.getNavbarColor()%>');
+  document.querySelector('body').style.setProperty('font-family', '<%=appSettingsFooter.getFontFamily()%>');
+</script>

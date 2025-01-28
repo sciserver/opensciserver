@@ -1,0 +1,175 @@
+<%--suppress ELValidationInJSP --%>
+<%--
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under the Apache License, Version 2.0. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ include file="../jspf/support-dialog.jspf" %>
+
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().isUiJobsEnabled()" var="jobsEnabled"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).NONE)" var="sciServerLinksNone"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).DASHBOARD)" var="sciServerLinksDashboard"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).COMPUTE)" var="sciServerLinksCompute"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).COMPUTEJOBS)" var="sciServerLinksComputeJobs"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).CASJOBS)" var="sciServerLinksCasJobs"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).SCIDRIVE)" var="sciServerLinksSciDrive"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).SKYSERVER)" var="sciServerLinksSkyServer"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).SKYQUERY)" var="sciServerLinksSkyQuery"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getUiSciServerLinks().contains(T(org.sciserver.compute.SciServerLink).ACTIVITYLOG)" var="sciServerLinksActivityLog"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getApplicationName()" var="applicationNameNav"/>
+
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<span class="navbar-brand"> 
+			<c:choose>
+				<c:when test="${sciServerLinksDashboard}">
+				<a href="${fn:escapeXml(dashboardUrl)}" target="_blank">
+					<img alt="${applicationNameNav}" src="<spring:url value="/../dashboard/static/img/sciserverlogo.png"/>"
+                        onerror="this.onerror=null;this.src='<spring:url value="/static/img/sciserverlogo.png'"/>" />
+				</a>
+				</c:when>
+				<c:otherwise>
+				<a>
+					<img alt="${applicationNameNav}" src="<spring:url value="/../dashboard/static/img/sciserverlogo.png"/>"
+                        onerror="this.onerror=null;this.src='<spring:url value="/static/img/sciserverlogo.png'"/>" />
+				</a>
+				</c:otherwise>
+			</c:choose>
+			<a href="<spring:url value="/"/>" style="margin-left:12px;">Compute</a>
+			</span>
+			<button type="button" class="navbar-toggle collapsed"
+				data-toggle="collapse" data-target="#page-navbar"
+				aria-expanded="false">
+				<span class="sr-only">Toggle Navigation</span> <span
+					class="icon-bar"></span> <span class="icon-bar"></span> <span
+					class="icon-bar"></span>
+			</button>
+		</div>
+		<spring:eval
+			expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getRacmUrl()"
+			var="racmUrl" />
+		<div class="collapse navbar-collapse" id="page-navbar"
+			data-racm="${fn:escapeXml(racmUrl)}">
+			<c:set var="pageName"
+				value="${requestScope['javax.servlet.forward.servlet_path']}" />
+			<c:choose>
+				<c:when test="${requestScope.authenticated}">
+					<ul class="nav navbar-nav">
+						<li class="${pageName == '/' ? 'active':'' }"><a href=".">Interactive
+								Notebooks</a></li>
+								
+						<c:if test="${jobsEnabled}">
+						<li class="${pageName == '/jobs' ? 'active':'' }"><a
+							href="jobs">Jobs <span class="badge"></span></a></li>
+						</c:if>
+						
+						<c:if test="${requestScope.isDaskAvailable}">
+						<li class="${pageName == '/dask' ? 'active':'' }"><a
+							href="dask">Dask <span class="badge"></span></a></li>
+						</c:if>
+					</ul>
+				</c:when>
+				<c:otherwise>
+					<ul class="nav navbar-nav">
+						<li class="${pageName == '/' ? 'active':'' }"><a href=".">Welcome</a></li>
+					</ul>
+				</c:otherwise>
+			</c:choose>
+			<c:choose>
+				<c:when test="${requestScope.authenticated}">
+					<c:set var="username" value='${requestScope["username"]}' />
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown"><a href="" class="dropdown-toggle"
+							data-toggle="dropdown" role="button" aria-haspopup="true"
+							aria-expanded="false"> <c:out value="${username}" /> <span
+								class="caret"></span>
+						</a>
+							<ul class="dropdown-menu">
+								<li><a href="#" role="button" data-toggle="modal" data-target="#supportDialog">
+									Help</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="logout">Sign Out</a></li>
+							</ul></li>
+					</ul>
+					<c:if test="${sciServerLinksActivityLog}">
+						<ul class="nav navbar-nav navbar-right">
+							<li><a rel="noopener" target="_blank"
+								href="${fn:escapeXml(dashboardUrl)}/activity_log"
+								title="Activity Log"><span class="fa fa-history fa-lg"
+									aria-hidden="true"></span></a></li>
+						</ul>
+					</c:if>
+				</c:when>
+				<c:otherwise>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="login">Sign in</a></li>
+					</ul>
+				</c:otherwise>
+			</c:choose>
+			<c:if test="${!sciServerLinksNone}">
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown"><a href="" class="dropdown-toggle"
+						data-toggle="dropdown" role="button" aria-haspopup="true"
+						aria-expanded="false" title="${applicationNameNav} Apps"> <span
+							class="fa fa-th fa-lg" aria-hidden="true"></span>
+					</a>
+						<ul class="dropdown-menu" id="sciserverLinks">
+							<c:if test="${sciServerLinksDashboard}">
+							<li class="text-center">
+                            <a rel="noopener" target="_blank" href="${fn:escapeXml(dashboardUrl)}">
+                                <img src="<spring:url value="/../dashboard/static/img/sciserver_logo_icon_blue.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/sciserver_logo_icon_blue.png'"/>" />
+                                <br>Home
+							</a></li>
+							</c:if>
+							<c:if test="${sciServerLinksCompute}">
+							<li class="text-center"><a href=".">
+                                <img src="<spring:url value="/../dashboard/static/img/sciserver_compute.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/sciserver_compute.png'"/>" />
+                                <br>Compute
+							</a></li>
+							</c:if>
+							<c:if test="${sciServerLinksComputeJobs}">
+							<li class="text-center"><a href="jobs">
+                                <img src="<spring:url value="/../dashboard/static/img/sciserver_compute_jobs.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/sciserver_compute_jobs.png'"/>" />
+                                <br>Compute Jobs
+							</a></li>
+							</c:if>
+							<c:if test="${sciServerLinksCasJobs}">
+							<li class="text-center"><a href="${fn:escapeXml(casJobsUrl)}" rel="noopener" target="_blank">
+                                <img src="<spring:url value="/../dashboard/static/img/casjobs.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/casjobs.png'"/>" />
+                                <br>CasJobs
+							</a></li>
+							</c:if>
+							<c:if test="${sciServerLinksSciDrive}">
+							<li class="text-center"><a href="${fn:escapeXml(sciDriveUrl)}" rel="noopener" target="_blank">
+                                <img src="<spring:url value="/../dashboard/static/img/scidrive.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/scidrive.png'"/>" />
+                                <br>SciDrive
+							</a></li>
+							</c:if>
+							<c:if test="${sciServerLinksSkyServer}">
+							<li class="text-center"><a href="${fn:escapeXml(skyServerUrl)}" rel="noopener" target="_blank">
+                                <img src="<spring:url value="/../dashboard/static/img/skyserver.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/skyserver.png'"/>" />
+                                <br>SkyServer
+							</a></li>
+							</c:if>
+							<c:if test="${sciServerLinksSkyQuery}">
+							<li class="text-center"><a href="${fn:escapeXml(skyQueryUrl)}" rel="noopener" target="_blank">
+                                <img src="<spring:url value="/../dashboard/static/img/skyquery.png"/>"
+                                    onerror="this.onerror=null;this.src='<spring:url value="/static/img/skyquery.png'"/>" />
+                                <br>SkyQuery
+							</a></li>
+							</c:if>
+						</ul></li>
+				</ul>
+			</c:if>
+		</div>
+	</div>
+</nav>

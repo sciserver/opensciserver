@@ -1,0 +1,51 @@
+[
+  {
+    "id": 5,
+    "owner": {
+      "id": 1,
+      "username": "__racm__"
+    },
+    "groupName": "admin",
+    "description": "",
+    "accessibility": "SYSTEM",
+    "memberUsers": [
+      {
+        "user": {
+          "id": 1,
+          "username": "__racm__"
+        },
+        "role": "OWNER",
+        "status": "OWNER",
+        "userid": 1,
+        "username": "__racm__"
+      },
+      {
+        "user": {
+          "id": 6,
+          "username": "test",
+          "fullname": "test test",
+          "affiliation": "JHU"
+        },
+        "role": "ADMIN",
+        "status": "ACCEPTED",
+        "userid": 6,
+        "username": "test"
+      }
+    ],
+    "memberGroups": []
+  },
+  {
+    "id": 10,
+    "owner": {
+      "id": 99,
+      "username": "test",
+      "fullname": ""
+    },
+    "groupName": "group2",
+      "description": "test",
+    "accessibility": "PRIVATE",
+    "memberUsers": [
+    ],
+    "memberGroups": []
+  }
+]

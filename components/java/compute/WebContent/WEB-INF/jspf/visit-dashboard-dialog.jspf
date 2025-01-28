@@ -1,0 +1,17 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under the Apache License, Version 2.0. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+ <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+ 
+<div id="visitDashboardDialog" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+				<p>Please visit the dashboard page first:</p>
+				<a href="${fn:escapeXml(dashboardUrl)}">${dashboardUrl}</a>
+			</div>
+		</div>
+	</div>
+</div>

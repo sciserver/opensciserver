@@ -1,0 +1,8 @@
+{
+    "id": 1234,
+    "publisherDID": "fake-did",
+    "uuid": "fake-uuid",
+    "name": "fake-registeredResourceModel",
+    "description": "none",
+    "resourceTypeName": "fake-type"
+}
