@@ -27,7 +27,7 @@ dependencies {
     implementation project(':springutils:logging-interceptor')
     implementation project(':springutils:base-app')
     implementation project(':springutils:authenticator')
-    implementation 'org.sciserver:racm_models:1.0+'
+    implementation files("${rootDir}/racm/build/dist/racm_models.jar")
     implementation project(':clients')
     implementation 'org.apache.httpcomponents:httpclient:4.5.2'
     implementation 'commons-io:commons-io:2.6'

@@ -1,0 +1,147 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.18'
+    id 'java'
+    id 'eclipse'
+    id 'eclipse-wtp'
+    id 'maven-publish'
+    id 'checkstyle'
+    id 'war'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group 'org.sciserver'
+
+
+checkstyle {
+    toolVersion '10.10.0'
+    config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle-10.xml")
+    maxWarnings 165535
+}
+
+//springBoot {
+//    mainClass = 'org.sciserver.springapp.RACMApplication'
+//}
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:deprecation'
+    options.compilerArgs << '-Xlint:unchecked'
+    options.deprecation = true
+}
+
+dependencies {
+
+    implementation 'org.sciserver.springapp:logging-interceptor:1.0+'
+    //implementation 'org.sciserver.springapp:base-app:1.0+'
+    implementation 'org.sciserver.springapp:authenticator:1.0+'
+    implementation 'org.sciserver:sciserver-clients:1.0+'
+    // ???
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.24'
+    implementation 'org.springframework.boot:spring-boot-starter-tomcat:3.2.2'
+	implementation 'javax.servlet:jstl:1.2'
+
+    implementation 'org.apache.httpcomponents:httpclient:4.5.6'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.5.0'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'commons-validator:commons-validator:1.6'
+
+    implementation 'jakarta.annotation:jakarta.annotation-api:1.3.5'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
+
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:6.4.0.jre8'
+
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation ('org.springframework.boot:spring-boot-starter-data-jpa'){
+        exclude group: 'org.hibernate', module: 'hibernate-core'
+    }
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.apache.commons:commons-collections4:4.1'
+    implementation 'org.json:json:20160810'
+
+    implementation 'io.github.mweirauch:micrometer-jvm-extras:0.1.3'
+
+    implementation 'io.github.resilience4j:resilience4j-retry:0.14.1'
+
+    implementation 'org.aspectj:aspectjrt:1.9.22.1'
+    implementation 'org.aspectj:aspectjweaver:1.9.22.1'
+
+    implementation 'javax.activation:activation:1.1.1'
+    implementation 'org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.14'
+    implementation 'org.eclipse.persistence:javax.persistence:2.2.1'
+
+    implementation 'org.opengis.cite.saxon:saxon9:9.0.0.8'
+
+    implementation 'javax.transaction:javax.transaction-api:1.2'
+    implementation 'org.flywaydb:flyway-core:5.2.4'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:hamcrest-all:1.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:4.4.0'
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+// need something special for 'war', 'bootWar' works from automatically
+war {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+ 	enabled = true
+ 	archiveName = 'racm.war'
+    destinationDir = file("${buildDir}/dist")
+
+    from('WebContent') {
+        include 'static/**'
+        include 'index_list.html'
+        include 'index.jsp'
+    }
+
+    webInf {
+    	from ('src/main/resource'){
+    		include '**'
+    		into 'WEB-INF/classes'
+    	}
+        from('WebContent/WEB-INF') {
+            //include '*'
+            include 'jsp/**'
+        }
+
+    }
+}
+
+// TODO add code to build racm_models.jar
+task modelJar(type: Jar) {
+	destinationDirectory.set(file("${buildDir}/dist"))
+    baseName = 'racm_models'
+    from sourceSets.main.output
+    include 'org/sciserver/racm/**/model/*.class'
+    includeEmptyDirs = false
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api'){
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

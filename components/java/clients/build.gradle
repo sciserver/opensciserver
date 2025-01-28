@@ -18,7 +18,7 @@ checkstyle {
 }
 
 dependencies {
-    api 'org.sciserver:racm_models:1.0+'
+    api files("${rootDir}/racm/build/dist/racm_models.jar")
     implementation 'com.squareup.retrofit2:converter-jackson:2.7.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.2'
     implementation 'com.google.guava:guava:28.2-jre'

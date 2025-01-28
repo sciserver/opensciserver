@@ -52,12 +52,11 @@ dependencies {
     implementation 'mysql:mysql-connector-java:6.0.5'
     implementation 'com.zaxxer:HikariCP:2.5.1'
     implementation 'com.rabbitmq:amqp-client:2.3.1'
-    implementation 'org.sciserver:racm_models:1.0+'
-    implementation 'org.sciserver:sciserver-logging-java:1.0+'
-    //implementation 'org.sciserver:sciserver-clients:[1.0-27,)'
-    implementation project(':clients')
     implementation 'io.kubernetes:client-java:14.0.0'
     implementation 'io.kubernetes:client-java-api-fluent:14.0.0'
+    implementation 'org.sciserver:racm_models:1.0+'
+    implementation project(':logging')
+    implementation project(':clients')
 }
 
 task git(type: Exec) {

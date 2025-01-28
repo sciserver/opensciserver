@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+<!-- This must be in src/ instead of WebContent. See https://stackoverflow.com/a/21347186/239003 -->
+<aspectj>
+	<weaver options="-warn:none -Xlint:ignore">
+		<!-- weave only our code, vourp, and spring framework -->
+		<include within="org.springframework..*"/>
+		<exclude within="org.springframework.boot.liquibase.*"/>
+		<include within="org.ivoa..*"/>
+		<include within="org.sciserver.racm..*"/>
+		<include within="vourp..*"/>
+	</weaver>
+</aspectj>

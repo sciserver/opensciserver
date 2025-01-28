@@ -1,0 +1,5 @@
+{
+	"name": "My New File Service",
+	"description": "A service for reaching files",
+	"apiEndpoint": "https://my.fileservice.url.example.com/"
+}

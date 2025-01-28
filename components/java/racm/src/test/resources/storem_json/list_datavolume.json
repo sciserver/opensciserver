@@ -1,0 +1,6 @@
+{
+	"pathOnFileSystem": "/path/to/dvolume",
+	"name": "Super Display name",
+	"description": "My data volume",
+	"allowedActions": ["write"]
+}

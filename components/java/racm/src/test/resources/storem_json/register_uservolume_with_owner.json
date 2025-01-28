@@ -1,0 +1,6 @@
+{
+	"name": "Name of My Volume",
+	"description": "description",
+	"relativePath": "/path/to/userfolder",
+	"owner": "sciserverUser1"
+}

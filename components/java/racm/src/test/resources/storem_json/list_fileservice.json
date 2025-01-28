@@ -1,0 +1,58 @@
+{
+    "identifier": "53cf7625-a629-4631-b4c5-77c33d6fbb65",
+    "name": "My New File Service",
+    "description": "A service for reaching files",
+    "apiEndpoint": "https://my.fileservice.url.example.com/",
+    "rootVolumes": [
+        {
+            "id": 10,
+			"resourceUUID":"abcde-fghij",
+            "name": "This should work fine",
+            "description": "Better three hours too soon than a minute too late..",
+            "pathOnFileSystem": "/mnt/A path with spaces",
+            "allowedActions": [],
+            "containsSharedVolumes": true,
+            "userVolumes": [
+                {
+                    "id": 0,
+					"resourceUUID":"abcde-fghij",
+                    "name": "A volume",
+                    "description": "",
+                    "relativePath": "/my new/new user volume/",
+                    "owner": "sciserverUser1",
+                    "allowedActions": [
+                        "delete",
+                        "grant",
+                        "read",
+                        "write"
+                    ],
+                    "sharedWith": []
+                }
+            ]
+        },
+        {
+           "id": 20,
+			"resourceUUID":"abcde-fghij",
+            "name": "Crazy Volume",
+            "description": "A root volume that is going to be a good test of well-written scripts if they use absolute paths",
+            "pathOnFileSystem": "/A Path/On a *nix/FileSystem/can _.have/anything;'\"/even 😆",
+            "allowedActions": ["create"],
+            "containsSharedVolumes": false,
+            "userVolumes": [
+                {
+                    "id": 9,
+					"resourceUUID":"abcde-fghij",
+                    "name": "ASDFASDFSECRETFDSAFSFD",
+                    "description": "A place to store secret bday party plans",
+                    "relativePath": "~myuser",
+                    "owner": "scientist095802980571",
+                    "allowedActions": [
+                        "read",
+                        "write"
+                    ],
+                    "sharedWith": []
+                }
+            ]
+        }
+    ]
+}

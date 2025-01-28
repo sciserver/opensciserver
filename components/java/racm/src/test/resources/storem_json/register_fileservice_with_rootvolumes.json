@@ -1,0 +1,20 @@
+{
+	"name": "My New File Service",
+	"description": "A service for reaching files",
+	"apiEndpoint": "https://my.fileservice.url.example.com/",
+
+	"rootVolumes": [
+		{
+			"pathOnFileSystem": "/A Path/On a *nix/FileSystem/can _.have/anything;'\"/even 😆",
+			"name": "Crazy Volume",
+			"description": "A root volume that is going to be a good test of well-written scripts if they use absolute paths",
+			"containsSharedVolumes": true
+		},
+		{
+			"pathOnFileSystem": "/mnt/A path with spaces",
+			"name": "This should work fine",
+			"description": "Better three hours too soon than a minute too late..",
+			"containsSharedVolumes": false
+		}
+	]
+}

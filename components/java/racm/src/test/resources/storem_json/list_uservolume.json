@@ -1,0 +1,10 @@
+{
+	"id": 2,
+	"resourceUUID":"abcde-fghij",
+	"name": "Name of volume",
+	"description": "Description of volume",
+	"owner": "sciserverUser1",
+	"relativePath": "my relative/path/to/a user's /folder",
+	"allowedActions": ["write", "delete"],
+	"sharedWith": []
+}
