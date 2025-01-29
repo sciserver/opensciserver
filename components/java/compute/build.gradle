@@ -61,7 +61,7 @@ dependencies {
 }
 
 task git(type: Exec) {
-    commandLine 'git', 'describe', '--tags'
+    commandLine 'git', 'describe', '--tags', '--always'
 
     doFirst{
         standardOutput = new FileOutputStream("${projectDir}/WebContent/WEB-INF/version")
