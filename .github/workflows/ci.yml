@@ -29,6 +29,7 @@ jobs:
           cache: 'gradle'
       - run: make
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: test-reports
           path: components/java/**/build/reports/tests/test/index.html
