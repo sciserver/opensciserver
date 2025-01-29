@@ -32,7 +32,7 @@ jobs:
         if: always()
         with:
           name: test-reports
-          path: components/java/**/build/reports/tests/test/index.html
+          path: components/java/**/build/reports/tests/test/
 
   docs:
     name: Build docs with Python ${{ matrix.python-version }}
