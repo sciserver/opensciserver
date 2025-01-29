@@ -28,7 +28,8 @@ dependencies {
     implementation project(':springutils:base-app')
     implementation project(':springutils:authenticator')
     implementation files("${rootDir}/racm/build/dist/racm_models.jar")
-    implementation project(':clients')
+    implementation project(':clients:racm')
+    //implementation project(':clients:auth')
     implementation 'org.apache.httpcomponents:httpclient:4.5.2'
     implementation 'commons-io:commons-io:2.6'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'

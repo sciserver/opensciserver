@@ -35,10 +35,9 @@ tasks.withType(JavaCompile) {
 
 dependencies {
 
-    implementation 'org.sciserver.springapp:logging-interceptor:1.0+'
-    //implementation 'org.sciserver.springapp:base-app:1.0+'
-    implementation 'org.sciserver.springapp:authenticator:1.0+'
-    implementation 'org.sciserver:sciserver-clients:1.0+'
+    implementation project(':springutils:logging-interceptor')
+    implementation project(':springutils:authenticator')
+    implementation project(':clients:auth')
     // ???
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2'
     implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.24'

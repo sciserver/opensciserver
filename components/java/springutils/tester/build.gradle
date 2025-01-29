@@ -11,7 +11,7 @@ springBoot {
 }
 
 dependencies {
-    implementation project(':clients')
+    implementation project(':clients:auth')
     implementation project(':springutils:base-app')
     implementation project(':springutils:authenticator')
     implementation project(':springutils:logging-interceptor')
