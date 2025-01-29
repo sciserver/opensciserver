@@ -28,6 +28,10 @@ jobs:
           java-version: '17'
           cache: 'gradle'
       - run: make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: components/java/**/build/reports/tests/test/index.html
 
   docs:
     name: Build docs with Python ${{ matrix.python-version }}
