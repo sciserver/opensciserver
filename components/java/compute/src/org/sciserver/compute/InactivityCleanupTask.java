@@ -3,12 +3,12 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.TimerTask;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sciserver.compute.core.registry.ExecutableContainer;
@@ -29,7 +29,7 @@ public class InactivityCleanupTask extends TimerTask {
             return;
         }
 
-        for (ExecutableContainer container: inactiveContainers) {
+        for (ExecutableContainer container : inactiveContainers) {
             if (withDescription != null && !container.getDescription().equals(withDescription)) {
                 continue;
             }
@@ -37,8 +37,7 @@ public class InactivityCleanupTask extends TimerTask {
                 if (delete) {
                     container.delete();
                     logger.info(String.format("inactive container %s deleted!", container.getId()));
-                }
-                else if (container.isRunning()) {
+                } else if (container.isRunning()) {
                     container.stop();
                     logger.info(String.format("inactive container %s stopped!", container.getId()));
                 }
@@ -58,7 +57,7 @@ public class InactivityCleanupTask extends TimerTask {
             return;
         }
 
-        for (ExecutableContainer container: expiredContainers) {
+        for (ExecutableContainer container : expiredContainers) {
             logger.info(String.format("deleting expired container %s!", container.getId()));
             try {
                 container.delete();

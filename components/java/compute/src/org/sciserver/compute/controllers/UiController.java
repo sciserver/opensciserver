@@ -63,7 +63,7 @@ public class UiController {
     @Autowired
     AppConfig appConfig;
 
-    @RequestMapping(value = { "/health" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/health"}, method = RequestMethod.GET)
     public String health(
         Model model,
         HttpServletRequest request,
@@ -80,7 +80,7 @@ public class UiController {
         return "health";
     }
 
-    @RequestMapping(value = { "/create" }, method={RequestMethod.POST})
+    @RequestMapping(value = {"/create"}, method = {RequestMethod.POST})
     public String create(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -134,8 +134,9 @@ public class UiController {
                     publicVolumes.add(
                         jobmModelVolumes.stream()
                             .filter(volume -> id == Long.parseLong(volume.getPublisherDID())).findFirst().get());
-                } catch(NoSuchElementException ex) {
-                    throw new Exception("Insufficient permissions on public volume, or publisherDID does not exist: " + id);
+                } catch (NoSuchElementException ex) {
+                    throw new Exception("Insufficient permissions on public volume,"
+                            + " or publisherDID does not exist: " + id);
                 }
             }
         }
@@ -190,7 +191,7 @@ public class UiController {
         return "redirect:/";
     }
 
-    @RequestMapping(value = { "/delete" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
     public String delete(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -216,7 +217,7 @@ public class UiController {
         return "redirect:/";
     }
 
-    @RequestMapping(value = { "/start" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/start"}, method = RequestMethod.GET)
     public String start(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -235,7 +236,7 @@ public class UiController {
         return "redirect:/" + target;
     }
 
-    @RequestMapping(value = { "/stop" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/stop"}, method = RequestMethod.GET)
     public String stop(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -254,7 +255,7 @@ public class UiController {
         return "redirect:/" + target;
     }
 
-    @RequestMapping(value = { "/go" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/go"}, method = RequestMethod.GET)
     public String go(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -284,7 +285,7 @@ public class UiController {
         }
     }
 
-    @RequestMapping(value = { "/info" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/info"}, method = RequestMethod.GET)
     public String info(
         Model model,
         HttpServletRequest request,
@@ -316,7 +317,7 @@ public class UiController {
         return "redirect:/";
     }
 
-    @RequestMapping(value = { "/", "/dashboard" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/", "/dashboard"}, method = RequestMethod.GET)
     public String index(
         Model model,
         HttpServletRequest request,
@@ -330,13 +331,13 @@ public class UiController {
         Registry reg = this.appConfig.getRegistry();
         List<UserDockerComputeDomainModel> domains = this.appConfig.getInteractiveUserDomainsCache()
             .get(token).stream().filter(d -> {
-                    try {
-                        return !DomainType.DASK.equals(reg.getDomain(Long.parseLong(d.getPublisherDID()))
-                                                       .getType());
-                    } catch (Exception e) {
-                        return false;
-                    }
-                }).collect(Collectors.toList());
+                try {
+                    return !DomainType.DASK.equals(reg.getDomain(Long.parseLong(d.getPublisherDID()))
+                            .getType());
+                } catch (Exception e) {
+                    return false;
+                }
+            }).collect(Collectors.toList());
         ArrayList<DomainInfo> domainList = new ArrayList<DomainInfo>();
 
         for (UserDockerComputeDomainModel domain : domains) {
@@ -415,7 +416,7 @@ public class UiController {
         return "dashboard";
     }
 
-    @RequestMapping(value = "/jobs", method = RequestMethod.GET)
+    @RequestMapping(value = {"/jobs"}, method = RequestMethod.GET)
     public String jobs(
         Model model,
         HttpServletRequest request,
@@ -428,7 +429,8 @@ public class UiController {
         model.addAttribute("racmUrl", appConfig.getAppSettings().getRacmUrl());
         model.addAttribute("authenticated", true);
 
-        boolean isDaskAvailable = Utilities.getDaskDomains(token).stream().anyMatch(domain -> !domain.getImages().isEmpty());
+        boolean isDaskAvailable = Utilities.getDaskDomains(token).stream()
+                .anyMatch(domain -> !domain.getImages().isEmpty());
 
         model.addAttribute("isDaskAvailable", isDaskAvailable);
         model.addAttribute("daskDefaultWorkers", appConfig.getAppSettings().getDaskWorkers());
@@ -438,7 +440,7 @@ public class UiController {
         return "jobs";
     }
 
-    @RequestMapping(value = { "/login" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/login"}, method = RequestMethod.GET)
     public String login(HttpServletRequest request) throws Exception {
         String callbackUrl = appConfig.getAppSettings().getLoginCallback();
         if (request.getParameter("callbackUrl") != null) {
@@ -448,7 +450,7 @@ public class UiController {
             + UriUtils.encode(callbackUrl, "UTF-8");
     }
 
-    @RequestMapping(value = { "/logout" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/logout"}, method = RequestMethod.GET)
     public String logout(
         HttpServletRequest request,
         HttpServletResponse response) throws Exception {

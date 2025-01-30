@@ -9,15 +9,14 @@ package org.sciserver.compute;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.StreamUtils;
+
 
 @WebListener
 public class AppLifecycleListener implements ServletContextListener {

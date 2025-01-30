@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) Johns Hopkins University. All rights reserved.
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the Apache License, Version 2.0. 
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
 
@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sciserver.authentication.client.AuthenticatedUser;
 import org.sciserver.compute.AppConfig;
 import org.sciserver.compute.core.client.docker.DockerClient;
@@ -46,17 +44,16 @@ public class NvidiaExecutableManager2 extends DockerBaseExecutableManager implem
 
     @Override
     public ExecutableContainer createContainer(String name, String description, AuthenticatedUser user,
-            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages,
-            String[] commands) throws Exception {
+            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages, String[] commands)
+            throws Exception {
 
-        return createContainer(name, description, user, publicVolumes, userVolumeImages,
-                commands, false);
+        return createContainer(name, description, user, publicVolumes, userVolumeImages, commands, false);
     }
 
     @Override
     public ExecutableContainer createContainer(String name, String description, AuthenticatedUser user,
-            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages,
-            String[] commands, boolean isJob) throws Exception {
+            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages, String[] commands,
+            boolean isJob) throws Exception {
 
         Registry registry = getRegistry();
         try (RegistryLock lock = new RegistryLock(registry)) {
@@ -77,15 +74,8 @@ public class NvidiaExecutableManager2 extends DockerBaseExecutableManager implem
                 registryPubVolumes.add(pv);
             }
 
-            JsonNode containerJson = getContainerJson(
-                    getImage(),
-                    container,
-                    user,
-                    node,
-                    commands,
-                    registryPubVolumes,
-                    userVolumeImages,
-                    isJob);
+            JsonNode containerJson = getContainerJson(getImage(), container, user, node, commands, registryPubVolumes,
+                    userVolumeImages, isJob);
 
             container.setDockerRef(dockerClient.createContainer(containerJson));
             container.setStatus(ContainerStatus.CREATED);
@@ -171,13 +161,8 @@ public class NvidiaExecutableManager2 extends DockerBaseExecutableManager implem
         ObjectNode hostConfig = result.putObject("HostConfig");
         ObjectNode deviceRequests = hostConfig.putArray("DeviceRequests").addObject();
 
-        deviceRequests
-                .put("Driver", "")
-                .put("Count", -1)
-                .putNull("DeviceIDs")
-                .putArray("Capabilities")
-                    .addArray()
-                        .add("gpu");
+        deviceRequests.put("Driver", "").put("Count", -1).putNull("DeviceIDs").putArray("Capabilities").addArray()
+                .add("gpu");
 
         deviceRequests.putObject("Options");
 
@@ -197,14 +182,12 @@ public class NvidiaExecutableManager2 extends DockerBaseExecutableManager implem
 
         ArrayNode binds = hostConfig.putArray("Binds");
         for (VolumeImage img : userVolumeImages) {
-            binds.add(String.format(img.getLocalPathTemplate(), user.getUserId())
-                    + ":" + img.getContainerPath()
+            binds.add(String.format(img.getLocalPathTemplate(), user.getUserId()) + ":" + img.getContainerPath()
                     + (((RACMVolumeImage) img).isWritable() ? ":rw" : ":ro"));
         }
 
         hostConfig.putObject("PortBindings").putArray("8888/tcp").addObject()
-                .put("HostPort", String.valueOf(container.getSlot().getPortNumber()))
-                .put("HostIp", "127.0.0.1");
+                .put("HostPort", String.valueOf(container.getSlot().getPortNumber())).put("HostIp", "127.0.0.1");
 
         if ("zfs".equals(node.getStatus().at("/Driver").asText())) {
             hostConfig.putObject("StorageOpt").put("size",

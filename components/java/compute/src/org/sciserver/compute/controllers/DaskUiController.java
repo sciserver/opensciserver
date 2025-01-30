@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) Johns Hopkins University. All rights reserved.
+ * Licensed under the Apache License, Version 2.0.
+ * See LICENSE.txt in the project root for license information.
+ *******************************************************************************/
+
 package org.sciserver.compute.controllers;
 
 import java.util.ArrayList;
@@ -11,9 +17,9 @@ import org.sciserver.compute.UnauthorizedException;
 import org.sciserver.compute.Utilities;
 import org.sciserver.compute.core.registry.DaskCluster;
 import org.sciserver.compute.core.registry.DaskClusterStatus;
+import org.sciserver.compute.core.registry.GenericVolume;
 import org.sciserver.compute.core.registry.Image;
 import org.sciserver.compute.core.registry.K8sCluster;
-import org.sciserver.compute.core.registry.GenericVolume;
 import org.sciserver.compute.core.registry.Registry;
 import org.sciserver.compute.dask.DaskK8sHelper;
 import org.sciserver.compute.model.DaskClusterInfo;
@@ -27,13 +33,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+
 @Controller
 public class DaskUiController {
 
     @Autowired
     AppConfig appConfig;
 
-    @RequestMapping(value = { "/dask" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/dask"}, method = RequestMethod.GET)
     public String showClusters(
             Model model,
             HttpServletRequest request,
@@ -51,13 +58,14 @@ public class DaskUiController {
 
         if (domains.isEmpty()) {
             return "index";
-        }
-        else {
+        } else {
             model.addAttribute("isDaskAvailable", true);
 
             ArrayList<DomainInfo> domainList = new ArrayList<>();
             for (UserDockerComputeDomainModel domain : domains) {
-                if (domain.getImages().isEmpty()) continue;
+                if (domain.getImages().isEmpty()) {
+                    continue;
+                }
                 DomainInfo item = new DomainInfo();
                 item.setId(Long.parseLong(domain.getPublisherDID()));
                 item.setName(domain.getName());
@@ -86,7 +94,7 @@ public class DaskUiController {
         }
     }
 
-    @RequestMapping(value = { "/dask/delete" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/dask/delete"}, method = RequestMethod.GET)
     public String deleteCluster(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -96,7 +104,9 @@ public class DaskUiController {
         AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
 
         DaskCluster daskCluster = appConfig.getRegistry().getDaskCluster(id);
-        if (!user.getUserId().equals(daskCluster.getUserId())) throw new UnauthorizedException("Unauthorized");
+        if (!user.getUserId().equals(daskCluster.getUserId())) {
+            throw new UnauthorizedException("Unauthorized");
+        }
         DaskK8sHelper helper = new DaskK8sHelper(daskCluster.getK8sCluster());
 
         helper.deleteDaskCluster(daskCluster.getExternalRef());
@@ -106,7 +116,7 @@ public class DaskUiController {
         return "redirect:/dask";
     }
 
-    @RequestMapping(value = { "/dask/create" }, method = RequestMethod.POST)
+    @RequestMapping(value = {"/dask/create"}, method = RequestMethod.POST)
     public String createCluster(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -115,18 +125,16 @@ public class DaskUiController {
             @RequestParam("workers") int workers,
             @RequestParam("memory") String memory,
             @RequestParam("threads") int threads,
-            @RequestParam(value="publicVolume", required=false) List<Long> publicVolumeIds) throws Exception {
+            @RequestParam(value = "publicVolume", required = false) List<Long> publicVolumeIds) throws Exception {
 
         String token = Utilities.getToken(request, response);
-        AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
-
+        
         Registry reg = appConfig.getRegistry();
         Image image = reg.getExecutableImage(imageId);
         K8sCluster k8s;
         try {
             k8s = reg.getK8sClusters(image.getDomain()).iterator().next();
-        }
-        catch (NoSuchElementException ex) {
+        } catch (NoSuchElementException ex) {
             throw new Exception("No available K8s clusters");
         }
 
@@ -144,10 +152,14 @@ public class DaskUiController {
         }
 
         for (GenericVolume v : publicVolumes) {
-            VolumeContainerModel vcm = jobmModelVolumes.stream().filter(volume -> v.getId() == Long.parseLong(volume.getPublisherDID())).findFirst().get();
+            VolumeContainerModel vcm = jobmModelVolumes.stream()
+                    .filter(volume -> v.getId() == Long.parseLong(volume.getPublisherDID()))
+                    .findFirst()
+                    .get();
             v.setWritable(vcm.isWritable());
         }
 
+        AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
         DaskCluster cluster = new DaskCluster(reg);
         cluster.setName(clusterName);
         cluster.setDescription("");

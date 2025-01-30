@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @CrossOrigin(origins = "*")
 public class DaskApiController {
@@ -39,69 +40,7 @@ public class DaskApiController {
     @Autowired
     AppConfig appConfig;
 
-    /*
-    @RequestMapping(value="/api/dask/clusters", method = RequestMethod.POST)
-    public DaskClusterInfo createDaskCluster(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-
-        String token = Utilities.getToken(request, response);
-
-        UserInfo user = null;
-        try {
-            user = appConfig.getLoginService().userFromToken(token);
-        }
-        catch (Exception ex) {
-            throw new UnauthorizedException("Could not get user info from token", ex);
-        }
-
-        return daskService.createDaskCluster(
-                user,
-                appConfig.getAppSettings().getDaskImage(),
-                appConfig.getAppSettings().getDaskWorkers(),
-                appConfig.getAppSettings().getDaskMemory(),
-                appConfig.getAppSettings().getDaskThreads());
-    }
-
-    @RequestMapping(value="/api/dask/clusters/{refId}", method = RequestMethod.DELETE)
-    public void deleteDaskCluster(@PathVariable String refId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        String token = Utilities.getToken(request, response);
-
-        UserInfo user = null;
-        try {
-            user = appConfig.getLoginService().userFromToken(token);
-        }
-        catch (Exception ex) {
-            throw new UnauthorizedException("Could not get user info from token", ex);
-        }
-
-        DaskClusterInfo info = daskService.getDaskClusterInfo(refId, false);
-        if (info == null) throw new NotFoundException("Dask cluster '" + refId +"' not found");
-        if (!user.getUserId().equals(info.getUserId())) throw new UnauthorizedException("Unauthorized");
-
-        daskService.deleteDaskCluster(refId);
-    }
-
-    @RequestMapping(value="/api/dask/clusters", method = RequestMethod.GET)
-    public Iterable<DaskClusterInfo> getDaskClusters(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-
-        String token = Utilities.getToken(request, response);
-
-        UserInfo user = null;
-        try {
-            user = appConfig.getLoginService().userFromToken(token);
-        }
-        catch (Exception ex) {
-            throw new UnauthorizedException("Could not get user info from token", ex);
-        }
-
-        return daskService.getDaskClusterInfo(user);
-    }
-    */
-
-    @RequestMapping(value="/api/dask/clusters/{externalRef}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/dask/clusters/{externalRef}", method = RequestMethod.GET)
     public DaskClusterInfo getDaskClusterInfo(@PathVariable String externalRef,
             HttpServletRequest request, HttpServletResponse response) throws Exception {
 

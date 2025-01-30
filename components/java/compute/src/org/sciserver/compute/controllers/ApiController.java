@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +33,6 @@ import org.sciserver.compute.core.registry.ExecutableContainer;
 import org.sciserver.compute.core.registry.ExecutableImage;
 import org.sciserver.compute.core.registry.Node;
 import org.sciserver.compute.core.registry.NotFoundException;
-import org.sciserver.compute.core.registry.PublicVolume;
 import org.sciserver.compute.core.registry.RACMVolumeImage;
 import org.sciserver.compute.core.registry.VolumeImage;
 import org.sciserver.compute.model.ContainerInfo;
@@ -58,6 +56,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import sciserver.logging.Message;
+
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -127,7 +126,7 @@ public class ApiController {
         return result;
     }
 
-    @RequestMapping(value="/api/domains/{domainId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/domains/{domainId}", method = RequestMethod.GET)
     public DomainInfo getDomainInfo(
             @PathVariable long domainId,
             HttpServletRequest request,
@@ -158,7 +157,7 @@ public class ApiController {
         return info;
     }
 
-    @RequestMapping(value="/api/domains/{domainId}/containers/{id}/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/domains/{domainId}/containers/{id}/json", method = RequestMethod.GET)
     public JsonNode getContainerJson(
             @PathVariable long domainId,
             @PathVariable long id,
@@ -176,7 +175,7 @@ public class ApiController {
         return container.getInfo();
     }
 
-    @RequestMapping(value="/api/domains/{domainId}/containers/{id}/logs", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/domains/{domainId}/containers/{id}/logs", method = RequestMethod.GET)
     public Logs getContainerLogs(
             @PathVariable long domainId,
             @PathVariable long id,
@@ -246,12 +245,11 @@ public class ApiController {
         Domain domain = appConfig.getRegistry().getDomain(domainId);
         AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
 
-        UserDockerComputeDomainModel racmDomain = (
-            ephemeral ?
-            appConfig.getInteractiveUserDomainsCache().get(token) :
-            appConfig.getJobsUserDomainsCache().get(token))
-            .stream()
-            .filter(d -> Long.parseLong(d.getPublisherDID()) == domainId).findAny().get();
+        UserDockerComputeDomainModel racmDomain = (ephemeral
+            ? appConfig.getInteractiveUserDomainsCache().get(token)
+            : appConfig.getJobsUserDomainsCache().get(token))
+                .stream()
+                .filter(d -> Long.parseLong(d.getPublisherDID()) == domainId).findAny().get();
 
         List<VolumeContainerModel> requestedJobmModelVolumes = jobmModel.getVolumeContainers();
         List<VolumeContainerModel> accessibleVolumes = racmDomain.getVolumes();
@@ -309,7 +307,7 @@ public class ApiController {
         return container.getId();
     }
 
-    @RequestMapping(value="/api/container/{containerId}/ping", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/container/{containerId}/ping", method = RequestMethod.POST)
     public void pingContainer(@PathVariable long containerId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
@@ -329,7 +327,7 @@ public class ApiController {
         appConfig.getRegistry().updateAccessTime(container);
     }
 
-    @RequestMapping(value="/api/containers", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/containers", method = RequestMethod.GET)
     public List<ContainerInfo> getContainers(
         HttpServletRequest request,
         HttpServletResponse response) throws Exception {
@@ -337,13 +335,13 @@ public class ApiController {
         AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
 
         List<ContainerInfo> containers = new ArrayList<ContainerInfo>();
-        for (ExecutableContainer c: appConfig.getRegistry().getContainers(user.getUserId())) {
+        for (ExecutableContainer c : appConfig.getRegistry().getContainers(user.getUserId())) {
             containers.add(ContainerInfo.fromContainer(c));
         }
         return containers;
     }
 
-    @RequestMapping(value="/api/domains/{domainId}/containers", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/domains/{domainId}/containers", method = RequestMethod.GET)
     public Iterable<Long> getContainerIds(
             @PathVariable long domainId,
             HttpServletRequest request,
@@ -391,10 +389,10 @@ public class ApiController {
                 // TBD: must somehow throw an exception here...
                 return false;
             }
-        }).map(c -> new Long(c.getId())).collect(Collectors.toList());
+        }).map(c -> Long.valueOf(c.getId())).collect(Collectors.toList());
     }
 
-    @RequestMapping(value="/api/inventory/images", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/inventory/images", method = RequestMethod.GET)
     public List<String> getImageRefs(@RequestParam(name = "domain", required = false) Integer domain) throws Exception {
         return appConfig.getRegistry().adminGetImages().stream().filter(
             img -> domain == null ? true : img.getDomainId() == domain

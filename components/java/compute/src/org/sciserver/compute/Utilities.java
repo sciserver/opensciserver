@@ -3,33 +3,26 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspWriter;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.sciserver.authentication.client.AuthenticatedUser;
 import org.sciserver.compute.core.container.ExecutableManager;
-import org.sciserver.compute.core.registry.Container;
 import org.sciserver.compute.core.registry.Domain;
 import org.sciserver.compute.core.registry.DomainType;
 import org.sciserver.compute.core.registry.ExecutableContainer;
@@ -39,16 +32,10 @@ import org.sciserver.compute.core.registry.PublicVolume;
 import org.sciserver.compute.core.registry.Registry;
 import org.sciserver.compute.core.registry.VolumeContainer;
 import org.sciserver.compute.core.registry.VolumeImage;
-import org.sciserver.compute.model.UserInfo;
 import org.sciserver.racm.jobm.model.UserDockerComputeDomainModel;
 import org.sciserver.racm.jobm.model.VolumeContainerModel;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.primitives.Chars;
-
 import sciserver.logging.Message;
+
 
 public class Utilities {
     private static final String COOKIE_NAME = "computeCookie";
@@ -63,17 +50,16 @@ public class Utilities {
         return buffer.toString();
     }
 
-    public static void retryContainerAction(int retries, long delay, ExecutableContainer container, ContainerAction a) throws Exception {
-        while (true)
-        {
-            try
-            {
+    public static void retryContainerAction(int retries, long delay,
+            ExecutableContainer container, ContainerAction a) throws Exception {
+        while (true) {
+            try {
                 a.execute(container);
                 return;
-            }
-            catch (Exception e)
-            {
-                if (--retries <= 0) throw e;
+            } catch (Exception e) {
+                if (--retries <= 0) {
+                    throw e;
+                }
                 Thread.sleep(delay);
             }
         }
@@ -87,7 +73,8 @@ public class Utilities {
         }
     }
 
-    public static void renderHealth(JspWriter out, HttpServletResponse response, boolean includeDisabledNodes) throws Exception {
+    public static void renderHealth(JspWriter out, HttpServletResponse response,
+            boolean includeDisabledNodes) throws Exception {
         int statusCode = HttpStatus.SC_OK;
         AppConfig appConfig = AppConfig.getInstance();
         StringBuilder sb = new StringBuilder();
@@ -100,10 +87,10 @@ public class Utilities {
 
             Iterable<Node> nodes = appConfig.getRegistry().getNodes(domain);
             for (Node node : nodes) {
-                String statusClass = "status-disabled";
                 sb.append("<tr><td rowspan=\"2\" class=\"node-name\">");
                 sb.append(node.getName());
                 sb.append("</td>");
+                String statusClass = "status-disabled";
                 if (!node.isEnabled() && !includeDisabledNodes) {
                     sb.append("<td class=\"" + statusClass + "\"></td><td>Containers: n/a</td></tr>\n");
                     sb.append("<tr>");
@@ -112,11 +99,12 @@ public class Utilities {
                 }
                 
                 try {
-                    JsonNode jsonDocker = node.getStatus();
-                    if (node.isEnabled())
+                    JsonNode jsonDocker = node.getDockerApiUrl() == null ? null : node.getStatus();
+                    if (node.isEnabled()) {
                         statusClass = "status-ok";
+                    }
                     sb.append("<td class=\"" + statusClass + "\"></td><td>Containers: ");
-                    sb.append(jsonDocker.at("/Containers").asInt());
+                    sb.append(jsonDocker == null ? "n/a" : jsonDocker.at("/Containers").asInt());
                     sb.append(" / Total slots: " + node.getTotalSlots() + " / Used slots: " + node.getUsedSlots());
                     sb.append("</td>");
                 } catch (Exception e) {
@@ -132,10 +120,12 @@ public class Utilities {
 
                 sb.append("<tr>");
                 try {
-                    JsonNode jsonRoutes = node.getProxyRoutes(new Date(0));
-                    if (node.isEnabled())
+                    JsonNode jsonRoutes = node.getProxyApiUrl() == null ? null : node.getProxyRoutes(new Date(0));
+                    if (node.isEnabled()) {
                         statusClass = "status-ok";
-                    sb.append("<td class=\"" + statusClass + "\"></td><td>Proxy OK</td>");
+                    }
+                    sb.append("<td class=\"" + statusClass + "\"></td><td>Proxy"
+                            + (jsonRoutes == null ? ": n/a" : " OK") + "</td>");
                 } catch (Exception e) {
                     if (node.isEnabled()) {
                         statusClass = "status-error";
@@ -150,19 +140,20 @@ public class Utilities {
         }
         sb.append("</table>");
         out.print(sb.toString());
-        if (statusCode != HttpStatus.SC_OK) response.setStatus(statusCode);
+        if (statusCode != HttpStatus.SC_OK) {
+            response.setStatus(statusCode);
+        }
     }
 
     // Container
-    public static void injectToken(ExecutableContainer container, String token) throws Exception
-    {
-        ExecutableManager manager = (ExecutableManager)AppConfig.getInstance().getRegistry().createContainerManager(container.getImage());
+    public static void injectToken(ExecutableContainer container, String token) throws Exception {
+        ExecutableManager manager = (ExecutableManager) AppConfig.getInstance().getRegistry()
+                .createContainerManager(container.getImage());
         manager.injectToken(container, token);
     }
 
     // HTTP
     public static String getToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        AppConfig appConfig = AppConfig.getInstance();
         String tokenFromHeader = request.getHeader("X-Auth-Token");
         if (tokenFromHeader != null) {
             return tokenFromHeader;
@@ -201,12 +192,13 @@ public class Utilities {
         String value = null;
 
         Cookie[] cookies = request.getCookies();
-        if (cookies == null)
+        if (cookies == null) {
             cookies = new Cookie[0];
-
+        }
         for (Cookie cookie : cookies) {
-            if (COOKIE_NAME.equals(cookie.getName()))
+            if (COOKIE_NAME.equals(cookie.getName())) {
                 value = cookie.getValue();
+            }
         }
 
         return value;
@@ -215,11 +207,15 @@ public class Utilities {
     public static String getVolumeListAsString(ExecutableContainer container) throws Exception {
         StringBuilder attachedVolumes = new StringBuilder();
         for (VolumeContainer volumeContainer : container.getUserVolumes()) {
-            if (attachedVolumes.length() > 0) attachedVolumes.append("; ");
+            if (attachedVolumes.length() > 0) {
+                attachedVolumes.append("; ");
+            }
             attachedVolumes.append(volumeContainer.getImage().getName());
         }
         for (PublicVolume publicVolume : container.getPublicVolumes()) {
-            if (attachedVolumes.length() > 0) attachedVolumes.append("; ");
+            if (attachedVolumes.length() > 0) {
+                attachedVolumes.append("; ");
+            }
             attachedVolumes.append(publicVolume.getName());
         }
         return attachedVolumes.toString();
@@ -233,18 +229,19 @@ public class Utilities {
         }
     }
 
-    public static void fillLoggingMessage(Message message, AuthenticatedUser user, HttpServletRequest request, String taskName) {
+    public static void fillLoggingMessage(Message message, AuthenticatedUser user,
+            HttpServletRequest request, String taskName) {
         //setting user info
-        try{
+        try {
             //getting client IP address
             String clientIP = "";
             if (request.getHeader("X-FORWARDED-FOR") != null) {
                 clientIP = request.getHeader("X-FORWARDED-FOR");
-            }else if(request.getHeader("X-Forwarded-For") != null){
+            } else if (request.getHeader("X-Forwarded-For") != null) {
                 clientIP = request.getHeader("X-Forwarded-For");
-            }else if(request.getHeader("HTTP_CLIENT_IP") != null){
+            } else if (request.getHeader("HTTP_CLIENT_IP") != null) {
                 clientIP = request.getHeader("HTTP_CLIENT_IP");
-            }else{
+            } else {
                 clientIP = request.getRemoteAddr();
             }
             message.ClientIP = clientIP.split(",")[0];
@@ -260,11 +257,13 @@ public class Utilities {
                 message.UserId = "_SERVICE_";
                 message.UserName = "_SERVICE_";
             }
-
-        }catch(Exception e){};
+        } catch (Exception e) {
+            //Do nothing
+        }
     }
 
-    public static String structuredMessage(AuthenticatedUser user, String verb, ExecutableContainer container, ExecutableImage image,
+    public static String structuredMessage(AuthenticatedUser user, String verb,
+            ExecutableContainer container, ExecutableImage image,
             List<VolumeContainerModel> requestedVolumes, List<VolumeImage> userVolumeImages) throws Exception {
 
         String userName = "_SERVICE_";
@@ -311,7 +310,8 @@ public class Utilities {
         return message.toString();
     }
 
-    public static String structuredMessage(AuthenticatedUser user, String verb, ExecutableContainer container) throws Exception {
+    public static String structuredMessage(AuthenticatedUser user, String verb,
+            ExecutableContainer container) throws Exception {
         String userName = "_SERVICE_";
         if (user != null) {
             userName = user.getUserName();

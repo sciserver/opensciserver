@@ -6,12 +6,11 @@
 
 package org.sciserver.compute.core.container;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.kubernetes.client.custom.Quantity;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.kubernetes.client.Exec;
+import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
@@ -41,7 +40,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.sciserver.authentication.client.AuthenticatedUser;
 import org.sciserver.compute.AppConfig;
 import org.sciserver.compute.core.registry.Container;
@@ -60,8 +58,7 @@ import org.sciserver.racm.jobm.model.VolumeContainerModel;
 
 
 public class KubernetesExecutableManager2 extends ContainerManager implements ExecutableManager {
-
-    static private int servicePort = 8888;
+    private static int servicePort = 8888;
     private String namespace;
     private String ingressBase;
     private String ingressHost;
@@ -98,63 +95,45 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
     }
 
     @Override
-    public ExecutableContainer createContainer(
-        String name, String description, AuthenticatedUser user, Iterable<VolumeContainerModel> publicVolumes,
-        Iterable<VolumeImage> userVolumeImages) throws Exception
-    {
+    public ExecutableContainer createContainer(String name, String description, AuthenticatedUser user,
+            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages) throws Exception {
         return createContainer(name, description, user, publicVolumes, userVolumeImages,
-                               new String[] { "/opt/startup.sh" }, false);
+                new String[] { "/opt/startup.sh" }, false);
     }
 
     @Override
-    public ExecutableContainer createContainer(
-        String name, String description, AuthenticatedUser user, Iterable<VolumeContainerModel> publicVolumes,
-        Iterable<VolumeImage> userVolumeImages,  String[] commands) throws Exception
-    {
-        return createContainer(name, description, user, publicVolumes, userVolumeImages,
-                               commands, false);
-    }
-
-    private void addVolumes(
-        String source, String dest, Boolean ro,
-        List<V1Volume> vols, List<V1VolumeMount> mounts)
-    {
-        String srv = source.split("/")[2];
-        String path = "/" + source.split("/", 4)[3];
-        String name = "vol-" + vols.size();
-        vols.add(new V1VolumeBuilder().withName(name).withNewNfs().withServer(srv).withPath(path).
-                 withReadOnly(ro).endNfs().build());
-        mounts.add(new V1VolumeMountBuilder().withName(name).withMountPath(dest).
-                   withReadOnly(ro).build());
+    public ExecutableContainer createContainer(String name, String description, AuthenticatedUser user,
+            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages, String[] commands)
+            throws Exception {
+        return createContainer(name, description, user, publicVolumes, userVolumeImages, commands, false);
     }
 
     @Override
-    public ExecutableContainer createContainer(
-        String name, String description, AuthenticatedUser user, Iterable<VolumeContainerModel> publicVolumes,
-        Iterable<VolumeImage> userVolumeImages, String[] commands, boolean isJob)
-        throws Exception {
+    public ExecutableContainer createContainer(String name, String description, AuthenticatedUser user,
+            Iterable<VolumeContainerModel> publicVolumes, Iterable<VolumeImage> userVolumeImages, String[] commands,
+            boolean isJob) throws Exception {
 
         Registry registry = getRegistry();
         try (RegistryLock lock = new RegistryLock(registry)) {
-            Domain domain = getImage().getDomain();
-
             ExecutableContainer container = new ExecutableContainer(registry);
             container.setName(name);
             container.setDescription(description);
             container.setExecutableImageId(getImage().getId());
             container.setUserId(user.getUserId());
 
+            Domain domain = getImage().getDomain();
             registry.registerExecutableContainer(container, domain);
 
             setupClientsForContainer(container);
 
             String cref = container.getExternalRef();
             container.setDockerRef(cref);
-            String base_url = ingressBase + cref;
+            String baseUrl = ingressBase + cref;
             List<String> args = new ArrayList<String>();
-            for (String arg: commands)
+            for (String arg : commands) {
                 args.add(arg);
-            args.add(base_url);
+            }
+            args.add(baseUrl);
 
             List<V1Volume> volumes = new LinkedList<V1Volume>();
             List<V1VolumeMount> volumeMounts = new LinkedList<V1VolumeMount>();
@@ -166,18 +145,19 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                 registryPubVolumes.add(pv);
             }
 
-            for (VolumeImage vol: userVolumeImages) {
-                Boolean ro = !((RACMVolumeImage)vol).isWritable();
+            for (VolumeImage vol : userVolumeImages) {
+                Boolean ro = !((RACMVolumeImage) vol).isWritable();
                 addVolumes(vol.getLocalPathTemplate(), vol.getContainerPath(), ro, volumes, volumeMounts);
             }
             int volumeNumber = volumes.size();
-            for (GenericVolume pvol: registryPubVolumes) {
+            for (GenericVolume pvol : registryPubVolumes) {
                 String volumePrefix = "vol-" + (volumeNumber++);
                 GenericVolumeManager volumeManager = pvol.createVolumeManager();
                 List<V1VolumeMount> generatedVolumeMounts = volumeManager.getK8sVolumeMounts(volumePrefix);
                 List<V1Volume> generatedVolumes = volumeManager.getK8sVolumes(volumePrefix);
                 if (generatedVolumeMounts.size() != generatedVolumes.size()) {
-                    //throw new Exception("The number of volumes does not match the number of volume mounts");
+                    // throw new Exception("The number of volumes does not match the number of
+                    // volume mounts");
                 }
 
                 for (V1Volume v : generatedVolumes) {
@@ -188,106 +168,81 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                 volumeMounts.addAll(generatedVolumeMounts);
             }
 
-            volumes.add(new V1VolumeBuilder().withName("config").withNewConfigMap().
-                        withName("etc-sciserver-config-files").endConfigMap().build());
-            volumeMounts.add(new V1VolumeMountBuilder().withName("config").
-                              withMountPath("/etc/sciserver").withReadOnly(true).build());
+            volumes.add(new V1VolumeBuilder().withName("config").withNewConfigMap()
+                    .withName("etc-sciserver-config-files").endConfigMap().build());
+            volumeMounts.add(new V1VolumeMountBuilder().withName("config").withMountPath("/etc/sciserver")
+                    .withReadOnly(true).build());
+
 
             if (domain.getShmBytes() > 0) {
                 volumes.add(new V1VolumeBuilder().withName("shm").withNewEmptyDir().withMedium("Memory")
-                            .withSizeLimit(new Quantity(String.valueOf(domain.getShmBytes()))).endEmptyDir().build());
+                        .withSizeLimit(new Quantity(String.valueOf(domain.getShmBytes()))).endEmptyDir().build());
                 volumeMounts.add(new V1VolumeMountBuilder().withName("shm").withMountPath("/dev/shm").build());
             }
 
-            // Resource limits and requests. Requests instruct K8S how to schedule resources onto nodes, while limits
-            // are enforced. Since many containers will probably not use max resources, we can overcommit them. The overCommit
+            // Resource limits and requests. Requests instruct K8S how to schedule resources
+            // onto nodes, while limits
+            // are enforced. Since many containers will probably not use max resources, we
+            // can overcommit them. The overCommit
             // settings per k8s cluster determine how much to overcommit in cpu and mem.
-            Map<String, Quantity> resource_requests = new HashMap<String, Quantity>();
-            Map<String, Quantity> resource_limits = new HashMap<String, Quantity>();
+            Map<String, Quantity> resourceRequests = new HashMap<String, Quantity>();
+            Map<String, Quantity> resourceLimits = new HashMap<String, Quantity>();
             if (domain.getMaxMemory() > 0) {
-                resource_limits.put("memory", new Quantity(String.valueOf(domain.getMaxMemory())));
-                resource_requests.put("memory", new Quantity(String.valueOf((int)(domain.getMaxMemory()/memOvercommit))));
+                resourceLimits.put("memory", new Quantity(String.valueOf(domain.getMaxMemory())));
+                resourceRequests.put("memory",
+                        new Quantity(String.valueOf((int) (domain.getMaxMemory() / memOvercommit))));
             }
             if (domain.getNanoCpus() > 0) {
-                resource_limits.put("cpu", new Quantity(String.format("%dm", (int)(domain.getNanoCpus()/1000000))));
-                resource_requests.put("cpu", new Quantity(String.format("%dm", (int)(domain.getNanoCpus()/1000000/cpuOvercommit))));
+                resourceLimits.put("cpu", new Quantity(String.format("%dm", (int) (domain.getNanoCpus() / 1000000))));
+                resourceRequests.put("cpu",
+                        new Quantity(String.format("%dm", (int) (domain.getNanoCpus() / 1000000 / cpuOvercommit))));
             }
 
-            // for interactive
-            V1Deployment deployment = new V1DeploymentBuilder().
-                withNewMetadata().withName(cref).endMetadata().
-                withNewSpec().withNewSelector().addToMatchLabels("externalref", cref).endSelector().
-                withNewTemplate().withNewMetadata().addToLabels("externalref", cref).endMetadata().
-                withNewSpec().addNewContainer().withImage(getImage().getDockerRef()).withName("compute").
-                withVolumeMounts(volumeMounts).withArgs(args).
-                withNewResources().withLimits(resource_limits).withRequests(resource_requests).endResources().
-                addNewEnv().withName("SCISERVER_USER_ID").withValue(user.getUserId()).endEnv().
-                addNewEnv().withName("SCISERVER_USER_NAME").withValue(user.getUserName()).endEnv().
-                endContainer().withVolumes(volumes).
-                endSpec().endTemplate().endSpec().
-                build();
-
-            // for jobs
-            V1Job job = new V1JobBuilder().
-                withNewMetadata().withName(cref).endMetadata().
-                withNewSpec().withNewTemplate().withNewMetadata().addToLabels("externalref", cref).endMetadata().
-                withNewSpec().withRestartPolicy("Never").addNewContainer().withImage(getImage().getDockerRef()).withName("compute").
-                withVolumeMounts(volumeMounts).withArgs(args).
-                withNewResources().withLimits(resource_limits).withRequests(resource_requests).endResources().
-                addNewEnv().withName("SCISERVER_USER_ID").withValue(user.getUserId()).endEnv().
-                addNewEnv().withName("SCISERVER_USER_NAME").withValue(user.getUserName()).endEnv().
-                endContainer().withVolumes(volumes).
-                endSpec().endTemplate().endSpec().
-                build();
-
-            V1Service service = new V1ServiceBuilder().
-                withNewMetadata().withName("svc-"+cref).endMetadata().
-                withNewSpec().addToSelector("externalref", cref).
-                addNewPort().withPort(servicePort).withProtocol("TCP").endPort().
-                endSpec().
-                build();
-
-
             Map<String, String> ingressAnnotations = new HashMap<String, String>();
-            ingressAnnotations.put(
-                "nginx.ingress.kubernetes.io/auth-url",
-                AppConfig.getInstance().getAppSettings().getLoginPortalUrl() + "api/check-cookie-token/" + user.getUserId()
-            );
+            ingressAnnotations.put("nginx.ingress.kubernetes.io/auth-url",
+                    AppConfig.getInstance().getAppSettings().getLoginPortalUrl()
+                    + "api/check-cookie-token/" + user.getUserId());
             ingressAnnotations.put("nginx.ingress.kubernetes.io/auth-method", "HEAD");
             ingressAnnotations.put("nginx.ingress.kubernetes.io/proxy-body-size", "0");
             ingressAnnotations.put("nginx.ingress.kubernetes.io/proxy-request-buffering", "off");
             ingressAnnotations.put("nginx.ingress.kubernetes.io/proxy-buffering", "off");
 
-            V1Ingress ingress = new V1IngressBuilder()
-                    .withNewMetadata()
-                        .withName(cref)
-                        .withAnnotations(ingressAnnotations)
-                        .endMetadata()
-                    .withNewSpec()
-                        .addNewRule()
-                        .withHost(ingressHost)
-                            .withNewHttp()
-                                .addNewPath()
-                                    .withPath(base_url)
-                                    .withNewBackend()
-                                        .withNewService()
-                                            .withName("svc-"+cref)
-                                            .withNewPort()
-                                                .withNumber(servicePort)
-                                                .endPort()
-                                            .endService()
-                                        .endBackend()
-                                    .withPathType("ImplementationSpecific")
-                                    .endPath()
-                                .endHttp()
-                            .endRule()
-                        .endSpec()
-                    .build();
+            V1Ingress ingress = new V1IngressBuilder().withNewMetadata().withName(cref)
+                    .withAnnotations(ingressAnnotations).endMetadata().withNewSpec().addNewRule().withHost(ingressHost)
+                    .withNewHttp().addNewPath().withPath(baseUrl).withNewBackend().withNewService()
+                    .withName("svc-" + cref).withNewPort().withNumber(servicePort).endPort().endService().endBackend()
+                    .withPathType("ImplementationSpecific").endPath().endHttp().endRule().endSpec().build();
 
+            // for interactive
+            V1Deployment deployment = new V1DeploymentBuilder().withNewMetadata().withName(cref).endMetadata()
+                    .withNewSpec().withNewSelector().addToMatchLabels("externalref", cref).endSelector()
+                    .withNewTemplate().withNewMetadata().addToLabels("externalref", cref).endMetadata().withNewSpec()
+                    .addNewContainer().withImage(getImage().getDockerRef()).withName("compute")
+                    .withVolumeMounts(volumeMounts).withArgs(args).withNewResources().withLimits(resourceLimits)
+                    .withRequests(resourceRequests).endResources()
+                    .addNewEnv().withName("SCISERVER_USER_ID").withValue(user.getUserId()).endEnv()
+                    .addNewEnv().withName("SCISERVER_USER_NAME").withValue(user.getUserName()).endEnv()
+                    .endContainer().withVolumes(volumes).endSpec()
+                    .endTemplate().endSpec().build();
+
+            // for jobs
+            V1Job job = new V1JobBuilder().withNewMetadata().withName(cref).endMetadata().withNewSpec()
+                    .withNewTemplate().withNewMetadata().addToLabels("externalref", cref).endMetadata().withNewSpec()
+                    .withRestartPolicy("Never").addNewContainer().withImage(getImage().getDockerRef())
+                    .withName("compute").withVolumeMounts(volumeMounts).withArgs(args).withNewResources()
+                    .withLimits(resourceLimits).withRequests(resourceRequests).endResources()
+                    .addNewEnv().withName("SCISERVER_USER_ID").withValue(user.getUserId()).endEnv()
+                    .addNewEnv().withName("SCISERVER_USER_NAME").withValue(user.getUserName()).endEnv()
+                    .endContainer().withVolumes(volumes)
+                    .endSpec().endTemplate().endSpec().build();
+
+            V1Service service = new V1ServiceBuilder().withNewMetadata().withName("svc-" + cref).endMetadata()
+                    .withNewSpec().addToSelector("externalref", cref).addNewPort().withPort(servicePort)
+                    .withProtocol("TCP").endPort().endSpec().build();
+            
             if (isJob) {
                 batchApi.createNamespacedJob(namespace, job, null, null, null);
-            }
-            else {
+            } else {
                 appsApi.createNamespacedDeployment(namespace, deployment, null, null, null);
                 coreApi.createNamespacedService(namespace, service, null, null, null);
                 netApi.createNamespacedIngress(namespace, ingress, null, null, null);
@@ -298,6 +253,15 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
 
             return container;
         }
+    }
+    
+    private void addVolumes(String source, String dest, Boolean ro, List<V1Volume> vols, List<V1VolumeMount> mounts) {
+        String srv = source.split("/")[2];
+        String path = "/" + source.split("/", 4)[3];
+        String name = "vol-" + vols.size();
+        vols.add(new V1VolumeBuilder().withName(name).withNewNfs().withServer(srv).withPath(path).withReadOnly(ro)
+                .endNfs().build());
+        mounts.add(new V1VolumeMountBuilder().withName(name).withMountPath(dest).withReadOnly(ro).build());
     }
 
     @Override
@@ -310,29 +274,38 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
         try {
             appsApi.deleteNamespacedDeployment(extRef, namespace, null, null, 0, null, null, null);
             netApi.deleteNamespacedIngress(extRef, namespace, null, null, 0, null, null, null);
-            coreApi.deleteNamespacedService("svc-"+extRef, namespace, null, null, 0, null, null, null);
-        } catch (Exception e) {};
+            coreApi.deleteNamespacedService("svc-" + extRef, namespace, null, null, 0, null, null, null);
+        } catch (Exception e) {
+            //Do nothing
+        }
+
         try {
             batchApi.deleteNamespacedJob(extRef, namespace, null, null, 0, null, null, null);
-        } catch (Exception e) {};
+        } catch (Exception e) {
+            //Do nothing
+        }
+
         try {
             String pod = getPodFromRef(extRef).getMetadata().getName();
             coreApi.deleteNamespacedPod(pod, namespace, null, null, 0, null, null, null);
-        } catch (Exception e) {};
+        } catch (Exception e) {
+            //Do nothing
+        }
     }
 
     @Override
     public void injectToken(ExecutableContainer container, String token) throws Exception {
         setupClientsForContainer(container);
         String extRef = container.getExternalRef();
-        String[] cmd = {"bash", "-c", "echo " + token + " > /home/idies/keystone.token"};
+        String[] cmd = { "bash", "-c", "echo " + token + " > /home/idies/keystone.token" };
         new Exec(k8sClient).exec(namespace, getPodFromRef(extRef).getMetadata().getName(), cmd, false);
 
     }
 
     private V1Pod getPodFromRef(String extref) throws Exception {
-        return coreApi.listNamespacedPod(namespace, null, null, null, null, "externalref="+extref, 1, null, null, 5, false).
-            getItems().get(0);
+        return coreApi
+                .listNamespacedPod(namespace, null, null, null, null, "externalref=" + extref, 1, null, null, 5, false)
+                .getItems().get(0);
     }
 
     @Override
@@ -343,8 +316,8 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
         ObjectNode oj = mapper.createObjectNode();
         ObjectNode state = mapper.createObjectNode();
 
-
-        // if we are scaled to 0 replicas, we do not expect any pod to be present so can short-circuit here
+        // if we are scaled to 0 replicas, we do not expect any pod to be present so can
+        // short-circuit here
         try {
             V1Scale scale = appsApi.readNamespacedDeploymentScale(container.getExternalRef(), namespace, null);
             if (scale.getStatus().getReplicas() == 0) {
@@ -378,14 +351,12 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                     state.put("Error", "");
                 }
                 state.put("Running", false);
-            }
-            else if (phase.equals("Running") || phase.equals("Pending")) {
+            } else if (phase.equals("Running") || phase.equals("Pending")) {
                 state.put("Status", "Running");
                 state.put("ExitCode", 0);
                 state.put("Error", "");
                 state.put("Running", true);
-            }
-            else {
+            } else {
                 state.put("Status", "exited");
                 state.put("ExitCode", containerStatuses.get(0).getState().getTerminated().getExitCode());
                 state.put("Error", containerStatuses.get(0).getState().getTerminated().getMessage());
@@ -402,17 +373,15 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
 
     public void startContainer(ExecutableContainer container) throws Exception {
         setupClientsForContainer(container);
-        V1Scale scale = new V1ScaleBuilder()
-            .withNewMetadata().withNamespace(namespace).withName(container.getExternalRef()).endMetadata()
-            .withNewSpec().withReplicas(1).endSpec().build();
+        V1Scale scale = new V1ScaleBuilder().withNewMetadata().withNamespace(namespace)
+                .withName(container.getExternalRef()).endMetadata().withNewSpec().withReplicas(1).endSpec().build();
         appsApi.replaceNamespacedDeploymentScale(container.getExternalRef(), namespace, scale, null, null, null);
     }
 
     public void stopContainer(ExecutableContainer container) throws Exception {
         setupClientsForContainer(container);
-        V1Scale scale = new V1ScaleBuilder()
-            .withNewMetadata().withNamespace(namespace).withName(container.getExternalRef()).endMetadata()
-            .withNewSpec().withReplicas(0).endSpec().build();
+        V1Scale scale = new V1ScaleBuilder().withNewMetadata().withNamespace(namespace)
+                .withName(container.getExternalRef()).endMetadata().withNewSpec().withReplicas(0).endSpec().build();
         appsApi.replaceNamespacedDeploymentScale(container.getExternalRef(), namespace, scale, null, null, null);
     }
 
@@ -425,6 +394,7 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
     public String getStdOut(Container container) throws Exception {
         return "";
     }
+
     public String getStdErr(Container container) throws Exception {
         return "";
     }

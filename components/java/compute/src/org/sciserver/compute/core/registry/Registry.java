@@ -3,6 +3,7 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute.core.registry;
 
 import java.io.IOException;
@@ -10,18 +11,17 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-
 import org.sciserver.compute.core.client.docker.DockerClient;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClient;
 import org.sciserver.compute.model.admin.DomainInfo;
 import org.sciserver.compute.model.admin.ImageInfo;
+import org.sciserver.compute.model.admin.K8sClusterInfo;
 import org.sciserver.compute.model.admin.NodeInfo;
 import org.sciserver.compute.model.admin.PublicVolumeInfo;
 import org.sciserver.compute.model.admin.SlotsInfo;
-import org.sciserver.compute.model.admin.K8sClusterInfo;
+
 
 public interface Registry {
-
     void migrateToLatestChanges(String changelogPath) throws Exception;
 
     DockerClient createDockerClient(URL apiURL, String certFile, String keyFile) throws IOException;
@@ -42,6 +42,8 @@ public interface Registry {
 
     ExecutableImage getExecutableImage(long imageId) throws Exception;
 
+    ExecutableImage getExecutableImage(Domain domain, String imageName) throws Exception;
+
     PublicVolume getPublicVolume(long volumeId) throws Exception;
 
     K8sCluster getK8sCluster(long id) throws Exception;
@@ -55,6 +57,8 @@ public interface Registry {
     void deleteProxy(ExecutableContainer executableContainer) throws Exception;
 
     void registerExecutableContainer(ExecutableContainer executableContainer) throws Exception;
+
+    void registerExecutableContainer(ExecutableContainer executableContainer, Domain domain) throws Exception;
 
     void unregisterExecutableContainer(ExecutableContainer executableContainer) throws SQLException;
 
@@ -76,13 +80,13 @@ public interface Registry {
     void updateUserVolumes(Iterable<VolumeContainer> volumes, ExecutableContainer executableContainer)
             throws SQLException;
 
-    void registerExecutableContainer(ExecutableContainer executableContainer, Domain domain) throws Exception;
-
     Iterable<VolumeContainer> getUserVolumes(String userId, Node node) throws Exception;
 
     String getSettings(String key) throws Exception;
 
     Iterable<ExecutableContainer> getContainers(String userId) throws Exception;
+
+    Iterable<ExecutableContainer> getContainers() throws Exception;
 
     Iterable<ExecutableContainer> getInactiveContainers(Date inactiveSince, boolean unknown) throws Exception;
 
@@ -106,8 +110,6 @@ public interface Registry {
 
     Iterable<DaskCluster> getDaskClusters(String userId) throws Exception;
 
-    ExecutableImage getExecutableImage(Domain domain, String imageName) throws Exception;
-
     long getUsedSlots(Node node) throws Exception;
 
     long getTotalSlots(Node node) throws Exception;
@@ -123,8 +125,6 @@ public interface Registry {
     void acquireLock() throws Exception;
 
     void releaseLock() throws Exception;
-
-    Iterable<ExecutableContainer> getContainers() throws Exception;
 
     void updateAccessTime(ExecutableContainer container) throws Exception;
 
@@ -142,7 +142,6 @@ public interface Registry {
 
     long adminCreateK8sCluster(K8sClusterInfo k8sCluster) throws Exception;
 
-
     List<NodeInfo> adminGetNodes() throws Exception;
 
     List<SlotsInfo> adminGetSlots() throws Exception;
@@ -159,11 +158,11 @@ public interface Registry {
 
     DaskCluster getDaskCluster(long id) throws Exception;
 
+    DaskCluster getDaskCluster(String externalRef) throws Exception;
+
     void updateDaskCluster(DaskCluster daskCluster) throws SQLException;
 
     void registerDaskCluster(DaskCluster daskCluster) throws Exception;
-
-    DaskCluster getDaskCluster(String externalRef) throws Exception;
 
     GenericVolume getGenericVolume(long id) throws Exception;
 

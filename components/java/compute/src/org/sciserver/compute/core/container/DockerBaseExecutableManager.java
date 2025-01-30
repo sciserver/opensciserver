@@ -3,13 +3,14 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute.core.container;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import org.sciserver.compute.core.client.docker.DockerClient;
 import org.sciserver.compute.core.client.docker.LogSource;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClient;
@@ -19,7 +20,6 @@ import org.sciserver.compute.core.registry.ExecutableContainer;
 import org.sciserver.compute.core.registry.Image;
 import org.sciserver.compute.core.registry.Node;
 
-import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class DockerBaseExecutableManager extends ContainerManager {
 
@@ -42,12 +42,12 @@ public abstract class DockerBaseExecutableManager extends ContainerManager {
         dockerClient.stopContainer(container.getDockerRef());
     }
 
-    public HttpProxyClient createHttpProxyClient(ExecutableContainer container, URL apiURL, String certFile, String keyFile) throws IOException {
+    public HttpProxyClient createHttpProxyClient(ExecutableContainer container,
+            URL apiURL, String certFile, String keyFile) throws IOException {
         String certificateRoot = container.getRegistry().getCertificateRoot();
         return new HttpProxyClientImpl(apiURL, Files.readAllBytes(Paths.get(certificateRoot, certFile)),
                                        Files.readAllBytes(Paths.get(certificateRoot, keyFile)));
     }
-
 
     public void setProxy(ExecutableContainer container) throws Exception {
         Node node = container.getNode();

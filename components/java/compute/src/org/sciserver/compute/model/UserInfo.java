@@ -3,46 +3,47 @@
  * Licensed under the Apache License, Version 2.0. 
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute.model;
 
 import java.util.List;
 
+
 public class UserInfo {
-	private String userId;
-	private String userName;
-	private String token;
-	private List<String> roles;
-	
-	public String getUserId() {
-		return userId;
-	}
+    private String userId;
+    private String userName;
+    private String token;
+    private List<String> roles;
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public String getUserName() {
-		return userName;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public String getToken() {
-		return token;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public List<String> getRoles() {
-		return roles;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
-	}
+    public List<String> getRoles() {
+        return roles;
+    }
 
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
 }

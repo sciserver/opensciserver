@@ -6,12 +6,11 @@
 
 package org.sciserver.compute.model;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
-import org.sciserver.compute.core.registry.ExecutableContainer;
 import org.sciserver.compute.Utilities;
+import org.sciserver.compute.core.registry.ExecutableContainer;
 
 
 public class ContainerInfo {
@@ -177,5 +176,4 @@ public class ContainerInfo {
             // To support back-compat for containers that don't have the json
         }
     }
-
 }

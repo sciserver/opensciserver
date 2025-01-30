@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @CrossOrigin(origins = "*")
 public class AdminController {
@@ -133,7 +134,7 @@ public class AdminController {
                                              HttpServletResponse response) throws Exception {
         checkAdminToken(request, response);
         List<ContainerInfo> containers = new ArrayList<ContainerInfo>();
-        for (ExecutableContainer c: appConfig.getRegistry().getContainers(userid)) {
+        for (ExecutableContainer c : appConfig.getRegistry().getContainers(userid)) {
             containers.add(ContainerInfo.fromContainer(c));
         }
         return containers;
@@ -141,11 +142,11 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/containers/userid/{userid}", method = RequestMethod.DELETE)
     public void deleteContainersByUserId(@PathVariable String userid,
-                                         @RequestParam(required=false, defaultValue="false") Boolean stop,
+                                         @RequestParam(required = false, defaultValue = "false") Boolean stop,
                                          HttpServletRequest request,
                                          HttpServletResponse response) throws Exception {
         checkAdminToken(request, response);
-        for (ExecutableContainer c: appConfig.getRegistry().getContainers(userid)) {
+        for (ExecutableContainer c : appConfig.getRegistry().getContainers(userid)) {
             if (stop) {
                 c.stop();
             } else {
@@ -156,7 +157,7 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/containers/{containerId}", method = RequestMethod.DELETE)
     public void deleteContainersByContainerId(@PathVariable String containerId,
-                                         @RequestParam(required=false, defaultValue="false") Boolean stop,
+                                         @RequestParam(required = false, defaultValue = "false") Boolean stop,
                                          HttpServletRequest request,
                                          HttpServletResponse response) throws Exception {
         checkAdminToken(request, response);

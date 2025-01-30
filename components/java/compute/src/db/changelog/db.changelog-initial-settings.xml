@@ -1,50 +1,51 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog
-	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
-	<changeSet author="Joseph Booker" id="">
-		<comment>Add initial settings</comment>
-		<insert tableName="settings">
-			<column name="key">AlertMessage</column>
-			<column name="value" />
-		</insert>
-		<insert tableName="settings">
-			<column name="key">Cleanup.Enabled</column>
-			<column name="value">False</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">Cleanup.InactiveHours</column>
-			<column name="value">72</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">Cleanup.IntervalHours</column>
-			<column name="value">24</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">DefaultDomainId</column>
-			<column name="value">0</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">DefaultImages</column>
-			<column name="value" value=""/>
-	    </insert>
-		<insert tableName="settings">
-			<column name="key">MaintenanceMessage</column>
-			<column name="value">Compute is currently down for maintenance. It will be back online shortly.</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">MaintenanceMode</column>
-			<column name="value">False</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">MaxContainerSize</column>
-			<column name="value">4G</column>
-		</insert>
-		<insert tableName="settings">
-			<column name="key">MaxContainersPerUser</column>
-			<column name="value">3</column>
-		</insert>
-	</changeSet>
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+  <changeSet author="Joseph Booker" id="">
+    <comment>Add initial settings</comment>
+    <insert tableName="settings">
+      <column name="key">AlertMessage</column>
+      <column name="value" />
+    </insert>
+    <insert tableName="settings">
+      <column name="key">Cleanup.Enabled</column>
+      <column name="value">False</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">Cleanup.InactiveHours</column>
+      <column name="value">72</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">Cleanup.IntervalHours</column>
+      <column name="value">24</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">DefaultDomainId</column>
+      <column name="value">0</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">DefaultImages</column>
+      <column name="value" value="" />
+    </insert>
+    <insert tableName="settings">
+      <column name="key">MaintenanceMessage</column>
+      <column name="value">Compute is currently down for maintenance. It
+        will be back online shortly.</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">MaintenanceMode</column>
+      <column name="value">False</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">MaxContainerSize</column>
+      <column name="value">4G</column>
+    </insert>
+    <insert tableName="settings">
+      <column name="key">MaxContainersPerUser</column>
+      <column name="value">3</column>
+    </insert>
+  </changeSet>
 </databaseChangeLog>

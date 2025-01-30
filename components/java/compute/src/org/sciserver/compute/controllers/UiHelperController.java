@@ -6,7 +6,6 @@
 
 package org.sciserver.compute.controllers;
 
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +13,11 @@ import java.util.Comparator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sciserver.authentication.client.AuthenticatedUser;
 import org.sciserver.compute.AppConfig;
+import org.sciserver.compute.Utilities;
 import org.sciserver.compute.core.registry.Domain;
 import org.sciserver.compute.core.registry.DomainType;
 import org.sciserver.compute.core.registry.PublicVolume;
@@ -25,7 +25,6 @@ import org.sciserver.compute.model.DomainContents;
 import org.sciserver.compute.model.DomainInfo;
 import org.sciserver.compute.model.ErrorContent;
 import org.sciserver.compute.model.SelectionInfo;
-import org.sciserver.compute.Utilities;
 import org.sciserver.racm.jobm.model.ComputeDomainUserVolumeModel;
 import org.sciserver.racm.jobm.model.DockerImageModel;
 import org.sciserver.racm.jobm.model.UserDockerComputeDomainModel;
@@ -48,7 +47,7 @@ public class UiHelperController {
     @Autowired
     AppConfig appConfig;
 
-    @RequestMapping(value = "/ui/daskDomains", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ui/daskDomains"}, method = RequestMethod.GET)
     public Iterable<DomainInfo> getDaskDomains(
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
@@ -70,19 +69,20 @@ public class UiHelperController {
 
         return result;
     }
-    @RequestMapping(value = "/ui/domains/{id}", method = RequestMethod.GET)
+
+    @RequestMapping(value = {"/ui/domains/{id}"}, method = RequestMethod.GET)
     public DomainContents getDomainContents(
             @PathVariable long id,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
 
         String token = Utilities.getToken(request, response);
-        AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
+        
 
         List<UserDockerComputeDomainModel> domains = appConfig.getInteractiveUserDomainsCache().get(token);
         UserDockerComputeDomainModel domainModel = domains.stream()
                 .filter(d -> Long.parseLong(d.getPublisherDID()) == id).findFirst().get();
-        Domain domain = appConfig.getRegistry().getDomain(Long.parseLong(domainModel.getPublisherDID()));
+        
 
         List<DockerImageModel> images = domainModel.getImages();
         if (images == null) {
@@ -108,6 +108,7 @@ public class UiHelperController {
         }
         publicVolumes.sort(Comparator.comparing(VolumeContainerModel::getName, (x, y) -> x.compareTo(y)));
 
+        Domain domain = appConfig.getRegistry().getDomain(Long.parseLong(domainModel.getPublisherDID()));
         ArrayList<SelectionInfo> publicVolumeList = new ArrayList<>();
         for (VolumeContainerModel volume : publicVolumes) {
             long volumeId = Long.parseLong(volume.getPublisherDID());
@@ -134,6 +135,7 @@ public class UiHelperController {
         }
         userVolumes.sort(Comparator.comparing(ComputeDomainUserVolumeModel::getName, (x, y) -> x.compareTo(y)));
 
+        AuthenticatedUser user = appConfig.getAuthClient().getAuthenticatedUser(token);
         ArrayList<SelectionInfo> userVolumeList = new ArrayList<>();
         for (ComputeDomainUserVolumeModel image : userVolumes) {
             if (image.getAllowedActions().contains("read")) {
@@ -155,7 +157,7 @@ public class UiHelperController {
         return result;
     }
 
-    @RequestMapping(value = "/ui/domains/{id}/images", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ui/domains/{id}/images"}, method = RequestMethod.GET)
     public Iterable<SelectionInfo> getImages(
             @PathVariable long id,
             HttpServletRequest request,
@@ -181,7 +183,7 @@ public class UiHelperController {
         return imageList;
     }
 
-    @RequestMapping(value = "/ui/domains/{id}/publicVolumes", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ui/domains/{id}/publicVolumes"}, method = RequestMethod.GET)
     public Iterable<SelectionInfo> getPublicVolumes(
             @PathVariable long id,
             HttpServletRequest request,
@@ -220,7 +222,7 @@ public class UiHelperController {
         return publicVolumeList;
     }
 
-    @RequestMapping(value = "/ui/domains/{id}/userVolumes", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ui/domains/{id}/userVolumes"}, method = RequestMethod.GET)
     public Iterable<SelectionInfo> getUserVolumes(
             @PathVariable long id,
             HttpServletRequest request,

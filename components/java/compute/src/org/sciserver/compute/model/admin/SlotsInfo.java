@@ -1,29 +1,35 @@
+/*******************************************************************************
+ * Copyright (c) Johns Hopkins University. All rights reserved.
+ * Licensed under the Apache License, Version 2.0.
+ * See LICENSE.txt in the project root for license information.
+ *******************************************************************************/
+
 package org.sciserver.compute.model.admin;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SlotsInfo {
-	@JsonProperty("node_id")
-	private long nodeId;
-	
-	@JsonProperty("port_numbers")
-	private List<Integer> portNumbers;
+    @JsonProperty("node_id")
+    private long nodeId;
 
-	public long getNodeId() {
-		return nodeId;
-	}
+    @JsonProperty("port_numbers")
+    private List<Integer> portNumbers;
 
-	public void setNodeId(long nodeId) {
-		this.nodeId = nodeId;
-	}
+    public long getNodeId() {
+        return nodeId;
+    }
 
-	public List<Integer> getPortNumbers() {
-		return portNumbers;
-	}
+    public void setNodeId(long nodeId) {
+        this.nodeId = nodeId;
+    }
 
-	public void setPortNumbers(List<Integer> portNumbers) {
-		this.portNumbers = portNumbers;
-	}
+    public List<Integer> getPortNumbers() {
+        return portNumbers;
+    }
+
+    public void setPortNumbers(List<Integer> portNumbers) {
+        this.portNumbers = portNumbers;
+    }
 }

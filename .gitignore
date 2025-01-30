@@ -30,3 +30,6 @@ docs/_build/
 .gradle
 WebContent/WEB-INF/application.properties
 WebContent/WEB-INF/version
+
+# fileservice config artifact
+components/java/c:

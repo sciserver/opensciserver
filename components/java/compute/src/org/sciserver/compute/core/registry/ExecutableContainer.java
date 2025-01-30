@@ -3,16 +3,16 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute.core.registry;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
-
 import org.sciserver.compute.core.container.ExecutableManager;
 
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class ExecutableContainer extends Container {
     private String name;
@@ -185,7 +185,7 @@ public class ExecutableContainer extends Container {
         return json;
     }
 
-    public void setJson(String json_in) {
-        json = json_in;
+    public void setJson(String value) {
+        json = value;
     }
 }

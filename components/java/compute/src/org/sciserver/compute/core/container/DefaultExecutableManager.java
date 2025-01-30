@@ -11,10 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sciserver.authentication.client.AuthenticatedUser;
 import org.sciserver.compute.AppConfig;
 import org.sciserver.compute.core.client.docker.DockerClient;
@@ -33,8 +31,8 @@ import org.sciserver.compute.dask.DaskK8sHelper;
 import org.sciserver.compute.model.DaskConnectionInfo;
 import org.sciserver.racm.jobm.model.VolumeContainerModel;
 
-public class DefaultExecutableManager extends DockerBaseExecutableManager implements ExecutableManager {
 
+public class DefaultExecutableManager extends DockerBaseExecutableManager implements ExecutableManager {
     public DefaultExecutableManager(Image image) {
         super(image);
     }

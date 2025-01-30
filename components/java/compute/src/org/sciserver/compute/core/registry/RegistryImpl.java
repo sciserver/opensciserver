@@ -3,6 +3,7 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute.core.registry;
 
 import java.io.IOException;
@@ -21,33 +22,30 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-
 import javax.sql.DataSource;
-
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import org.sciserver.compute.core.client.docker.DockerClient;
 import org.sciserver.compute.core.client.docker.DockerClientImpl;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClient;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClientImpl;
 import org.sciserver.compute.model.admin.DomainInfo;
 import org.sciserver.compute.model.admin.ImageInfo;
+import org.sciserver.compute.model.admin.K8sClusterInfo;
 import org.sciserver.compute.model.admin.NodeInfo;
 import org.sciserver.compute.model.admin.PublicVolumeInfo;
 import org.sciserver.compute.model.admin.SlotsInfo;
-import org.sciserver.compute.model.admin.K8sClusterInfo;
 
-import liquibase.Contexts;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 
 public class RegistryImpl implements Registry {
 
     private DataSource dataSource;
     private String certificateRoot;
     private String settingsTable;
-    private final Semaphore _createContainer = new Semaphore(1);
+    private final Semaphore createContainerSemaphore = new Semaphore(1);
 
     public DataSource getDataSource() {
         return dataSource;
@@ -70,10 +68,9 @@ public class RegistryImpl implements Registry {
     @Override
     public void migrateToLatestChanges(String changelogPath) throws SQLException, LiquibaseException {
         try (Connection conn = dataSource.getConnection()) {
-            Liquibase liquibase = new Liquibase(changelogPath,
-                    new ClassLoaderResourceAccessor(),
+            Liquibase liquibase = new Liquibase(changelogPath, new ClassLoaderResourceAccessor(),
                     new JdbcConnection(conn));
-            liquibase.update((Contexts)null);
+            liquibase.update((Contexts) null);
         }
     }
 
@@ -109,18 +106,22 @@ public class RegistryImpl implements Registry {
     @Override
     public ExecutableContainer getContainer(long executableContainerId) throws Exception {
         Connection conn = this.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id` LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id` WHERE a.`id` = ? AND a.`status` <> ?");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a"
+                + " LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id`"
+                + " LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id`"
+                + " WHERE a.`id` = ? AND a.`status` <> ?");
         try {
             pstmt.setLong(1, executableContainerId);
             pstmt.setString(2, ContainerStatus.DELETED);
-            Iterator<ExecutableContainer> i = this.getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class).iterator();
+            Iterator<ExecutableContainer> i = this.getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class)
+                    .iterator();
             if (i.hasNext()) {
                 ExecutableContainer executableContainer = i.next();
                 return executableContainer;
             }
             throw new NotFoundException("Container not found");
-        }
-        finally {
+        } finally {
             pstmt.close();
             conn.close();
         }
@@ -134,10 +135,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, domainId);
             Iterator<Domain> i = getRegistryObjectsFromQuery(pstmt, Domain.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("Domain not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -152,16 +154,38 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, executableImageId);
             Iterator<ExecutableImage> i = getRegistryObjectsFromQuery(pstmt, ExecutableImage.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("ExecutableImage not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
         }
     }
 
+    @Override
+    public ExecutableImage getExecutableImage(Domain domain, String imageName) throws Exception {
+        Connection conn = getConnection();
+        PreparedStatement pstmt = conn
+                .prepareStatement("SELECT * FROM `executable_image` WHERE `domain_id` = ? AND `name` = ?");
+
+        try {
+            pstmt.setLong(1, domain.getId());
+            pstmt.setString(2, imageName);
+            Iterator<ExecutableImage> i = getRegistryObjectsFromQuery(pstmt, ExecutableImage.class).iterator();
+            if (i.hasNext()) {
+                return i.next();
+            } else {
+                throw new Exception("ExecutableImage not found");
+            }
+        } finally {
+            pstmt.close();
+            conn.close();
+        }
+    }
+    
     @Override
     public Node getNode(long nodeId) throws Exception {
         Connection conn = getConnection();
@@ -170,10 +194,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, nodeId);
             Iterator<Node> i = getRegistryObjectsFromQuery(pstmt, Node.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("Node not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -188,10 +213,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, id);
             Iterator<DaskCluster> i = getRegistryObjectsFromQuery(pstmt, DaskCluster.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("DaskCluster not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -206,10 +232,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setString(1, externalRef);
             Iterator<DaskCluster> i = getRegistryObjectsFromQuery(pstmt, DaskCluster.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("DaskCluster not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -224,10 +251,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, publicVolumeId);
             Iterator<PublicVolume> i = getRegistryObjectsFromQuery(pstmt, PublicVolume.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("Volume not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -242,10 +270,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, slotId);
             Iterator<Slot> i = getRegistryObjectsFromQuery(pstmt, Slot.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("Slot not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -260,10 +289,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, volumeImageId);
             Iterator<VolumeImage> i = getRegistryObjectsFromQuery(pstmt, VolumeImage.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("VolumeImage not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -278,10 +308,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, id);
             Iterator<K8sCluster> i = getRegistryObjectsFromQuery(pstmt, K8sCluster.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("K8s Cluster not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -292,11 +323,10 @@ public class RegistryImpl implements Registry {
     public void registerExecutableContainer(ExecutableContainer executableContainer) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `executable_container` (" + "	`name`,"
-                    + "	`description`," + "	`external_ref`," + "	`slot_id`," + "	`status`,"
-                    + "	`executable_image_id`," + "	`user_id`," + "	`created_at`)" + "VALUES (" + "	?,"
-                    + "	?," + "	UUID()," + "	?," + "	?," + "	?," + "	?," + "	NOW())");
-
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `executable_container` ("
+                    + " `name`, `description`, `external_ref`, `slot_id`, `status`,"
+                    + " `executable_image_id`, `user_id`, `created_at`)"
+                    + " VALUES (?, ?, UUID(), ?, ?, ?, ?, NOW())");
             try {
                 pstmt.setString(1, executableContainer.getName());
                 pstmt.setString(2, executableContainer.getDescription());
@@ -311,15 +341,17 @@ public class RegistryImpl implements Registry {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    "SELECT `id`,`external_ref`, `created_at`, `status` FROM `executable_container` WHERE `id` = LAST_INSERT_ID()");
+                    "SELECT `id`,`external_ref`, `created_at`, `status`"
+                    + " FROM `executable_container` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     executableContainer.setId(rs.getLong("id"));
                     executableContainer.setExternalRef(rs.getString("external_ref"));
                     executableContainer.setCreatedAt(rs.getTimestamp("created_at"));
                     executableContainer.setStatus(rs.getString("status"));
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
@@ -330,27 +362,57 @@ public class RegistryImpl implements Registry {
     }
 
     @Override
+    public void registerExecutableContainer(ExecutableContainer executableContainer, Domain domain) throws Exception {
+        Connection conn = getConnection();
+        try {
+            PreparedStatement pstmt = conn
+                    .prepareStatement("INSERT INTO `executable_container` ("
+                            + "`name`, `description`, `external_ref`, `slot_id`, `status`,"
+                            + " `executable_image_id`, `user_id`, `created_at`)"
+                            + " VALUES (?, ?, UUID(), next_available_slot(least_busy_node(?)), ?, ?, ?, NOW())");
+            try {
+                pstmt.setString(1, executableContainer.getName());
+                pstmt.setString(2, executableContainer.getDescription());
+                pstmt.setLong(3, domain.getId());
+                pstmt.setString(4, ContainerStatus.REGISTERED);
+                pstmt.setLong(5, executableContainer.getExecutableImageId());
+                pstmt.setString(6, executableContainer.getUserId());
+                pstmt.executeUpdate();
+            } finally {
+                pstmt.close();
+            }
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT `id`,`external_ref`, `created_at`, `status`, `slot_id`"
+                    + " FROM `executable_container` WHERE `id` = LAST_INSERT_ID()");
+            try {
+                if (rs.next()) {
+                    executableContainer.setId(rs.getLong("id"));
+                    executableContainer.setExternalRef(rs.getString("external_ref"));
+                    executableContainer.setCreatedAt(rs.getTimestamp("created_at"));
+                    executableContainer.setStatus(rs.getString("status"));
+                    executableContainer.setSlotId(rs.getLong("slot_id"));
+                } else {
+                    throw new Exception("Unexpected error: result set is empty");
+                }
+            } finally {
+                rs.close();
+                stmt.close();
+            }
+        } finally {
+            conn.close();
+        }
+    }
+    
+    @Override
     public void registerDaskCluster(DaskCluster daskCluster) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `dask_cluster` ("
-                    + "`name`,"
-                    + "`description`,"
-                    + "`external_ref`,"
-                    + "`k8s_cluster_id`,"
-                    + "`status`,"
-                    + "`image_id`,"
-                    + "`user_id`,"
-                    + "`created_at`)"
-                    + "VALUES ("
-                    + "?,"
-                    + "?,"
-                    + "CONCAT('dask-',UUID()),"
-                    + "?,"
-                    + "?,"
-                    + "?,"
-                    + "?,"
-                    + "NOW())");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `dask_cluster` (" + "`name`,"
+                    + "`description`," + "`external_ref`," + "`k8s_cluster_id`," + "`status`," + "`image_id`,"
+                    + "`user_id`," + "`created_at`)" + "VALUES (" + "?," + "?," + "CONCAT('dask-',UUID())," + "?,"
+                    + "?," + "?," + "?," + "NOW())");
 
             try {
                 pstmt.setString(1, daskCluster.getName());
@@ -366,58 +428,17 @@ public class RegistryImpl implements Registry {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    "SELECT `id`, `external_ref`, `created_at`, `status` FROM `dask_cluster` WHERE `id` = LAST_INSERT_ID()");
+                    "SELECT `id`, `external_ref`, `created_at`, `status`"
+                    + " FROM `dask_cluster` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     daskCluster.setId(rs.getLong("id"));
                     daskCluster.setExternalRef(rs.getString("external_ref"));
                     daskCluster.setCreatedAt(rs.getTimestamp("created_at"));
                     daskCluster.setStatus(rs.getString("status"));
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
-            } finally {
-                rs.close();
-                stmt.close();
-            }
-        } finally {
-            conn.close();
-        }
-    }
-
-    @Override
-    public void registerExecutableContainer(ExecutableContainer executableContainer, Domain domain) throws Exception {
-        Connection conn = getConnection();
-        try {
-            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `executable_container` (" + "	`Name`,"
-                    + "	`description`," + "	`external_ref`," + "	`slot_id`," + "	`status`,"
-                    + "	`executable_image_id`," + "	`user_id`," + "	`created_at`)" + "VALUES (" + "	?,"
-                    + "	?," + "	UUID()," + "	next_available_slot(least_busy_node(?))," + "	?," + "	?,"
-                    + "	?," + "	NOW())");
-
-            try {
-                pstmt.setString(1, executableContainer.getName());
-                pstmt.setString(2, executableContainer.getDescription());
-                pstmt.setLong(3, domain.getId());
-                pstmt.setString(4, ContainerStatus.REGISTERED);
-                pstmt.setLong(5, executableContainer.getExecutableImageId());
-                pstmt.setString(6, executableContainer.getUserId());
-                pstmt.executeUpdate();
-            } finally {
-                pstmt.close();
-            }
-
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT `id`,`external_ref`, `created_at`, `status`, `slot_id` FROM `executable_container` WHERE `id` = LAST_INSERT_ID()");
-            try {
-                if (rs.next()) {
-                    executableContainer.setId(rs.getLong("id"));
-                    executableContainer.setExternalRef(rs.getString("external_ref"));
-                    executableContainer.setCreatedAt(rs.getTimestamp("created_at"));
-                    executableContainer.setStatus(rs.getString("status"));
-                    executableContainer.setSlotId(rs.getLong("slot_id"));
-                } else
-                    throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
@@ -431,7 +452,8 @@ public class RegistryImpl implements Registry {
     public void setExecutableContainerJson(Long containerId, String json) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement("UPDATE `executable_container` SET `json` = ? WHERE `id` = ?");
+            PreparedStatement pstmt = conn
+                    .prepareStatement("UPDATE `executable_container` SET `json` = ? WHERE `id` = ?");
 
             try {
                 pstmt.setString(1, json);
@@ -449,19 +471,9 @@ public class RegistryImpl implements Registry {
     public void registerVolumeContainer(VolumeContainer volumeContainer) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO `volume_container` ("
-                  + "	`external_ref`,"
-                  + "	`node_id`,"
-                  + "	`status`,"
-                  + "	`volume_image_id`,"
-                  + "	`user_id`)"
-                  + "VALUES ("
-                  + "	UUID(),"
-                  + "	?,"
-                  + "	?,"
-                  + "	?,"
-                  + "	?)");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `volume_container` ("
+                    + "`external_ref`, `node_id`, `status`, `volume_image_id`, `user_id`)"
+                    + " VALUES (UUID(), ?, ?, ?, ?)");
 
             try {
                 pstmt.setLong(1, volumeContainer.getNodeId());
@@ -481,8 +493,9 @@ public class RegistryImpl implements Registry {
                     volumeContainer.setId(rs.getLong("id"));
                     volumeContainer.setExternalRef(rs.getString("external_ref"));
                     volumeContainer.setStatus(rs.getString("status"));
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
@@ -496,19 +509,9 @@ public class RegistryImpl implements Registry {
     public void registerRACMVolumeContainer(VolumeContainer volumeContainer) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO `racm_volume_container` ("
-                  + "	`external_ref`,"
-                  + "	`node_id`,"
-                  + "	`status`,"
-                  + "	`racm_id`,"
-                  + "	`user_id`)"
-                  + "VALUES ("
-                  + "	UUID(),"
-                  + "	?,"
-                  + "	?,"
-                  + "	?,"
-                  + "	?)");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO `racm_volume_container` ("
+                    + "`external_ref`, `node_id`, `status`, `racm_id`, `user_id`)"
+                    + " VALUES (UUID(), ?, ?, ?, ?)");
 
             try {
                 pstmt.setLong(1, volumeContainer.getNodeId());
@@ -528,8 +531,9 @@ public class RegistryImpl implements Registry {
                     volumeContainer.setId(rs.getLong("id"));
                     volumeContainer.setExternalRef(rs.getString("external_ref"));
                     volumeContainer.setStatus(rs.getString("status"));
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
@@ -631,8 +635,7 @@ public class RegistryImpl implements Registry {
     @Override
     public void updateDaskCluster(DaskCluster daskCluster) throws SQLException {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn
-                .prepareStatement("UPDATE `dask_cluster` SET `status` = ? WHERE `id` = ?");
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE `dask_cluster` SET `status` = ? WHERE `id` = ?");
 
         try {
             pstmt.setString(1, daskCluster.getStatus());
@@ -727,7 +730,8 @@ public class RegistryImpl implements Registry {
         res.setName(rs.getString("name"));
         res.setDescription(rs.getString("description"));
         res.setMaxMemory(rs.getLong("max_memory"));
-        res.setNanoCpus(rs.getBigDecimal("max_cpus").multiply(new BigDecimal(1000000000)).toBigInteger().longValueExact());
+        res.setNanoCpus(
+                rs.getBigDecimal("max_cpus").multiply(new BigDecimal(1000000000)).toBigInteger().longValueExact());
         res.setShmBytes(rs.getLong("shm_bytes"));
         res.setMaxSessionSecs(rs.getLong("max_session_secs"));
         res.setType(rs.getString("type"));
@@ -772,18 +776,28 @@ public class RegistryImpl implements Registry {
 
     private Node getNodeFromReader(ResultSet rs) throws Exception {
         Node res = new Node(this);
-
+        
         res.setId(rs.getLong("id"));
         res.setName(rs.getString("name"));
         res.setDescription(rs.getString("description"));
         res.setDomainId(rs.getLong("domain_id"));
-        res.setDockerApiUrl(rs.getURL("docker_api_url"));
+        
+        String url = "";
+        url = rs.getString("docker_api_url");
+        res.setDockerApiUrl(url.isEmpty() ? null : new URL(url));
+        
         res.setDockerApiClientCert(rs.getString("docker_api_client_cert"));
         res.setDockerApiClientKey(rs.getString("docker_api_client_key"));
-        res.setProxyApiUrl(rs.getURL("proxy_api_url"));
+        
+        url = rs.getString("proxy_api_url");
+        res.setProxyApiUrl(url.isEmpty() ? null : new URL(url));
+        
         res.setProxyApiClientCert(rs.getString("proxy_api_client_cert"));
         res.setProxyApiClientKey(rs.getString("proxy_api_client_key"));
-        res.setProxyBaseUrl(rs.getURL("proxy_base_url"));
+        
+        url = rs.getString("proxy_base_url");
+        res.setProxyBaseUrl(url.isEmpty() ? null : new URL(url));
+        
         res.setEnabled(rs.getBoolean("enabled"));
 
         return res;
@@ -851,30 +865,42 @@ public class RegistryImpl implements Registry {
     }
 
     private <T extends RegistryObject> T getRegistryObjectFromResultSet(ResultSet rs, Class<T> type) throws Exception {
-        if (type.equals(ExecutableContainer.class))
+        if (type.equals(ExecutableContainer.class)) {
             return (T) getExecutableContainerFromReader(rs);
-        if (type.equals(Domain.class))
+        }
+        if (type.equals(Domain.class)) {
             return (T) getDomainFromReader(rs);
-        if (type.equals(Node.class))
+        }
+        if (type.equals(Node.class)) {
             return (T) getNodeFromReader(rs);
-        if (type.equals(ExecutableImage.class))
+        }
+        if (type.equals(ExecutableImage.class)) {
             return (T) getExecutableImageFromReader(rs);
-        if (type.equals(VolumeImage.class))
+        }
+        if (type.equals(VolumeImage.class)) {
             return (T) getVolumeImageFromReader(rs);
-        if (type.equals(VolumeContainer.class))
+        }
+        if (type.equals(VolumeContainer.class)) {
             return (T) getVolumeContainerFromReader(rs);
-        if (type.equals(PublicVolume.class))
+        }
+        if (type.equals(PublicVolume.class)) {
             return (T) getPublicVolumeFromReader(rs);
-        if (type.equals(Slot.class))
+        }
+        if (type.equals(Slot.class)) {
             return (T) getSlotFromReader(rs);
-        if (type.equals(RACMVolumeContainer.class))
+        }
+        if (type.equals(RACMVolumeContainer.class)) {
             return (T) getRACMVolumeContainerFromReader(rs);
-        if (type.equals(K8sCluster.class))
+        }
+        if (type.equals(K8sCluster.class)) {
             return (T) getK8sClusterFromReader(rs);
-        if (type.equals(DaskCluster.class))
+        }
+        if (type.equals(DaskCluster.class)) {
             return (T) getDaskClusterFromReader(rs);
-        if (type.equals(GenericVolume.class))
+        }
+        if (type.equals(GenericVolume.class)) {
             return (T) getGenericVolumeFromReader(rs);
+        }
         throw new Exception("Type not supported");
     }
 
@@ -949,8 +975,8 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<VolumeContainer> getUserVolumes(String userId, Node node) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn
-                .prepareStatement("SELECT * FROM `volume_container` WHERE `node_id` = ? AND `user_id` = ? AND `status` <> ?");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT * FROM `volume_container` WHERE `node_id` = ? AND `user_id` = ? AND `status` <> ?");
 
         try {
             pstmt.setLong(1, node.getId());
@@ -966,8 +992,8 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<RACMVolumeContainer> getRACMUserVolumes(String userId, Node node) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn
-                .prepareStatement("SELECT * FROM `racm_volume_container` WHERE `node_id` = ? AND `user_id` = ? AND `status` <> ?");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT * FROM `racm_volume_container` WHERE `node_id` = ? AND `user_id` = ? AND `status` <> ?");
 
         try {
             pstmt.setLong(1, node.getId());
@@ -991,8 +1017,9 @@ public class RegistryImpl implements Registry {
             try {
                 if (rs.next()) {
                     return rs.getString("Value");
-                } else
+                } else {
                     throw new Exception("Key '" + key + "' not found in `" + settingsTable + "`");
+                }
             } finally {
                 rs.close();
             }
@@ -1005,31 +1032,53 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<ExecutableContainer> getContainers(String userId) throws Exception {
         Connection conn = this.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id` LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id` WHERE a.`user_id` = ? AND a.`status` <> ? ORDER BY a.`created_at` DESC");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a"
+                + " LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id`"
+                + " LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id`"
+                + " WHERE a.`user_id` = ? AND a.`status` <> ? ORDER BY a.`created_at` DESC");
         try {
             pstmt.setString(1, userId);
             pstmt.setString(2, ContainerStatus.DELETED);
             Iterable<ExecutableContainer> iterable = this.getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class);
             return iterable;
-        }
-        finally {
+        } finally {
             pstmt.close();
             conn.close();
         }
     }
 
     @Override
+    public Iterable<ExecutableContainer> getContainers() throws Exception {
+        Connection conn = getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT * FROM `executable_container` WHERE `status` <> ? ORDER BY `created_at` DESC");
+        try {
+            pstmt.setString(1, ContainerStatus.DELETED);
+            return getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class);
+        } finally {
+            pstmt.close();
+            conn.close();
+        }
+    }
+    
+    @Override
     public Iterable<ExecutableContainer> getInactiveContainers(Date inactiveSince, boolean unknown) throws Exception {
         Connection conn = this.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id` LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id` WHERE a.`status` <> ? AND a.`created_at` < ? AND (" + (unknown ? "a.`accessed_at` IS NULL OR " : "") + "a.`accessed_at` < ?) ORDER BY a.`created_at` DESC");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a"
+                + " LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id`"
+                + " LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id`"
+                + " WHERE a.`status` <> ? AND a.`created_at` < ? AND ("
+                + (unknown ? "a.`accessed_at` IS NULL OR " : "")
+                + "a.`accessed_at` < ?) ORDER BY a.`created_at` DESC");
         try {
             pstmt.setString(1, ContainerStatus.DELETED);
             pstmt.setTimestamp(2, new java.sql.Timestamp(inactiveSince.getTime()));
             pstmt.setTimestamp(3, new java.sql.Timestamp(inactiveSince.getTime()));
             Iterable<ExecutableContainer> iterable = this.getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class);
             return iterable;
-        }
-        finally {
+        } finally {
             pstmt.close();
             conn.close();
         }
@@ -1038,13 +1087,19 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<ExecutableContainer> getExpiredContainers() throws Exception {
         Connection conn = this.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container` a LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id` LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id` LEFT OUTER JOIN `executable_image` i ON a.`executable_image_id` = i.`id` LEFT OUTER JOIN `domain` d ON i.`domain_id` = d.`id` WHERE a.`status` <> ? AND (d.`max_session_secs` > 0 AND TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP, a.`created_at`)) > d.`max_session_secs`)");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT a.*, c.`id` AS `cluster_id` FROM `executable_container`"
+                + " a LEFT OUTER JOIN `linked_dask_cluster` b ON a.`id` = b.`container_id`"
+                + " LEFT OUTER JOIN `dask_cluster` c ON b.`cluster_id` = c.`id`"
+                + " LEFT OUTER JOIN `executable_image` i ON a.`executable_image_id` = i.`id`"
+                + " LEFT OUTER JOIN `domain` d ON i.`domain_id` = d.`id`"
+                + " WHERE a.`status` <> ? AND (d.`max_session_secs` > 0"
+                + " AND TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP, a.`created_at`)) > d.`max_session_secs`)");
         try {
             pstmt.setString(1, ContainerStatus.DELETED);
             Iterable<ExecutableContainer> iterable = this.getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class);
             return iterable;
-        }
-        finally {
+        } finally {
             pstmt.close();
             conn.close();
         }
@@ -1080,7 +1135,8 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<ExecutableImage> getExecutableImages(Domain domain) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `executable_image` WHERE `domain_id` = ? ORDER BY `display_order`");
+        PreparedStatement pstmt = conn
+                .prepareStatement("SELECT * FROM `executable_image` WHERE `domain_id` = ? ORDER BY `display_order`");
 
         try {
             pstmt.setLong(1, domain.getId());
@@ -1092,9 +1148,10 @@ public class RegistryImpl implements Registry {
     }
 
     @Override
-    public Iterable<VolumeImage> getVolumeImages(Domain domain) throws Exception{
+    public Iterable<VolumeImage> getVolumeImages(Domain domain) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `volume_image` WHERE `domain_id` = ? ORDER BY `display_order`");
+        PreparedStatement pstmt = conn
+                .prepareStatement("SELECT * FROM `volume_image` WHERE `domain_id` = ? ORDER BY `display_order`");
 
         try {
             pstmt.setLong(1, domain.getId());
@@ -1108,7 +1165,8 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<PublicVolume> getPublicVolumes(Domain domain) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `public_volume` WHERE `domain_id` = ? ORDER BY `display_order`");
+        PreparedStatement pstmt = conn
+                .prepareStatement("SELECT * FROM `public_volume` WHERE `domain_id` = ? ORDER BY `display_order`");
 
         try {
             pstmt.setLong(1, domain.getId());
@@ -1134,28 +1192,11 @@ public class RegistryImpl implements Registry {
     }
 
     @Override
-    public ExecutableImage getExecutableImage(Domain domain, String imageName) throws Exception {
-        Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `executable_image` WHERE `domain_id` = ? AND `name` = ?");
-
-        try {
-            pstmt.setLong(1, domain.getId());
-            pstmt.setString(2, imageName);
-            Iterator<ExecutableImage> i = getRegistryObjectsFromQuery(pstmt, ExecutableImage.class).iterator();
-            if (i.hasNext())
-                return i.next();
-            else
-                throw new Exception("ExecutableImage not found");
-        } finally {
-            pstmt.close();
-            conn.close();
-        }
-    }
-
-    @Override
     public long getUsedSlots(Node node) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT count(*) FROM `executable_container` a JOIN `slot` b ON a.slot_id = b.id WHERE `node_id` = ? AND `status` <> 'DELETED'");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT count(*) FROM `executable_container` a"
+                + " JOIN `slot` b ON a.slot_id = b.id WHERE `node_id` = ? AND `status` <> 'DELETED'");
 
         try {
             pstmt.setLong(1, node.getId());
@@ -1163,8 +1204,9 @@ public class RegistryImpl implements Registry {
             try {
                 if (rs.next()) {
                     return rs.getLong(1);
-                } else
+                } else {
                     return 0;
+                }
             } finally {
                 rs.close();
             }
@@ -1185,8 +1227,9 @@ public class RegistryImpl implements Registry {
             try {
                 if (rs.next()) {
                     return rs.getLong(1);
-                } else
+                } else {
                     return 0;
+                }
             } finally {
                 rs.close();
             }
@@ -1199,7 +1242,9 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<VolumeContainer> getAttachedUserVolumes(ExecutableContainer container) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT `volume_container`.* FROM `volume_container` JOIN `attached_user_volume` ON `volume_container_id`=`id` WHERE `executable_container_id` = ?");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT `volume_container`.* FROM `volume_container`"
+                + " JOIN `attached_user_volume` ON `volume_container_id`=`id` WHERE `executable_container_id` = ?");
 
         try {
             pstmt.setLong(1, container.getId());
@@ -1213,7 +1258,10 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<PublicVolume> getAttachedPublicVolumes(ExecutableContainer container) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT `public_volume`.* FROM `public_volume` JOIN `attached_public_volume` ON `public_volume_id`=`id` WHERE `executable_container_id` = ? ORDER BY `display_order`");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT `public_volume`.* FROM `public_volume`"
+                + " JOIN `attached_public_volume` ON `public_volume_id`=`id`"
+                + " WHERE `executable_container_id` = ? ORDER BY `display_order`");
 
         try {
             pstmt.setLong(1, container.getId());
@@ -1226,37 +1274,21 @@ public class RegistryImpl implements Registry {
 
     @Override
     public void acquireLock() throws Exception {
-        _createContainer.acquire();
+        createContainerSemaphore.acquire();
     }
 
     @Override
     public void releaseLock() {
-        _createContainer.release();
-    }
-
-    @Override
-    public Iterable<ExecutableContainer> getContainers() throws Exception {
-        Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `executable_container` WHERE `status` <> ? ORDER BY `created_at` DESC");
-
-        try {
-            pstmt.setString(1, ContainerStatus.DELETED);
-            return getRegistryObjectsFromQuery(pstmt, ExecutableContainer.class);
-        } finally {
-            pstmt.close();
-            conn.close();
-        }
-
+        createContainerSemaphore.release();
     }
 
     @Override
     public long adminCreateDomain(DomainInfo domainInfo) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement(
-                "INSERT INTO domain(" +
-                "`name`,`description`,`display_order`,`max_memory`, `max_cpus`, `shm_bytes`, `max_session_secs`) " +
-                "values(?,?,0,?,?,?,?)");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO domain("
+                    + "`name`,`description`,`display_order`,`max_memory`, `max_cpus`, `shm_bytes`, `max_session_secs`) "
+                    + "values(?,?,0,?,?,?,?)");
             try {
                 pstmt.setString(1, domainInfo.getName());
                 pstmt.setString(2, domainInfo.getDescription());
@@ -1270,19 +1302,18 @@ public class RegistryImpl implements Registry {
             }
 
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT `id` FROM `domain` WHERE `id` = LAST_INSERT_ID()");
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `domain` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     return rs.getLong("id");
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
@@ -1291,20 +1322,10 @@ public class RegistryImpl implements Registry {
     public long adminCreateNode(NodeInfo nodeInfo) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO node("
-                    + "`name`, "
-                    + "`description`, "
-                    + "`docker_api_url`, "
-                    + "`docker_api_client_cert`, "
-                    + "`docker_api_client_key`, "
-                    + "`proxy_api_url`, "
-                    + "`proxy_api_client_cert`, "
-                    + "`proxy_api_client_key`, "
-                    + "`proxy_base_url`, "
-                    + "`domain_id`, "
-                    + "`enabled`) "
-                    + "values(?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO node(" + "`name`, " + "`description`, "
+                    + "`docker_api_url`, " + "`docker_api_client_cert`, " + "`docker_api_client_key`, "
+                    + "`proxy_api_url`, " + "`proxy_api_client_cert`, " + "`proxy_api_client_key`, "
+                    + "`proxy_base_url`, " + "`domain_id`, " + "`enabled`) " + "values(?,?,?,?,?,?,?,?,?,?,?)");
 
             try {
                 pstmt.setString(1, nodeInfo.getName());
@@ -1324,19 +1345,18 @@ public class RegistryImpl implements Registry {
             }
 
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT `id` FROM `node` WHERE `id` = LAST_INSERT_ID()");
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `node` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     return rs.getLong("id");
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
@@ -1345,15 +1365,9 @@ public class RegistryImpl implements Registry {
     public long adminCreateImage(ImageInfo imageInfo) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO executable_image("
-                    + "`name`, "
-                    + "`description`, "
-                    + "`docker_ref`, "
-                    + "`container_manager_class`, "
-                    + "`domain_id`, "
-                    + "`display_order`) "
-                    + "values(?,?,?,?,?,0)");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO executable_image(" + "`name`, "
+                    + "`description`, " + "`docker_ref`, " + "`container_manager_class`, " + "`domain_id`, "
+                    + "`display_order`) " + "values(?,?,?,?,?,0)");
             try {
                 pstmt.setString(1, imageInfo.getName());
                 pstmt.setString(2, imageInfo.getDescription());
@@ -1366,19 +1380,18 @@ public class RegistryImpl implements Registry {
             }
 
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT `id` FROM `executable_image` WHERE `id` = LAST_INSERT_ID()");
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `executable_image` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     return rs.getLong("id");
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
@@ -1386,11 +1399,8 @@ public class RegistryImpl implements Registry {
     @Override
     public void adminCreateSlots(SlotsInfo slotsInfo) throws SQLException {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement(
-                "INSERT INTO slot("
-                + "`node_id`, "
-                + "`port_number`) "
-                + "values(?,?)");
+        PreparedStatement pstmt = conn
+                .prepareStatement("INSERT INTO slot(" + "`node_id`, " + "`port_number`) " + "values(?,?)");
         try {
             for (int portNumber : slotsInfo.getPortNumbers()) {
                 pstmt.setLong(1, slotsInfo.getNodeId());
@@ -1409,14 +1419,8 @@ public class RegistryImpl implements Registry {
         Connection conn = getConnection();
         try {
             PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO public_volume("
-                    + "`name`, "
-                    + "`description`, "
-                    + "`docker_ref`, "
-                    + "`domain_id`, "
-                    + "`display_order`, "
-                    + "`selected_by_default`) "
-                    + "values(?,?,?,?,0,?)");
+                    "INSERT INTO public_volume(" + "`name`, " + "`description`, " + "`docker_ref`, " + "`domain_id`, "
+                            + "`display_order`, " + "`selected_by_default`) " + "values(?,?,?,?,0,?)");
             try {
                 pstmt.setString(1, publicVolumeInfo.getName());
                 pstmt.setString(2, publicVolumeInfo.getDescription());
@@ -1429,19 +1433,18 @@ public class RegistryImpl implements Registry {
             }
 
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT `id` FROM `public_volume` WHERE `id` = LAST_INSERT_ID()");
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `public_volume` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     return rs.getLong("id");
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
@@ -1450,19 +1453,9 @@ public class RegistryImpl implements Registry {
     public long adminCreateK8sCluster(K8sClusterInfo k8sCluster) throws Exception {
         Connection conn = getConnection();
         try {
-            PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO k8s_cluster("
-                    + "`name`, "
-                    + "`description`, "
-                    + "`api_url`, "
-                    + "`api_token`, "
-                    + "`public_url`, "
-                    + "`namespace`, "
-                    + "`mem_overcommit_rate`, "
-                    + "`cpu_overcommit_rate`, "
-                    + "`domain_id`, "
-                    + "`enabled`) "
-                    + "values(?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO k8s_cluster(" + "`name`, " + "`description`, "
+                    + "`api_url`, " + "`api_token`, " + "`public_url`, " + "`namespace`, " + "`mem_overcommit_rate`, "
+                    + "`cpu_overcommit_rate`, " + "`domain_id`, " + "`enabled`) " + "values(?,?,?,?,?,?,?,?,?,?)");
             try {
                 pstmt.setString(1, k8sCluster.getName());
                 pstmt.setString(2, k8sCluster.getDescription());
@@ -1480,19 +1473,18 @@ public class RegistryImpl implements Registry {
             }
 
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT `id` FROM `k8s_cluster` WHERE `id` = LAST_INSERT_ID()");
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `k8s_cluster` WHERE `id` = LAST_INSERT_ID()");
             try {
                 if (rs.next()) {
                     return rs.getLong("id");
-                } else
+                } else {
                     throw new Exception("Unexpected error: result set is empty");
+                }
             } finally {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
@@ -1503,21 +1495,10 @@ public class RegistryImpl implements Registry {
         Connection conn = getConnection();
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT "
-                    + "`id`, "
-                    + "`name`, "
-                    + "`description`, "
-                    + "`docker_api_url`, "
-                    + "`docker_api_client_cert`, "
-                    + "`docker_api_client_key`, "
-                    + "`proxy_api_url`, "
-                    + "`proxy_api_client_cert`, "
-                    + "`proxy_api_client_key`, "
-                    + "`proxy_base_url`, "
-                    + "`domain_id` "
-                    + "FROM `node` "
-                    + "ORDER BY `id`");
+            ResultSet rs = stmt.executeQuery("SELECT " + "`id`, " + "`name`, " + "`description`, "
+                    + "`docker_api_url`, " + "`docker_api_client_cert`, " + "`docker_api_client_key`, "
+                    + "`proxy_api_url`, " + "`proxy_api_client_cert`, " + "`proxy_api_client_key`, "
+                    + "`proxy_base_url`, " + "`domain_id` " + "FROM `node` " + "ORDER BY `id`");
 
             try {
                 while (rs.next()) {
@@ -1539,8 +1520,7 @@ public class RegistryImpl implements Registry {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
         return result;
@@ -1552,11 +1532,7 @@ public class RegistryImpl implements Registry {
         Connection conn = getConnection();
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT "
-                    + "`node_id`, "
-                    + "`port_number` "
-                    + "FROM `slot` "
+            ResultSet rs = stmt.executeQuery("SELECT " + "`node_id`, " + "`port_number` " + "FROM `slot` "
                     + "ORDER BY `node_id`, `port_number`");
 
             try {
@@ -1577,8 +1553,7 @@ public class RegistryImpl implements Registry {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
         return result;
@@ -1590,16 +1565,8 @@ public class RegistryImpl implements Registry {
         Connection conn = getConnection();
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT "
-                    + "`id`, "
-                    + "`name`, "
-                    + "`description`, "
-                    + "`docker_ref`, "
-                    + "`container_manager_class`, "
-                    + "`domain_id` "
-                    + "FROM `executable_image` "
-                    + "ORDER BY `id`");
+            ResultSet rs = stmt.executeQuery("SELECT " + "`id`, " + "`name`, " + "`description`, " + "`docker_ref`, "
+                    + "`container_manager_class`, " + "`domain_id` " + "FROM `executable_image` " + "ORDER BY `id`");
 
             try {
                 while (rs.next()) {
@@ -1616,8 +1583,7 @@ public class RegistryImpl implements Registry {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
         return result;
@@ -1629,15 +1595,8 @@ public class RegistryImpl implements Registry {
         Connection conn = getConnection();
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT "
-                    + "`id`, "
-                    + "`name`, "
-                    + "`description`, "
-                    + "`docker_ref`, "
-                    + "`domain_id` "
-                    + "FROM `public_volume` "
-                    + "ORDER BY `id`");
+            ResultSet rs = stmt.executeQuery("SELECT " + "`id`, " + "`name`, " + "`description`, " + "`docker_ref`, "
+                    + "`domain_id` " + "FROM `public_volume` " + "ORDER BY `id`");
 
             try {
                 while (rs.next()) {
@@ -1653,8 +1612,7 @@ public class RegistryImpl implements Registry {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
         return result;
@@ -1667,14 +1625,8 @@ public class RegistryImpl implements Registry {
         try {
             Statement stmt = conn.createStatement();
 
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT "
-                    + "`id`, "
-                    + "`name`, "
-                    + "`description`, "
-                    + "`max_memory` "
-                    + "FROM `domain` "
-                    + "ORDER BY `id`");
+            ResultSet rs = stmt.executeQuery("SELECT " + "`id`, " + "`name`, " + "`description`, " + "`max_memory` "
+                    + "FROM `domain` " + "ORDER BY `id`");
 
             try {
                 while (rs.next()) {
@@ -1689,8 +1641,7 @@ public class RegistryImpl implements Registry {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
         return result;
@@ -1702,20 +1653,9 @@ public class RegistryImpl implements Registry {
         Connection conn = getConnection();
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT "
-                    + "`id`, "
-                    + "`name`, "
-                    + "`description`, "
-                    + "`api_url`, "
-                    + "`api_token`, "
-                    + "`public_url`, "
-                    + "`namespace`, "
-                    + "`mem_overcommit_rate`, "
-                    + "`cpu_overcommit_rate`, "
-                    + "`domain_id`, "
-                    + "`enabled` "
-                    + "FROM k8s_cluster ORDER BY id");
+            ResultSet rs = stmt.executeQuery("SELECT " + "`id`, " + "`name`, " + "`description`, " + "`api_url`, "
+                    + "`api_token`, " + "`public_url`, " + "`namespace`, " + "`mem_overcommit_rate`, "
+                    + "`cpu_overcommit_rate`, " + "`domain_id`, " + "`enabled` " + "FROM k8s_cluster ORDER BY id");
             try {
                 while (rs.next()) {
                     K8sClusterInfo item = new K8sClusterInfo();
@@ -1736,8 +1676,7 @@ public class RegistryImpl implements Registry {
                 rs.close();
                 stmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
         return result;
@@ -1767,13 +1706,14 @@ public class RegistryImpl implements Registry {
             pstmt.setLong(1, domain.getId());
             ResultSet rs = pstmt.executeQuery();
             try {
-                if (rs.next()) return rs.getInt("n") > 0;
+                if (rs.next()) {
+                    return rs.getInt("n") > 0;
+                }
             } finally {
                 rs.close();
                 pstmt.close();
             }
-        }
-        finally {
+        } finally {
             conn.close();
         }
 
@@ -1783,7 +1723,8 @@ public class RegistryImpl implements Registry {
     @Override
     public Iterable<DaskCluster> getDaskClusters(String userId) throws Exception {
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `dask_cluster` WHERE `user_id` = ? AND `status` <> ? ORDER BY `created_at` DESC");
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT * FROM `dask_cluster` WHERE `user_id` = ? AND `status` <> ? ORDER BY `created_at` DESC");
 
         try {
             pstmt.setString(1, userId);
@@ -1803,10 +1744,11 @@ public class RegistryImpl implements Registry {
         try {
             pstmt.setLong(1, id);
             Iterator<GenericVolume> i = getRegistryObjectsFromQuery(pstmt, GenericVolume.class).iterator();
-            if (i.hasNext())
+            if (i.hasNext()) {
                 return i.next();
-            else
+            } else {
                 throw new Exception("K8s Volume not found");
+            }
         } finally {
             pstmt.close();
             conn.close();
@@ -1816,13 +1758,13 @@ public class RegistryImpl implements Registry {
     @Override
     public void linkDaskCluster(ExecutableContainer container, DaskCluster daskCluster) throws Exception {
         Connection conn = this.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("INSERT `linked_dask_cluster` (container_id, cluster_id) VALUES (?, ?)");
+        PreparedStatement pstmt = conn
+                .prepareStatement("INSERT `linked_dask_cluster` (container_id, cluster_id) VALUES (?, ?)");
         try {
             pstmt.setLong(1, container.getId());
             pstmt.setLong(2, daskCluster.getId());
             pstmt.executeUpdate();
-        }
-        finally {
+        } finally {
             pstmt.close();
             conn.close();
         }

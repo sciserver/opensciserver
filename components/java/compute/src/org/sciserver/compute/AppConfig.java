@@ -3,6 +3,7 @@
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE.txt in the project root for license information.
  *******************************************************************************/
+
 package org.sciserver.compute;
 
 import com.google.common.cache.CacheBuilder;
@@ -10,17 +11,17 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.util.concurrent.TimeUnit;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.sciserver.authentication.client.AuthenticationClient;
 import org.sciserver.authentication.client.CachingAuthenticationClient;
@@ -29,6 +30,7 @@ import org.sciserver.compute.core.registry.RegistryImpl;
 import org.sciserver.racm.client.RACMClient;
 import org.sciserver.racm.jobm.model.UserDockerComputeDomainModel;
 import sciserver.logging.Logger;
+
 
 public class AppConfig {
 
@@ -51,7 +53,7 @@ public class AppConfig {
         return instance;
     }
 
-    private AppConfig() {};
+    private AppConfig() {}
 
     public void loadSettings(InputStream input) throws IOException {
         Properties properties = new Properties();
@@ -147,15 +149,17 @@ public class AppConfig {
 
         try {
             com.mysql.cj.jdbc.AbandonedConnectionCleanupThread.shutdown();
+        } catch (Exception ex) {
+            //Do nothing
         }
-        catch (Exception ex) { }
 
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         while (drivers.hasMoreElements()) {
             try {
                 DriverManager.deregisterDriver(drivers.nextElement());
+            } catch (Exception ex) {
+                //Do nothing
             }
-            catch (Exception ex) { }
         }
     }
 
