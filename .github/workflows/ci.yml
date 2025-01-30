@@ -33,6 +33,11 @@ jobs:
         with:
           name: test-reports
           path: components/java/**/build/reports/tests/test/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkstyle-reports
+          path: components/java/**/build/reports/checkstyle/
 
   docs:
     name: Build docs with Python ${{ matrix.python-version }}

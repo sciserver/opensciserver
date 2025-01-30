@@ -2,7 +2,6 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'eclipse'
     apply plugin: 'maven-publish'
-    apply plugin: 'checkstyle'
 
     group 'org.sciserver.springapp'
 
@@ -16,12 +15,6 @@ subprojects {
         api project(':logging')
         testImplementation 'org.testng:testng:6.14.3'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    }
-
-    checkstyle {
-        toolVersion '8.39'
-        config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle.xml")
-        maxWarnings 0
     }
 
     publishing {

@@ -12,8 +12,6 @@ repositories {
 }
 
 checkstyle {
-    toolVersion '8.39'
-    config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle.xml")
     maxWarnings 59
 }
 

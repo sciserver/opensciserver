@@ -4,7 +4,6 @@ plugins {
     id 'eclipse'
     id 'eclipse-wtp'
     id 'maven-publish'
-    id 'checkstyle'
     id 'war'
 }
 
@@ -14,14 +13,8 @@ group 'org.sciserver'
 
 
 checkstyle {
-    toolVersion '10.10.0'
-    config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle-10.xml")
-    maxWarnings 165535
+    maxWarnings 33357
 }
-
-//springBoot {
-//    mainClass = 'org.sciserver.springapp.RACMApplication'
-//}
 
 repositories {
     mavenCentral()

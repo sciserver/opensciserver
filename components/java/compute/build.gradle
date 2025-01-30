@@ -3,7 +3,6 @@ plugins {
     id('war')
     id('eclipse-wtp')
     id('idea')
-    id('checkstyle')
 }
 
 sourceSets {
@@ -19,9 +18,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion '10.10.0'
-    config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle-10.xml")
-    maxWarnings 65535
+    maxWarnings 4773
 }
 
 dependencies {
@@ -54,7 +51,6 @@ dependencies {
     implementation 'com.rabbitmq:amqp-client:2.3.1'
     implementation 'io.kubernetes:client-java:14.0.0'
     implementation 'io.kubernetes:client-java-api-fluent:14.0.0'
-    //implementation files("${rootDir}/racm/build/dist/racm_models.jar")
     implementation project(':logging')
     implementation project(':clients:auth')
     implementation project(':clients:racm')
