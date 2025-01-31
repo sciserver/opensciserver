@@ -34,8 +34,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: dockermeta
       - name: Build and push docker images
-        run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}
+        run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
