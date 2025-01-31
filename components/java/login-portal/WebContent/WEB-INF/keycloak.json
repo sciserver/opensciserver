@@ -1,0 +1,7 @@
+{
+    "realm": "${env.KEYCLOAK_REALM}",
+    "auth-server-url": "${env.KEYCLOAK_URL}",
+    "resource": "${env.KEYCLOAK_CLIENT}",
+    "public-client": true,
+    "ssl-required": "${env.KEYCLOAK_SSL_REQUIRED}"
+}

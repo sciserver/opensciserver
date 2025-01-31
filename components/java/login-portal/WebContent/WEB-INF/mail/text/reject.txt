@@ -1,0 +1,6 @@
+Your [(${appName})] registration has been rejected.
+
+For additional assistance, please email [(${helpdeskEmail})].
+
+---
+	The [(${appName})] Team

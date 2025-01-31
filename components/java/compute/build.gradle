@@ -105,7 +105,7 @@ eclipse {
 }
 
 task cleanExtra(type: Delete) {
-    delete 'dist', 'WebContent/WEB-INF/version'
+    delete "${buildDir}/dist", 'WebContent/WEB-INF/version'
 }
 
 clean.dependsOn('cleanExtra');

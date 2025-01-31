@@ -1,0 +1,11 @@
+Dear [(${username})],
+
+Welcome to [(${appName})]! Either you or someone using this email has signed up for [(${appName})]. Please visit:
+[(@{${emailCallback} + '/register-validation'(code=${code},callbackUrl=${callbackUrl})})]
+
+This link will expire in [(${expirationTime})] minutes.
+
+For additional assistance, please email [(${helpdeskEmail})].
+
+---
+	The [(${appName})] Team

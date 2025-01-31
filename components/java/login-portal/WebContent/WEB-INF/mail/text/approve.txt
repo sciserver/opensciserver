@@ -1,0 +1,8 @@
+Your [(${appName})] registration has been approved.
+
+Please go to [(${emailCallback})] to log in.
+
+For additional assistance, please email [(${helpdeskEmail})].
+
+---
+	The [(${appName})] Team

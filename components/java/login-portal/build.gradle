@@ -1,0 +1,103 @@
+plugins {
+    id('java')
+    id('war')
+    id('eclipse-wtp')
+    id('idea')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+checkstyle {
+    maxWarnings 4345
+}
+
+dependencies {
+    compileOnly 'org.apache.tomcat:tomcat-servlet-api:8.0.39'
+    compileOnly 'org.apache.tomcat:tomcat-jsp-api:8.0.39'
+    compileOnly 'org.apache.tomcat:tomcat-annotations-api:8.0.39'
+
+    implementation 'javax.servlet:jstl:1.2'
+
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.0'
+    implementation 'org.springframework:spring-core:4.3.20.RELEASE'
+    implementation 'org.springframework:spring-webmvc:4.3.20.RELEASE'
+    implementation 'org.springframework:spring-web:4.3.20.RELEASE'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.7.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.4'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.4'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.2'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'commons-io:commons-io:2.5'
+    implementation 'com.rabbitmq:amqp-client:2.3.1'
+    implementation 'org.apache.commons:commons-email:1.5'
+    implementation 'com.google.crypto.tink:tink:1.2.1'
+    implementation 'org.thymeleaf:thymeleaf:3.0.11.RELEASE'
+    implementation 'org.thymeleaf:thymeleaf-spring4:3.0.11.RELEASE'
+    implementation 'org.keycloak:keycloak-spring-security-adapter:4.6.0.Final'
+    implementation 'org.keycloak:keycloak-core:4.6.0.Final'
+    implementation 'org.springframework.security:spring-security-core:4.2.10.RELEASE'
+    implementation 'org.springframework.security:spring-security-web:4.2.10.RELEASE'
+    implementation 'org.springframework.security:spring-security-config:4.2.10.RELEASE'
+    implementation 'org.passay:passay:1.6.0'
+    implementation 'mysql:mysql-connector-java:6.0.6'
+    implementation 'commons-dbutils:commons-dbutils:1.7'
+    implementation 'com.zaxxer:HikariCP:2.7.2'
+    implementation 'org.apache.commons:commons-text:1.9'
+
+    implementation project(':logging')
+}
+
+task git(type: Exec) {
+    commandLine 'git', 'describe', '--tags', '--always'
+
+    doFirst{
+        standardOutput = new FileOutputStream("${projectDir}/WebContent/WEB-INF/version")
+    }
+
+   doLast{
+        standardOutput.close()
+   }
+}
+
+task cleanExtra(type:Delete) {
+    delete "${buildDir}/dist", 'WebContent/WEB-INF/version'
+}
+
+clean.dependsOn('cleanExtra');
+
+war {
+    dependsOn git
+    destinationDir = file("${buildDir}/dist")
+    rootSpec.exclude('**/tomcat-*.jar')
+
+    from('WebContent') {
+        include 'static/**'
+    }
+
+    webInf {
+        from('WebContent/WEB-INF') {
+            include '*/**'
+            exclude 'application.properties'
+        }
+
+        from('conf') {
+            include 'application.properties'
+        }
+
+        from('src') {
+            into 'classes'
+            exclude '**/*.java'
+        }
+    }
+}

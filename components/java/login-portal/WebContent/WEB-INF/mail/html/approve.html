@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<p>
+		Your <span th:text="${appName}">SciServer</span> registration has been approved.
+	</p>
+	<p>
+		<a href=""  th:href="${emailCallback}">Click here</a> to log in.
+	</p>
+	<p>
+		For additional assistance, please email our
+			<a href="helpdesk@sciserver.org" th:href="'mailto:' + ${helpdeskEmail}">help desk</a>.
+	</p>
+	<p>
+		&hellip;<br /> <em>The <span th:text="${appName}">SciServer</span> Team</em>
+	</p>
+</body>
+</html>
