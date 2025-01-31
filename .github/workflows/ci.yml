@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_BASE: ${{ github.repository }}
 
 jobs:
   build:
@@ -28,6 +28,14 @@ jobs:
           java-version: '17'
           cache: 'gradle'
       - run: make
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push docker images
+        run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
