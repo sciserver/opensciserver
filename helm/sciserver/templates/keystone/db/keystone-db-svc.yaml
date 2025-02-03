@@ -1,0 +1,20 @@
+{{ if and (not .Values.keystone.host) (not .Values.keystoneDb.host) -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sciserver.fullname" . }}-keystone-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: keystone-db
+spec:
+  ports:
+  - port: 3306
+    targetPort: mysql
+  selector:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: keystone-db
+{{ end -}}

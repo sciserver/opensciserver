@@ -1,0 +1,83 @@
+{{ if .Values.logging.listener.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-log-listener
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: log-listener
+spec:
+  replicas: {{ .Values.logging.listener.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: log-listener
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: log-listener
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      {{ if not .Values.logging.db.host -}}
+      initContainers:
+      - name: wait-for-db
+        image: "{{ .Values.sqlServerToolsImage.repository }}:{{ .Values.sqlServerToolsImage.tag }}"
+        imagePullPolicy: {{ .Values.sqlServerToolsImage.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - "while ! /opt/mssql-tools/bin/sqlcmd -b -S \"${DATABASE_HOST}\" -U SA -P \"${SA_PASSWORD}\" -Q 'IF DB_ID(N'\"'\"SciServerLog\"'\"') IS NULL CREATE DATABASE SciServerLog'; do sleep 5; done"
+        env:
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-logging-db
+              key: password
+        - name: DATABASE_HOST
+          value: {{ include "sciserver.fullname" . }}-logging-db
+      {{ end -}}
+      containers:
+      - name: app
+        image: "{{ .Values.logging.listener.image.repository }}:{{ required "please specify log listener image tag or use image manifest" .Values.logging.listener.image.tag }}"
+        imagePullPolicy: {{ .Values.logging.listener.image.pullPolicy }}
+        command: ["java"]
+        args:
+        - "-jar"
+        - /opt/sciserver-log-listener.jar
+        - /etc/config/application.properties
+        env:
+        - name: MANAGEMENT_SERVER_PORT
+          value: "8080"
+        - name: SPRING_LIQUIBASE_ENABLED
+          value: "true"
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/logging/listener/secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        livenessProbe:
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          httpGet:
+            path: /actuator/info
+            port: 8080
+        readinessProbe:
+          timeoutSeconds: 5
+          httpGet:
+            path: /actuator/health
+            port: 8080
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" . }}-log-listener
+{{ end -}}

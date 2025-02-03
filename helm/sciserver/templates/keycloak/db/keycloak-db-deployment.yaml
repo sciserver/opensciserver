@@ -1,0 +1,62 @@
+{{ if and .Values.keycloak.enabled (not .Values.keycloak.url) (not .Values.keycloak.db.host) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-keycloak-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: keycloak-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: keycloak-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: keycloak-db
+    spec:
+      containers:
+      - name: mysql
+        {{- if eq .Values.keycloak.app.version "18" }}
+        image: "mysql:8.0.29"
+        {{- else }}
+        image: "mariadb:10.4.12"
+        {{- end }}
+        imagePullPolicy: {{ .Values.computeDb.image.pullPolicy }}
+        env:
+        - name: MYSQL_USER
+          value: keycloak
+        - name: MYSQL_DATABASE
+          value: keycloak
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-keycloak-db-pass
+              key: password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-keycloak-db-pass
+              key: password
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "sciserver.fullname" . }}-keycloak-db
+{{ end -}}
+
+

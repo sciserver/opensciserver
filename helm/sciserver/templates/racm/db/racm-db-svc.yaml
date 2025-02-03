@@ -1,0 +1,21 @@
+{{ if not .Values.racmDb.host -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sciserver.fullname" . }}-racm-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: racm-db
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: racm-db
+  ports:
+  - protocol: TCP
+    port: 1433
+    targetPort: mssql
+{{ end -}}

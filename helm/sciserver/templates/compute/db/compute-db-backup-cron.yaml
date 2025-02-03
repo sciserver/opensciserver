@@ -1,0 +1,49 @@
+{{- if and .Values.backup.enable .Values.computeDb.backup.enable (not .Values.computeDb.host) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sciserver.fullname" . }}-compute-db-backup
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: compute-db-backup
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  suspend: false
+  schedule: '{{ default "0 0 * * *" .Values.computeDb.backup.schedule }}'
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.computeDb.image.repository }}:{{ .Values.computeDb.image.tag }}"
+            name: backup
+            command:
+            - "/bin/bash"
+            - "-xe"
+            - "-c"
+            - "mysqldump -h {{ include "sciserver.fullname" . }}-compute-db -u root --password=$MYSQL_ROOT_PASSWORD --single-transaction compute -r /backup/compute-$(date +%F-%H-%M).sql && find /backup -name 'compute-*.sql' -ctime +{{ default 7 .Values.computeDb.backup.retainDays }} -delete"
+            env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-compute-db
+                  key: password
+            volumeMounts:
+            - name: backup
+              mountPath: /backup
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: backup
+            nfs:
+              server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+              path: {{ default "/backup" .Values.backup.nfs.path }}
+{{- end -}}

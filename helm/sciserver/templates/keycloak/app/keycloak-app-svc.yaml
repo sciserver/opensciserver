@@ -1,0 +1,16 @@
+{{ if and .Values.keycloak.enabled (not .Values.keycloak.url) -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sciserver.fullname" . }}-keycloak
+spec:
+  selector:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: keycloak
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: api
+{{ end -}}

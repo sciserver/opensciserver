@@ -1,0 +1,43 @@
+{{ if .Values.rendersvc.enable -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sciserver.fullname" . }}-rendersvc
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.proxy.cidrWhiteList }}
+{{ if .Values.ingressCertManager }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingressCertManager }}
+{{ end }}
+spec:
+{{ if .Values.ingressClassName }}
+  ingressClassName: {{ .Values.ingressClassName }}
+{{ end }}
+{{ if .Values.ingressTlsSecret }}
+  tls:
+    - hosts:
+      - {{ .Values.baseDomain }}
+      secretName: {{ .Values.ingressTlsSecret }}
+{{ end }}
+  rules:
+  - {{ if or .Values.proxy.ingressUseHost .Values.ingressTlsSecret }}
+    host: {{ .Values.baseDomain }}
+    {{ end }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "sciserver.fullname" . }}-render
+            port:
+              number: 8080
+        path: /{{ include "sciserver.prefix" . }}render/(.*)
+        pathType: Prefix
+{{ end -}}

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-graphql
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: graphql
+spec:
+  replicas: {{ .Values.graphql.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: graphql
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: graphql
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      containers:
+        - name: graphql
+          image: "{{ .Values.graphql.image.repository }}:{{ .Values.graphql.image.tag }}"
+          imagePullPolicy: {{ .Values.graphql.image.pullPolicy }}
+          env:
+            - name: FILES_BASE_URL
+              value: '{{ include "sciserver.url" . }}fileservice/api/'
+            - name: COMPUTE_BASE_URL                                                                                                                                       
+              value: '{{ include "sciserver.url" . }}compute/api/'                                                                                                             
+            - name: RACM_BASE_URL                                                                                                                                          
+              value: '{{ include "sciserver.url" . }}racm/'
+            - name: LOGIN_PORTAL_BASE_URL
+              value: '{{ include "sciserver.url" . }}login-portal/api/'
+          ports:
+            - containerPort: 4000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: '/healthz'
+              port: 4000
+              httpHeaders:
+              - name: apollo-require-preflight
+                value: 'true'
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

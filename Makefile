@@ -1,3 +1,4 @@
+.PHONY: helm all build java clean publish-images images
 all: build
 
 build: java
@@ -22,3 +23,8 @@ PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS))
 images: $(IMAGE_TARGETS)
 
 publish-images: $(PUSH_TARGETS)
+
+helm:
+	cd helm && mkdir -p build && rm -rf build/sciserver && cp -r sciserver build && cd build/sciserver
+	cd helm/build/sciserver && sed -i "" "s%<<<IMAGE_REPO>>>%$(REPO)%" values.yaml && sed -i "" "s%<<<VTAG>>>%$(VTAG)%" values.yaml image-manifest.yaml Chart.yaml
+	cd helm/build && COPYFILE_DISABLE=1 tar -czf sciserver-$(VTAG).tar.gz --no-xattrs sciserver

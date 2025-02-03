@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-logging-api
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: logging-api
+spec:
+  replicas: {{ .Values.logging.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: logging-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: logging-api
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      initContainers:
+      containers:
+      - name: tomcat
+        image: "{{ .Values.logging.api.image.repository }}:{{ required "please specify logging-api image tag or use image manifest" .Values.logging.api.image.tag }}"
+        imagePullPolicy: {{ .Values.logging.api.image.pullPolicy }}
+        env:
+        - name: CATALINA_OPTS
+          value: -Dsciserver.properties.file=/etc/sciserver-config/application.properties
+        - name: CONTEXT_PATH_NAME
+          value: {{ include "sciserver.tomcatprefix" . }}logging-api
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/logging/service/secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/sciserver-config
+          readOnly: true
+        ports:
+        - name: web
+          containerPort: 8080
+        livenessProbe:
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}logging-api
+            port: 8080
+        readinessProbe:
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}logging-api
+            port: 8080
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" . }}-logging-api

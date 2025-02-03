@@ -1,0 +1,52 @@
+org.sciserver.racm:
+    admin:
+        username: {{ .Values.racm.admin.username }}
+        keystone-id: will_be_reset_after_initializing
+        password: {{ required "password required!" .Values.racm.admin.password }}
+        email: {{ .Values.racm.admin.email }}
+    loginAdmin:
+        username: admin
+        password: {{ required "password required!" .Values.keystone.admin.password }}
+    jobm:
+        admin-user: {{ .Values.racm.jobmAdmin.username }}
+        admin-keystone-id: will_be_reset_after_initializing
+        admin-password: {{ required "password required!" .Values.racm.jobmAdmin.password }}
+        admin-email: {{ .Values.racm.jobmAdmin.email }}
+    logging:
+        enabled: true
+        application-name: RACM
+        application-host: Kubernetes
+        messaging-host: {{ include "sciserver.rabbitmq_host" . }}
+        exchange-name: {{ .Values.logging.rabbitmq.exchange }}
+
+    login-portal-url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
+    config.urls:
+        getGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/groups
+        getMyGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/mygroups
+        getResourcesUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/rest/resources
+        postResourcesUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/rest/resources
+        getPrivilegesUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/rest/privileges
+        getAllUsersUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/users/public
+        getAllGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/groups
+        submitGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/groups
+        manageUserProfileUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/user
+        racmBaseUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/
+        computeFileVolumesBaseUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "fileservice") }}/
+        casjobsAPIUrl: https://skyserver.sdss.org/CasJobs/RestApi/
+
+javax.persistence.jdbc:
+    {{ if .Values.racmDb.host -}}
+    url: jdbc:sqlserver://{{ .Values.racmDb.host }}:{{ default 1433 .Values.racmDb.port }};DatabaseName={{ default "RACM" .Values.racmDb.dbname }}
+    user: {{ default "SA" .Values.racmDb.user }}
+    {{ else -}}
+    url: jdbc:sqlserver://{{ include "sciserver.fullname" . }}-racm-db:1433;DatabaseName=RACM
+    user: SA
+    {{ end -}}
+    password: {{ required "password required!" .Values.racmDb.password | quote }}
+
+{{ if .Values.racm.flywayEnabled -}}
+spring.flyway.enabled: true
+{{ else -}}
+spring.flyway.enabled: false
+{{ end -}}
+

@@ -1,0 +1,69 @@
+{{ if .Values.deployPoller.enable -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: {{ include "sciserver.fullname" . }}-deploy-poller
+spec:
+ selector:
+  matchLabels:
+   app: deploy-poller
+ containers:
+ replicas: 1
+ template:
+  metadata:
+   labels:
+    app: deploy-poller
+  spec:
+   {{ if .Values.imagePullSecret -}}
+   imagePullSecrets:
+   - name: {{ .Values.imagePullSecret }}
+   {{ end -}}
+   serviceAccountName: {{ include "sciserver.fullname" . }}-deploy-poller
+   containers:
+    - name: deploy-poller
+      image: "{{ .Values.deployPoller.image.repository }}:{{ required "please specify deploy-poller image tag or use image manifest" .Values.deployPoller.image.tag }}"
+      env:
+       -
+        name: CHART_PATH
+        value: sciserver
+       -
+        name: NAMESPACE
+        value: "{{ .Release.Namespace }}"
+       -
+        name: CHART
+        value: "{{ .Release.Name }}"
+       -
+        name: DRY_RUN
+        value: "{{ .Values.deployPoller.dryRun }}"
+       -
+        name: NEXUS_PATH
+        value: "{{ .Values.deployPoller.nexus.path }}"
+       -
+        name: NEXUS_USER
+        value: "{{ .Values.deployPoller.nexus.user }}"
+       -
+        name: NEXUS_PASS
+        value: "{{ .Values.deployPoller.nexus.pass }}"
+       -
+        name: DEV
+        value: "{{ .Values.deployPoller.devMode }}"
+       -
+        name: PATTERN
+        value: "{{ .Values.deployPoller.pattern }}"
+       -
+        name: IGNORE
+        value: "{{ .Values.deployPoller.ignore }}"
+       -
+        name: JENKINS_URL
+        value: "{{ .Values.deployPoller.jenkins.url }}"
+       -
+        name: JENKINS_JOB
+        value: "{{ .Values.deployPoller.jenkins.job }}"
+       -
+        name: JENKINS_TOKEN
+        value: "{{ .Values.deployPoller.jenkins.token }}"
+       -
+        name: SCISERVER_BASE_URL
+        value: {{ include "sciserver.url" . }}
+{{ end -}}

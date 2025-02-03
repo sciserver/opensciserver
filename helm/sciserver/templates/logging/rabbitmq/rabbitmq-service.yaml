@@ -1,0 +1,28 @@
+{{ if not .Values.logging.rabbitmq.host -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: logging-rabbitmq
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: logging-rabbitmq
+  type: {{ .Values.logging.rabbitmq.service.type }}
+  ports:
+   - name: http
+     protocol: TCP
+     port: 15672
+     targetPort: 15672
+   - name: amqp
+     protocol: TCP
+     port: 5672
+     targetPort: 5672
+{{ end -}}

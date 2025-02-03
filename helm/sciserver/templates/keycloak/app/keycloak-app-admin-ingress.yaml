@@ -1,0 +1,33 @@
+{{ if and .Values.keycloak.enabled (not .Values.keycloak.url) -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sciserver.fullname" . }}-keycloak
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.keycloak.app.adminCidrWhitelist }}
+spec:
+{{ if .Values.ingressClassName }}
+  ingressClassName: {{ .Values.ingressClassName }}
+{{ end }}
+{{ if .Values.ingressTlsSecret }}
+  tls:
+    - hosts:
+      - {{ .Values.baseDomain }}
+      secretName: {{ .Values.ingressTlsSecret }}
+{{ end }}
+  rules:
+  - {{ if or .Values.proxy.ingressUseHost .Values.ingressTlsSecret }}
+    host: {{ .Values.baseDomain }}
+    {{ end }}
+    http:
+      paths:
+      - path: /{{ include "sciserver.prefix" . }}auth/
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "sciserver.fullname" . }}-keycloak
+            port:
+              number: 8080
+{{ end -}}

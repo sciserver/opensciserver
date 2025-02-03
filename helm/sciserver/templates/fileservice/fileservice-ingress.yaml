@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sciserver.fullname" . }}-fileservice
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    {{ if .Values.proxy.enableAffinity }}
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/affinity-mode: balanced
+    nginx.ingress.kubernetes.io/session-cookie-name: SCISERVERAFFINITY
+    {{ end }}
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "{{ default "0" .Values.fileservice.uploadSizeMax }}"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.proxy.cidrWhiteList }}
+{{ if .Values.ingressCertManager }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingressCertManager }}
+{{ end }}
+spec:
+{{ if .Values.ingressClassName }}
+  ingressClassName: {{ .Values.ingressClassName }}
+{{ end }}
+{{ if .Values.ingressTlsSecret }}
+  tls:
+    - hosts:
+      - {{ .Values.baseDomain }}
+      secretName: {{ .Values.ingressTlsSecret }}
+{{ end }}
+  rules:
+  - {{ if or .Values.proxy.ingressUseHost .Values.ingressTlsSecret }}
+    host: {{ .Values.baseDomain }}
+    {{ end }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "sciserver.fullname" . }}-fileservice
+            port:
+              name: web
+        path: /{{ include "sciserver.prefix" . }}fileservice
+        pathType: ImplementationSpecific

@@ -1,0 +1,108 @@
+{{ if and .Values.keycloak.enabled (not .Values.keycloak.url) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-keycloak
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: keycloak
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: keycloak
+    spec:
+      containers:
+      - name: keycloak
+
+        # Default Keycloak version is 9 (deprecated, WildFly-based), alternative is 18 (supported, Quarkus-based)
+        {{- if eq .Values.keycloak.app.version "18" }}
+        image: "quay.io/keycloak/keycloak:18.0.2"
+        args: ["start", "--auto-build"]
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-keycloak-admin-pass
+              key: password
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_HOSTNAME
+          value: "{{ .Values.baseDomain }}"
+        - name: KC_HTTP_RELATIVE_PATH
+          value: "/{{ include "sciserver.prefix" . }}auth"
+        - name: KC_DB
+          value: mysql
+        - name: KC_DB_URL_HOST
+          {{- if .Values.keycloak.db.host }}
+          value: {{ .Values.keycloak.db.host }}
+          {{- else }}
+          value: {{ include "sciserver.fullname" . }}-keycloak-db
+          {{- end }}
+        {{- if .Values.keycloak.db.port }}
+        - name: KC_DB_URL_PORT
+          value: {{ .Values.keycloak.db.port }}
+        {{- end }}
+        - name: KC_DB_USERNAME
+          value: keycloak
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-keycloak-db-pass
+              key: password
+
+        # If version 18 is not specified, default to version 9 to support existing deployments
+        {{- else }}
+        image: "jboss/keycloak:9.0.2"
+        env:
+        - name: KEYCLOAK_USER
+          value: admin
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-keycloak-admin-pass
+              key: password
+        - name: PROXY_ADDRESS_FORWARDING
+          value: "true"
+        - name: DB_VENDOR
+          value: mariadb
+        - name: DB_ADDR
+          {{- if .Values.keycloak.db.host }}
+          value: {{ .Values.keycloak.db.host }}
+          {{- else }}
+          value: {{ include "sciserver.fullname" . }}-keycloak-db
+          {{- end }}
+        {{- if .Values.keycloak.db.port }}
+        - name: DB_PORT
+          value: {{ .Values.keycloak.db.port }}
+        {{- end }}
+        - name: DB_USER
+          value: keycloak
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-keycloak-db-pass
+              key: password
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "-c", "/opt/jboss/keycloak/bin/jboss-cli.sh 'embed-server --server-config=standalone-ha.xml,/subsystem=keycloak-server/:write-attribute(name=web-context,value={{ include "sciserver.prefix" . }}auth),/socket-binding-group=standard-sockets/socket-binding=proxy-https:add(port=443),/subsystem=undertow/server=default-server/http-listener=default:remove(),/subsystem=undertow/server=default-server/http-listener=default:add(socket-binding=http,proxy-address-forwarding=true,redirect-socket=proxy-https,enable-http2=true)'"]
+        {{- end }}
+
+        ports:
+        - containerPort: 8080
+{{ end -}}
+

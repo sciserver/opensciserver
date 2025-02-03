@@ -1,0 +1,49 @@
+# Manifest of image tags to install for those hosted at sciserver repo
+# containers.repo.sciserver.org
+# Last updated: build #251 (https://ci.sciserver.org/job/sciserver-latest-tester/251/image-manifest/)
+compute:
+  image:
+    tag: <<<VTAG>>>
+dashboard:
+  buildImage:
+    tag: <<<VTAG>>>
+  serveImage:
+    tag: <<<VTAG>>>
+deployPoller:
+  image:
+    tag: <<<VTAG>>>
+fileservice:
+  bootstrapperImage:
+    tag: <<<VTAG>>>
+  image:
+    tag: <<<VTAG>>>
+keystone:
+  image:
+    tag: <<<VTAG>>>
+logging:
+  api:
+    image:
+      tag: <<<VTAG>>>
+  listener:
+    image:
+      tag: <<<VTAG>>>
+  rabbitmq:
+    image:
+      tag: "3.11.6"
+loginPortal:
+  image:
+    tag: <<<VTAG>>>
+rabbitmqElastic:
+  tag: <<<VTAG>>>
+racm:
+  image:
+    tag: <<<VTAG>>>
+rendersvc:
+  image:
+    tag: <<<VTAG>>>
+web:
+  image:
+    tag: <<<VTAG>>>
+graphql:
+  image:
+    tag: <<<VTAG>>>

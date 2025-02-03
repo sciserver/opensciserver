@@ -1,0 +1,57 @@
+{{ if and .Values.keycloak.enabled (not .Values.loginPortal.db.host) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-login-portal-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: login-portal-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: login-portal-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: login-portal-db
+    spec:
+      containers:
+      - name: mysql
+        image: "{{ .Values.loginPortal.db.image }}:{{ .Values.loginPortal.db.tag }}"
+        imagePullPolicy: {{ .Values.computeDb.image.pullPolicy }}
+        env:
+        - name: MYSQL_USER
+          value: admin
+        - name: MYSQL_DATABASE
+          value: sciserver-sso
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-login-portal-db-pass
+              key: password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-login-portal-db-pass
+              key: password
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "sciserver.fullname" . }}-login-portal-db
+{{ end -}}
+

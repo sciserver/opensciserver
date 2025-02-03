@@ -1,0 +1,49 @@
+{{- if and .Values.backup.enable .Values.racmDb.backup.enable (not .Values.racmDb.host) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sciserver.fullname" . }}-racm-db-backup
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: racm-db-backup
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  suspend: false
+  schedule: '{{ default "0 0 * * *" .Values.racmDb.backup.schedule }}'
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.racmDb.image.repository }}:{{ .Values.racmDb.image.tag }}"
+            name: backup
+            command:
+            - "/bin/bash"
+            - "-xe"
+            - "-c"
+            - "/opt/mssql-tools/bin/sqlcmd -S {{ include "sciserver.fullname" . }}-racm-db -U sa -P $SA_PASSWORD -Q \"BACKUP DATABASE RACM TO DISK = N'/backup/racm-$(date +%F-%H-%M).bak' WITH NOFORMAT, NOINIT, NAME = 'RACM-full', SKIP, NOREWIND, NOUNLOAD\" && find /backup -name 'racm-*.bak' -ctime +{{ default 7 .Values.racmDb.backup.retainDays }} -delete"
+            env:
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-racm-db
+                  key: password
+            volumeMounts:
+            - name: backup
+              mountPath: /backup
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: backup
+            nfs:
+              server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+              path: {{ default "/backup" .Values.backup.nfs.path }}
+{{- end -}}

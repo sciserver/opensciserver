@@ -1,0 +1,15 @@
+{{ if and .Values.keycloak.enabled (not .Values.loginPortal.db.host) -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "sciserver.fullname" . }}-login-portal-db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{ if .Values.storageClass -}}
+  storageClassName: {{ .Values.storageClass }}
+  {{ end -}}
+  resources:
+    requests:
+      storage: {{ .Values.loginPortal.db.storage | quote }}
+{{ end -}}

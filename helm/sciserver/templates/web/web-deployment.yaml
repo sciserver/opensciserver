@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-web
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: web
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      containers:
+        - name: web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          env:
+            - name: NEXT_PUBLIC_LOGIN_PORTAL_URL
+              value: '{{ include "sciserver.url" . }}login-portal/'
+            - name: NEXT_PUBLIC_GRAPHQL_URL
+              value: '{{ include "sciserver.url" . }}graphql'
+            - name: NEXT_PUBLIC_FILES_URL
+              value: '{{ include "sciserver.url" . }}dashboard/files/uservolumes'
+            - name: NEXT_PUBLIC_NOTEBOOKS_URL
+              value: '{{ include "sciserver.url" . }}compute/'
+            - name: NEXT_PUBLIC_G_TAG
+              value: {{ .Values.web.gTag }}
+            - name: NEXT_PUBLIC_BASE_PATH
+              value: '/{{ include "sciserver.prefix" . }}web'
+            - name: NEXT_PUBLIC_COMPUTE_USER_INACTIVITY_TIMEOUT
+              value: '2400000'
+            - name: NEXT_PUBLIC_COMPUTE_PING_INTERVAL
+              value: '300000'
+            - name: NEXT_PUBLIC_LANDING_ROUTE
+              value: '/datasets'
+            - name: NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT
+              value: {{ .Values.web.newComputeSessionDefaults.domainName }}
+            - name: NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT
+              value: {{ .Values.web.newComputeSessionDefaults.imageName }}
+            - name: NEXT_PUBLIC_QUICK_START_CONFIG
+              value: 'dom=Interactive%20Docker%20Compute%20Domain&img=Sciserver%20Essentials%20(Test)&dvs=97'
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: '/{{ include "sciserver.prefix" . }}web/datasets'
+              port: 3000
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
