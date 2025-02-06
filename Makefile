@@ -1,5 +1,8 @@
-.PHONY: helm all build java clean publish-images images
+.PHONY: helm all build java clean publish-images images docs
 all: build
+
+docs:
+	cd docs && make html epub
 
 build: java
 
@@ -8,6 +11,8 @@ java:
 
 clean:
 	cd components/java && ./gradlew clean
+	cd docs && make clean
+	cd helm && rm -rf build
 
 VTAG=$(shell git describe --tags --always --dirty)
 REPO=sciserver

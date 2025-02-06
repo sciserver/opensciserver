@@ -149,6 +149,7 @@ racm:
   replicaCount: 1
   image:
     repository: <<<IMAGE_REPO>>>/racm
+    tag: <<<VTAG>>>
     pullPolicy: Always
   admin:
     username: __racm__
