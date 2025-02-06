@@ -18,12 +18,17 @@ VTAG=$(shell git describe --tags --always --dirty)
 REPO=sciserver
 IMAGE_COMPONENTS=fileservice compute racm login-portal
 IMAGE_TARGETS=$(addsuffix .image,$(IMAGE_COMPONENTS))
+DOCKER_BUILD_OPTS=--platform linux/amd64
 $(IMAGE_TARGETS):
-	cd components/java/$(subst .image,,$@) && docker build -t $(REPO)/$(subst .image,,$@):$(VTAG) .
+	cd components/java/$(subst .image,,$@) && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/$(subst .image,,$@):$(VTAG) .
 keystone.image:
-	cd components/keystone-image && docker build -t $(REPO)/keystone:$(VTAG) .
+	cd components/keystone-image && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/keystone:$(VTAG) .
+dashboard-build.image:
+	cd components/ui/dashboard && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/dashboard-build:$(VTAG) -f Dockerfile-configure .
+dashboard.image:
+	cd components/ui/dashboard && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/dashboard:$(VTAG) -f Dockerfile-run .
 
-PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push
+PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push
 %.push: %.image
 	docker push $(REPO)/$(subst .push,,$@):$(VTAG)
 

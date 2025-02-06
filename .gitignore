@@ -1,6 +1,7 @@
 # Compiled class file
 *.class
 build/
+!components/ui/dashboard/build
 
 # Log file
 *.log
@@ -31,5 +32,6 @@ docs/_build/
 WebContent/WEB-INF/application.properties
 WebContent/WEB-INF/version
 
+node_modules/
 # fileservice config artifact
 components/java/c:

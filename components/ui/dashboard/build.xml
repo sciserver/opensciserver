@@ -1,0 +1,18 @@
+<project name="dashboard" basedir="." default="generateWebContent">
+    <target name="update-packages">
+        <exec executable="npm" vmlauncher="false">
+            <arg value="install"/>
+        </exec>
+    </target>
+    
+    <target name="production-build" depends="update-packages">
+        <exec executable="npm" vmlauncher="false">
+            <arg value="run"/>
+            <arg value="build"/>
+        </exec>
+    </target>
+
+    <target name="generateWebContent" depends="production-build">
+        <unzip src="./dist/dashboard.war" dest="WebContent/"/>
+    </target>
+</project>

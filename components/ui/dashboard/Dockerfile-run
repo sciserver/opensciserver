@@ -1,0 +1,10 @@
+FROM nginx:1.15-alpine
+# This image runs the dashboard, assuming it is configured, built,
+# and mounted at /www
+
+# This should be the same as the contextPath in the config
+ENV CONTEXT_PATH_NAME dashboard
+
+COPY config/nginx.conf /etc/nginx/conf.d/custom.template
+
+CMD (envsubst '\$CONTEXT_PATH_NAME' < /etc/nginx/conf.d/custom.template > /etc/nginx/conf.d/default.conf) && nginx -g 'daemon off;'
