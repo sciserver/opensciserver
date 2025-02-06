@@ -8,6 +8,7 @@ RUN apt-get -y update \
 
 RUN git clone -b ${SERVER_VERSION} https://github.com/openstack/keystone.git /opt/keystone \
     && cd /opt/keystone \
+    && pip install "sqlalchemy<2" \
     && pip install -r requirements.txt \
     && pip install . \
     && cp -r etc /etc/keystone \
