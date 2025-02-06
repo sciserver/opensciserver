@@ -20,8 +20,10 @@ IMAGE_COMPONENTS=fileservice compute racm login-portal
 IMAGE_TARGETS=$(addsuffix .image,$(IMAGE_COMPONENTS))
 $(IMAGE_TARGETS):
 	cd components/java/$(subst .image,,$@) && docker build -t $(REPO)/$(subst .image,,$@):$(VTAG) .
+keystone.image:
+	cd components/keystone-image && docker build -t $(REPO)/keystone:$(VTAG) .
 
-PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS))
+PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push
 %.push: %.image
 	docker push $(REPO)/$(subst .push,,$@):$(VTAG)
 

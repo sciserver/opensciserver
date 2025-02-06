@@ -54,7 +54,8 @@ keystoneDb:
 
 keystone:
   image:
-    repository: <<<IMAGE_REPO>>>/openstack-keystone
+    repository: <<<IMAGE_REPO>>>/keystone
+    tag: <<<VTAG>>>
     pullPolicy: Always
   defaultDomainId: default
 
