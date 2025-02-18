@@ -27,6 +27,10 @@ spec:
       containers:
       - image: "{{ .Values.computeDb.image.repository }}:{{ .Values.computeDb.image.tag }}"
         name: mysql
+        securityContext:
+          runAsUser: 1000
+        resources:
+          {{- toYaml .Values.computeDb.resources | nindent 10 }}
         imagePullPolicy: {{ .Values.computeDb.image.pullPolicy }}
         env:
         - name: MYSQL_DATABASE
@@ -53,6 +57,10 @@ spec:
           mountPath: /var/lib/mysql
       volumes:
       - name: data
+        {{ if .Values.dev.nopvc }}
+        emptyDir: {}
+        {{ else }}
         persistentVolumeClaim:
           claimName: {{ include "sciserver.fullname" . }}-compute-db
+        {{ end }}
 {{ end -}}

@@ -51,7 +51,11 @@ spec:
           mountPath: /var/lib/mysql
       volumes:
       - name: data
+        {{ if .Values.dev.nopvc }}
+        emptyDir: {}
+        {{ else }}
         persistentVolumeClaim:
           claimName: {{ include "sciserver.fullname" . }}-login-portal-db
+        {{ end }}
 {{ end -}}
 

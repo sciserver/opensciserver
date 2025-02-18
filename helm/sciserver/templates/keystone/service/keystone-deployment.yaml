@@ -32,6 +32,8 @@ spec:
       - image: "{{ .Values.keystone.image.repository }}:{{ required "please specify keystone image tag or use image manifest" .Values.keystone.image.tag }}"
         name: keystone
         imagePullPolicy: {{ .Values.keystone.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.keystone.resources | nindent 10 }}
         env:
         - name: MYSQL_HOST
           {{- if .Values.keystoneDb.host }}

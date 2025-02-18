@@ -1,4 +1,4 @@
-{{ if and (not .Values.keystone.host) (not .Values.keystoneDb.host) -}}
+{{ if and (not .Values.keystone.host) (not .Values.keystoneDb.host) (not .Values.dev.nopvc) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

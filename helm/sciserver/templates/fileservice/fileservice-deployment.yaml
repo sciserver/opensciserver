@@ -100,10 +100,15 @@ spec:
       - name: config
         secret:
           secretName: {{ include "sciserver.fullname" . }}-fileservice
+      {{- if and .Values.dev.nopvc (not .Values.fileservice.nfs.server) }}
+      - name: data
+        emptyDir: {}
+      {{- else }}
       - name: data
         nfs:
           server: {{ required "need nfs server name/ip for fileservice" .Values.fileservice.nfs.server }}
           path: {{ .Values.fileservice.nfs.path }}
+      {{- end }}
       {{- range $key, $val := .Values.fileservice.nfsExtra }}
       - name: {{ $key }}
         nfs:

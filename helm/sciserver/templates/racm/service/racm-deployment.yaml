@@ -54,6 +54,8 @@ spec:
       - name: web
         image: "{{ .Values.racm.image.repository }}:{{ required "please specify racm image tag or use image manifest" .Values.racm.image.tag }}"
         imagePullPolicy: {{ .Values.racm.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.racm.resources | nindent 10 }}
         ports:
         - name: web
           containerPort: 8080
@@ -62,6 +64,8 @@ spec:
           value: /etc/secrets/
         - name: SERVER_SERVLET_CONTEXT_PATH
           value: /{{ include "sciserver.prefix" . }}racm
+        - name: CONTEXT_PATH_NAME
+          value: {{ include "sciserver.tomcatprefix" . }}racm
         - name: _CONFIG_HASH
           value: {{ include (print $.Template.BasePath "/racm/service/racm-secret.yaml") . | sha256sum }}
         volumeMounts:

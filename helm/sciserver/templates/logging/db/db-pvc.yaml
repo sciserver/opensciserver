@@ -1,4 +1,4 @@
-{{ if not .Values.logging.db.host -}}
+{{ if and .Values.logging.listener.enabled (not .Values.logging.db.host) (not .Values.dev.nopvc) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

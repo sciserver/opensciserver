@@ -45,6 +45,8 @@ spec:
       - name: tomcat
         image: "{{ .Values.loginPortal.image.repository }}:{{ required "please specify login-portal image tag or use image manifest" .Values.loginPortal.image.tag }}"
         imagePullPolicy: {{ .Values.loginPortal.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.loginPortal.resources | nindent 10 }}
         env:
         - name: CATALINA_OPTS
           value: -Dsciserver.properties.file=/etc/sciserver-sso/application.properties

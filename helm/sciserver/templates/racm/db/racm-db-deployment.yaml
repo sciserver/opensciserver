@@ -29,6 +29,8 @@ spec:
       - name: db
         image: "{{ .Values.racmDb.image.repository }}:{{ .Values.racmDb.image.tag }}"
         imagePullPolicy: {{ .Values.racmDb.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.racmDb.resources | nindent 10 }}
         ports:
         - containerPort: 1433
           name: mssql
@@ -53,8 +55,12 @@ spec:
         {{ end }}
       volumes:
       - name: data
+        {{ if .Values.dev.nopvc }}
+        emptyDir: {}
+        {{ else }}
         persistentVolumeClaim:
           claimName: {{ include "sciserver.fullname" . }}-racm-db
+        {{ end }}
       {{ if and .Values.backup.enable .Values.racmDb.backup.enable -}}
       - name: backup
         nfs:

@@ -1,4 +1,4 @@
-{{ if not .Values.racmDb.host -}}
+{{ if and (not .Values.racmDb.host) (not .Values.dev.nopvc) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

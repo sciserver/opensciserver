@@ -29,6 +29,10 @@ spec:
       initContainers:
       - name: setup
         image: busybox:1.30-musl
+        resources:
+          limits:
+            cpu: 10m
+            memory: 128Mi
         volumeMounts:
         - name: www
           mountPath: /app/dist/
@@ -39,6 +43,8 @@ spec:
       - name: build
         image: "{{ .Values.dashboard.buildImage.repository }}:{{ required "please specify dashboard build image tag or use image manifest" .Values.dashboard.buildImage.tag }}"
         imagePullPolicy: {{ .Values.dashboard.buildImage.pullPolicy }}
+        resources:
+          {{- toYaml .Values.dashboard.build.resources | nindent 10 }}
         volumeMounts:
         - name: www
           mountPath: /app/dist/
@@ -97,6 +103,8 @@ spec:
       - name: web
         image: "{{ .Values.dashboard.serveImage.repository }}:{{ required "please specify dashboard serve image tag or use image manifest" .Values.dashboard.serveImage.tag }}"
         imagePullPolicy: {{ .Values.dashboard.serveImage.pullPolicy }}
+        resources:
+          {{- toYaml .Values.dashboard.serve.resources | nindent 10 }}
         env:
         - name: CONTEXT_PATH_NAME
           value: '{{ include "sciserver.prefix" . }}dashboard'

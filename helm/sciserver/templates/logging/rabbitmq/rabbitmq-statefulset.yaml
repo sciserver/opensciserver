@@ -14,7 +14,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: logging-rabbitmq
-  replicas: 3
+  replicas: {{ .Values.logging.rabbitmq.replicaCount }}
   template:
     metadata:
       labels:
@@ -31,6 +31,8 @@ spec:
       containers:
       - name: rabbitmq-k8s
         image: "{{ .Values.logging.rabbitmq.image.repository }}:{{ .Values.logging.rabbitmq.image.tag }}"
+        resources:
+          {{- toYaml .Values.logging.rabbitmq.resources | nindent 10 }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/rabbitmq

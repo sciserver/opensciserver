@@ -48,6 +48,8 @@ spec:
       - name: tomcat
         image: "{{ .Values.compute.image.repository }}:{{ required "please specify compute image tag or use image manifest" .Values.compute.image.tag }}"
         imagePullPolicy: {{ .Values.compute.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.compute.resources | nindent 10 }}
         env:
         - name: CATALINA_OPTS
           value: -Dsciserver.properties.file=/etc/sciserver-config/application.properties

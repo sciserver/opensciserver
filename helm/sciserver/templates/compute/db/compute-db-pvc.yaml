@@ -1,4 +1,4 @@
-{{ if not .Values.computeDb.host -}}
+{{ if and (not .Values.computeDb.host) (not .Values.dev.nopvc) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

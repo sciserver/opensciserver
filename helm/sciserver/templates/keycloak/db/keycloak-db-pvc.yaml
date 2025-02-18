@@ -1,4 +1,4 @@
-{{ if and .Values.keycloak.enabled (not .Values.keycloak.url) (not .Values.keycloak.db.host) -}}
+{{ if and .Values.keycloak.enabled (not .Values.keycloak.url) (not .Values.keycloak.db.host) (not .Values.dev.nopvc) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

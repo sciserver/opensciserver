@@ -15,6 +15,9 @@ port:
 prefix:
 storageClass:
 
+dev:
+    nopvc: false
+
 backup:
   enable: true
   nfs:
@@ -41,8 +44,8 @@ mysqlImage:
 
 keystoneDb:
   image:
-    repository: mysql
-    tag: 5.6
+    repository: mariadb
+    tag: 10.4
     pullPolicy: IfNotPresent
   persistence:
     accessMode: ReadWriteOnce
@@ -51,6 +54,13 @@ keystoneDb:
   user: keystone
   backup:
     enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 keystone:
   image:
@@ -58,6 +68,13 @@ keystone:
     tag: <<<VTAG>>>
     pullPolicy: Always
   defaultDomainId: default
+  resources:
+    limits:
+      cpu: 500m
+      memory: 12Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 # Login Portal
 
@@ -94,6 +111,13 @@ loginPortal:
   redirectAllowedHosts: .*
   keycloakTrustUser: keycloaktrust
   keycloakTrustProject: keycloaktrust
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 # Logging
 
@@ -110,8 +134,16 @@ logging:
       tag: "3.11.6"
       pullPolicy: Always
     service:
-      type: NodePort
+      type: ClusterIP
     erlangCookie:
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 400m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 64Mi
   db:
     persistence:
       accessMode: ReadWriteOnce
@@ -129,6 +161,7 @@ logging:
       repository: <<<IMAGE_REPO>>>/log-listener
       pullPolicy: Always
   api:
+    replicaCount: 1
     image:
       repository: <<<IMAGE_REPO>>>/logging-api
       pullPolicy: Always
@@ -141,10 +174,17 @@ racmDb:
     size: 10Gi
   image:
     repository: mcr.microsoft.com/mssql/server
-    tag: 2017-CU13
+    tag: 2022-CU17-ubuntu-22.04
     pullPolicy: Always
   backup:
     enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 12Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
 
 racm:
   replicaCount: 1
@@ -159,6 +199,13 @@ racm:
     username: __jobm__
     email: jobm@do.not.send
   flywayEnabled: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 # Dashboard
 
@@ -173,6 +220,22 @@ dashboard:
     tag: <<<VTAG>>>
     pullPolicy: Always
   datasets: true
+  build:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  serve:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 # File Service
 
@@ -238,6 +301,13 @@ compute:
     workers: 3
     memory: 1e9
     threads: 4
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 computeDb:
   image:
@@ -252,6 +322,13 @@ computeDb:
   user: compute
   backup:
     enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 deployPoller:
   enable: false

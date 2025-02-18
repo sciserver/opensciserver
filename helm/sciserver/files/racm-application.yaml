@@ -19,7 +19,11 @@ org.sciserver.racm:
         messaging-host: {{ include "sciserver.rabbitmq_host" . }}
         exchange-name: {{ .Values.logging.rabbitmq.exchange }}
 
+    # keep this line for back compatibility
     login-portal-url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
+    login:
+        login-portal-url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
+
     config.urls:
         getGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/groups
         getMyGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/mygroups
@@ -48,5 +52,34 @@ javax.persistence.jdbc:
 spring.flyway.enabled: true
 {{ else -}}
 spring.flyway.enabled: false
+
 {{ end -}}
+
+spring.application.name: racm
+spring.datasource.url: ${javax.persistence.jdbc.url}
+spring.datasource.username: ${javax.persistence.jdbc.user}
+spring.datasource.password: ${javax.persistence.jdbc.password}
+spring.mvc.view.prefix: /WEB-INF/jsp/
+spring.mvc.view.suffix: .jsp
+management.endpoints.web.exposure.include: "*"
+management.endpoint.health.show-details: when-authorized
+management.metrics.web.server.request.autotime.enabled: true
+management.endpoint.health.roles: ADMIN
+spring.main.allow-circular-references: true
+eclipselink.logging.level: WARNING
+# The below option is required since various clients handle trailing slashes
+# differently - we must allow double-slash in URL and treat as single for now
+spring.mvc.pathmatch.matching-strategy: ant-path-matcher
+
+
+logging.console: true
+
+# placeholders for flyway
+# # only needed if running flyway for initializing the database
+spring.flyway.placeholders.admin-user: ${org.sciserver.racm.admin.username}
+spring.flyway.placeholders.admin-keystone-id: ${org.sciserver.racm.admin.keystone-id}
+spring.flyway.placeholders.admin-email: ${org.sciserver.racm.admin.email}
+spring.flyway.placeholders.jobm-user: ${org.sciserver.racm.jobm.admin-user}
+spring.flyway.placeholders.jobm-keystone-id: ${org.sciserver.racm.jobm.admin-keystone-id}
+spring.flyway.placeholders.jobm-email: ${org.sciserver.racm.jobm.admin-email}
 
