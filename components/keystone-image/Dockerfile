@@ -1,6 +1,6 @@
 FROM python:3.9-buster
 
-ENV SERVER_VERSION=17.0.0
+ENV SERVER_VERSION=26.0.0
 
 RUN apt-get -y update \
     && apt-get install -y libev-dev libffi-dev python-dev libssl-dev default-mysql-client python-mysqldb memcached \
@@ -8,7 +8,6 @@ RUN apt-get -y update \
 
 RUN git clone -b ${SERVER_VERSION} https://github.com/openstack/keystone.git /opt/keystone \
     && cd /opt/keystone \
-    && pip install "sqlalchemy<2" "oslo.db<15" \
     && pip install -r requirements.txt \
     && pip install . \
     && cp -r etc /etc/keystone \
