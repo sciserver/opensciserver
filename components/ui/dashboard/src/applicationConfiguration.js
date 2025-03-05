@@ -111,7 +111,7 @@ export default {
   data: () => ({
     alertClasses: `alert alert-${ALERT_TYPE}`,
     alertMessage: `${ALERT_MESSAGE}`,
-    version: `${VERSION}` ? `${VERSION}` : '',
+    version: `${SCISERVER_VERSION}`,
     sciserver_Version: `${SCISERVER_VERSION}`,
     useIconsForActivities: `${USE_ICONS_FOR_ACTIVITIES}` === 'true',
     showApplicationAppRow: `${SHOW_APPLICATION_APP_ROW}` === 'true',
