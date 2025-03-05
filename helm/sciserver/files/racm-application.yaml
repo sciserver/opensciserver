@@ -23,6 +23,9 @@ org.sciserver.racm:
     login-portal-url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
     login:
         login-portal-url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
+        login-admin:
+            username: admin
+            password: {{ required "password required!" .Values.keystone.admin.password }}
 
     config.urls:
         getGroupsUrl: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/ugm/rest/groups
