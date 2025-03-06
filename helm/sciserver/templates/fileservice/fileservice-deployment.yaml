@@ -37,6 +37,13 @@ spec:
       - name: bootstrap-fileservice
         image: "{{ .Values.fileservice.bootstrapperImage.repository }}:{{ required "please specify fileservice bootstrapper image tag or use image manifest" .Values.fileservice.bootstrapperImage.tag }}"
         imagePullPolicy: {{ .Values.fileservice.bootstrapperImage.pullPolicy }}
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
         env:
         - name: FILE_SERVICE_URL
           value: {{ include "sciserver.url" (dict "Values" .Values "svc" "fileservice") }}/
@@ -62,6 +69,8 @@ spec:
       - name: web
         image: "{{ .Values.fileservice.image.repository }}:{{ required "please specify fileservice image tag or use image manifest" .Values.fileservice.image.tag }}"
         imagePullPolicy: {{ .Values.fileservice.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.fileservice.resources | nindent 10 }}
         ports:
         - name: web
           containerPort: 8080

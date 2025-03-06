@@ -241,6 +241,13 @@ dashboard:
 
 fileservice:
   replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
   image:
     repository: <<<IMAGE_REPO>>>/fileservice
     tag: <<<VTAG>>>
