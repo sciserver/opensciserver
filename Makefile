@@ -16,7 +16,7 @@ clean:
 
 VTAG=$(shell git describe --tags --always --dirty)
 REPO=sciserver
-IMAGE_COMPONENTS=fileservice compute racm login-portal
+IMAGE_COMPONENTS=fileservice compute racm login-portal fileservice-bootstrapper
 IMAGE_TARGETS=$(addsuffix .image,$(IMAGE_COMPONENTS))
 DOCKER_BUILD_OPTS=--platform linux/amd64
 $(IMAGE_TARGETS):

@@ -9,6 +9,7 @@ include 'compute',
   'springutils:authenticator',
   'springutils:tester',
   'fileservice',
+  'fileservice-bootstrapper',
   'logging',
   'racm',
   'login-portal'

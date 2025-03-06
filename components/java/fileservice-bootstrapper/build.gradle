@@ -1,0 +1,36 @@
+plugins {
+	id 'org.springframework.boot' version '2.1.4.RELEASE'
+	id 'java'
+	id 'com.google.cloud.tools.jib' version '1.1.2'
+	id 'jacoco'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'org.sciserver'
+sourceCompatibility = '11'
+
+checkstyle {
+	maxWarnings 391
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+
+	implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+	implementation 'com.squareup.retrofit2:converter-jackson:2.5.0'
+	implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'com.squareup.okhttp3:mockwebserver:3.14.1'
+}
+
+jib {
+	to {
+		image = 'containers.repo.sciserver.org/fileservice-bootstrapper'
+	}
+}
