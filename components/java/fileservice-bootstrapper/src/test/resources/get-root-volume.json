@@ -1,0 +1,69 @@
+{
+    "contextClass": "FileService",
+    "contextuuid": "fa501e02-50de-45a4-8651-54ea236586c5",
+    "id": 3,
+    "privileges": [
+        {
+            "actionId": 40,
+            "actionName": "create",
+            "id": 10172,
+            "resourceId": 3,
+            "scisId": 1,
+            "scisName": "gaia",
+            "scisType": "U"
+        },
+        {
+            "actionId": 36,
+            "actionName": "grant",
+            "id": 10174,
+            "resourceId": 3,
+            "scisId": 1,
+            "scisName": "gaia",
+            "scisType": "U"
+        }
+    ],
+    "resourceId": "Temporary",
+    "resourceUUID": "8c3c1da2-c331-49a1-b679-604408385ab4",
+    "roles": [],
+    "rtm": {
+        "actions": [
+            {
+                "allCategories": [
+                    "C",
+                    "R",
+                    "U",
+                    "D",
+                    "G",
+                    "X"
+                ],
+                "category": "G",
+                "description": "Grant access to a root volume",
+                "id": 36,
+                "name": "grant",
+                "resourceTypeId": 15,
+                "valid": false
+            },
+            {
+                "allCategories": [
+                    "C",
+                    "R",
+                    "U",
+                    "D",
+                    "G",
+                    "X"
+                ],
+                "category": "C",
+                "description": "Create a new User Volume",
+                "id": 40,
+                "name": "create",
+                "resourceTypeId": 15,
+                "valid": false
+            }
+        ],
+        "contextClassId": 5,
+        "id": 15,
+        "name": "FileService.RootVolume",
+        "roles": [],
+        "valid": false
+    }
+}

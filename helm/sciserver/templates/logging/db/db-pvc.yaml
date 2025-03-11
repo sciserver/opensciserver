@@ -1,0 +1,21 @@
+{{ if and .Values.logging.listener.enabled (not .Values.logging.db.host) (not .Values.dev.nopvc) -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "sciserver.fullname" . }}-logging-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: logging-db
+spec:
+  accessModes:
+    - {{ .Values.logging.db.persistence.accessMode | quote }}
+  {{ if .Values.storageClass -}}
+  storageClassName: {{ .Values.storageClass }}
+  {{ end -}}
+  resources:
+    requests:
+      storage: {{ .Values.logging.db.persistence.size | quote }}
+{{ end -}}

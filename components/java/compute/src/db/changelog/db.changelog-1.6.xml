@@ -1,0 +1,108 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+  <changeSet author="Dmitry Medvedev" id="changelog-1.6">
+    <createTable tableName="dask_cluster">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="external_ref" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="image_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="k8s_cluster_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="user_id" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="created_at" type="datetime">
+        <constraints nullable="false" />
+      </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <createIndex indexName="executable_image_ix_1"
+      tableName="dask_cluster">
+      <column name="external_ref" />
+    </createIndex>
+    <addForeignKeyConstraint
+      baseColumnNames="k8s_cluster_id" baseTableName="dask_cluster"
+      constraintName="dask_cluster_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="k8s_cluster"
+      validate="true" />
+    <addForeignKeyConstraint
+      baseColumnNames="image_id" baseTableName="dask_cluster"
+      constraintName="dask_cluster_ibfk_2" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="executable_image"
+      validate="true" />
+  </changeSet>
+
+  <changeSet author="Dmitry Medvedev" id="changelog-1.6.1">
+    <createTable tableName="generic_volume">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="source" type="TEXT">
+        <constraints nullable="false" />
+      </column>
+      <column name="mount_path" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="volume_manager_class" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="domain_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseColumnNames="domain_id" baseTableName="generic_volume"
+      constraintName="generic_volume_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="domain"
+      validate="true" />
+  </changeSet>
+
+  <changeSet author="Dmitry Medvedev" id="changelog-1.6.2">
+    <createTable tableName="linked_dask_cluster">
+      <column name="container_id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="cluster_id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseColumnNames="container_id" baseTableName="linked_dask_cluster"
+      constraintName="linked_dask_cluster_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id"
+      referencedTableName="executable_container" validate="true" />
+
+    <addForeignKeyConstraint
+      baseColumnNames="cluster_id" baseTableName="linked_dask_cluster"
+      constraintName="linked_dask_cluster_ibfk_2" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="dask_cluster"
+      validate="true" />
+  </changeSet>
+</databaseChangeLog>

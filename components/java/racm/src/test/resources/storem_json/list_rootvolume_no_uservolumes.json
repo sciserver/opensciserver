@@ -1,0 +1,10 @@
+{
+	"id": 101,
+	"resourceUUID":"abcde-fghij",
+	"pathOnFileSystem": "/media/big_volume/persistence",
+	"name": "Persistence Data - It's for keeps™",
+	"description": "This should hold the files you care about. Examples may include your thesis work or your students' thesis work. Storing SSNs here is not recommended (yet).",
+	"allowedActions": ["create"],
+	"containsSharedVolumes": false,
+	"userVolumes": []
+}

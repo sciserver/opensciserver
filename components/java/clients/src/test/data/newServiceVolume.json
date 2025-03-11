@@ -1,0 +1,10 @@
+{"id": 1234,
+ "volumeUUID": "uuid",
+ "name": "name",
+ "description": "desc",
+ "relativePath": "path",
+ "owner": "owner",
+ "serviceUUID": "uuid",
+ "owningResourceUUID": "uuid",
+ "ownership": "ownership",
+ "usage": "usage"}

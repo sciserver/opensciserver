@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<!-- The following line is not rendered due to the th:remove attribute, hence "SciServer" is not a parameter -->
+<title th:remove="all">SciServer Registration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<p>Hello <span th:text="${username}">UserName</span>!</p>
+	<p>
+		Welcome to <span th:text="${appName}">SciServer</span>!
+		Either you or someone using this email has signed up for <span th:text="${appName}">SciServer</span>. Please
+		<a href="/register-validation" th:href="@{${emailCallback} + '/register-validation'(code=${code},callbackUrl=${callbackUrl})}">
+			click here
+		</a> to setup your account.
+	</p>
+	<p>
+		This link will expire in <span th:text="${expirationTime}">10</span> minutes.
+	</p>
+	<p>
+		For additional assistance, please email our
+			<a href="helpdesk@sciserver.org" th:href="'mailto:' + ${helpdeskEmail}">help desk</a>.
+	</p>
+	<p>
+		&hellip;<br /> <em>The <span th:text="${appName}">SciServer</span> Team</em>
+	</p>
+</body>
+</html>

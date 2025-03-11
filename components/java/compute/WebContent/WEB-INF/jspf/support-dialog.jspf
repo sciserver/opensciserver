@@ -1,0 +1,49 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under the Apache License, Version 2.0. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<div id="supportDialog" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Support Links</h4>
+			</div>
+			<div class="modal-body">
+				<ul class="list-unstyled">
+					<li>
+						<a href="http://www.sciserver.org/support/help/"
+							target="_blank" rel="noopener"
+							style="text-decoration: underline; font-size: 14px;">
+							User guides
+						</a>
+					</li>
+					<li>
+						<a href="http://www.sciserver.org/support/documentation/"
+							target="_blank" rel="noopener"
+							style="text-decoration: underline; font-size: 14px;">
+							API documentation
+						</a>
+					</li>
+					<li>
+						<a href="mailto:sciserver-helpdesk@jhu.edu"
+							style="text-decoration: underline; font-size: 14px;">
+							Help desk
+						</a>
+					</li>
+					<li>
+						<a href="http://www.sciserver.org/support/bug-report-and-suggestion-form/"
+							target="_blank" rel="noopener"
+							style="text-decoration: underline; font-size: 14px;">
+							Bug report form
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="modal-footer">
+				<button type="button" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

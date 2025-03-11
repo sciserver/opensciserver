@@ -1,0 +1,15 @@
+rootProject.name = 'sciserver-java'
+include 'compute',
+  'clients:utils',
+  'clients:racm',
+  'clients:auth',
+  'clients:casjobs',
+  'springutils:base-app',
+  'springutils:logging-interceptor',
+  'springutils:authenticator',
+  'springutils:tester',
+  'fileservice',
+  'fileservice-bootstrapper',
+  'logging',
+  'racm',
+  'login-portal'

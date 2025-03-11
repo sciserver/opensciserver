@@ -1,0 +1,62 @@
+# Manifest of image tags to install from latest build
+compute:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+dashboard:
+  buildImage:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+  serveImage:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+deployPoller:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+fileservice:
+  bootstrapperImage:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+keystone:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+logging:
+  api:
+    image:
+      tag: <<<VTAG>>>
+      repo: <<<IMAGE_REPO>>>
+  listener:
+    image:
+      tag: <<<VTAG>>>
+      repo: <<<IMAGE_REPO>>>
+  rabbitmq:
+    image:
+      tag: "3.11.6"
+loginPortal:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+rabbitmqElastic:
+  tag: <<<VTAG>>>
+  repo: <<<IMAGE_REPO>>>
+racm:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+rendersvc:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+web:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+graphql:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>

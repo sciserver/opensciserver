@@ -1,0 +1,66 @@
+{{ if not .Values.computeDb.host -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-compute-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: compute-db
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: compute-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: compute-db
+    spec:
+      containers:
+      - image: "{{ .Values.computeDb.image.repository }}:{{ .Values.computeDb.image.tag }}"
+        name: mysql
+        securityContext:
+          runAsUser: 1000
+        resources:
+          {{- toYaml .Values.computeDb.resources | nindent 10 }}
+        imagePullPolicy: {{ .Values.computeDb.image.pullPolicy }}
+        env:
+        - name: MYSQL_DATABASE
+          value: compute
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-compute-db
+                  key: password
+        - name: MYSQL_USER
+          value: {{ .Values.computeDb.user | quote }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-compute-db
+                  key: password
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/compute/db/compute-db-secret.yaml") . | sha256sum }}
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: data
+        {{ if .Values.dev.nopvc }}
+        emptyDir: {}
+        {{ else }}
+        persistentVolumeClaim:
+          claimName: {{ include "sciserver.fullname" . }}-compute-db
+        {{ end }}
+{{ end -}}

@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-fileservice
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: fileservice
+
+spec:
+  replicas: {{ .Values.fileservice.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: fileservice
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: fileservice
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      initContainers:
+      - name: wait-for-racm
+        image: "busybox:1.30-musl"
+        command:
+        - sh
+        - '-c'
+        - 'echo "Waiting for RACM"; until wget -T 1 --spider -q http://{{ include "sciserver.fullname" . }}-racm/{{ include "sciserver.prefix" . }}racm/actuator/health; do sleep 5; done'
+      - name: bootstrap-fileservice
+        image: "{{ .Values.fileservice.bootstrapperImage.repository }}:{{ required "please specify fileservice bootstrapper image tag or use image manifest" .Values.fileservice.bootstrapperImage.tag }}"
+        imagePullPolicy: {{ .Values.fileservice.bootstrapperImage.pullPolicy }}
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        env:
+        - name: FILE_SERVICE_URL
+          value: {{ include "sciserver.url" (dict "Values" .Values "svc" "fileservice") }}/
+        - name: FILE_SERVICE_IDENTIFIER
+          value: {{ .Values.fileservice.identifier }}
+        - name: FILE_SERVICE_SERVICE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-fileservice
+              key: serviceToken
+        - name: ADMIN_NAME
+          value: {{ .Values.racm.admin.username }}
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-racm
+              key: racm-admin-password
+        - name: RACM_URL
+          value: {{ include "sciserver.url" (dict "Values" .Values "svc" "racm") }}/
+        - name: LOGIN_PORTAL_URL
+          value: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
+      containers:
+      - name: web
+        image: "{{ .Values.fileservice.image.repository }}:{{ required "please specify fileservice image tag or use image manifest" .Values.fileservice.image.tag }}"
+        imagePullPolicy: {{ .Values.fileservice.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.fileservice.resources | nindent 10 }}
+        ports:
+        - name: web
+          containerPort: 8080
+        env:
+        - name: SCISERVER_PROPERTIES_FILE
+          value: /etc/sciserver/application.properties
+        - name: SPRING_CONFIG_LOCATION
+          value: file:/etc/sciserver/application.properties
+        - name: SCISERVER_CONTEXT_PATH
+          value: /{{ include "sciserver.prefix" . }}fileservice
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          value: /{{ include "sciserver.prefix" . }}fileservice
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/fileservice/fileservice-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/sciserver
+          readOnly: true
+        - name: data
+          mountPath: {{ default "/srv" .Values.fileservice.nfs.mountPath }}
+        {{- range $key, $val := .Values.fileservice.nfsExtra }}
+        - name: {{ $key }}
+          mountPath: {{ $val.mountPath }}
+        {{- end }}
+        {{- range $key, $val := .Values.fileservice.pvcVolumes }}
+        - name: {{ $key }}
+          mountPath: {{ $val.mountPath }}
+        {{- end }}
+        livenessProbe:
+          timeoutSeconds: 5
+          periodSeconds: 60
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}fileservice/api/ping
+            port: web
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" . }}-fileservice
+      {{- if and .Values.dev.nopvc (not .Values.fileservice.nfs.server) }}
+      - name: data
+        emptyDir: {}
+      {{- else }}
+      - name: data
+        nfs:
+          server: {{ required "need nfs server name/ip for fileservice" .Values.fileservice.nfs.server }}
+          path: {{ .Values.fileservice.nfs.path }}
+      {{- end }}
+      {{- range $key, $val := .Values.fileservice.nfsExtra }}
+      - name: {{ $key }}
+        nfs:
+          server: {{ $val.server }}
+          path: {{ $val.path }}
+      {{- end }}
+      {{- range $key, $val := .Values.fileservice.pvcVolumes }}
+      - name: {{ $key }}
+        persistentVolumeClaim:
+          claimName: {{ $val.claimName }}
+      {{- end }}
+      {{- if .Values.fileservice.runAsIdies }}
+      securityContext:
+        runAsGroup: 1000
+        runAsUser: 1000
+      {{- end }}

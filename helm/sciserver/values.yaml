@@ -1,0 +1,441 @@
+imagePullSecret:
+# baseDomain -
+#  The hostname pointing to your kubernetes ingress proxy
+baseDomain:
+ingressClassName:
+protocol: https
+port:
+# prefix -
+#  This allows multiple sciserver installs backed by the same hostname
+#  at the ingress proxy by, for example, if prefix is "test", and the
+#  baseDomain and protocol resolved to https://my.sciserver.org, then
+#  this installs dashboard would be at
+#  https://my.sciserver.org/test/dashboard. Leave blank to have
+#  sciserver hosted at the root path.
+prefix:
+storageClass:
+
+dev:
+    nopvc: false
+
+backup:
+  enable: true
+  nfs:
+    server:
+
+proxy:
+  requestSizeMax: 128m
+  readTimeout: 120
+  cidrWhiteList: 128.220.0.0/16,162.129.0.0/16
+  ingressUseHost: true
+  enableAffinity: true
+
+sqlServerToolsImage:
+    repository: mcr.microsoft.com/mssql-tools
+    tag: v1
+    pullPolicy: IfNotPresent
+
+mysqlImage:
+    repository: mariadb
+    tag: 10.4
+    pullPolicy: IfNotPresent
+
+# Keystone
+
+keystoneDb:
+  image:
+    repository: mariadb
+    tag: 10.4
+    pullPolicy: IfNotPresent
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 5Gi
+  name: keystone
+  user: keystone
+  backup:
+    enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+keystone:
+  image:
+    repository: <<<IMAGE_REPO>>>/keystone
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  defaultDomainId: default
+  resources:
+    limits:
+      cpu: 500m
+      memory: 12Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Login Portal
+
+loginPortal:
+  replicaCount: 1
+  image:
+    repository: <<<IMAGE_REPO>>>/login-portal
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  db:
+    image: mariadb
+    tag: 10.4.12
+    storage: 2Gi
+    backup:
+      enable: true
+  email:
+    smtpHost: "null"
+    smtpPort: 25
+    smtpFrom: nobody@example.com
+    helpdeskAddress: sciserver-helpdesk@jhu.edu
+    validationEnabled: false
+    validationLifetime: 10 # in minutes
+    # Base64 encoded secure random key of exactly 16 or 32 bytes, used
+    # when validationEnabled is true. One way to create:
+    #  dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64
+    secretKey: "KQB7Lb7ACGHjHh8ikzjqb0GyeElfQpb1q/pUtFW1NFs="
+  disclaimerInfo:
+  displaySciserverLogin: true
+  keycloakLoginButtonText: "Sign in with Globus"
+  keycloakLoginInfoText: "<h1>Login with Globus</h1><p><a href=\"https://www.globus.org/\">Globus</a> allows you to use your educational institution or Google login to authenticate with SciServer.</p>"
+  showGlobusSignout: true
+  # Hosts allowed in redirects specified by callbackUrl. This is a ';' separated
+  # list of regular expressions evaluated against the host portion of URL
+  redirectAllowedHosts: .*
+  keycloakTrustUser: keycloaktrust
+  keycloakTrustProject: keycloaktrust
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Logging
+
+logging:
+  useUTC: true
+  rabbitmq:
+    # Set host to use an external rabbitmq service and disable deployment of one within this chart
+    host:
+    queuename: sciserver.log.database
+    exchange: sciserver.log
+    user:
+    image:
+      repository: rabbitmq
+      tag: "3.11.6"
+      pullPolicy: Always
+    service:
+      type: ClusterIP
+    erlangCookie:
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 400m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 64Mi
+  db:
+    persistence:
+      accessMode: ReadWriteOnce
+      size: 10Gi
+    image:
+      repository: mcr.microsoft.com/mssql/server
+      tag: 2017-CU13
+      pullPolicy: IfNotPresent
+    backup:
+      enable: true
+  listener:
+    enabled: false
+    replicaCount: 1
+    image:
+      repository: <<<IMAGE_REPO>>>/log-listener
+      pullPolicy: Always
+  api:
+    replicaCount: 1
+    image:
+      repository: <<<IMAGE_REPO>>>/logging-api
+      pullPolicy: Always
+
+# RACM
+
+racmDb:
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+  image:
+    repository: mcr.microsoft.com/mssql/server
+    tag: 2022-CU17-ubuntu-22.04
+    pullPolicy: Always
+  backup:
+    enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 12Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+racm:
+  replicaCount: 1
+  image:
+    repository: <<<IMAGE_REPO>>>/racm
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  admin:
+    username: __racm__
+    email: racm@do.not.send
+  jobmAdmin:
+    username: __jobm__
+    email: jobm@do.not.send
+  flywayEnabled: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Dashboard
+
+dashboard:
+  replicaCount: 1
+  buildImage:
+    repository: <<<IMAGE_REPO>>>/dashboard-build
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  serveImage:
+    repository: <<<IMAGE_REPO>>>/dashboard
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  datasets: true
+  build:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  serve:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# File Service
+
+fileservice:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  image:
+    repository: <<<IMAGE_REPO>>>/fileservice
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  bootstrapperImage:
+    repository: <<<IMAGE_REPO>>>/fileservice-bootstrapper
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  identifier: "2beab3b2-26f0-4eaf-ad6b-3b37279baee9"
+  nfs:
+    server:
+    path: /
+    mountPath: /srv
+  # map of extra mounts for the fileservice, each mapping must contain the
+  # server, path and mountPath as above, example inline below.
+  nfsExtra:
+  # datavol:
+  #   server: server
+  #   path: /
+  #   mountPath: /datavol
+  # pvcVolumes:
+  #   volname:
+  #     claimName: claimname
+  #     mountPath: /path
+  quotaManager:
+    url:
+    user: user
+    readTimeout: 60  # in seconds
+  # max request body size for fileservice uploads enforced at ingress. Use
+  # "0" for unlimited, or e.g. "4g" for size limit.
+  uploadSizeMax: "0"
+  # This should probably be changed to true soon
+  runAsIdies: false
+  # 9 character strings bit flags, recognized by Java PosixFilePermissions.fromString
+  defaultPerms:
+    dir: rwxrwxrwx
+    file: rw-rw-rw-
+
+# Compute
+
+compute:
+  replicaCount: 1
+  image:
+    repository: <<<IMAGE_REPO>>>/compute
+    tag: <<<VTAG>>>
+    pullPolicy: IfNotPresent
+  # Set jobsEnabled to false to remove the jobs link from compute navbar
+  jobsEnabled: true
+  # Set showStorageInformation to false to remove file storage warnings from compute interactive UI
+  showStorageInformation: true
+  # use the "activity" timer from DB for container cleanup. Generally useful for new and k8s based installs
+  enableDBBasedCleanup: true
+  # use this option only in cases where you have a very old compute database (basically you should not need this)
+  changelogSkipInit: false
+  # comma-separated list of groups
+  privilegedGroups: admin
+  dask:
+    workers: 3
+    memory: 1e9
+    threads: 4
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+computeDb:
+  image:
+    repository: mariadb
+    tag: 10.4
+    pullPolicy: IfNotPresent
+  persistence:
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 5Gi
+  name: compute
+  user: compute
+  backup:
+    enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+deployPoller:
+  enable: false
+  dryRun: false
+  image:
+    repository: <<<IMAGE_REPO>>>/deploy-poller
+    tag: <<<VTAG>>>
+  nexus:
+    path: http://nexus.sciserver.org/nexus/service/rest
+    user: anonymous
+  devMode: "false"
+  pattern: "."
+
+keycloak:
+  enabled: false
+  app:
+    version: "9" # one of: "9" (deprecated, WildFly-based, may not work for new installs), "18" (supported, Quarkus-based)
+    adminCidrWhitelist: 128.220.0.0/16,162.129.0.0/16
+  db:
+    storage: 2Gi
+    backup:
+      enable: true
+  realm:
+    name: sciserver
+    client: sciserver-sso
+    ssl: external # one of: none, external, or all
+
+rabbitmqElastic:
+  enable: false
+  elastic:
+    # If elasticsearch was created by the included elasticsearch
+    # chart, then "host" this will be elasticapi.{namespace} where
+    # {namespace} is the namespace into which you installed the helm
+    # chart
+    host: elasticapi.elasticsearch
+    port: 9200
+  # indexes will be named {prefix}.{indexBase}-{date} where all "/" in
+  # prefix have been replaced by dots, and date is like YYYY-mm-dd
+  indexBase: sciserver-logs
+  image: <<<IMAGE_REPO>>>/rabbitmq-to-es
+  tag: <<<VTAG>>>
+  replicaCount: 1
+
+rendersvc:
+  replicaCount: 1
+  enable: true
+  image:
+    repository: <<<IMAGE_REPO>>>/rendersvc
+    tag: <<<VTAG>>>
+
+optionalApps:
+  sciDrive:
+  skyServer:
+  skyQuery:
+
+casjobs:
+  enable: false
+  url:
+  keystone:
+    admin_user: casjobs
+    admin_project: service
+
+support:
+  filemanagement: https://www.sciserver.org/support/how-to-use-sciserver/#filemanagement
+  createuv: https://www.sciserver.org/support/how-to-use-sciserver/#createvolume
+  shareuv: https://www.sciserver.org/support/how-to-use-sciserver/#sharevolume
+  unshareuv: https://www.sciserver.org/support/how-to-use-sciserver/#unshare
+  groupsmanagement: https://www.sciserver.org/support/how-to-use-sciserver/#groups
+  creategroup: https://www.sciserver.org/support/how-to-use-sciserver/#groupscreate
+  inviteuser: https://www.sciserver.org/support/how-to-use-sciserver/#groupsinvite
+  shareresource: https://www.sciserver.org/support/how-to-use-sciserver/#shareview
+  activitylog: https://www.sciserver.org/support/how-to-use-sciserver/#recent
+  changePassword: https://www.sciserver.org/support/how-to-use-sciserver/#change
+  policies: https://www.sciserver.org/support/policies/
+
+theme:
+  navbarColor: "#003466"
+  fontFamily: Helvetica Neue, Helvetica, Arial, sans-serif
+  useIconsForActivities: true
+  showApplicationAppRow: true
+  applicationName: "SciServer"
+  applicationTagline: "Data, Collaboration, Compute"
+  applicationHomeUrl: "https://www.sciserver.org/"
+
+
+web:
+  replicaCount: 1
+  image:
+    repository: <<<IMAGE_REPO>>>/web
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  gTag:
+  newComputeSessionDefaults:
+    domainName: "Interactive Docker Compute Domain"
+    imageName: "Sciserver Essentials (Test)"
+
+graphql:
+  replicaCount: 1
+  image:
+    repository: <<<IMAGE_REPO>>>/graphql
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+

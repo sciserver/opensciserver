@@ -1,0 +1,102 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under a modified Apache 2.0 license. 
+  See LICENSE.txt in the project root for license information.
+
+  Code in this file assumes that the following elements exist in the including JSP file:
+    - <form id="form">
+    - <button id="submit" type="submit">
+    - <input id="password" type="password">
+    - <input id="confirmPassword" type="password">
+    - <input id="username" type="text">  (optional)
+    - <input id="email" type="email">  (optional)
+
+  Reference:  https://github.com/ablanco/jquery.pwstrength.bootstrap
+              https://github.com/cloudfour/hideShowPassword
+              https://jqueryvalidation.org/documentation/
+--%>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.js"></script>
+<script src="<spring:url value="/static/lib/pwstrength-bootstrap.min.js"/>"></script>
+<script src="<spring:url value="/static/lib/hideShowPassword.min.js"/>"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        options = {
+            common: {
+                minChar: 8,
+                maxChar: 128,
+                usernameField: "#username",
+                onLoad: function () {
+                    // Disable submit on initial load, then check score if a password is pre-populated
+                    $('#submit').attr('disabled', true);
+                    $("#password").pwstrength("forceUpdate");
+                },
+                onScore: function (options, word, totalScoreCalculated) {
+                    // Only passwords that have a score meeting the 'Strong' or 'Very Strong'
+                    // threshold should allow the form to be submitted
+                    if (totalScoreCalculated < options.ui.scores[3]) {
+                        $('#submit').attr('disabled', true);
+                    } else {
+                        $('#submit').attr('disabled', false);
+                    }
+                    // Must pass back the score to set the total score variable.
+                    return totalScoreCalculated;
+                }
+            },
+            ui: {
+                bootstrap3: true,
+                showVerdictsInsideProgressBar: true,
+                showPopover: true,
+                popoverPlacement: "right",
+                showErrors: true,
+                progressBarExtraCssClasses: "progress-bar-striped active"
+            },
+            rules: {
+                <%-- TODO: See issue #1175.  The default list for commonPasswords provided by the plugin will be in effect
+                     in the meantime. --%>
+                specialCharClass: '[!"#$%&\'()*+,./:;<=>?@\\[\\\\\\]^_`{|}~-]',  // Overridden to match those from Passay
+                scores: { wordSequences: -100 }
+            }
+        };
+        $('#password').pwstrength(options);
+        $('#password').pwstrength('addRule', 'fourCharClassRule', function (options, word, score) {
+            return ! word.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!"#$%&'()*+,.\/:;<=>?@\[\\\]^_`{|}~-]).{8,128}$/) && score;
+        }, -200, true);
+
+        $('#password').hidePassword();
+		$('#show-password').change(function() {
+            $('#password').hideShowPassword($(this).prop('checked'));
+        });
+
+        $.validator.addMethod("usernameCompliance",
+            function(value, element, regexp) {
+                var re = new RegExp(regexp);
+                return re.test(value);
+            },
+            "Please use only the following:  A-Z, a-z, 0-9, and underscore (_)"
+        );
+
+        $('#form').validate( {
+            rules: {
+                password: {
+                    required: true,
+                },
+                confirmPassword: {
+                    required: true,
+                    equalTo: "#password"
+                },
+                username: {
+                    required: true,
+                    usernameCompliance: "^[a-zA-Z0-9_]+$"
+                },
+                email: {
+                    required: true,
+                    email: true
+                }
+            }
+        });
+
+        $('#submit').click(function() {
+            $('#form').valid();
+        });
+    });
+</script>

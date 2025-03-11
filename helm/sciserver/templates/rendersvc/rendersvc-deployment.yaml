@@ -1,0 +1,50 @@
+{{ if .Values.rendersvc.enable -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-render
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: rendersvc
+spec:
+  replicas: {{ .Values.rendersvc.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: rendersvc
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: rendersvc
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      containers:
+      - name: webapp
+        image: "{{ .Values.rendersvc.image.repository }}:{{ required "please specify rendersvc image tag or use image manifest" .Values.rendersvc.image.tag }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SCISERVER_LOGGING_RMQ_EP
+          value: {{ include "sciserver.rabbitmq_host" . }}
+        - name: SCISERVER_LOGGING_RMQ_EXCHANGE
+          value: {{ .Values.logging.rabbitmq.exchange }}
+        - name: SCISERVER_LOGGING_RMQ_CREDS
+          value:
+        - name: SCISERVER_LOGGING_APPLICATION
+          value: rendersvc
+        - name: SCISERVER_LOGGING_SLACK_WEBHOOK
+          value: none
+        - name: SCISERVER_PREFIX
+          value: /{{ include "sciserver.prefix" . }}render
+        ports:
+        - name: web
+          containerPort: 8080
+{{ end -}}

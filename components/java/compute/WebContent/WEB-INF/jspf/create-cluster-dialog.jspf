@@ -1,0 +1,112 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under the Apache License, Version 2.0. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<script>
+function escapeHtml(text) {
+	var map = {
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#039;'
+			};
+	return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+function update() {
+	$("#imageSelect").html("");
+	
+	var token = Cookies.get('computeCookie');
+	var domain = $("#domainSelect").val();
+	
+	$.ajaxSetup({
+		headers: { 'X-Auth-Token': token }
+	});
+	$("#imageSelect").change(function() {
+		var selectedImage = $("#imageSelect option:selected");
+		$("#imageSelectDescription").text(selectedImage.attr('data-description'));
+	});
+	
+	$.get("ui/domains/" + domain, function(data) {
+		var imagesHtml = "";
+		var publicVolumesHtml = "";
+		for (obj of data.images) {
+			imagesHtml += "<option "
+				+"value='"+obj.id+"' "
+				+(obj.selected?"selected":"")+">"+obj.name+"</option>"
+		}
+		for (obj of data.publicVolumes) {
+			publicVolumesHtml += "<div "
+				+"class='checkbox' "
+				+"title='" + escapeHtml(obj.description) + "' "
+				+">"
+				+"<label><input "+(obj.selected?"checked='checked'":"")+" name='publicVolume' type='checkbox' value='"+obj.id+"'/>"+obj.name+"</label></div>"
+		}
+		$("#imageSelect").html(imagesHtml);
+		$("#publicVolumeCheck").html(publicVolumesHtml);
+		$("#imageSelect").change();
+	});
+}
+</script>
+<form method="POST" action="dask/create">
+<div id="createClusterDialog" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Create a new cluster</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="clusterName">Cluster name</label> 
+					<input class="form-control" id="clusterName" name="clusterName" placeholder="Please enter a name..." type="text" value="" />
+				</div>
+				<div class="form-group">
+					<label for="domainId">Domain</label> 
+					<select id="domainSelect" class="form-control" id="domainId" name="domainId" onchange="update()">
+						<c:forEach var="domain" items="${domains}">
+							<option value="${domain.getId()}">
+								${domain.getName()}
+							</option>
+						</c:forEach>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="imageId">Image</label>
+					<select id="imageSelect" class="form-control" id="imageId" name="imageId"></select>
+				</div>
+				<div class="form-group">
+					<label for="workers">No. of workers</label> 
+					<input class="form-control" id="workers" name="workers" placeholder="" type="text" value="${defaultWorkers}" />
+				</div>
+				<div class="form-group">
+					<label for="memory">Memory limit</label> 
+					<input class="form-control" id="memory" name="memory" placeholder="" type="text" value="${defaultMemory}" />
+				</div>
+				<div class="form-group">
+					<label for="threads">No. of threads</label> 
+					<input class="form-control" id="threads" name="threads" placeholder="" type="text" value="${defaultThreads}" />
+				</div>
+				<div class="form-group">
+					<label>Data volumes</label>
+					<div id="publicVolumeCheck" style="padding-left: 16px"></div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<input type="submit" onclick="$('#createClusterDialog').modal('hide'); return $('#creatingMessage').modal('show');" class="btn btn-success" value="Create" />
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+<div id="creatingMessage" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h4>Creating cluster. Please wait...</h4>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-racm
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: racm
+spec:
+  replicas: {{ .Values.racm.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: racm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: racm
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      {{ if not .Values.racmDb.host -}}
+      initContainers:
+      - name: wait-for-db
+        image: "{{ .Values.sqlServerToolsImage.repository }}:{{ .Values.sqlServerToolsImage.tag }}"
+        imagePullPolicy: {{ .Values.sqlServerToolsImage.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - "while ! /opt/mssql-tools/bin/sqlcmd -b -S \"${RACM_DATABASE}\" -U SA -P \"${SA_PASSWORD}\" -Q 'IF DB_ID(N'\"'\"RACM\"'\"') IS NULL CREATE DATABASE RACM'; do sleep 5; done"
+        env:
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-racm-db
+              key: password
+        - name: RACM_DATABASE
+          value: {{ include "sciserver.fullname" . }}-racm-db
+      - name: wait-for-login-portal
+        image: "busybox:1.30-musl"
+        command:
+        - sh
+        - '-c'
+        - 'echo "Waiting for Login Portal"; until wget -T 1 --spider -q http://{{ include "sciserver.fullname" . }}-login-portal/{{ include "sciserver.prefix" . }}login-portal/api/health ; do sleep 5; done'
+      {{ end -}}
+      containers:
+      - name: web
+        image: "{{ .Values.racm.image.repository }}:{{ required "please specify racm image tag or use image manifest" .Values.racm.image.tag }}"
+        imagePullPolicy: {{ .Values.racm.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.racm.resources | nindent 10 }}
+        ports:
+        - name: web
+          containerPort: 8080
+        env:
+        - name: SPRING_CONFIG_LOCATION
+          value: /etc/secrets/
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          value: /{{ include "sciserver.prefix" . }}racm
+        - name: CONTEXT_PATH_NAME
+          value: {{ include "sciserver.tomcatprefix" . }}racm
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/racm/service/racm-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/secrets
+          readOnly: true
+        livenessProbe:
+          initialDelaySeconds: 300
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}racm/actuator/info
+            port: web
+        readinessProbe:
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}racm/actuator/health
+            port: web
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" . }}-racm
+

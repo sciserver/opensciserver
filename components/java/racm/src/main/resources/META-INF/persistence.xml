@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://java.sun.com/xml/ns/persistence"
+             version="1.0"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"><!-- 
+    This file persistence.xml contains default properties for JPA (eclipselink provider).
+    These properties can be overriden at runtime 
+   --><persistence-unit name="RACM-PU" transaction-type="RESOURCE_LOCAL">
+      <description> 
+    This unit manages the persistence for the VO-URP model.
+    </description>
+      <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+      <!--Base JPA entities-->
+
+<class>org.ivoa.dm.model.Identity</class>
+      <class>org.ivoa.dm.model.MetadataObject</class>
+      <class>org.ivoa.dm.model.MetadataRootEntityObject</class>
+      <class>org.ivoa.tap.Schemas</class>
+      <class>org.ivoa.tap.Tables</class>
+      <class>org.ivoa.tap.Columns</class>
+
+      <!--Generated JPA entities (VO-URP)--><!--
+This code was originally automatically generated from the UML model in
+https://github.com/sciserver/resource-management/blob/master/vo-urp/RACM_v1.xml
+using the VO-URP tool, https://github.com/sciserver/vo-urp. 
+It is now included in the code-base and will no longer be 
+generated automatically. You can edit this file, but be aware
+of its origins when interpreting the code
+-->
+
+<class>edu.jhu.rac.Action</class>
+      <class>edu.jhu.rac.AccessControl</class>
+      <class>edu.jhu.rac.ResourceType</class>
+      <class>edu.jhu.rac.Privilege</class>
+      <class>edu.jhu.rac.Role</class>
+      <class>edu.jhu.rac.RoleAction</class>
+      <class>edu.jhu.rac.RoleAssignment</class>
+      <class>edu.jhu.rac.ContextClass</class>
+      <class>edu.jhu.rac.ResourceContext</class>
+      <class>edu.jhu.rac.AssociatedResource</class>
+      <class>edu.jhu.rac.AssociatedSciEntity</class>
+      <class>edu.jhu.rac.Resource</class>
+      <class>edu.jhu.job.Dataset</class>
+      <class>edu.jhu.job.Job</class>
+      <class>edu.jhu.job.History</class>
+      <class>edu.jhu.job.ActionExecution</class>
+      <class>edu.jhu.job.COMPM</class>
+      <class>edu.jhu.job.JobMessage</class>
+      <class>edu.jhu.job.Response</class>
+      <class>edu.jhu.job.DockerJob</class>
+      <class>edu.jhu.job.RDBJob</class>
+      <class>edu.jhu.job.DockerComputeDomain</class>
+      <class>edu.jhu.job.RDBComputeDomain</class>
+      <class>edu.jhu.job.DatabaseContext</class>
+      <class>edu.jhu.job.VolumeContainer</class>
+      <class>edu.jhu.job.DockerImage</class>
+      <class>edu.jhu.job.RequiredVolume</class>
+      <class>edu.jhu.job.ComputeResource</class>
+      <class>edu.jhu.job.RDBJobTarget</class>
+      <class>edu.jhu.job.ComputeDomain</class>
+      <class>edu.jhu.job.RootVolumeOnComputeDomain</class>
+      <class>edu.jhu.job.RequiredUserVolume</class>
+      <class>edu.jhu.user.SciserverEntity</class>
+      <class>edu.jhu.user.Party</class>
+      <class>edu.jhu.user.Member</class>
+      <class>edu.jhu.user.UserGroup</class>
+      <class>edu.jhu.user.User</class>
+      <class>edu.jhu.user.ServiceAccount</class>
+      <class>edu.jhu.file.FileService</class>
+      <class>edu.jhu.file.RootVolume</class>
+      <class>edu.jhu.file.UserVolume</class>
+      <class>edu.jhu.file.DataVolume</class>
+
+      <!--JPA Properties-->
+
+<properties>
+         <property name="eclipselink.target-server" value="None"/>
+         <property name="eclipselink.application-location" value="."/>
+         <property name="eclipselink.ddl-generation" value="none"/>
+         <property name="eclipselink.ddl-generation.output-mode" value="none"/>
+         <property name="eclipselink.jdbc.native-sql" value="true"/>
+         <property name="eclipselink.jdbc.cache-statements" value="true"/>
+         <property name="eclipselink.jdbc.cache-statements.size" value="500"/>
+         <property name="eclipselink.flush-clear.cache" value="DropInvalidate"/>
+         <property name="eclipselink.logging.timestamp" value="false"/>
+         <property name="eclipselink.logging.thread" value="true"/>
+         <property name="eclipselink.logging.session" value="true"/>
+         <property name="eclipselink.logging.exceptions" value="false"/>
+         <property name="eclipselink.logging.parameters" value="true"/>
+         <property name="eclipselink.cache.type.default" value="Weak"/>
+         <property name="eclipselink.cache.size.default" value="5000"/>
+         <property name="eclipselink.cache.shared.default" value="false"/>
+
+         <!--
+  <property name="eclipseLink.cache.type.Cardinality" value="Full"/>
+  <property name="eclipseLink.cache.type.DataType" value="Full"/>
+--></properties>
+   </persistence-unit>
+</persistence>

@@ -1,0 +1,64 @@
+{{ if and .Values.logging.listener.enabled (not .Values.logging.db.host) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-logging-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: logging-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: logging-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: logging-db
+    spec:
+      containers:
+      - name: db
+        image: "{{ .Values.logging.db.image.repository }}:{{ .Values.logging.db.image.tag }}"
+        imagePullPolicy: {{ .Values.logging.db.image.pullPolicy }}
+        ports:
+        - containerPort: 1433
+          name: mssql
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_PID
+          value: Express
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-logging-db
+              key: password
+        - name: _CONFIG_HASH
+          value: {{include (print $.Template.BasePath "/logging/db/db-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/opt/mssql
+        {{ if and .Values.backup.enable .Values.logging.db.backup.enable }}
+        - name: backup
+          mountPath: /backup
+        {{ end }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "sciserver.fullname" . }}-logging-db
+      {{ if and .Values.backup.enable .Values.logging.db.backup.enable -}}
+      - name: backup
+        nfs:
+          server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+          path: {{ default "/backup" .Values.backup.nfs.path }}
+      {{ end -}}
+{{ end -}}

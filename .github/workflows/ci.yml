@@ -12,9 +12,49 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_BASE: ${{ github.repository }}
 
 jobs:
+  build:
+    name: Build all SciServer components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: get tags
+        run: git fetch --tags origin
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - run: make
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: dockermeta
+      - name: Build and push docker images
+        run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
+      - name: Generate helm tarball
+        run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: helm-charts
+          path: helm/build/*.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: components/java/**/build/reports/tests/test/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkstyle-reports
+          path: components/java/**/build/reports/checkstyle/
+
   docs:
     name: Build docs with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest

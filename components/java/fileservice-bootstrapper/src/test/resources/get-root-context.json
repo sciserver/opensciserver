@@ -1,0 +1,138 @@
+{
+    "contextClass": "FileService",
+    "contextuuid": "fa501e02-50de-45a4-8651-54ea236586c5",
+    "id": 4,
+    "privileges": [],
+    "resourceDescription": "The root Resource for its container ResourceContext, corresponding to root ResourceType of its ContainerClass. \"\r\n\t\t\t\t\t+ \"Used for associating privileges having to do with ResourceContext-level actions such as those to create other Resources",
+    "resourceId": "__rootcontext__",
+    "resourceName": "__rootcontext__",
+    "resourceUUID": "74b2267a-0885-4f52-888c-eb3e99304a0d",
+    "roles": [
+        {
+            "id": 10176,
+            "resourceId": 4,
+            "roleId": 15,
+            "roleName": "fs_admin",
+            "scisId": 1,
+            "scisName": "gaia",
+            "scisType": "U"
+        }
+    ],
+    "rtm": {
+        "actions": [
+            {
+                "allCategories": [
+                    "C",
+                    "R",
+                    "U",
+                    "D",
+                    "G",
+                    "X"
+                ],
+                "category": "U",
+                "description": "Edit the metadata for a File Service",
+                "id": 35,
+                "name": "edit",
+                "resourceTypeId": 12,
+                "valid": false
+            },
+            {
+                "allCategories": [
+                    "C",
+                    "R",
+                    "U",
+                    "D",
+                    "G",
+                    "X"
+                ],
+                "category": "C",
+                "description": "Create a new Data Volume",
+                "id": 45,
+                "name": "registerDataVolume",
+                "resourceTypeId": 12,
+                "valid": false
+            },
+            {
+                "allCategories": [
+                    "C",
+                    "R",
+                    "U",
+                    "D",
+                    "G",
+                    "X"
+                ],
+                "category": "G",
+                "description": "Grant permissions on this file system",
+                "id": 51,
+                "name": "grant",
+                "resourceTypeId": 12,
+                "valid": false
+            }
+        ],
+        "contextClassId": 5,
+        "description": "The root context resource type that every contextclass must have.",
+        "id": 12,
+        "name": "__rootcontext__",
+        "roles": [
+            {
+                "assignedActions": [
+                    {
+                        "allCategories": [
+                            "C",
+                            "R",
+                            "U",
+                            "D",
+                            "G",
+                            "X"
+                        ],
+                        "category": "U",
+                        "description": "Edit the metadata for a File Service",
+                        "id": 35,
+                        "name": "edit",
+                        "resourceTypeId": 12,
+                        "valid": false
+                    },
+                    {
+                        "allCategories": [
+                            "C",
+                            "R",
+                            "U",
+                            "D",
+                            "G",
+                            "X"
+                        ],
+                        "category": "C",
+                        "description": "Create a new Data Volume",
+                        "id": 45,
+                        "name": "registerDataVolume",
+                        "resourceTypeId": 12,
+                        "valid": false
+                    },
+                    {
+                        "allCategories": [
+                            "C",
+                            "R",
+                            "U",
+                            "D",
+                            "G",
+                            "X"
+                        ],
+                        "category": "G",
+                        "description": "Grant permissions on this file system",
+                        "id": 51,
+                        "name": "grant",
+                        "resourceTypeId": 12,
+                        "valid": false
+                    }
+                ],
+                "availableActions": [],
+                "description": "An administrator of a File Service",
+                "id": 15,
+                "name": "fs_admin",
+                "resourceTypeId": 12,
+                "valid": false
+            }
+        ],
+        "valid": false
+    }
+}

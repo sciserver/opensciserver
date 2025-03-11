@@ -1,0 +1,24 @@
+{
+    "identifier": "53cf7625-a629-4631-b4c5-77c33d6fbb65",
+    "name": "My New File Service",
+    "serviceToken": "a9edab7b-4fb0-4527-bc24-e9daba99adf7",
+    "description": "A service for reaching files",
+    "apiEndpoint": "https://my.fileservice.url.example.com/",
+    "rootVolumes": [
+        {
+            "name": "This should work fine",
+            "description": "Better three hours too soon than a minute too late..",
+            "pathOnFileSystem": "/mnt/A path with spaces",
+            "containsSharedVolumes": true,
+            "userVolumes": [
+            ]
+        },
+        {
+            "name": "Crazy Volume",
+            "description": "A root volume that is going to be a good test of well-written scripts if they use absolute paths",
+            "pathOnFileSystem": "/A Path/On a *nix/FileSystem/can _.have/anything;'\"/even 😆",
+            "containsSharedVolumes": false,
+            "userVolumes": []
+        }
+    ]
+}

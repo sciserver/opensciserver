@@ -1,0 +1,49 @@
+{{- if and .Values.backup.enable .Values.keystoneDb.backup.enable (not .Values.keystone.host) (not .Values.keystoneDb.host) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sciserver.fullname" . }}-keystone-db-backup
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: keystone-db-backup
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  suspend: false
+  schedule: '{{ default "0 0 * * *" .Values.keystoneDb.backup.schedule }}'
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.keystoneDb.image.repository }}:{{ .Values.keystoneDb.image.tag }}"
+            name: backup
+            command:
+            - "/bin/bash"
+            - "-xe"
+            - "-c"
+            - "mysqldump -h {{ include "sciserver.fullname" . }}-keystone-db -u root --password=$MYSQL_ROOT_PASSWORD --single-transaction {{ .Values.keystoneDb.name }} -r /backup/keystone-$(date +%F-%H-%M).sql && find /backup -name 'keystone-*.sql' -ctime +{{ default 7 .Values.keystoneDb.backup.retainDays }} -delete"
+            env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-keystone-db
+                  key: password
+            volumeMounts:
+            - name: backup
+              mountPath: /backup
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: backup
+            nfs:
+              server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+              path: {{ default "/backup" .Values.backup.nfs.path }}
+{{- end -}}

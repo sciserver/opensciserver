@@ -1,0 +1,49 @@
+{{- if and .Values.backup.enable .Values.loginPortal.db.backup.enable .Values.keycloak.enabled (not .Values.loginPortal.db.host) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sciserver.fullname" . }}-login-portal-db-backup
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: login-portal-db-backup
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  suspend: false
+  schedule: '{{ default "0 0 * * *" .Values.loginPortal.db.backup.schedule }}'
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.loginPortal.db.image }}:{{ .Values.loginPortal.db.tag }}"
+            name: backup
+            command:
+            - "/bin/bash"
+            - "-xe"
+            - "-c"
+            - "mysqldump -h {{ include "sciserver.fullname" . }}-login-portal-db -u root --password=$MYSQL_ROOT_PASSWORD --single-transaction sciserver-sso -r /backup/login-portal-$(date +%F-%H-%M).sql && find /backup -name 'login-portal-*.sql' -ctime +{{ default 7 .Values.loginPortal.db.backup.retainDays }} -delete"
+            env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-login-portal-db-pass
+                  key: password
+            volumeMounts:
+            - name: backup
+              mountPath: /backup
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: backup
+            nfs:
+              server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+              path: {{ default "/backup" .Values.backup.nfs.path }}
+{{- end -}}

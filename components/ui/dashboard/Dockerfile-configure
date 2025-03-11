@@ -1,0 +1,25 @@
+FROM node:10-alpine
+# This image, when run, will build the dashboard
+# It uses a configuration injected into /app/config/dashboard.env.js
+# if that file exists
+# The output will be in /app/dist/
+
+# Git is now needed for building the dashboard
+RUN apk --no-cache add git
+
+WORKDIR /app
+COPY package.json package-lock.json /app/
+RUN npm ci
+
+COPY web-inf /app/web-inf/
+COPY static /app/static/
+COPY build /app/build/
+
+COPY config /app/config/
+# Remove any custom config for the image
+RUN rm /app/config/dashboard.env.js || true
+
+COPY .babelrc .eslintrc.js .eslintignore .postcssrc.js index.html /app/
+COPY src /app/src/
+
+CMD npm run build

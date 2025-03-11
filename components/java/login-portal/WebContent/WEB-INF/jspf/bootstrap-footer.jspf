@@ -1,0 +1,35 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under a modified Apache 2.0 license. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<%@ page import="org.sciserver.sso.AppConfig, org.sciserver.sso.AppSettings"%>
+
+<%! AppSettings appSettingsFooter = AppConfig.getInstance().getAppSettings(); %>
+
+  <footer class="footer">
+    <span>
+      <c:if test="${not empty AppConfig.getInstance().getAppSettings().getSciserverVersion()}">
+        <%=appSettingsFooter.getSciserverVersion()%>&nbsp;
+      </c:if>
+      <small class="text-muted">Login Portal <%=AppConfig.getInstance().getVersion()%></small>
+    </span>
+      <span class="logo-holder">
+        <span>Powered by:</span>
+         <a class="logo" href="https://www.nsf.gov" target="_blank">
+            <img src="<spring:url value="/static/lib/assets/nsf1.gif"/>" style="max-height:50px;" />
+          </a>
+          <a class="logo" href="http://idies.jhu.edu" target="_blank">
+            <img src="<spring:url value="/static/lib/assets/idies-logo-big3.png"/>" style="max-height:24px;" />
+          </a>
+          <a class="logo" href="https://jhu.edu" target="_blank">
+            <img src="<spring:url value="/static/lib/assets/jhulogo.png"/>" style="max-height:32px;" />
+          </a>
+      </span>
+  </footer>
+
+<script>
+  document.querySelector('.navbar-default').style.setProperty('background-color', '<%=appSettingsFooter.getNavbarColor()%>');
+  document.querySelector('#banner').style.setProperty('background-color', '<%=appSettingsFooter.getNavbarColor()%>');
+  document.querySelector('body').style.setProperty('font-family', '<%=appSettingsFooter.getFontFamily()%>');
+</script>

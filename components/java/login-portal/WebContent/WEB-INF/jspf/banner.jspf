@@ -1,0 +1,13 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under a modified Apache 2.0 license. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<spring:url value="/static/lib/bootstrap/js/bootstrap.min.js"/>"></script>
+<link href="<spring:url value="/static/lib/bootstrap/css/bootstrap.min.css"/>" rel="stylesheet">
+<link href="<spring:url value="/static/lib/custom.css"/>" rel="stylesheet">

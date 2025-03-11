@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-dashboard
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: dashboard
+spec:
+  replicas: {{ .Values.dashboard.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: dashboard
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      initContainers:
+      - name: setup
+        image: busybox:1.30-musl
+        resources:
+          limits:
+            cpu: 10m
+            memory: 128Mi
+        volumeMounts:
+        - name: www
+          mountPath: /app/dist/
+        command:
+        - mkdir
+        - -p
+        - /app/dist/{{ include "sciserver.prefix" . }}
+      - name: build
+        image: "{{ .Values.dashboard.buildImage.repository }}:{{ required "please specify dashboard build image tag or use image manifest" .Values.dashboard.buildImage.tag }}"
+        imagePullPolicy: {{ .Values.dashboard.buildImage.pullPolicy }}
+        resources:
+          {{- toYaml .Values.dashboard.build.resources | nindent 10 }}
+        volumeMounts:
+        - name: www
+          mountPath: /app/dist/
+        - name: config
+          mountPath: /app/config/dashboard.env.js
+          subPath: dashboard.env.js
+          {{ if .Values.bannerOverride }}
+        - name: banner
+          mountPath: /app/src/assets/sciserver_banner.jpg
+          subPath: banner.jpg
+          {{ end }}
+          {{ if .Values.logoOverride }}
+        - name: logo
+          mountPath: /app/src/assets/sciserverlogo.png
+          subPath: logo.png
+          {{ end }}
+          {{ if .Values.imgLogoSmOverride }}
+        - name: img-logo-sm
+          mountPath: /app/src/assets/sciserver_logo_icon_blue.png
+          subPath: logo_sm.png
+          {{ end }}
+          {{ if .Values.imgComputeOverride }}
+        - name: img-compute
+          mountPath: /app/src/assets/sciserver_compute.png
+          subPath: compute.png
+          {{ end }}
+          {{ if .Values.imgComputeJobsOverride }}
+        - name: img-compute-jobs
+          mountPath: /app/src/assets/sciserver_compute_jobs.png
+          subPath: compute_jobs.png
+          {{ end }}
+          {{ if .Values.imgIconFilesOverride }}
+        - name: img-icon-files
+          mountPath: /app/src/assets/sciserver_icon_files.png
+          subPath: icon_files.png
+          {{ end }}
+          {{ if .Values.imgIconGroupsOverride }}
+        - name: img-icon-groups
+          mountPath: /app/src/assets/sciserver_icon_groups.png
+          subPath: icon_groups.png
+          {{ end }}
+          {{ if .Values.imgIconComputeOverride }}
+        - name: img-icon-compute
+          mountPath: /app/src/assets/sciserver_icon_compute.png
+          subPath: icon_compute.png
+          {{ end }}
+          {{ if .Values.imgIconComputeJobsOverride }}
+        - name: img-icon-compute-jobs
+          mountPath: /app/src/assets/sciserver_icon_jobs.png
+          subPath: icon_jobs.png
+          {{ end }}
+        env:
+        - name: _CONFIG_HASH_
+          value: {{ include (print $.Template.BasePath "/dashboard/dashboard-cm.yaml") . | sha256sum }}
+      containers:
+      - name: web
+        image: "{{ .Values.dashboard.serveImage.repository }}:{{ required "please specify dashboard serve image tag or use image manifest" .Values.dashboard.serveImage.tag }}"
+        imagePullPolicy: {{ .Values.dashboard.serveImage.pullPolicy }}
+        resources:
+          {{- toYaml .Values.dashboard.serve.resources | nindent 10 }}
+        env:
+        - name: CONTEXT_PATH_NAME
+          value: '{{ include "sciserver.prefix" . }}dashboard'
+        volumeMounts:
+        - name: www
+          mountPath: /www
+          readOnly: false
+        ports:
+        - name: web
+          containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}dashboard/
+            port: web
+      volumes:
+      - name: www
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-dashboard
+      {{ if .Values.bannerOverride }}
+      - name: banner
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-banner
+      {{ end }}
+      {{ if .Values.logoOverride }}
+      - name: logo
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-logo
+      {{ end }}
+      {{ if .Values.imgLogoSmOverride }}
+      - name: img-logo-sm
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-logo-sm
+      {{ end }}
+      {{ if .Values.imgComputeOverride }}
+      - name: img-compute
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-compute
+      {{ end }}
+      {{ if .Values.imgComputeJobsOverride }}
+      - name: img-compute-jobs
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-compute-jobs
+      {{ end }}
+      {{ if .Values.imgIconFilesOverride }}
+      - name: img-icon-files
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-icon-files
+      {{ end }}
+      {{ if .Values.imgIconGroupsOverride }}
+      - name: img-icon-groups
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-icon-groups
+      {{ end }}
+            {{ if .Values.imgIconComputeOverride }}
+      - name: img-icon-compute
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-icon-compute
+      {{ end }}
+      {{ if .Values.imgIconComputeJobsOverride }}
+      - name: img-icon-compute-jobs
+        configMap:
+          name: {{ include "sciserver.fullname" . }}-img-icon-compute-jobs
+      {{ end }}

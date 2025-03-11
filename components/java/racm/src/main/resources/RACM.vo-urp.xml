@@ -1,0 +1,2499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This code was originally automatically generated from the UML model in
+https://github.com/sciserver/resource-management/blob/master/vo-urp/RACM_v1.xml
+using the VO-URP tool, https://github.com/sciserver/vo-urp. 
+It is now included in the code-base and will no longer be 
+generated automatically. You can edit this file, but be aware
+of its origins when interpreting it.
+		-->
+<!--
+			This XML document is generated without explicit xmlns specification
+			as it complicates
+			writing XSLT scripts against it [TBD add a link to some web dicsussions
+			about it].
+			It is understood that the XML schema in
+			http://volute.googlecode.com/svn/trunk/projects/theory/snapdm/specification/uml/intermediateModel.xsd
+			is to be used for validating this generated document.
+		-->
+
+      <m:model xmlns:m="https://github.com/glemson/vo-urp/xsd/vo-urp/v0.1" 
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                  xsi:schemaLocation="https://github.com/glemson/vo-urp/xsd/vo-urp/v0.1 https://github.com/glemson/vo-urp/raw/master/xsd/intermediateModel.xsd" xmiid="eee_1045467100313_135436_1">
+  <name>scis</name>
+  <description>This is the data model for the SciServe rmetadata.</description>
+  <utype>scis</utype>
+  <lastModifiedDate>1714404882413</lastModifiedDate>
+  <created>20240501133058</created>
+  <version>0.1-20160321</version>
+  <author>Jai Won Kim</author>
+  <author>Gerard Lemson</author>
+  <title>SciServer</title>
+  <profile xmiid="_10_0_42c01ac_1131096191234_590105_2">
+    <name>IVOA_Profile</name>
+    <description>This  profile defines the domain specific UML dialect for the IVOA data modelling efforts.</description>
+
+    <package xmiid="_10_0_42c01ac_1131107940187_86240_1958">
+      <name>IVOAValueTypes</name>
+      <description>UML DataType is the base class of Primitive Type and Enumeration. 
+
+This types are generic and does not represent specific implementation types.
+
+Primitive type is a predefined datatype which does not have a structure.
+
+ivoaIdentifier is a DataType since it has possibly a structure.
+
+</description>
+      <utype>scis:/IVOA_ProfileIVOAValueTypes/</utype>
+      <!--
+						Data types
+					-->
+
+<dataType xmiid="_12_1_8e0028f_1242146981265_564771_339">
+        <name>Identity</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/IVOA_ProfileIVOAValueTypes/Identity</utype>
+        <attribute xmiid="_12_1_8e0028f_1242146989390_57397_340">
+          <name>id</name>
+          <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+          <utype>scis:/IVOA_ProfileIVOAValueTypes/Identity.id</utype>
+          <datatype name="integer" xmiidref="_10_0_42c01ac_1131110115640_104165_2107"/>
+          <multiplicity>0..1</multiplicity>
+        </attribute>
+        <attribute xmiid="_12_1_8e0028f_1242147000906_183586_343">
+          <name>xmlId</name>
+          <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+          <utype>scis:/IVOA_ProfileIVOAValueTypes/Identity.xmlId</utype>
+          <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+          <multiplicity>0..1</multiplicity>
+        </attribute>
+        <attribute xmiid="_12_1_8e0028f_1242147012500_863176_346">
+          <name>ivoId</name>
+          <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+          <utype>scis:/IVOA_ProfileIVOAValueTypes/Identity.ivoId</utype>
+          <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+          <multiplicity>0..1</multiplicity>
+        </attribute>
+      </dataType>
+
+
+      <!--
+						Primitive Types
+					-->
+
+<primitiveType xmiid="_10_0_42c01ac_1131109909359_121421_1981">
+        <name>string</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131109993578_511245_1999">
+        <name>datetime</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131109996890_725032_2017">
+        <name>duration</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110086312_275884_2071">
+        <name>boolean</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110104125_206884_2089">
+        <name>anyURI</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110115640_104165_2107">
+        <name>integer</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110131250_232724_2125">
+        <name>rational</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110143687_425384_2143">
+        <name>real</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110158312_61368_2161">
+        <name>complex</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110168921_906446_2179">
+        <name>bit</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110178359_108283_2197">
+        <name>nonnegativeInteger</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_10_0_42c01ac_1131110198312_459596_2215">
+        <name>decimal</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+      <primitiveType xmiid="_12_1_8e0028f_1209039496265_664447_944">
+        <name>ivoIdentifier</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </primitiveType>
+
+    </package>
+
+  </profile>
+
+  <package xmiid="_12_1_89c0276_1458599112316_880605_526">
+    <name>rac</name>
+    <description>Resource Access Control (RAC)</description>
+    <utype>scis:/rac/</utype>
+    <!--
+						Dependencies
+					-->
+
+<depends xmiidref="_12_1_89c0276_1463072598213_38185_514"/>
+    <!--
+						Classes
+					-->
+
+<objectType xmiid="_12_1_89c0276_1458742335857_240715_2688">
+      <name>Action</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/Action</utype>
+      <container name="ResourceType" xmiidref="_12_1_89c0276_1458742729200_88681_2887"
+                 relation="action">
+        <utype>scis:/rac/Action.CONTAINER</utype>
+      </container>
+      <referrer name="Privilege" xmiidref="_12_1_89c0276_1458744021937_520077_3208"
+                relation="action"/>
+      <referrer name="RoleAction" xmiidref="_12_1_89c0276_1458744885056_286032_3575"
+                relation="action"/>
+      <referrer name="ActionExecution" xmiidref="_12_1_89c0276_1458747425765_579457_4679"
+                relation="action"/>
+      <attribute xmiid="_12_1_42c01ac_1460495883380_590960_156">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Action.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <uniqueInCollection>
+						true
+					</uniqueInCollection>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_58601f2_1460897942570_772799_334">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Action.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1482852063102_185866_318">
+        <name>category</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Action.category</utype>
+        <datatype name="ActionCategory" xmiidref="_12_1_89c0276_1482852319511_774865_462"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458742341772_775230_2708" abstract="true">
+      <name>AccessControl</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/AccessControl</utype>
+      <container name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"
+                 relation="accesControl">
+        <utype>scis:/rac/AccessControl.CONTAINER</utype>
+      </container>
+      <reference xmiid="_12_1_89c0276_1458745385942_82059_3981">
+        <name>scisEntity</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AccessControl.scisEntity</utype>
+        <datatype name="SciserverEntity" xmiidref="_12_1_89c0276_1458743997600_29151_3136"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458742729200_88681_2887">
+      <name>ResourceType</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/ResourceType</utype>
+      <container name="ContextClass" xmiidref="_12_1_89c0276_1463868050796_336167_436"
+                 relation="resourceType">
+        <utype>scis:/rac/ResourceType.CONTAINER</utype>
+      </container>
+      <referrer name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"
+                relation="resourceType"/>
+      <attribute xmiid="_12_1_42c01ac_1460495993305_932274_162">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceType.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_58601f2_1460897333855_947043_284">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceType.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1458742738010_851087_2960">
+        <name>action</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceType.action</utype>
+        <datatype name="Action" xmiidref="_12_1_89c0276_1458742335857_240715_2688"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <collection xmiid="_12_1_89c0276_1458745208787_891558_3713">
+        <name>role</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceType.role</utype>
+        <datatype name="Role" xmiidref="_12_1_89c0276_1458744840109_553284_3528"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458744021937_520077_3208">
+      <name>Privilege</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/Privilege</utype>
+      <extends name="AccessControl" xmiidref="_12_1_89c0276_1458742341772_775230_2708"/>
+      <reference xmiid="_12_1_89c0276_1458744060990_32955_3334">
+        <name>action</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Privilege.action</utype>
+        <datatype name="Action" xmiidref="_12_1_89c0276_1458742335857_240715_2688"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458744840109_553284_3528">
+      <name>Role</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/Role</utype>
+      <container name="ResourceType" xmiidref="_12_1_89c0276_1458742729200_88681_2887"
+                 relation="role">
+        <utype>scis:/rac/Role.CONTAINER</utype>
+      </container>
+      <referrer name="RoleAssignment" xmiidref="_12_1_89c0276_1458745274664_981600_3770"
+                relation="role"/>
+      <attribute xmiid="_12_1_42c01ac_1460495780557_393172_154">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Role.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <uniqueInCollection>
+						true
+					</uniqueInCollection>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_58601f2_1460896971727_501208_143">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Role.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1458744885066_720746_3578">
+        <name>action</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Role.action</utype>
+        <datatype name="RoleAction" xmiidref="_12_1_89c0276_1458744885056_286032_3575"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458744885056_286032_3575">
+      <name>RoleAction</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/RoleAction</utype>
+      <container name="Role" xmiidref="_12_1_89c0276_1458744840109_553284_3528"
+                 relation="action">
+        <utype>scis:/rac/RoleAction.CONTAINER</utype>
+      </container>
+      <reference xmiid="_12_1_89c0276_1458745249389_702938_3764">
+        <name>action</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/RoleAction.action</utype>
+        <datatype name="Action" xmiidref="_12_1_89c0276_1458742335857_240715_2688"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458745274664_981600_3770">
+      <name>RoleAssignment</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/RoleAssignment</utype>
+      <extends name="AccessControl" xmiidref="_12_1_89c0276_1458742341772_775230_2708"/>
+      <reference xmiid="_12_1_89c0276_1458745290879_230732_3868">
+        <name>role</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/RoleAssignment.role</utype>
+        <datatype name="Role" xmiidref="_12_1_89c0276_1458744840109_553284_3528"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1463868050796_336167_436" entity="true">
+      <name>ContextClass</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/ContextClass</utype>
+      <referrer name="ResourceContext" xmiidref="_12_1_89c0276_1463868014655_7707_339"
+                relation="contextClass"/>
+      <attribute xmiid="_12_1_89c0276_1463868514055_253349_588">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ContextClass.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1463868553662_999775_592">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ContextClass.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1463868578130_542094_601">
+        <name>release</name>
+        <description>INdicates the release of the application context. </description>
+        <utype>scis:/rac/ContextClass.release</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1463868055508_853398_465">
+        <name>resourceType</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ContextClass.resourceType</utype>
+        <datatype name="ResourceType" xmiidref="_12_1_89c0276_1458742729200_88681_2887"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1480457508204_225148_509">
+        <name>creator</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ContextClass.creator</utype>
+        <datatype name="User" xmiidref="_12_1_89c0276_1458600027993_233284_1585"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1463868014655_7707_339" entity="true">
+      <name>ResourceContext</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/ResourceContext</utype>
+      <referrer name="ComputeDomain" xmiidref="_12_1_89c0276_1473778040879_700175_363"
+                relation="resourceContext"/>
+      <referrer name="FileService" xmiidref="_12_1_8cf0282_1503598564671_171910_1002"
+                relation="resourceContext"/>
+      <attribute xmiid="_12_1_89c0276_1463071958027_93485_248">
+        <name>racmEndpoint</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceContext.racmEndpoint</utype>
+        <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1463868775412_872915_686">
+        <name>uuid</name>
+        <description>A globally unique identifier, defined by th actual instance itself.
+I.e. should be set and not changed by the instance configuration.
+
+Maybe unique token as well?</description>
+        <utype>scis:/rac/ResourceContext.uuid</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <uniqueGlobally>
+						true
+					</uniqueGlobally>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1463868871777_26171_692">
+        <name>label</name>
+        <description>Any service trying to change the state of a context must be able to identify itself using a token.</description>
+        <utype>scis:/rac/ResourceContext.label</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1472588934044_462608_735">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceContext.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1463868020544_652351_368">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceContext.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1463868059177_72988_518">
+        <name>contextClass</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceContext.contextClass</utype>
+        <datatype name="ContextClass" xmiidref="_12_1_89c0276_1463868050796_336167_436"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1548166892384_85684_562" isOwned="true">
+        <name>account</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/ResourceContext.account</utype>
+        <datatype name="ServiceAccount" xmiidref="_12_1_89c0276_1548166739553_607189_441"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_42c01ac_1539791334506_984820_429">
+      <name>AssociatedResource</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/AssociatedResource</utype>
+      <container name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"
+                 relation="associatedResource">
+        <utype>scis:/rac/AssociatedResource.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_42c01ac_1539793526366_405117_781">
+        <name>usage</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AssociatedResource.usage</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_42c01ac_1539799721790_616747_1241">
+        <name>ownership</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AssociatedResource.ownership</utype>
+        <datatype name="OwnershipCategory" xmiidref="_12_1_42c01ac_1539798366707_252687_862"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_42c01ac_1539799774196_817924_1247">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AssociatedResource.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_42c01ac_1539791518797_287321_541">
+      <name>AssociatedSciEntity</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/AssociatedSciEntity</utype>
+      <container name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"
+                 relation="associatedGroup">
+        <utype>scis:/rac/AssociatedSciEntity.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_42c01ac_1539793589774_649841_785">
+        <name>usage</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AssociatedSciEntity.usage</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_42c01ac_1539798412713_73186_894">
+        <name>ownership</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AssociatedSciEntity.ownership</utype>
+        <datatype name="OwnershipCategory" xmiidref="_12_1_42c01ac_1539798366707_252687_862"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_42c01ac_1539876471542_79134_583">
+        <name>sciEntity</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/AssociatedSciEntity.sciEntity</utype>
+        <datatype name="SciserverEntity" xmiidref="_12_1_89c0276_1458743997600_29151_3136"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458644874005_199423_1964">
+      <name>Resource</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/Resource</utype>
+      <container name="ResourceContext" xmiidref="_12_1_89c0276_1463868014655_7707_339"
+                 relation="resource">
+        <utype>scis:/rac/Resource.CONTAINER</utype>
+      </container>
+      <referrer name="AssociatedResource" xmiidref="_12_1_42c01ac_1539791334506_984820_429"
+                relation="resource"/>
+      <referrer name="ActionExecution" xmiidref="_12_1_89c0276_1458747425765_579457_4679"
+                relation="resource"/>
+      <referrer name="DatabaseContext" xmiidref="_12_1_89c0276_1473782505208_963685_358"
+                relation="resource"/>
+      <referrer name="ComputeResource" xmiidref="_12_1_89c0276_1473782684409_384386_743"
+                relation="resource"/>
+      <referrer name="Workspace" xmiidref="_12_1_8cf0282_1503599826069_846446_1334"
+                relation="resource"/>
+      <referrer name="RootVolume" xmiidref="_12_1_89c0276_1504883249121_883751_764"
+                relation="resource"/>
+      <referrer name="UserVolume" xmiidref="_12_1_8cf0282_1505494438548_612731_373"
+                relation="resource"/>
+      <referrer name="DataVolume" xmiidref="_12_1_89c0276_1541186453451_289861_415"
+                relation="resource"/>
+      <referrer name="Student" xmiidref="_12_1_42c01ac_1539902198713_770098_427" relation=""/>
+      <attribute xmiid="_12_1_89c0276_1483132272529_110205_507">
+        <name>name</name>
+        <description>Human readable name of the resource.</description>
+        <utype>scis:/rac/Resource.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1483132309318_449819_512">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Resource.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1483707051631_554784_320">
+        <name>uuid</name>
+        <description>A unique id generated by the system upong creation of a Resource</description>
+        <utype>scis:/rac/Resource.uuid</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1458746512801_348980_4605">
+        <name>accesControl</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Resource.accesControl</utype>
+        <datatype name="AccessControl" xmiidref="_12_1_89c0276_1458742341772_775230_2708"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <collection xmiid="_12_1_42c01ac_1539798916152_772754_1074">
+        <name>associatedGroup</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Resource.associatedGroup</utype>
+        <datatype name="AssociatedSciEntity" xmiidref="_12_1_42c01ac_1539791518797_287321_541"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <collection xmiid="_12_1_42c01ac_1539799265317_266473_1190">
+        <name>associatedResource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Resource.associatedResource</utype>
+        <datatype name="AssociatedResource" xmiidref="_12_1_42c01ac_1539791334506_984820_429"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1458742729220_570183_2890">
+        <name>resourceType</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/rac/Resource.resourceType</utype>
+        <datatype name="ResourceType" xmiidref="_12_1_89c0276_1458742729200_88681_2887"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+
+    <!--
+						Enumerations
+					-->
+
+<enumeration xmiid="_12_1_89c0276_1482852319511_774865_462">
+      <name>ActionCategory</name>
+      <description>Type of action, based on CRUD+Grant.
+Can be used to categorize a cusotm-named action.
+Particularly useful for delete and grant.</description>
+      <utype>scis:/rac/ActionCategory</utype>
+      <literal>
+        <value>C</value>
+        <description>create-like action</description>
+      </literal>
+      <literal>
+        <value>R</value>
+        <description>read-like action</description>
+      </literal>
+      <literal>
+        <value>U</value>
+        <description>update-like action</description>
+      </literal>
+      <literal>
+        <value>D</value>
+        <description>delete-like action</description>
+      </literal>
+      <literal>
+        <value>G</value>
+        <description>grant-like action</description>
+      </literal>
+      <literal>
+        <value>X</value>
+        <description>Action indicating some kind of execution, of a query or other type of job.</description>
+      </literal>
+    </enumeration>
+
+    <enumeration xmiid="_12_1_42c01ac_1539798366707_252687_862">
+      <name>OwnershipCategory</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/rac/OwnershipCategory</utype>
+      <literal>
+        <value>OWNED</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>LINKED</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+  </package>
+
+
+
+  <package xmiid="_12_1_89c0276_1463072588736_309380_513">
+    <name>job</name>
+    <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+    <utype>scis:/job/</utype>
+    <!--
+						Classes
+					-->
+
+<objectType xmiid="_12_1_89c0276_1459269015712_654929_1735" entity="true">
+      <name>Dataset</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/Dataset</utype>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458665818557_973565_2476" abstract="true" entity="true">
+      <name>Job</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/Job</utype>
+      <attribute xmiid="_12_1_89c0276_1459264689476_722712_313">
+        <name>submitTime</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.submitTime</utype>
+        <datatype name="datetime" xmiidref="_10_0_42c01ac_1131109993578_511245_1999"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1459264713546_635130_317">
+        <name>expectedTime</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.expectedTime</utype>
+        <datatype name="duration" xmiidref="_10_0_42c01ac_1131109996890_725032_2017"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1469047278815_537447_787">
+        <name>status</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.status</utype>
+        <datatype name="integer" xmiidref="_10_0_42c01ac_1131110115640_104165_2107"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <maxLength>4</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1470335348086_774298_235">
+        <name>excutorDID</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.excutorDID</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1470411993624_151492_372">
+        <name>submitterDID</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.submitterDID</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1474392669038_807701_407">
+        <name>startedTime</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.startedTime</utype>
+        <datatype name="datetime" xmiidref="_10_0_42c01ac_1131109993578_511245_1999"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1474392700479_973489_411">
+        <name>finishedTime</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.finishedTime</utype>
+        <datatype name="datetime" xmiidref="_10_0_42c01ac_1131109993578_511245_1999"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1477401914452_446502_221">
+        <name>duration</name>
+        <description>Duration in seconds of the job execution. Not necessarily the same as finishedTime-startedTime.</description>
+        <utype>scis:/job/Job.duration</utype>
+        <datatype name="real" xmiidref="_10_0_42c01ac_1131110143687_425384_2143"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1479905862495_734696_2415">
+        <name>resultsFolderURI</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.resultsFolderURI</utype>
+        <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1525708381955_628440_264">
+        <name>timeout</name>
+        <description>Job timeout in seconds</description>
+        <utype>scis:/job/Job.timeout</utype>
+        <datatype name="integer" xmiidref="_10_0_42c01ac_1131110115640_104165_2107"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1469529723629_575738_515">
+        <name>message</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.message</utype>
+        <datatype name="JobMessage" xmiidref="_12_1_89c0276_1469529723625_79284_495"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <collection xmiid="_12_1_89c0276_1507315954485_945453_429">
+        <name>userVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.userVolume</utype>
+        <datatype name="RequiredUserVolume" xmiidref="_12_1_89c0276_1507315954357_566071_409"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1469036084579_226110_508">
+        <name>runBy</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.runBy</utype>
+        <datatype name="COMPM" xmiidref="_12_1_89c0276_1469036061421_153070_479"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1473778313451_976473_707">
+        <name>computeDomain</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.computeDomain</utype>
+        <datatype name="ComputeDomain" xmiidref="_12_1_89c0276_1473778040879_700175_363"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1491337762058_125073_614">
+        <name>submitter</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Job.submitter</utype>
+        <datatype name="User" xmiidref="_12_1_89c0276_1458600027993_233284_1585"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458747418425_214370_4657" entity="true">
+      <name>History</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/History</utype>
+      <collection xmiid="_12_1_89c0276_1458747425775_952687_4682">
+        <name>actions</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/History.actions</utype>
+        <datatype name="ActionExecution" xmiidref="_12_1_89c0276_1458747425765_579457_4679"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458747425765_579457_4679">
+      <name>ActionExecution</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/ActionExecution</utype>
+      <container name="History" xmiidref="_12_1_89c0276_1458747418425_214370_4657"
+                 relation="actions">
+        <utype>scis:/job/ActionExecution.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_89c0276_1458747627025_951588_4913">
+        <name>executionDate</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ActionExecution.executionDate</utype>
+        <datatype name="datetime" xmiidref="_10_0_42c01ac_1131109993578_511245_1999"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1458747640170_682548_4915">
+        <name>status</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ActionExecution.status</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1458747435543_388274_4752">
+        <name>action</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ActionExecution.action</utype>
+        <datatype name="Action" xmiidref="_12_1_89c0276_1458742335857_240715_2688"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1458747439503_470596_4805">
+        <name>user</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ActionExecution.user</utype>
+        <datatype name="User" xmiidref="_12_1_89c0276_1458600027993_233284_1585"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1458747443465_203375_4858">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ActionExecution.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1469036061421_153070_479" entity="true">
+      <name>COMPM</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/COMPM</utype>
+      <referrer name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476" relation="runBy"/>
+      <attribute xmiid="_12_1_89c0276_1469528569369_233847_348">
+        <name>uuid</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/COMPM.uuid</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1469529680018_462869_485">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/COMPM.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1470773765999_174689_479">
+        <name>label</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/COMPM.label</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1473777895066_348701_349">
+        <name>creatorUserid</name>
+        <description>The usernameof the owner</description>
+        <utype>scis:/job/COMPM.creatorUserid</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1525707788565_710086_261">
+        <name>defaultJobTimeout</name>
+        <description>The default job timeout in seconds</description>
+        <utype>scis:/job/COMPM.defaultJobTimeout</utype>
+        <datatype name="integer" xmiidref="_10_0_42c01ac_1131110115640_104165_2107"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1541783367164_202717_301">
+        <name>defaultJobsPerUser</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/COMPM.defaultJobsPerUser</utype>
+        <datatype name="integer" xmiidref="_10_0_42c01ac_1131110115640_104165_2107"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1473778288569_826602_656">
+        <name>computeDomain</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/COMPM.computeDomain</utype>
+        <datatype name="ComputeDomain" xmiidref="_12_1_89c0276_1473778040879_700175_363"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1469529723625_79284_495">
+      <name>JobMessage</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/JobMessage</utype>
+      <container name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476"
+                 relation="message">
+        <utype>scis:/job/JobMessage.CONTAINER</utype>
+      </container>
+      <referrer name="Response" xmiidref="_12_1_89c0276_1469532455284_441985_777"
+                relation="message"/>
+      <attribute xmiid="_12_1_89c0276_1469529735935_208057_570">
+        <name>content</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/JobMessage.content</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1469529777405_672660_577">
+        <name>label</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/JobMessage.label</utype>
+        <datatype name="MessageType" xmiidref="_12_1_89c0276_1469530291274_833825_586"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1469532455284_845812_797">
+        <name>response</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/JobMessage.response</utype>
+        <datatype name="Response" xmiidref="_12_1_89c0276_1469532455284_441985_777"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1469532455284_441985_777">
+      <name>Response</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/Response</utype>
+      <container name="JobMessage" xmiidref="_12_1_89c0276_1469529723625_79284_495"
+                 relation="response">
+        <utype>scis:/job/Response.CONTAINER</utype>
+      </container>
+      <reference xmiid="_12_1_89c0276_1469532461030_976037_856">
+        <name>message</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/Response.message</utype>
+        <datatype name="JobMessage" xmiidref="_12_1_89c0276_1469529723625_79284_495"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473778167711_212002_449" entity="true">
+      <name>DockerJob</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/DockerJob</utype>
+      <extends name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476"/>
+      <attribute xmiid="_12_1_89c0276_1473782478983_719621_348">
+        <name>command</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DockerJob.command</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1479905833933_758511_2411">
+        <name>scriptURI</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DockerJob.scriptURI</utype>
+        <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1493070890217_390083_366">
+        <name>fullDockerCommand</name>
+        <description>The command that was actually executed in the docker container.</description>
+        <utype>scis:/job/DockerJob.fullDockerCommand</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1473782627969_241240_628">
+        <name>requiredVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DockerJob.requiredVolume</utype>
+        <datatype name="RequiredVolume" xmiidref="_12_1_89c0276_1473782627959_827502_608"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1473778507115_108873_771">
+        <name>computeDomain</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DockerJob.computeDomain</utype>
+        <datatype name="DockerComputeDomain" xmiidref="_12_1_89c0276_1473778242586_219621_549"/>
+        <multiplicity>1</multiplicity>
+        <subsets>_12_1_89c0276_1473778313451_976473_707</subsets>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1474392524161_599984_223">
+        <name>image</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DockerJob.image</utype>
+        <datatype name="DockerImage" xmiidref="_12_1_89c0276_1473782544668_871508_516"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473778175803_916748_499" entity="true">
+      <name>RDBJob</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RDBJob</utype>
+      <extends name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476"/>
+      <attribute xmiid="_12_1_89c0276_1500481949541_269808_599">
+        <name>inputSQL</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJob.inputSQL</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1473782960807_464804_1119">
+        <name>sql</name>
+        <description>The SQL query sent to the database. If NULL, same as the inputSQL.</description>
+        <utype>scis:/job/RDBJob.sql</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1500578743575_91937_577">
+        <name>target</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJob.target</utype>
+        <datatype name="RDBJobTarget" xmiidref="_12_1_89c0276_1500578743559_597757_557"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1473778392846_399533_715">
+        <name>computeDomain</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJob.computeDomain</utype>
+        <datatype name="RDBComputeDomain" xmiidref="_12_1_89c0276_1473778251217_202062_599"/>
+        <multiplicity>1</multiplicity>
+        <subsets>_12_1_89c0276_1473778313451_976473_707</subsets>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1473782908743_492246_1068">
+        <name>databaseContext</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJob.databaseContext</utype>
+        <datatype name="DatabaseContext" xmiidref="_12_1_89c0276_1473782505208_963685_358"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473778242586_219621_549" entity="true">
+      <name>DockerComputeDomain</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/DockerComputeDomain</utype>
+      <extends name="ComputeDomain" xmiidref="_12_1_89c0276_1473778040879_700175_363"/>
+      <referrer name="DockerJob" xmiidref="_12_1_89c0276_1473778167711_212002_449"
+                relation="computeDomain"/>
+      <collection xmiid="_12_1_89c0276_1500569829421_660842_611">
+        <name>computeResource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DockerComputeDomain.computeResource</utype>
+        <datatype name="ComputeResource" xmiidref="_12_1_89c0276_1473782684409_384386_743"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473778251217_202062_599" entity="true">
+      <name>RDBComputeDomain</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RDBComputeDomain</utype>
+      <extends name="ComputeDomain" xmiidref="_12_1_89c0276_1473778040879_700175_363"/>
+      <referrer name="RDBJob" xmiidref="_12_1_89c0276_1473778175803_916748_499"
+                relation="computeDomain"/>
+      <attribute xmiid="_12_1_89c0276_1505147354966_711911_697">
+        <name>vendor</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBComputeDomain.vendor</utype>
+        <datatype name="RDBVendor" xmiidref="_12_1_89c0276_1505147376467_842501_708"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1500480980857_567412_394">
+        <name>databaseContext</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBComputeDomain.databaseContext</utype>
+        <datatype name="DatabaseContext" xmiidref="_12_1_89c0276_1473782505208_963685_358"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473782505208_963685_358">
+      <name>DatabaseContext</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/DatabaseContext</utype>
+      <container name="RDBComputeDomain" xmiidref="_12_1_89c0276_1473778251217_202062_599"
+                 relation="databaseContext">
+        <utype>scis:/job/DatabaseContext.CONTAINER</utype>
+      </container>
+      <referrer name="RDBJob" xmiidref="_12_1_89c0276_1473778175803_916748_499"
+                relation="databaseContext"/>
+      <attribute xmiid="_12_1_89c0276_1500569850106_347644_614">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DatabaseContext.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1500569862394_253057_618">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DatabaseContext.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1504732372932_259462_584" isOwned="true">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/DatabaseContext.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473782534325_90019_438">
+      <name>VolumeContainer</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/VolumeContainer</utype>
+      <extends name="ComputeResource" xmiidref="_12_1_89c0276_1473782684409_384386_743"/>
+      <referrer name="RequiredVolume" xmiidref="_12_1_89c0276_1473782627959_827502_608"
+                relation="volume"/>
+      <reference xmiid="_12_1_89c0276_1541186876381_897150_707">
+        <name>datavolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/VolumeContainer.datavolume</utype>
+        <datatype name="DataVolume" xmiidref="_12_1_89c0276_1541186453451_289861_415"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473782544668_871508_516">
+      <name>DockerImage</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/DockerImage</utype>
+      <extends name="ComputeResource" xmiidref="_12_1_89c0276_1473782684409_384386_743"/>
+      <referrer name="DockerJob" xmiidref="_12_1_89c0276_1473778167711_212002_449"
+                relation="image"/>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473782627959_827502_608">
+      <name>RequiredVolume</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RequiredVolume</utype>
+      <container name="DockerJob" xmiidref="_12_1_89c0276_1473778167711_212002_449"
+                 relation="requiredVolume">
+        <utype>scis:/job/RequiredVolume.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_8cf0282_1528136541616_221512_261">
+        <name>needsWriteAccess</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RequiredVolume.needsWriteAccess</utype>
+        <datatype name="boolean" xmiidref="_10_0_42c01ac_1131110086312_275884_2071"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1473782634875_995237_687">
+        <name>volume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RequiredVolume.volume</utype>
+        <datatype name="VolumeContainer" xmiidref="_12_1_89c0276_1473782534325_90019_438"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473782684409_384386_743" abstract="true">
+      <name>ComputeResource</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/ComputeResource</utype>
+      <container name="DockerComputeDomain" xmiidref="_12_1_89c0276_1473778242586_219621_549"
+                 relation="computeResource">
+        <utype>scis:/job/ComputeResource.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_89c0276_1473782554179_785302_591">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeResource.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1473782566451_178989_595">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeResource.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1491337531137_787628_370" isOwned="true">
+        <name>resource</name>
+        <description>The RACM resource corresponding to the compute resource</description>
+        <utype>scis:/job/ComputeResource.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1500578743559_597757_557">
+      <name>RDBJobTarget</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RDBJobTarget</utype>
+      <container name="RDBJob" xmiidref="_12_1_89c0276_1473778175803_916748_499"
+                 relation="target">
+        <utype>scis:/job/RDBJobTarget.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_89c0276_1500481710312_571537_594">
+        <name>location</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJobTarget.location</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1500579211675_654154_664">
+        <name>targetType</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJobTarget.targetType</utype>
+        <datatype name="RDBTargetType" xmiidref="_12_1_89c0276_1500579160513_552409_635"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1505147856814_101719_747">
+        <name>resultNumber</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RDBJobTarget.resultNumber</utype>
+        <datatype name="integer" xmiidref="_10_0_42c01ac_1131110115640_104165_2107"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <maxLength>2</maxLength>
+          <length>2</length>
+        </constraints>
+      </attribute>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1473778040879_700175_363" abstract="true" entity="true">
+      <name>ComputeDomain</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/ComputeDomain</utype>
+      <referrer name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476"
+                relation="computeDomain"/>
+      <referrer name="COMPM" xmiidref="_12_1_89c0276_1469036061421_153070_479"
+                relation="computeDomain"/>
+      <attribute xmiid="_12_1_89c0276_1488227545320_773379_366">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeDomain.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1488227583014_421990_370">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeDomain.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1473778268871_625397_648">
+        <name>apiEndpoint</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeDomain.apiEndpoint</utype>
+        <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_8cf0282_1505499977383_62986_1084">
+        <name>rootVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeDomain.rootVolume</utype>
+        <datatype name="RootVolumeOnComputeDomain"
+                  xmiidref="_12_1_8cf0282_1505499873124_372981_842"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_89c0276_1491337594660_9525_426" isOwned="true">
+        <name>resourceContext</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/ComputeDomain.resourceContext</utype>
+        <datatype name="ResourceContext" xmiidref="_12_1_89c0276_1463868014655_7707_339"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_8cf0282_1505499873124_372981_842">
+      <name>RootVolumeOnComputeDomain</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RootVolumeOnComputeDomain</utype>
+      <container name="ComputeDomain" xmiidref="_12_1_89c0276_1473778040879_700175_363"
+                 relation="rootVolume">
+        <utype>scis:/job/RootVolumeOnComputeDomain.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_8cf0282_1505499904880_57431_864">
+        <name>path</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RootVolumeOnComputeDomain.path</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1505923724186_283704_792">
+        <name>displayName</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RootVolumeOnComputeDomain.displayName</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_8cf0282_1505499949125_587664_872">
+        <name>rootVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RootVolumeOnComputeDomain.rootVolume</utype>
+        <datatype name="RootVolume" xmiidref="_12_1_89c0276_1504883249121_883751_764"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1507315954357_566071_409">
+      <name>RequiredUserVolume</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RequiredUserVolume</utype>
+      <container name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476"
+                 relation="userVolume">
+        <utype>scis:/job/RequiredUserVolume.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_89c0276_1508089723196_887928_521">
+        <name>pathOnComputeDomain</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RequiredUserVolume.pathOnComputeDomain</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1508092410739_162905_525">
+        <name>needsWriteAccess</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RequiredUserVolume.needsWriteAccess</utype>
+        <datatype name="boolean" xmiidref="_10_0_42c01ac_1131110086312_275884_2071"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1507315997827_988638_521">
+        <name>userVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/job/RequiredUserVolume.userVolume</utype>
+        <datatype name="UserVolume" xmiidref="_12_1_8cf0282_1505494438548_612731_373"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+
+    <!--
+						Enumerations
+					-->
+
+<enumeration xmiid="_12_1_89c0276_1469530291274_833825_586">
+      <name>MessageType</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/MessageType</utype>
+      <literal>
+        <value>CANCEL</value>
+        <description>Requests the job sould be cancelled.</description>
+      </literal>
+      <literal>
+        <value>STATUS</value>
+        <description>Requests the status of the job.</description>
+      </literal>
+      <literal>
+        <value>RESPONSE</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>ERROR</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>TIMEOUT</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>OUTPUT</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+    <enumeration xmiid="_12_1_89c0276_1500579160513_552409_635">
+      <name>RDBTargetType</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RDBTargetType</utype>
+      <literal>
+        <value>TABLE</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>FILE_CSV</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>FILE_VOTABLE</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>FILE_FITS</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>FILE_JSON</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>FILE_TSV</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>FILE_BSV</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+    <enumeration xmiid="_12_1_89c0276_1505147376467_842501_708">
+      <name>RDBVendor</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/job/RDBVendor</utype>
+      <literal>
+        <value>SQLSERVER</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>MYSQL</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>POSTGRES</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>ORACLE</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>DB2</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>SYBASE</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+  </package>
+
+
+
+  <package xmiid="_12_1_89c0276_1463072598213_38185_514">
+    <name>user</name>
+    <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+    <utype>scis:/user/</utype>
+    <!--
+						Classes
+					-->
+
+<objectType xmiid="_12_1_89c0276_1458743997600_29151_3136" abstract="true" entity="true">
+      <name>SciserverEntity</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/SciserverEntity</utype>
+      <referrer name="AccessControl" xmiidref="_12_1_89c0276_1458742341772_775230_2708"
+                relation="scisEntity"/>
+      <referrer name="AssociatedSciEntity" xmiidref="_12_1_42c01ac_1539791518797_287321_541"
+                relation="sciEntity"/>
+      <referrer name="Member" xmiidref="_12_1_89c0276_1458742652947_423015_2758"
+                relation="scisEntity"/>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458645567552_982154_2076" entity="true">
+      <name>Party</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/Party</utype>
+      <referrer name="User" xmiidref="_12_1_89c0276_1458600027993_233284_1585" relation="party"/>
+      <attribute xmiid="_12_1_89c0276_1458646253774_298317_2149">
+        <name>fullName</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/Party.fullName</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_42c01ac_1482265411889_683020_520">
+        <name>affiliation</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/Party.affiliation</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458742652947_423015_2758">
+      <name>Member</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/Member</utype>
+      <container name="UserGroup" xmiidref="_12_1_89c0276_1458742327484_587177_2668"
+                 relation="member">
+        <utype>scis:/user/Member.CONTAINER</utype>
+      </container>
+      <attribute xmiid="_12_1_42c01ac_1460496052943_78078_166">
+        <name>memberRole</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/Member.memberRole</utype>
+        <datatype name="GroupRole" xmiidref="_12_1_89c0276_1498245358449_497654_388"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1478103975531_623820_387">
+        <name>status</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/Member.status</utype>
+        <datatype name="MemberStatus" xmiidref="_12_1_89c0276_1478103942746_107498_356"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1458744700828_706808_3499">
+        <name>scisEntity</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/Member.scisEntity</utype>
+        <datatype name="SciserverEntity" xmiidref="_12_1_89c0276_1458743997600_29151_3136"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458742327484_587177_2668" entity="true">
+      <name>UserGroup</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/UserGroup</utype>
+      <extends name="SciserverEntity" xmiidref="_12_1_89c0276_1458743997600_29151_3136"/>
+      <referrer name="Workspace" xmiidref="_12_1_8cf0282_1503599826069_846446_1334"
+                relation="members"/>
+      <referrer name="Course" xmiidref="_12_1_42c01ac_1539902198713_934483_426" relation=""/>
+      <attribute xmiid="_12_1_58601f2_1465556240003_221099_350">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/UserGroup.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1471125908955_137069_207">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/UserGroup.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1551738521327_95646_613">
+        <name>accessibility</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/UserGroup.accessibility</utype>
+        <datatype name="GroupAccessibility" xmiidref="_12_1_89c0276_1551738192732_338383_446"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1458742652957_703214_2761">
+        <name>member</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/UserGroup.member</utype>
+        <datatype name="Member" xmiidref="_12_1_89c0276_1458742652947_423015_2758"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_58601f2_1465556291971_68069_358">
+        <name>owner</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/UserGroup.owner</utype>
+        <datatype name="User" xmiidref="_12_1_89c0276_1458600027993_233284_1585"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1458600027993_233284_1585" entity="true">
+      <name>User</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/User</utype>
+      <extends name="SciserverEntity" xmiidref="_12_1_89c0276_1458743997600_29151_3136"/>
+      <referrer name="ContextClass" xmiidref="_12_1_89c0276_1463868050796_336167_436"
+                relation="creator"/>
+      <referrer name="Job" xmiidref="_12_1_89c0276_1458665818557_973565_2476"
+                relation="submitter"/>
+      <referrer name="ActionExecution" xmiidref="_12_1_89c0276_1458747425765_579457_4679"
+                relation="user"/>
+      <referrer name="UserGroup" xmiidref="_12_1_89c0276_1458742327484_587177_2668"
+                relation="owner"/>
+      <referrer name="UserVolume" xmiidref="_12_1_8cf0282_1505494438548_612731_373"
+                relation="owner"/>
+      <referrer name="Student" xmiidref="_12_1_42c01ac_1539902198713_770098_427" relation=""/>
+      <attribute xmiid="_12_1_89c0276_1458742602172_156662_2751">
+        <name>userId</name>
+        <description>Identifier provided by the "real" user management tool, i.e. the one that controls users/password, possibly single-sign-on etc. 
+Currently this is keystone</description>
+        <utype>scis:/user/User.userId</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <maxLength>128</maxLength>
+          <uniqueGlobally>
+						true
+					</uniqueGlobally>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1463072326311_941747_493">
+        <name>username</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/User.username</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <uniqueGlobally>
+						true
+					</uniqueGlobally>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1458646285409_831543_2153">
+        <name>contactEmail</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/User.contactEmail</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <uniqueGlobally>
+						true
+					</uniqueGlobally>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1477942097947_234602_221">
+        <name>trustId</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/User.trustId</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1480271626060_291209_318">
+        <name>visibility</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/User.visibility</utype>
+        <datatype name="UserVisibility" xmiidref="_12_1_89c0276_1480271653813_909794_329"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1500581232897_709508_675">
+        <name>preferences</name>
+        <description>JSON string modified by dashboard UI</description>
+        <utype>scis:/user/User.preferences</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1458645567572_597368_2079">
+        <name>party</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/user/User.party</utype>
+        <datatype name="Party" xmiidref="_12_1_89c0276_1458645567552_982154_2076"/>
+        <multiplicity>0..1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1548166739553_607189_441" entity="true">
+      <name>ServiceAccount</name>
+      <description>This subclass of Sciserverntity allows for RACM privileges to be assigned to servces</description>
+      <utype>scis:/user/ServiceAccount</utype>
+      <extends name="SciserverEntity" xmiidref="_12_1_89c0276_1458743997600_29151_3136"/>
+      <referrer name="ResourceContext" xmiidref="_12_1_89c0276_1463868014655_7707_339"
+                relation="account"/>
+      <attribute xmiid="_12_1_89c0276_1541021159561_760703_690">
+        <name>serviceToken</name>
+        <description>Token by which a service represented by the ResourceContext can identify itself to RACM.
+
+For the future: this could be a public key.</description>
+        <utype>scis:/user/ServiceAccount.serviceToken</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+    </objectType>
+
+
+    <!--
+						Enumerations
+					-->
+
+<enumeration xmiid="_12_1_89c0276_1478103942746_107498_356">
+      <name>MemberStatus</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/MemberStatus</utype>
+      <literal>
+        <value>INVITED</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>ACCEPTED</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>DECLINED</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>WITHDRAWN</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>OWNER</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+    <enumeration xmiid="_12_1_89c0276_1480271653813_909794_329">
+      <name>UserVisibility</name>
+      <description>Indicates whether a user is visible to the creation of groups or not. 
+Some special users are defined at the system level and are not to participate in any activity.
+PUBLIC users can be seen by others who may want to invite them to groups.
+PRIVATE users do not want to be invited.
+Usewrs will be able to switch their own visibility between PUBLIS and PRIVATE only.</description>
+      <utype>scis:/user/UserVisibility</utype>
+      <literal>
+        <value>PUBLIC</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>PRIVATE</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>SYSTEM</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+    <enumeration xmiid="_12_1_89c0276_1498245358449_497654_388">
+      <name>GroupRole</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/GroupRole</utype>
+      <literal>
+        <value>MEMBER</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>ADMIN</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+      <literal>
+        <value>OWNER</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+    <enumeration xmiid="_12_1_89c0276_1551738192732_338383_446">
+      <name>GroupAccessibility</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/user/GroupAccessibility</utype>
+      <literal>
+        <value>PUBLIC</value>
+        <description>Groups with PUBLIC visibility can be entered  by users.</description>
+      </literal>
+      <literal>
+        <value>PRIVATE</value>
+        <description>Groups with PRIVATE vicsibility cannot be entered freely. Users must be invited.</description>
+      </literal>
+      <literal>
+        <value>SYSTEM</value>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      </literal>
+    </enumeration>
+
+  </package>
+
+
+
+  <package xmiid="_12_1_58601f2_1503686650745_327831_238">
+    <name>file</name>
+    <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+    <utype>scis:/file/</utype>
+    <!--
+						Classes
+					-->
+
+<objectType xmiid="_12_1_8cf0282_1503598564671_171910_1002" entity="true">
+      <name>FileService</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/file/FileService</utype>
+      <referrer name="DataVolume" xmiidref="_12_1_89c0276_1541186453451_289861_415"
+                relation="fileService"/>
+      <attribute xmiid="_12_1_8cf0282_1503598618391_253905_1025">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/FileService.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1503598618391_370322_1024">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/FileService.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1505496886259_457789_641">
+        <name>apiEndpoint</name>
+        <description>The base URL of the FileServices API.</description>
+        <utype>scis:/file/FileService.apiEndpoint</utype>
+        <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1507130495571_444776_257">
+        <name>serviceToken</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/FileService.serviceToken</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <collection xmiid="_12_1_89c0276_1504883249152_507364_784">
+        <name>rootVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/FileService.rootVolume</utype>
+        <datatype name="RootVolume" xmiidref="_12_1_89c0276_1504883249121_883751_764"/>
+        <multiplicity>1..*</multiplicity>
+      </collection>
+      <collection xmiid="_12_1_89c0276_1505942228483_90645_870">
+        <name>userVolumes</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/FileService.userVolumes</utype>
+        <datatype name="UserVolume" xmiidref="_12_1_8cf0282_1505494438548_612731_373"/>
+        <multiplicity>0..*</multiplicity>
+      </collection>
+      <reference xmiid="_12_1_8cf0282_1503599542911_940758_1213" isOwned="true">
+        <name>resourceContext</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/FileService.resourceContext</utype>
+        <datatype name="ResourceContext" xmiidref="_12_1_89c0276_1463868014655_7707_339"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1504883249121_883751_764">
+      <name>RootVolume</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/file/RootVolume</utype>
+      <container name="FileService" xmiidref="_12_1_8cf0282_1503598564671_171910_1002"
+                 relation="rootVolume">
+        <utype>scis:/file/RootVolume.CONTAINER</utype>
+      </container>
+      <referrer name="RootVolumeOnComputeDomain"
+                xmiidref="_12_1_8cf0282_1505499873124_372981_842"
+                relation="rootVolume"/>
+      <referrer name="UserVolume" xmiidref="_12_1_8cf0282_1505494438548_612731_373"
+                relation="rootVolume"/>
+      <attribute xmiid="_12_1_8cf0282_1505495943986_34115_594">
+        <name>name</name>
+        <description>The name in which volumes contained by this UserVolume are shown by the user. If multiple volumes within this root volume are accessible by a user, it is important that UserVolume.owner be used to differientate the volumes.</description>
+        <utype>scis:/file/RootVolume.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1505496054877_411974_600">
+        <name>description</name>
+        <description>Human-readable description of the volumes contained in this root volume.</description>
+        <utype>scis:/file/RootVolume.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1504894321058_960169_892">
+        <name>pathOnFileSystem</name>
+        <description>The path of this volume on the file system of the FileService.</description>
+        <utype>scis:/file/RootVolume.pathOnFileSystem</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1507130860390_459555_394">
+        <name>containsSharedVolumes</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/RootVolume.containsSharedVolumes</utype>
+        <datatype name="boolean" xmiidref="_10_0_42c01ac_1131110086312_275884_2071"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1505916222918_964146_388" isOwned="true">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/RootVolume.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_8cf0282_1505494438548_612731_373">
+      <name>UserVolume</name>
+      <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+      <utype>scis:/file/UserVolume</utype>
+      <container name="FileService" xmiidref="_12_1_8cf0282_1503598564671_171910_1002"
+                 relation="userVolumes">
+        <utype>scis:/file/UserVolume.CONTAINER</utype>
+      </container>
+      <referrer name="RequiredUserVolume" xmiidref="_12_1_89c0276_1507315954357_566071_409"
+                relation="userVolume"/>
+      <referrer name="WorkspaceUserVolume" xmiidref="_12_1_8cf0282_1517341919543_369256_268"
+                relation="userVolume"/>
+      <attribute xmiid="_12_1_8cf0282_1505497090713_63691_648">
+        <name>relativePath</name>
+        <description>The relative path from RootVolume's fileServicePath to the location of this volume on the file service.</description>
+        <utype>scis:/file/UserVolume.relativePath</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_8cf0282_1507130898525_190576_398">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/UserVolume.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1507315919622_940332_401">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/UserVolume.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_8cf0282_1505848653319_768069_353" isOwned="true">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/UserVolume.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1505942234193_300117_877">
+        <name>rootVolume</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/UserVolume.rootVolume</utype>
+        <datatype name="RootVolume" xmiidref="_12_1_89c0276_1504883249121_883751_764"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_89c0276_1507316098534_222331_742">
+        <name>owner</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/UserVolume.owner</utype>
+        <datatype name="User" xmiidref="_12_1_89c0276_1458600027993_233284_1585"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+    <objectType xmiid="_12_1_89c0276_1541186453451_289861_415" entity="true">
+      <name>DataVolume</name>
+      <description>descirp</description>
+      <utype>scis:/file/DataVolume</utype>
+      <referrer name="VolumeContainer" xmiidref="_12_1_89c0276_1473782534325_90019_438"
+                relation="datavolume"/>
+      <attribute xmiid="_12_1_89c0276_1541186587396_704060_545">
+        <name>name</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.name</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints>
+          <uniqueInCollection>
+						true
+					</uniqueInCollection>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1541186622023_69997_552">
+        <name>description</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.description</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>0..1</multiplicity>
+        <constraints>
+          <maxLength>-1</maxLength>
+        </constraints>
+      </attribute>
+      <attribute xmiid="_12_1_58601f2_1549563382240_326873_303">
+        <name>displayName</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.displayName</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+        <constraints/>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1541186804770_4753_695">
+        <name>pathOnFileSystem</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.pathOnFileSystem</utype>
+        <datatype name="string" xmiidref="_10_0_42c01ac_1131109909359_121421_1981"/>
+        <multiplicity>1</multiplicity>
+      </attribute>
+      <attribute xmiid="_12_1_89c0276_1541186833421_303411_699">
+        <name>url</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.url</utype>
+        <datatype name="anyURI" xmiidref="_10_0_42c01ac_1131110104125_206884_2089"/>
+        <multiplicity>0..1</multiplicity>
+      </attribute>
+      <reference xmiid="_12_1_89c0276_1541186465108_556629_491" isOwned="true">
+        <name>resource</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.resource</utype>
+        <datatype name="Resource" xmiidref="_12_1_89c0276_1458644874005_199423_1964"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+      <reference xmiid="_12_1_8cf0282_1541624263107_335120_380">
+        <name>fileService</name>
+        <description>
+					TODO : Missing description : please, update your UML model asap.
+				</description>
+        <utype>scis:/file/DataVolume.fileService</utype>
+        <datatype name="FileService" xmiidref="_12_1_8cf0282_1503598564671_171910_1002"/>
+        <multiplicity>1</multiplicity>
+      </reference>
+    </objectType>
+
+  </package>
+
+</m:model>

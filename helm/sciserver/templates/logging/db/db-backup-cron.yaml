@@ -1,0 +1,49 @@
+{{- if and .Values.backup.enable .Values.logging.db.backup.enable .Values.logging.listener.enable (not .Values.logging.db.host) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sciserver.fullname" . }}-logging-db-backup
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: logging-db-backup
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  suspend: false
+  schedule: '{{ default "0 0 * * *" .Values.logging.db.backup.schedule }}'
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.logging.db.image.repository }}:{{ .Values.logging.db.image.tag }}"
+            name: backup
+            command:
+            - "/bin/bash"
+            - "-xe"
+            - "-c"
+            - "/opt/mssql-tools/bin/sqlcmd -S {{ include "sciserver.fullname" . }}-logging-db -U sa -P $SA_PASSWORD -Q \"BACKUP DATABASE SciServerLog TO DISK = N'/backup/logging-$(date +%F-%H-%M).bak' WITH NOFORMAT, NOINIT, NAME = 'RACM-full', SKIP, NOREWIND, NOUNLOAD\" && find /backup -name 'logging-*.bak' -ctime +{{ default 7 .Values.logging.db.backup.retainDays }} -delete"
+            env:
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-logging-db
+                  key: password
+            volumeMounts:
+            - name: backup
+              mountPath: /backup
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: backup
+            nfs:
+              server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+              path: {{ default "/backup" .Values.backup.nfs.path }}
+{{- end -}}

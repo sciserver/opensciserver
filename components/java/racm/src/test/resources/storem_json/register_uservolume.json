@@ -1,0 +1,5 @@
+{
+	"name": "My volume",
+	"description": "A source for my files",
+	"relativePath": "/path/to/userfolder"
+}

@@ -1,0 +1,31 @@
+{{ if .Values.deployPoller.enable -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "sciserver.fullname" . }}-deploy-poller
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: deploy-poller
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "sciserver.fullname" . }}-deploy-poller-admin
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: deploy-poller
+subjects:
+- kind: ServiceAccount
+  name: {{ include "sciserver.fullname" . }}-deploy-poller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+{{ end -}}

@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-login-portal
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: login-portal
+spec:
+  replicas: {{ .Values.loginPortal.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: login-portal
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: login-portal
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      {{ if not .Values.keystone.host -}}
+      initContainers:
+      - name: wait-for-keystone
+        image: "busybox:1.30-musl"
+        command:
+        - sh
+        - '-c'
+        - 'echo "Waiting for keystone..."; until (wget -T 1 --header "X-Auth-Token: $ADMIN_TOKEN" {{ include "sciserver.fullname" . }}-keystone:5000/v3/users -q -O - | grep demo); do sleep 5; done'
+        env:
+        - name: ADMIN_TOKEN
+          valueFrom:
+              secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-keystone
+                  key: admin-token
+      {{ end -}}
+      containers:
+      - name: tomcat
+        image: "{{ .Values.loginPortal.image.repository }}:{{ required "please specify login-portal image tag or use image manifest" .Values.loginPortal.image.tag }}"
+        imagePullPolicy: {{ .Values.loginPortal.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.loginPortal.resources | nindent 10 }}
+        env:
+        - name: CATALINA_OPTS
+          value: -Dsciserver.properties.file=/etc/sciserver-sso/application.properties
+        - name: CONTEXT_PATH_NAME
+          value: {{ include "sciserver.tomcatprefix" . }}login-portal
+        - name: KEYCLOAK_REALM
+          value: {{ .Values.keycloak.realm.name }}
+        - name: KEYCLOAK_URL
+          {{- if .Values.keycloak.url }}
+          value: {{ .Values.keycloak.url }}
+          {{- else }}
+          value: {{ include "sciserver.url" (dict "Values" .Values "svc" "auth") }}
+          {{- end }}
+        - name: KEYCLOAK_CLIENT
+          value: {{ .Values.keycloak.realm.client }}
+        - name: KEYCLOAK_SSL_REQUIRED
+          value: {{ .Values.keycloak.realm.ssl }}
+        - name: _CONFIG_HASH_
+          value: {{ include (print $.Template.BasePath "/login-portal/login-portal-secret.yaml") . | sha256sum }}-{{ include (print $.Template.BasePath "/keystone/service/keystone-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/sciserver-sso
+          readOnly: true
+        ports:
+        - name: web
+          containerPort: 8080
+        livenessProbe:
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}login-portal/
+            port: 8080
+        readinessProbe:
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          periodSeconds: 10
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}login-portal/api/health
+            port: 8080
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" . }}-login-portal

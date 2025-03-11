@@ -1,0 +1,21 @@
+{{ if and (not .Values.computeDb.host) (not .Values.dev.nopvc) -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "sciserver.fullname" . }}-compute-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: compute-db
+spec:
+  accessModes:
+    - {{ .Values.computeDb.persistence.accessMode | quote }}
+  {{ if .Values.storageClass -}}
+  storageClassName: {{ .Values.storageClass }}
+  {{ end -}}
+  resources:
+    requests:
+      storage: {{ .Values.computeDb.persistence.size | quote }}
+{{ end -}}

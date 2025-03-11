@@ -1,0 +1,44 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'maven-publish'
+    id 'checkstyle'
+}
+
+group 'org.sciserver'
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+    toolVersion '8.39'
+    config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle.xml")
+    maxWarnings 59
+}
+
+dependencies {
+    api project(':clients:auth')
+    implementation 'com.squareup.retrofit2:converter-jackson:2.7.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.2'
+    implementation 'com.google.guava:guava:28.2-jre'
+    testImplementation 'org.testng:testng:6.14.3'
+    testImplementation 'com.squareup.okhttp:mockwebserver:2.7.5'
+}
+
+test {
+    useTestNG()
+}
+
+publishing {
+  publications {
+    maven(MavenPublication) {
+      from components.java
+      versionMapping {
+        usage('java-api'){
+          fromResolutionResult()
+        }
+      }
+    }
+  }
+}

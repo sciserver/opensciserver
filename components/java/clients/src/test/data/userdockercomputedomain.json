@@ -1,0 +1,91 @@
+[
+  {
+    "id": 1,
+    "publisherDID": "1",
+    "racmUUID": "51b9ccc7-bc68-4b09-82c5-157a125b4f29",
+    "apiEndpoint": "https://alpha02.sciserver.org/compute/api/domains/1/",
+    "name": "testComputeDomain1",
+    "description": "Just a test",
+    "volumes": [
+      {
+        "id": 19,
+        "publisherDID": "4",
+        "racmUUID": "8b7a0d68-2668-432e-b09c-30e8efb2d94b",
+        "name": "vol",
+        "description": "vol",
+        "writable": false
+      }
+    ],
+    "images": [
+      {
+        "id": 20443,
+        "publisherDID": "230",
+        "racmUUID": "b6e35e1a-3e40-4b9f-85c8-baadd4fa58c2",
+        "name": "image",
+        "description": "test image"
+      }
+    ],
+    "userVolumes": [
+      {
+        "id": 50241,
+        "computeDomainId": 1,
+        "name": "uv",
+        "description": "test user vol",
+        "fullPath": "/srv/sciscratch01/Temporary/a/b/",
+        "owner": "test",
+        "ownerId": "8cf34bf055ab4d8cb7c5a861e81cde23",
+        "resourceUUID": "578756b1-22cf-4e26-9b27-1d9d9bbf01df",
+        "fileServiceAPIEndpoint": "https://apps.sciserver.org/fileservice/",
+        "rootVolumeName": "Temporary",
+        "isShareable": true,
+        "allowedActions": [
+          "read",
+          "write"
+        ]
+      }
+    ]
+  },
+  {
+    "id": 10001,
+    "publisherDID": "6",
+    "racmUUID": "6288dccb-040a-4b8a-aae4-71c8ed188517",
+    "apiEndpoint": "https://alpha02.sciserver.org/compute/api/domains/6/",
+    "name": "testComputeDomain2",
+    "description": "Another test",
+    "volumes": [
+      {
+        "id": 20058,
+        "publisherDID": "64",
+        "racmUUID": "929438ca-c501-4fd4-9a81-e32030026beb",
+        "name": "vol",
+        "description": "test vol",
+        "writable": false
+      },
+      {
+        "id": 20059,
+        "publisherDID": "70",
+        "racmUUID": "dc029167-36bb-455b-8a9a-cbb035a54e03",
+        "name": "vol2",
+        "description": "test vol2",
+        "writable": false
+      }
+    ],
+    "images": [
+      {
+        "id": 20072,
+        "publisherDID": "53",
+        "racmUUID": "9ee96cf3-388d-43c7-8960-26d1a56ed183",
+        "name": "image",
+        "description": "test image"
+      },
+      {
+        "id": 20073,
+        "publisherDID": "55",
+        "racmUUID": "54fe54aa-a8e0-4307-b202-9a6aada707d4",
+        "name": "image2",
+        "description": "test image2"
+      }
+    ],
+    "userVolumes": []
+  }
+]

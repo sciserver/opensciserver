@@ -1,0 +1,41 @@
+{
+  "identifier": "52be8218-d10a-4040-b899-e406616a743e",
+  "name": "FileServiceJHU",
+  "description": "A service for reaching the file system at JHU",
+  "apiEndpoint": "http://scitest12.pha.jhu.edu/fileservice/",
+  "rootVolumes": [
+    {
+      "id": 1,
+      "name": "persistent",
+      "description": "default persistent storage",
+      "pathOnFileSystem": "%s",
+      "containsSharedVolumes": false,
+      "userVolumes": [
+      ],
+      "allowedActions": [
+        "create"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "scratch",
+      "description": "default scratch storage",
+      "pathOnFileSystem": "%s",
+      "containsSharedVolumes": false,
+      "userVolumes": [
+      ],
+      "allowedActions": [
+        "create"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "volumes",
+      "description": "root volume for creating shared folders inside it",
+      "pathOnFileSystem": "%s",
+      "containsSharedVolumes": true,
+      "userVolumes": [],
+      "allowedActions": ["create"]
+    }
+  ]
+}

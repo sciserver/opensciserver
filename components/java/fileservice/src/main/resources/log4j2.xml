@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <RollingFile name="RollingFile" fileName="c:/tmp/log/sciserver/fileservice.log" filePattern="c:/tmp/log/sciserver/fileservice-%d{yyyy-MM-dd}.log.gz" ignoreExceptions="false">
+      <PatternLayout>
+        <Pattern>%d{HH:mm:ss.SSS} [%-5level] %logger %M():%L - %msg%n</Pattern>
+      </PatternLayout>
+      <TimeBasedTriggeringPolicy />
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="RollingFile"/>
+    </Root>
+  </Loggers>
+</Configuration>

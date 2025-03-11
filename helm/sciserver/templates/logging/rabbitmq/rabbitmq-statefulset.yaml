@@ -1,0 +1,89 @@
+{{ if not .Values.logging.rabbitmq.host -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: logging-rabbitmq
+spec:
+  serviceName: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: logging-rabbitmq
+  replicas: {{ .Values.logging.rabbitmq.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: logging-rabbitmq
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      serviceAccountName: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: rabbitmq-k8s
+        image: "{{ .Values.logging.rabbitmq.image.repository }}:{{ .Values.logging.rabbitmq.image.tag }}"
+        resources:
+          {{- toYaml .Values.logging.rabbitmq.resources | nindent 10 }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/rabbitmq
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq/mnesia
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: 15672
+          - name: amqp
+            protocol: TCP
+            containerPort: 5672
+        livenessProbe:
+          exec:
+            command: ["rabbitmqctl", "status"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["rabbitmqctl", "status"]
+          initialDelaySeconds: 20
+          periodSeconds: 60
+          timeoutSeconds: 10
+        env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          # See a note on cluster_formation.k8s.address_type in the config file section
+          - name: RABBITMQ_NODENAME
+            value: "sciserver-logging-rabbit@$(MY_POD_IP)"
+          - name: K8S_SERVICE_NAME
+            value: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+          - name: RABBITMQ_ERLANG_COOKIE
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+                key: erlang-cookie
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "sciserver.fullname" . }}-logging-rabbitmq
+            items:
+            - key: rabbitmq.conf
+              path: rabbitmq.conf
+            - key: enabled_plugins
+              path: enabled_plugins
+        - name: rabbitmq-data
+          emptyDir:
+            medium: Memory
+{{ end -}}

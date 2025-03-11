@@ -1,5 +1,7 @@
 # Compiled class file
 *.class
+build/
+!components/ui/dashboard/build
 
 # Log file
 *.log
@@ -11,12 +13,8 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.war
 *.nar
 *.ear
-*.zip
-*.tar.gz
 *.rar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
@@ -30,3 +28,18 @@ docs/_build/
 .idea
 .project
 .classpath
+.gradle
+**/WebContent/WEB-INF/application.properties
+**/WebContent/WEB-INF/version
+
+/components/java/racm/src/main/resources/config.properties
+/components/java/racm/src/main/resources/jobm.properties
+/components/java/racm/src/main/resources/login.properties
+/components/java/racm/src/main/resources/jpa-config.properties
+/components/java/racm/src/main/resources/racm.properties
+/components/java/racm/src/main/resources/runtime.properties
+/components/java/racm/src/main/resources/application.properties
+
+node_modules/
+# fileservice config artifact
+components/java/c:

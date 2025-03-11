@@ -1,0 +1,14 @@
+plugins {
+    id('checkstyle')
+}
+
+subprojects {
+    apply plugin: 'checkstyle'
+
+    checkstyle {
+        toolVersion '10.10.0'
+        config project.resources.text.fromUri("https://raw.githubusercontent.com/sciserver/sciserver-guidelines/main/coding-style/java/checkstyle-10.xml")
+        maxWarnings 0
+        showViolations false
+    }
+}

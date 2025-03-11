@@ -1,0 +1,34 @@
+{{ if .Values.rabbitmqElastic.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: {{ include "sciserver.fullname" . }}-rabbitmq-to-es
+spec:
+ replicas: {{ .Values.rabbitmqElastic.replicaCount }}
+ selector:
+  matchLabels:
+   app: {{ include "sciserver.fullname" . }}-rabbitmq-to-es
+ template:
+  metadata:
+   labels:
+    app: {{ include "sciserver.fullname" . }}-rabbitmq-to-es
+  spec:
+   imagePullSecrets:
+    - name: {{ .Values.imagePullSecret }}
+   containers:
+    - name: rabbitmq-to-es
+      image: {{ .Values.rabbitmqElastic.image }}:{{ required "please specify rabbitmq-elastic image tag or use image manifest" .Values.rabbitmqElastic.tag }}
+      env:
+       -
+        name: RABBIT_EP
+        value: {{ include "sciserver.fullname" . }}-logging-rabbitmq:5672
+       -
+        name: RABBIT_EXCHANGE
+        value: sciserver.log
+       -
+        name: ELASTIC_EP
+        value: {{ .Values.rabbitmqElastic.elastic.host }}:{{ .Values.rabbitmqElastic.elastic.port }}
+       -
+        name: ELASTIC_INDEX_BASE
+        value: {{ include "sciserver.prefix" . | replace "/" "." }}{{ .Values.rabbitmqElastic.indexBase }}
+{{ end -}}

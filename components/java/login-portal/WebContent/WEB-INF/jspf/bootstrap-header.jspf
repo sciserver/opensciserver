@@ -1,0 +1,30 @@
+<%-- 
+  Copyright (c) Johns Hopkins University. All rights reserved.
+  Licensed under a modified Apache 2.0 license. 
+  See LICENSE.txt in the project root for license information.
+ --%>
+<%@ page import="org.sciserver.sso.AppConfig, org.sciserver.sso.AppSettings" %>
+
+<%! AppSettings appSettingsHeader = AppConfig.getInstance().getAppSettings(); %>
+
+<nav class="navbar navbar-default" style="margin-bottom: 0px;">
+  <div class="container-fluid">
+  <div class="navbar-header">
+    <span class="navbar-brand">
+      <a href="<%=appSettingsHeader.getApplicationHomeUrl()%>" title="Go to <%=appSettingsHeader.getApplicationName()%>" target="_blank">
+        <img alt="<%=appSettingsHeader.getApplicationName()%> logo" src="<spring:url value="/../dashboard/static/img/sciserverlogo.png"/>" onerror="this.onerror=null;this.src='<spring:url value="/static/lib/assets/sciserverlogo.png'"/>" style="max-height: 32px; margin-top: -6px">
+      </a>
+    </span>
+  </div>
+  </div>
+</nav>
+<div id="header">
+	<div class="header-content">
+		<div class="header-content-inner">
+			<h1 id="homeHeading">Welcome to <%=appSettingsHeader.getApplicationName()%></h1>
+			<hr>
+			<p><%=appSettingsHeader.getApplicationTagline()%></p>
+		</div>
+	</div>
+</div>
+<div id="banner"></div>

@@ -1,0 +1,70 @@
+{{ if not .Values.racmDb.host -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-racm-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: racm-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: racm-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: racm-db
+    spec:
+      containers:
+      - name: db
+        image: "{{ .Values.racmDb.image.repository }}:{{ .Values.racmDb.image.tag }}"
+        imagePullPolicy: {{ .Values.racmDb.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.racmDb.resources | nindent 10 }}
+        ports:
+        - containerPort: 1433
+          name: mssql
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_PID
+          value: Express
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-racm-db
+              key: password
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/racm/db/racm-db-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/opt/mssql
+        {{ if and .Values.backup.enable .Values.racmDb.backup.enable }}
+        - name: backup
+          mountPath: /backup
+        {{ end }}
+      volumes:
+      - name: data
+        {{ if .Values.dev.nopvc }}
+        emptyDir: {}
+        {{ else }}
+        persistentVolumeClaim:
+          claimName: {{ include "sciserver.fullname" . }}-racm-db
+        {{ end }}
+      {{ if and .Values.backup.enable .Values.racmDb.backup.enable -}}
+      - name: backup
+        nfs:
+          server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+          path: {{ default "/backup" .Values.backup.nfs.path }}
+      {{ end -}}
+{{ end -}}

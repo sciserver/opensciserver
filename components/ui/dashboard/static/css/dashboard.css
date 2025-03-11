@@ -1,0 +1,337 @@
+:root {
+  --navColor: #003466;
+}
+
+body {
+    background-color:#F5FAFF;
+}
+.wrap {
+  padding-top: 20px;
+}
+a.glyphicon-red
+{
+    font-size: 16px;
+    color: red;
+    text-decoration: none;
+    outline: none;
+}
+a.glyphicon-blue
+{
+    font-size: 16px;
+    color: blue;
+    text-decoration: none;
+    outline: none;
+}
+a.glyphicon-green
+{
+    font-size: 16px;
+    color: green;
+    text-decoration: none;
+    outline: none;
+}
+.affix
+{
+    top: 16px;
+}
+/** navbar sciserver app links dropdown **/
+#sciserverLinks.dropdown-menu{
+    min-width: 180px;
+}
+
+
+/* Bootstrap modifications */
+.alert
+{
+    margin-bottom: 0px;
+}
+
+/** Dashboard navbar modification **/
+.navbar-default
+{
+    background-color: var(--navColor);
+    background-image: none;
+    border-color: var(--navColor);
+}
+/** List within dashboard **/
+.navbar-default .navbar-nav > li > a
+{
+  background-color: var(--navColor);
+  background-image: none;
+  color: #e8e8e8;
+  text-shadow: none;
+}
+#banner {
+  background: var(--navColor);
+  height: 30px;
+  width: 100%;
+}
+
+/** Apps hover over css **/
+.navbar-default .navbar-nav > li > a:hover
+{
+  background-color: var(--navColor);
+  background-image: none;
+  color: #9cbfe8;
+  text-shadow: none;
+}
+
+/** Active element app css **/
+.navbar-default .navbar-nav > li > a:focus
+{
+  background-color: var(--navColor);
+  background-image: none;
+  color: #9cbfe8;
+  text-shadow: none;
+}
+
+/** Active element with dropdown **/
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  color: #555;
+  background-color: #e7e7e7;
+}
+
+/* Dropdown css */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
+/** Dashboard apps section **/
+.dashboard:hover {
+  text-decoration: none;
+  background-color: rgba(247, 246, 246, 0.993);
+}
+.sciserver-apps {
+  background-color: rgba(51, 122, 183, 0.2);
+}
+.sciserver-apps:hover {
+  text-decoration: none;
+  background-color: #F5FAFF;
+}
+li {
+  display: inherit;
+}
+
+/* Banner image and font-section */
+#header {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+  background-position: center;
+  background-image: url(../../src/assets/sciserver_banner.jpg);
+  text-align: center;
+  color: white;
+}
+#header .header-content {
+  position: relative;
+  text-align: center;
+  padding: 50px 10px 50px;
+  width: 100%;
+}
+#header .header-content .header-content-inner h1 {
+  font-weight: 700;
+  margin-top: 10px;
+  margin-bottom: 0;
+  font-size: 30px;
+}
+#header .header-content .header-content-inner hr {
+  margin: 20px auto;
+}
+#header .header-content .header-content-inner p {
+  font-weight: 300;
+  color: #F5F5F5;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.navbar-default .navbar-brand a
+{
+    color: #e8e8e8;
+    text-shadow: none;
+}
+
+.navbar-default .navbar-brand a:hover
+{
+    color: #e8e8e8;
+    text-shadow: none;
+    text-decoration: none;
+}
+.navbar-default .navbar-brand a:focus
+{
+    color: #e8e8e8;
+    text-shadow: none;
+    text-decoration: none;
+}
+/* Footer */
+#app {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+/**
+https://stackoverflow.com/questions/31835164/how-do-i-fix-a-flexbox-sticky-footer-in-ie11
+https://codepen.io/dezertdezine/pen/zKjggy
+**/
+ main {
+    flex: 1 0 auto;
+}
+footer.footer {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 15px 8px 15px;
+}
+  .logo-holder {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+  }
+  a.logo > img {
+    padding-left: 16px;
+  }
+/* for tables */
+.sciserver-datatable{
+    width:100% !important;
+}
+.scroll-inside-cell{
+    /*this adds a vertical scrollbar inside table cells where the height is greater than max-height. <td><div class="scroll-inside-cell">blah</div></td> See http://www.w3schools.com/css/css_overflow.asp */
+    max-height: 100px;
+    overflow: auto;
+}
+/* for files tab */
+/* this creates a scrollbar after the tree reaches a maximum height. X-axis scrollbar is created automatically */
+.files-treeContainer{
+    overflow: auto !important;
+    height: 400px;
+}
+#btn-collapse{
+    font-size: 16px;
+    color: blue;
+    text-decoration: none;
+    outline: none;
+     position: relative;
+}
+.btn.dashboard{
+    background-color: #286090; /* blue */
+    border: none;
+    color: white;
+}
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+  z-index: 2;
+  color: #fff;
+  background-color: #A9B7D1;
+  border-color: #A9B7D1;
+}
+
+  .my-sciserver-modal-dialog .modal-header {
+    background-color: #337ab7;
+    color: #fff;
+  }
+  @media only screen and (max-width: 800px) {
+    .hideSmallScreen{
+        display: none;
+    }
+  }
+  .my-sciserver-modal-dialog-xxl .modal-dialog {
+    width: 90%;
+  }
+  .my-sciserver-modal-dialog-xxl .modal-header {
+    background-color: #337ab7;
+    color: #fff;
+  }
+  @media only screen and (max-width: 995px) {
+    .hideSmallScreen{
+        display: none;
+    }
+  }
+  @media only screen and (min-width: 995px) {
+    .showSmallScreen{
+        display: none;
+    }
+  }
+  @media only screen and (max-width: 995px) {
+    .showSmallScreen{
+        display: block;
+    }
+  }
+ .contextualHints {
+    color: #fff;
+    text-decoration: none;
+ }
+ .contextualHints:hover{
+    color: #c1d7e9;
+ }
+ .contextualHints:link{
+    color: #fff;
+ }
+ .contextualHints:visited{
+    color: #fff;
+ }
+ .contextualHints:active{
+    color: #c1d7e9;
+ }
+
+.mask {
+  position: fixed;
+  opacity: 0;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+.vue-simple-drawer.right {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+}
+ .vue-simple-drawer {
+   padding: 20px;
+   color: #fff;
+   opacity: 0.9;
+   background: #333;
+   position: fixed;
+   overflow: auto;
+ }
+.markdown-render ul {
+  list-style-type: disc;
+  margin-left: 16px;
+}
+.markdown-render li {
+  display: list-item;
+  margin-left: 16px;
+}
+.markdown-render ul ul{
+  list-style-type: circle;
+}
+.markdown-render ul > li{
+  margin-left: 16px;
+}
+.markdown-render ol {
+  margin-left: 16px;
+  list-style-type: decimal;
+}

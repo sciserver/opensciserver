@@ -1,0 +1,12 @@
+############################################################################################################
+# sciserver.logging configuration properties:
+
+Log.ApplicationHost = scidev03
+# Log.ApplicationName is a string that should uniquely identify the application
+Log.ApplicationName = myApp
+Log.MessagingHost = scitest09.sdss.pha.jhu.edu
+Log.DatabaseQueueName = sciserver.log.database_scitest02
+Log.ExchangeName = sciserver.log_scitest02
+Log.Enabled = false
+Log.FileEnabled = true
+Log.FileName = this/path/does/not/exist/and/should/not/for/test.log

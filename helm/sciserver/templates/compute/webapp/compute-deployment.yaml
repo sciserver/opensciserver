@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-compute
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: compute
+spec:
+  replicas: {{ .Values.compute.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: compute
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: compute
+    spec:
+      {{ if .Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{ end -}}
+      {{ if not .Values.computeDb.host -}}
+      initContainers:
+      - name: wait-for-db
+        image: "{{ .Values.mysqlImage.repository }}:{{ .Values.mysqlImage.tag }}"
+        imagePullPolicy: {{ .Values.mysqlImage.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - 'echo "Waiting for the database"; until mysql -h {{ include "sciserver.fullname" . }}-compute-db -u $MYSQL_USER -p$MYSQL_PASSWORD compute -e "SELECT 1"; do sleep 5; done'
+        env:
+        - name: MYSQL_USER
+          value: {{ .Values.computeDb.user | quote }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-compute-db
+                  key: password
+      {{ end -}}
+      containers:
+      - name: tomcat
+        image: "{{ .Values.compute.image.repository }}:{{ required "please specify compute image tag or use image manifest" .Values.compute.image.tag }}"
+        imagePullPolicy: {{ .Values.compute.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.compute.resources | nindent 10 }}
+        env:
+        - name: CATALINA_OPTS
+          value: -Dsciserver.properties.file=/etc/sciserver-config/application.properties
+        - name: CONTEXT_PATH_NAME
+          value: {{ include "sciserver.tomcatprefix" . }}compute
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/compute/webapp/compute-secret.yaml") . | sha256sum }}-{{ include (print $.Template.BasePath "/compute/webapp/compute-certs-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/sciserver-config
+          readOnly: true
+        - name: certs
+          mountPath: /etc/compute
+          readOnly: true
+        ports:
+        - name: web
+          containerPort: 8080
+        livenessProbe:
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}compute/
+            port: 8080
+        readinessProbe:
+          timeoutSeconds: 5
+          httpGet:
+            path: /{{ include "sciserver.prefix" . }}compute/
+            port: 8080
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" . }}-compute
+      - name: certs
+        secret:
+          {{- if .Values.compute.certSecret}}
+          secretName: {{ .Values.compute.certSecret }}
+          {{- else }}
+          secretName: {{ include "sciserver.fullname" . }}-compute-certs
+          {{- end }}

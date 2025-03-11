@@ -1,0 +1,464 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-1">
+    <createTable tableName="attached_public_volume">
+      <column name="executable_container_id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="public_volume_id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-2">
+    <createTable tableName="attached_user_volume">
+      <column name="executable_container_id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="volume_container_id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-3">
+    <createTable tableName="domain">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="display_order" type="INT" />
+      <column defaultValueNumeric="0" name="max_memory"
+        type="BIGINT" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-4">
+    <createTable tableName="executable_container">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="docker_ref" type="VARCHAR(100)" />
+      <column name="external_ref" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="slot_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="executable_image_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="user_id" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="created_at" type="datetime">
+        <constraints nullable="false" />
+      </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-5">
+    <createTable tableName="executable_image">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="docker_ref" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="container_manager_class" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="domain_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="display_order" type="INT" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-6">
+    <createTable tableName="node">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="docker_api_url" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="docker_api_client_cert" type="VARCHAR(255)" />
+      <column name="docker_api_client_key" type="VARCHAR(255)" />
+      <column name="proxy_api_url" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="proxy_api_client_cert" type="VARCHAR(255)" />
+      <column name="proxy_api_client_key" type="VARCHAR(255)" />
+      <column name="proxy_base_url" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="domain_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="enabled" type="BIT(3)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-7">
+    <createTable tableName="public_volume">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="docker_ref" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="domain_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="display_order" type="INT" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-8">
+    <createTable tableName="racm_volume_container">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="docker_ref" type="VARCHAR(100)" />
+      <column name="external_ref" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="user_id" type="VARCHAR(100)" />
+      <column name="node_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="racm_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-9">
+    <createTable tableName="settings">
+      <column name="key" type="VARCHAR(255)">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="value" type="TEXT" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-10">
+    <createTable tableName="slot">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="node_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="port_number" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-11">
+    <createTable tableName="volume_container">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="docker_ref" type="VARCHAR(100)" />
+      <column name="external_ref" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="user_id" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="node_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="volume_image_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-12">
+    <createTable tableName="volume_image">
+      <column autoIncrement="true" name="id" type="BIGINT">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="TEXT" />
+      <column name="docker_ref" type="VARCHAR(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="container_manager_class" type="VARCHAR(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="domain_id" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="local_path_template" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="container_path" type="VARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="display_order" type="INT" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-13">
+    <createIndex indexName="DomainId"
+      tableName="executable_image">
+      <column name="domain_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-14">
+    <createIndex indexName="DomainId"
+      tableName="public_volume">
+      <column name="domain_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-15">
+    <createIndex indexName="DomainId"
+      tableName="volume_image">
+      <column name="domain_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-16">
+    <createIndex indexName="ExecutableImageId"
+      tableName="executable_container">
+      <column name="executable_image_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-17">
+    <createIndex indexName="NodeId"
+      tableName="racm_volume_container">
+      <column name="node_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-18">
+    <createIndex indexName="NodeId"
+      tableName="volume_container">
+      <column name="node_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-19">
+    <createIndex indexName="PublicVolumeId"
+      tableName="attached_public_volume">
+      <column name="public_volume_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-20">
+    <createIndex indexName="RacmId"
+      tableName="racm_volume_container">
+      <column name="racm_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-21">
+    <createIndex indexName="SlotId"
+      tableName="executable_container">
+      <column name="slot_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-22">
+    <createIndex indexName="VolumeContainerId"
+      tableName="attached_user_volume">
+      <column name="volume_container_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-23">
+    <createIndex indexName="VolumeImageId"
+      tableName="volume_container">
+      <column name="volume_image_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-24">
+    <createIndex indexName="node_ibfk_1" tableName="node">
+      <column name="domain_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-25">
+    <createIndex indexName="slot_ibfk_1" tableName="slot">
+      <column name="node_id" />
+    </createIndex>
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-26">
+    <addForeignKeyConstraint
+      baseColumnNames="executable_container_id"
+      baseTableName="attached_public_volume"
+      constraintName="attached_public_volume_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id"
+      referencedTableName="executable_container" validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-27">
+    <addForeignKeyConstraint
+      baseColumnNames="public_volume_id"
+      baseTableName="attached_public_volume"
+      constraintName="attached_public_volume_ibfk_2" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="public_volume"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-28">
+    <addForeignKeyConstraint
+      baseColumnNames="executable_container_id"
+      baseTableName="attached_user_volume"
+      constraintName="attached_user_volume_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id"
+      referencedTableName="executable_container" validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-29">
+    <addForeignKeyConstraint
+      baseColumnNames="volume_container_id"
+      baseTableName="attached_user_volume"
+      constraintName="attached_user_volume_ibfk_2" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="volume_container"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-30">
+    <addForeignKeyConstraint
+      baseColumnNames="slot_id" baseTableName="executable_container"
+      constraintName="executable_container_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="slot"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-31">
+    <addForeignKeyConstraint
+      baseColumnNames="executable_image_id"
+      baseTableName="executable_container"
+      constraintName="executable_container_ibfk_2" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="executable_image"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-32">
+    <addForeignKeyConstraint
+      baseColumnNames="domain_id" baseTableName="executable_image"
+      constraintName="executable_image_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="domain"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-33">
+    <addForeignKeyConstraint
+      baseColumnNames="domain_id" baseTableName="node"
+      constraintName="node_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="domain"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-34">
+    <addForeignKeyConstraint
+      baseColumnNames="domain_id" baseTableName="public_volume"
+      constraintName="public_volume_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="domain"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-35">
+    <addForeignKeyConstraint
+      baseColumnNames="node_id" baseTableName="racm_volume_container"
+      constraintName="racm_volume_container_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="node"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-36">
+    <addForeignKeyConstraint
+      baseColumnNames="node_id" baseTableName="slot"
+      constraintName="slot_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="node"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-37">
+    <addForeignKeyConstraint
+      baseColumnNames="node_id" baseTableName="volume_container"
+      constraintName="volume_container_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="node"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-38">
+    <addForeignKeyConstraint
+      baseColumnNames="volume_image_id" baseTableName="volume_container"
+      constraintName="volume_container_ibfk_2" deferrable="false"
+      initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="volume_image"
+      validate="true" />
+  </changeSet>
+  <changeSet author="Joseph Booker (generated)"
+    id="1554478348751-39">
+    <addForeignKeyConstraint
+      baseColumnNames="domain_id" baseTableName="volume_image"
+      constraintName="volume_image_ibfk_1" deferrable="false"
+      initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+      referencedColumnNames="id" referencedTableName="domain"
+      validate="true" />
+  </changeSet>
+</databaseChangeLog>

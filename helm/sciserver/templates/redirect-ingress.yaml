@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sciserver.fullname" . }}-redirect
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/temporal-redirect: {{ include "sciserver.domainurl" . }}/{{include "sciserver.prefix" .}}dashboard/
+spec:
+{{ if .Values.ingressClassName }}
+  ingressClassName: {{ .Values.ingressClassName }}
+{{ end }}
+  rules:
+  - {{ if .Values.proxy.ingressUseHost }}
+    host: {{ .Values.baseDomain }}
+    {{ end }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "sciserver.fullname" . }}-dashboard
+            port:
+              name: web
+        path: /{{ .Values.prefix }}
+        pathType: ImplementationSpecific

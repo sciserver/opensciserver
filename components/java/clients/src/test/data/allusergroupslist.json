@@ -1,0 +1,67 @@
+{
+  "columns": [
+    "id",
+    "name",
+    "description",
+    "role",
+    "status",
+    "owner",
+    "ownerVisibility"
+  ],
+  "hrNames": [
+    "Id",
+    "Name",
+    "Description",
+    "Role",
+    "Status",
+    "Owner",
+    "Owner Visibility"
+  ],
+  "rows": [
+    [
+      3,
+      "public",
+      "public group",
+      "MEMBER",
+      "ACCEPTED",
+      "__racm__",
+      "SYSTEM"
+    ],
+    [
+      5,
+      "admin",
+      "",
+      "ADMIN",
+      "ACCEPTED",
+      "__racm__",
+      "SYSTEM"
+    ],
+    [
+      56254,
+      "testInvitedStatus",
+      "",
+      "MEMBER",
+      "INVITED",
+      "user1",
+      "PUBLIC"
+    ],
+    [
+      40401,
+      "testOwnerStatus",
+      "owned group",
+      "ONWER",
+      "OWNER",
+      "user2",
+      "PUBLIC"
+    ],
+    [
+      40401,
+      "testDeclinedStatus",
+      "owned group",
+      "MEMBER",
+      "DECLINED",
+      "user2",
+      "PUBLIC"
+    ]
+  ]
+}

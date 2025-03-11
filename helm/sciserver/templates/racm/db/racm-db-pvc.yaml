@@ -1,0 +1,21 @@
+{{ if and (not .Values.racmDb.host) (not .Values.dev.nopvc) -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "sciserver.fullname" . }}-racm-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: racm-db
+spec:
+  accessModes:
+    - {{ .Values.racmDb.persistence.accessMode | quote }}
+  {{ if .Values.storageClass -}}
+  storageClassName: {{ .Values.storageClass }}
+  {{ end -}}
+  resources:
+    requests:
+      storage: {{ .Values.racmDb.persistence.size | quote }}
+{{ end -}}

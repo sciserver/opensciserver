@@ -1,0 +1,15 @@
+dashboard:
+  replicaCount: 1
+racm:
+  replicaCount: 1
+loginPortal:
+  replicaCount: 1
+logging:
+  listener:
+    replicaCount: 1
+fileservice:
+  replicaCount: 1
+compute:
+  replicaCount: 1
+rabbitmqElastic:
+  replicaCount: 1
