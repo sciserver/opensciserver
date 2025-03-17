@@ -32,12 +32,6 @@ docs/_build/
 **/WebContent/WEB-INF/application.properties
 **/WebContent/WEB-INF/version
 
-/components/java/racm/src/main/resources/config.properties
-/components/java/racm/src/main/resources/jobm.properties
-/components/java/racm/src/main/resources/login.properties
-/components/java/racm/src/main/resources/jpa-config.properties
-/components/java/racm/src/main/resources/racm.properties
-/components/java/racm/src/main/resources/runtime.properties
 /components/java/racm/src/main/resources/application.properties
 
 node_modules/
