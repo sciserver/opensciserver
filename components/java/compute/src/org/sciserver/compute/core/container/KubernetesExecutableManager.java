@@ -315,14 +315,15 @@ public class KubernetesExecutableManager extends ContainerManager implements Exe
         }
 
         try {
+            String defaultTimestamp = "0001-01-01T00:00:00Z";
             V1Pod podInfo = getPodFromRef(container.getDockerRef());
             List<V1ContainerStatus> containerStatuses = podInfo.getStatus().getContainerStatuses();
             List<V1PodCondition> containerConditions = podInfo.getStatus().getConditions();
             String phase = podInfo.getStatus().getPhase();
-            String startedAt = "";
+            String startedAt = defaultTimestamp;
+            String finishedAt = defaultTimestamp;
             try {
                 startedAt = podInfo.getStatus().getStartTime().toString();
-                state.put("StartedAt", startedAt);
             } catch (Exception e) {
                 // pending might not be a runnable state
             }
@@ -345,8 +346,12 @@ public class KubernetesExecutableManager extends ContainerManager implements Exe
                 state.put("ExitCode", containerStatuses.get(0).getState().getTerminated().getExitCode());
                 state.put("Error", containerStatuses.get(0).getState().getTerminated().getMessage());
                 state.put("Running", false);
-                state.put("FinishedAt", containerStatuses.get(0).getState().getTerminated().getFinishedAt().toString());
+                if (containerStatuses.get(0).getState().getTerminated().getFinishedAt() != null) {
+                    finishedAt = containerStatuses.get(0).getState().getTerminated().getFinishedAt().toString();
+                }
             }
+            state.put("StartedAt", startedAt);
+            state.put("FinishedAt", finishedAt);
         } catch (Exception e) {
             state.put("Status", "error");
             state.put("Error", "Unkown error");
