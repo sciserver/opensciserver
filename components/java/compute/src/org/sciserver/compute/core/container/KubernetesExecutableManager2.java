@@ -330,48 +330,50 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
             // in case of job, we can ignore this as the pod info should cover that
         }
 
+        String startedAt = defaultTimestamp;
+        String finishedAt = defaultTimestamp;
+        boolean running = false;
         try {
             String defaultTimestamp = "0001-01-01T00:00:00Z";
             V1Pod podInfo = getPodFromRef(container.getDockerRef());
             List<V1ContainerStatus> containerStatuses = podInfo.getStatus().getContainerStatuses();
             List<V1PodCondition> containerConditions = podInfo.getStatus().getConditions();
             String phase = podInfo.getStatus().getPhase();
-            String startedAt = defaultTimestamp;
-            String finishedAt = defaultTimestamp;
             try {
                 startedAt = podInfo.getStatus().getStartTime().toString();
             } catch (Exception e) {
                 // pending might not be a runnable state
             }
-            if (phase.equals("Pending") && startedAt.equals("")) {
-                state.put("Status", "Pending");
+            if (phase.equals("Pending") && startedAt.equals(defaultTimestamp)) {
+                state.put("Status", "pending");
                 state.put("ExitCode", 0);
                 try {
                     state.put("Error", containerConditions.get(0).getMessage());
                 } catch (Exception e) {
                     state.put("Error", "");
                 }
-                state.put("Running", false);
             } else if (phase.equals("Running") || phase.equals("Pending")) {
-                state.put("Status", "Running");
+                state.put("Status", "running");
                 state.put("ExitCode", 0);
                 state.put("Error", "");
-                state.put("Running", true);
+                running = true;
             } else {
                 state.put("Status", "exited");
                 state.put("ExitCode", containerStatuses.get(0).getState().getTerminated().getExitCode());
                 state.put("Error", containerStatuses.get(0).getState().getTerminated().getMessage());
-                state.put("Running", false);
                 if (containerStatuses.get(0).getState().getTerminated().getFinishedAt() != null) {
                     finishedAt = containerStatuses.get(0).getState().getTerminated().getFinishedAt().toString();
                 }
             }
-            state.put("StartedAt", startedAt);
-            state.put("FinishedAt", finishedAt);
         } catch (Exception e) {
             state.put("Status", "error");
-            state.put("Error", "Unkown error");
+            state.put("Error", "Unexpected error: " + e.getMessage());
+        } finally {
+            state.put("StartedAt", startedAt);
+            state.put("FinishedAt", finishedAt);
+            state.put("Running", running);
         }
+
         oj.set("State", state);
         return oj;
     }
