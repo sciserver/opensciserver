@@ -330,11 +330,11 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
             // in case of job, we can ignore this as the pod info should cover that
         }
 
+        String defaultTimestamp = "0001-01-01T00:00:00Z";
         String startedAt = defaultTimestamp;
         String finishedAt = defaultTimestamp;
         boolean running = false;
         try {
-            String defaultTimestamp = "0001-01-01T00:00:00Z";
             V1Pod podInfo = getPodFromRef(container.getDockerRef());
             List<V1ContainerStatus> containerStatuses = podInfo.getStatus().getContainerStatuses();
             List<V1PodCondition> containerConditions = podInfo.getStatus().getConditions();
