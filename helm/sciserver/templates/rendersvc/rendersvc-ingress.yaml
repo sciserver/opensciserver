@@ -39,5 +39,5 @@ spec:
             port:
               number: 8080
         path: /{{ include "sciserver.prefix" . }}render/(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific
 {{ end -}}
