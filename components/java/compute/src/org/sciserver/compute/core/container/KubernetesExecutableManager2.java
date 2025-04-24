@@ -239,7 +239,7 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
             V1Service service = new V1ServiceBuilder().withNewMetadata().withName("svc-" + cref).endMetadata()
                     .withNewSpec().addToSelector("externalref", cref).addNewPort().withPort(servicePort)
                     .withProtocol("TCP").endPort().endSpec().build();
-            
+
             if (isJob) {
                 batchApi.createNamespacedJob(namespace, job, null, null, null);
             } else {
@@ -254,7 +254,7 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
             return container;
         }
     }
-    
+
     private void addVolumes(String source, String dest, Boolean ro, List<V1Volume> vols, List<V1VolumeMount> mounts) {
         String srv = source.split("/")[2];
         String path = "/" + source.split("/", 4)[3];
@@ -305,7 +305,14 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
     private V1Pod getPodFromRef(String extref) throws Exception {
         return coreApi
                 .listNamespacedPod(namespace, null, null, null, null, "externalref=" + extref, 1, null, null, 5, false)
-                .getItems().get(0);
+                .getItems()
+                .stream()
+                .sorted((o1, o2) ->
+                    // note reverse order to get most recent!
+                    o2.getMetadata().getCreationTimestamp().compareTo(o1.getMetadata().getCreationTimestamp())
+                )
+                .findFirst()
+                .orElseThrow();
     }
 
     @Override
@@ -333,7 +340,7 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
         String defaultTimestamp = "0001-01-01T00:00:00Z";
         String startedAt = defaultTimestamp;
         String finishedAt = defaultTimestamp;
-        boolean running = false;
+        boolean running = false;  // from the compute perspective - i.e. not complete or errored, use status for details
         try {
             V1Pod podInfo = getPodFromRef(container.getDockerRef());
             List<V1ContainerStatus> containerStatuses = podInfo.getStatus().getContainerStatuses();
@@ -352,6 +359,7 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                 } catch (Exception e) {
                     state.put("Error", "");
                 }
+                running = true;
             } else if (phase.equals("Running") || phase.equals("Pending")) {
                 state.put("Status", "running");
                 state.put("ExitCode", 0);
