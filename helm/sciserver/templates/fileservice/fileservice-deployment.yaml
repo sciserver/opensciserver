@@ -30,6 +30,10 @@ spec:
       initContainers:
       - name: wait-for-racm
         image: "busybox:1.30-musl"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
         command:
         - sh
         - '-c'
@@ -39,9 +43,6 @@ spec:
         imagePullPolicy: {{ .Values.fileservice.bootstrapperImage.pullPolicy }}
         resources:
           limits:
-            cpu: 100m
-            memory: 128Mi
-          requests:
             cpu: 100m
             memory: 128Mi
         env:

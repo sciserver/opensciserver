@@ -30,6 +30,10 @@ spec:
       initContainers:
       - name: wait-for-keystone
         image: "busybox:1.30-musl"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
         command:
         - sh
         - '-c'
