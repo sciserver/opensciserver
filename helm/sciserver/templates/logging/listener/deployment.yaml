@@ -32,6 +32,10 @@ spec:
       - name: wait-for-db
         image: "{{ .Values.sqlServerToolsImage.repository }}:{{ .Values.sqlServerToolsImage.tag }}"
         imagePullPolicy: {{ .Values.sqlServerToolsImage.pullPolicy }}
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
         command:
         - sh
         - -c

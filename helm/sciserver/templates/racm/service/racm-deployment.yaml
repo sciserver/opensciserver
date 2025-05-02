@@ -31,6 +31,10 @@ spec:
       - name: wait-for-db
         image: "{{ .Values.sqlServerToolsImage.repository }}:{{ .Values.sqlServerToolsImage.tag }}"
         imagePullPolicy: {{ .Values.sqlServerToolsImage.pullPolicy }}
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
         command:
         - sh
         - -c
@@ -45,6 +49,10 @@ spec:
           value: {{ include "sciserver.fullname" . }}-racm-db
       - name: wait-for-login-portal
         image: "busybox:1.30-musl"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
         command:
         - sh
         - '-c'

@@ -31,6 +31,10 @@ spec:
       - name: wait-for-db
         image: "{{ .Values.mysqlImage.repository }}:{{ .Values.mysqlImage.tag }}"
         imagePullPolicy: {{ .Values.mysqlImage.pullPolicy }}
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
         command:
         - sh
         - -c
