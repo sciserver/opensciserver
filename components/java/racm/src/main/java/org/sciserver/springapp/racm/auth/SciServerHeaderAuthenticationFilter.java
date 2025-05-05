@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sciserver.springapp.loginterceptor.Log;
 import org.sciserver.springapp.racm.login.LoginPortalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import retrofit2.Response;
+import sciserver.logging.ServiceLogTimer;
 
 @Component
 @ConditionalOnWebApplication
@@ -38,7 +40,9 @@ public class SciServerHeaderAuthenticationFilter extends AbstractPreAuthenticate
 		if(headerToken != null) {
 			Response<JsonNode> loginPortalResponse;
 			try {
+			    ServiceLogTimer timer = Log.get().startTimer("SciServerHeaderAuthenticationFilter.getPreAuthenticatedPrincipal:getTokenInfo [ms]");
 				loginPortalResponse = loginPortalService.getTokenInfo(headerToken).execute();
+				timer.stop();
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
