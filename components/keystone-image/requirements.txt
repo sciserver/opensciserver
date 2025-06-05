@@ -26,8 +26,7 @@ Flask==3.1.0
 Flask-RESTful==0.3.10
 futurist==3.1.1
 greenlet==3.2.1
-idna==3.10                                                                                                                                                 14:25:42 [45/1918]
-importlib_metadata==8.7.0
+idna==3.10
 iso8601==2.1.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
@@ -36,7 +35,6 @@ jsonpatch==1.33
 jsonpointer==3.0.0
 jsonschema==4.23.0
 jsonschema-specifications==2025.4.1
-keystone @ file:///opt/keystone
 keystoneauth1==5.10.0
 keystonemiddleware==10.9.0
 kombu==5.5.3
