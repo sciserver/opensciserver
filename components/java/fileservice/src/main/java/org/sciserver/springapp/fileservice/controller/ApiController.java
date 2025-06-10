@@ -104,7 +104,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 import retrofit2.Response;
@@ -220,11 +231,11 @@ public class ApiController {
      * @param response
      * @return
      */
-    @Operation(summary = "Get health status report of this API", 
+    @Operation(summary = "Get health status report of this API",
                description = "Verifies that a file can be written in all registered dataVolumes and rootVolumes.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "System is healthy"),
-        @ApiResponse(responseCode = "500", 
+        @ApiResponse(responseCode = "500",
                      description = "Health problem with registered dataVolume(s) and/or rootVolume(s)")
     })
     @GetMapping("/api/health")
@@ -325,29 +336,29 @@ public class ApiController {
     @Operation(summary = "Lists the contents of a particular directory path.",
                description = "Lists the contents of a directory (and its subdirectories) under a topVolume, "
                            + "given a number of depth levels. Metadata of files or directories is also provided, "
-                           + "such as size and creation/modification dates.", 
+                           + "such as size and creation/modification dates.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
                               required = true, schema = @Schema(type = "string")),
-                   @Parameter(in = ParameterIn.PATH, name = "**", description = "Wild card", required = false, 
+                   @Parameter(in = ParameterIn.PATH, name = "**", description = "Wild card", required = false,
                               schema = @Schema(type = "string"), example = "dwdw/dwdw")
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
-        @ApiResponse(responseCode = "401", 
+        @ApiResponse(responseCode = "401",
                      description = "User's auth token is missing or invalid."),
-        @ApiResponse(responseCode = "500", 
+        @ApiResponse(responseCode = "500",
                      description = "Internal error when listing contents, permissions issue, "
                                  + "or wrong value for 'level' input parameter")
     })
     @GetMapping({ "/api/jsontree/{topVolume}/**" })
     public ResponseEntity<JsonNode> listDirectory(
-        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.", 
+        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                    required = true) @PathVariable String topVolume,
-        @Parameter(description = "Glob pattern that matches the names of listed files or directories.", 
+        @Parameter(description = "Glob pattern that matches the names of listed files or directories.",
                        required = false) @RequestParam(required = false) String options,
-        @Parameter(description = "Maximum depth level of listed subdirectories (greater than 0).", 
+        @Parameter(description = "Maximum depth level of listed subdirectories (greater than 0).",
                        example = "1", required = false) @RequestParam(value = "level", required = false) Short level,
         HttpServletRequest request,
         HttpServletResponse response
@@ -430,23 +441,23 @@ public class ApiController {
     /**
      * Endpoint for uploading file.
      */
-    @Operation(summary = "Uploads a file.", 
-               description = "Uploads a file to a particular destination directory path under a topVolume.", 
+    @Operation(summary = "Uploads a file.",
+               description = "Uploads a file to a particular destination directory path under a topVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
                               required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
-        @ApiResponse(responseCode = "401", 
+        @ApiResponse(responseCode = "401",
                      description = "User's auth token is missing or invalid."),
-        @ApiResponse(responseCode = "500", 
+        @ApiResponse(responseCode = "500",
                      description = "Internal error when uploading file or permissions issue.")
     })
     @PutMapping("/api/file/{topVolume}/**")
     public ResponseEntity<JsonNode> uploadFile(
-        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.", 
+        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                     required = true) @PathVariable String topVolume,
         @Parameter(description = "If file already exists at destination path, "
                                 + "an exeception will be thrown when quiet=false.",
@@ -514,27 +525,27 @@ public class ApiController {
     /**
      * Endpoint for download file.
      */
-    @Operation(summary = "Downloads a file.", 
-               description = "Downloads a file located at a particular directory path under a topVolume.", 
+    @Operation(summary = "Downloads a file.",
+               description = "Downloads a file located at a particular directory path under a topVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
-        @ApiResponse(responseCode = "401", 
+        @ApiResponse(responseCode = "401",
                      description = "User's auth token is missing or invalid."),
-        @ApiResponse(responseCode = "500", 
+        @ApiResponse(responseCode = "500",
                      description = "Internal error when downloading file or permissions issue.")
     })
     @RequestMapping(value = "/api/file/{topVolume}/**", method = { RequestMethod.GET, RequestMethod.HEAD })
     public ResponseEntity<JsonNode> downloadFile(
-        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.", 
+        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                    required = true) @PathVariable String topVolume,
         @Parameter(description = "Sets the response content disposition to inline when "
-                               + "this parameter is true, or attachment if false.", 
-                               schema = @Schema(defaultValue = "false", type = "Boolean"), 
+                               + "this parameter is true, or attachment if false.",
+                               schema = @Schema(defaultValue = "false", type = "Boolean"),
                                required = false) Boolean inline,
         HttpServletRequest request,
         HttpServletResponse response
@@ -599,24 +610,25 @@ public class ApiController {
     /**
      * Request for downloading multiple files.
      */
-    @Operation(summary = "Downloads multiple files.", 
+    @Operation(summary = "Downloads multiple files.",
                description = "Downloads multiple files in one http request.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400", description = "Bad request: exceeded max amount of files per request."),
-        @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid.", 
-                     content = @Content(mediaType = "application/json", 
+        @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid.",
+                     content = @Content(mediaType = "application/json",
                      schema = @Schema(implementation = JsonNode.class))),
     })
     @PostMapping("/api/multiple-file/")
     public ResponseEntity<DownloadMultipleFilesResponse> downloadFiles(
         @RequestBody(required = true, description = "Request body containing a list of files to be downloaded, "
-                                                  + "as well as information about them.") 
+                                                  + "as well as information about them.")
+        @org.springframework.web.bind.annotation.RequestBody
                     DownloadMultipleFilesRequest[] filesReq,
         HttpServletRequest request,
         HttpServletResponse response
@@ -695,11 +707,11 @@ public class ApiController {
      * @throws SciServerClientException
      * @throws UnauthenticatedException
      */
-    @Operation(summary = "Creates a folder.", 
-               description = "Creates a folder under a particular directory path under a topVolume.", 
+    @Operation(summary = "Creates a folder.",
+               description = "Creates a folder under a particular directory path under a topVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
@@ -709,9 +721,9 @@ public class ApiController {
     })
     @PutMapping("/api/folder/{topVolume}/**")
     public ResponseEntity<JsonNode> createFolder(
-        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.", 
+        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                     required = true) @PathVariable String topVolume,
-        @Parameter(description = "If folder already exists, an error will be thrown when quiet=false.", 
+        @Parameter(description = "If folder already exists, an error will be thrown when quiet=false.",
                    example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
@@ -772,11 +784,11 @@ public class ApiController {
     /**
      * Endpoint for deleting data.
      */
-    @Operation(summary = "Deletes a file or folder.", 
-               description = "Deletes a file or folder under a particular directory path under a topVolume.", 
+    @Operation(summary = "Deletes a file or folder.",
+               description = "Deletes a file or folder under a particular directory path under a topVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
@@ -786,9 +798,9 @@ public class ApiController {
     })
     @DeleteMapping("/api/data/{topVolume}/**")
     public ResponseEntity<JsonNode> deleteData(
-        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.", 
+        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                    required = true) @PathVariable String topVolume,
-        @Parameter(description = "If file (or folder) does not exist, an error will be thrown when quiet=false.", 
+        @Parameter(description = "If file (or folder) does not exist, an error will be thrown when quiet=false.",
                    example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
@@ -859,32 +871,33 @@ public class ApiController {
     /**
      * Endpoint for moving data.
      */
-    @Operation(summary = "Moves a file or folder.", 
-               description = "Moves a file or folder to a particular destination directory path under a topVolume.", 
+    @Operation(summary = "Moves a file or folder.",
+               description = "Moves a file or folder to a particular destination directory path under a topVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", 
-                              description = "User's auth token.", required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token",
+                              description = "User's auth token.", required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when moving data or permissions issue.")
-    })    
+    })
     @PutMapping("/api/data/{topVolume}/**")
     public ResponseEntity<JsonNode> moveData(
-        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.", 
+        @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                    required = true) @PathVariable String topVolume,
         @Parameter(description = "If the file or folder already exists in the destination directory path, "
-                               + "this boolean variable decides whether to allow replacing them.", 
-                   required = true, example = "false") 
+                               + "this boolean variable decides whether to allow replacing them.",
+                   required = true, example = "false")
                    @RequestParam(value = "replaceExisting", required = false) Boolean replaceExisting,
         @Parameter(description = "Boolean variable for deciding whether to copy (true) "
                                + "or move (false) the file or folder.",
                    required = true, example = "true") @RequestParam(value = "doCopy", required = false) Boolean doCopy,
-                   
+
         @RequestBody(required = true, description = "Contains the information needed for moving data within the "
-                                                  + "file system, from one path to a destination path.") 
+                                                  + "file system, from one path to a destination path.")
+        @org.springframework.web.bind.annotation.RequestBody
                     MoveDataRequestBody body,
         HttpServletRequest request,
         HttpServletResponse response
@@ -1049,19 +1062,19 @@ public class ApiController {
      * @throws UnauthenticatedException
      * @throws Exception
      **/
-    @Operation(summary = "Returns all dataVolumes, rootVolumes, and userVolumes accessible to the user.", 
+    @Operation(summary = "Returns all dataVolumes, rootVolumes, and userVolumes accessible to the user.",
                description = "Returns all userVolumes and dataVolumes accessible to the user, also including metadata "
-                           + "such as allowed actions and information on shared volumes.", 
+                           + "such as allowed actions and information on shared volumes.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when retrieving volume information.")
-    })    
+    })
     @GetMapping("/api/volumes")
     public FileServiceModel getVolumes(HttpServletRequest request) throws Exception {
         AuthenticatedUser user = Auth.get();
@@ -1080,7 +1093,7 @@ public class ApiController {
      * @throws SciServerClientException
      * @throws UnauthenticatedException
      */
-    @Operation(summary = "Returns information on volumes with size quotas.", 
+    @Operation(summary = "Returns information on volumes with size quotas.",
                description = "Returns information about the quota size and usage on each volume that has a quota."
     )
     @GetMapping("/api/usage")
@@ -1088,7 +1101,7 @@ public class ApiController {
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when retrieving usage information.")
-    })        
+    })
     public ResponseEntity<?> getUsage(HttpServletRequest request)
             throws UnauthenticatedException, SciServerClientException {
         AuthenticatedUser user = Auth.get();
@@ -1103,14 +1116,14 @@ public class ApiController {
                     .flatMap(rv -> rv.getUserVolumes()
                             .stream()
                             .flatMap(uv -> Stream.concat(quotas.stream()
-                                    .filter(q -> q.getRootVolumeName().equals(rv.getName()) 
+                                    .filter(q -> q.getRootVolumeName().equals(rv.getName())
                                                  && q.getRelativePath().equals(uv.getRelativePath()))
                                     .map(q -> new QuotaPerVolume(q.getNumberOfFilesUsed(),
                                             q.getNumberOfFilesQuota(), q.getNumberOfBytesUsed(),
                                             q.getNumberOfBytesQuota(), uv.getId(), rv.getId())),
                                     quotas.stream()
-                                            .filter(q -> q.getRootVolumeName().equals(rv.getName()) 
-                                                         && uv.getOwner().equals(user.getUserName()) 
+                                            .filter(q -> q.getRootVolumeName().equals(rv.getName())
+                                                         && uv.getOwner().equals(user.getUserName())
                                                          && uv.getRelativePath().startsWith(q.getRelativePath()))
                                             .map(q -> new QuotaPerUser(q.getNumberOfFilesUsed(),
                                                     q.getNumberOfFilesQuota(), q.getNumberOfBytesUsed(),
@@ -1132,30 +1145,31 @@ public class ApiController {
      * @throws UnauthenticatedException
      * @throws Exception
      */
-    @Operation(summary = "Creates a userVolume.", 
-               description = "Creates a userVolume under a particular rootVolume.", 
-               parameters = { 
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+    @Operation(summary = "Creates a userVolume.",
+               description = "Creates a userVolume under a particular rootVolume.",
+               parameters = {
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when creating user volume.")
-    })            
+    })
     @PutMapping("/api/volume/{rootVolume}/{ownerName}/{userVolume:.+}")
     public ResponseEntity<JsonNode> createUserVolume(
-        @Parameter(description = "Name of the rootVolume.", 
+        @Parameter(description = "Name of the rootVolume.",
                    required = true, example = "Storage") @PathVariable String rootVolume,
-        @Parameter(description = "Name of the user that owns this userVolume.", 
+        @Parameter(description = "Name of the user that owns this userVolume.",
                    required = true) @PathVariable String ownerName,
-        @Parameter(description = "Name of the userVolume.", 
+        @Parameter(description = "Name of the userVolume.",
                    required = true) @PathVariable String userVolume,
-        @Parameter(description = "If userVolume already exists, an exeception will be thrown when quiet=false.", 
+        @Parameter(description = "If userVolume already exists, an exeception will be thrown when quiet=false.",
                    example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
         @RequestHeader(value = "X-Service-Auth-ID", required = false) String xServiceID,
         @RequestBody(required = true, description = "Contains information needed for creating a user volume.")
+        @org.springframework.web.bind.annotation.RequestBody
                     CreateUserVolumeRequestBody body,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1237,32 +1251,33 @@ public class ApiController {
      * @throws UnauthenticatedException
      * @throws Exception
      */
-    @Operation(summary = "Creates a serviceVolume.", 
+    @Operation(summary = "Creates a serviceVolume.",
                description = "Creates a serviceVolume, which is intended to be used/operated exclusively by a Service.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
                               required = true, schema = @Schema(type = "string")),
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
-        @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid.", 
-                     content = @Content(mediaType = "application/json", 
+        @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid.",
+                     content = @Content(mediaType = "application/json",
                      schema = @Schema(implementation = JsonNode.class))),
         @ApiResponse(responseCode = "500", description = "Internal error when creating service volume.",
-                     content = @Content(mediaType = "application/json", 
+                     content = @Content(mediaType = "application/json",
                      schema = @Schema(implementation = JsonNode.class))),
     })
     @PutMapping(value = "/api/service/{rootVolume}/{ownerName}/{serviceVolume:.+}")
     public ResponseEntity<RegisteredServiceVolumeModel> createServiceVolume(
         @Parameter(description = "Name of the rootVolume.", required = true) @PathVariable String rootVolume,
-        @Parameter(description = "Name of the user that owns this serviceVolume.", 
+        @Parameter(description = "Name of the user that owns this serviceVolume.",
                     required = true) @PathVariable String ownerName,
         @Parameter(description = "Name of the serviceVolume.", required = true) @PathVariable String serviceVolume,
-        @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.", 
-                   required = true, schema = @Schema(type = "string")) 
+        @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.",
+                   required = true, schema = @Schema(type = "string"))
                    @RequestHeader(value = "X-Service-Auth-ID", required = true) String serviceToken,
         @RequestBody(required = true, description = "Contains information needed for creating a service volume.")
+        @org.springframework.web.bind.annotation.RequestBody
                      CreateServiceVolumeRequestBody body,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException, Exception {
@@ -1364,28 +1379,29 @@ public class ApiController {
      *
      *
      */
-    @Operation(summary = "Shares a userVolume.", 
+    @Operation(summary = "Shares a userVolume.",
                description = "Shares a userVolume with other SciServer users, "
-                           + "including specific allowed actions such as read/write or read-only.", 
+                           + "including specific allowed actions such as read/write or read-only.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when sharing service volume.")
-    })                    
+    })
     @PatchMapping("/api/share/{rootVolume}/{ownerName}/{userVolume:.+}")
     public ResponseEntity<JsonNode> shareUserVolume(
-        @Parameter(description = "Name of the userVolume.", required = true, 
+        @Parameter(description = "Name of the userVolume.", required = true,
                    example = "Storage") @PathVariable String rootVolume,
-        @Parameter(description = "Name of the user that owns this userVolume.", 
+        @Parameter(description = "Name of the user that owns this userVolume.",
                    required = true) @PathVariable String ownerName,
-        @Parameter(description = "Name of the userVolume.", required = true, 
+        @Parameter(description = "Name of the userVolume.", required = true,
                    example = "persistent") @PathVariable String userVolume,
         @RequestBody(required = true, description = "Contains information needed for sharing a user volume.")
+        @org.springframework.web.bind.annotation.RequestBody
                      List<UpdateSharedWithEntry> sharedWithEntities,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1405,11 +1421,11 @@ public class ApiController {
     /**
      * Endpoint for sharing data volume.
      */
-    @Operation(summary = "Shares a dataVolume.", 
+    @Operation(summary = "Shares a dataVolume.",
                description = "Shares a dataVolume with other SciServer users, "
-                           + "including specific allowed actions such as read/write or read-only.", 
+                           + "including specific allowed actions such as read/write or read-only.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
                               required = true, schema = @Schema(type = "string"))
                }
     )
@@ -1417,11 +1433,12 @@ public class ApiController {
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when sharing data volume.")
-    })                        
+    })
     @PatchMapping("/api/share/{dataVolume:.+}")
     public ResponseEntity<JsonNode> shareDataVolume(
         @Parameter(description = "Name of the dataVolume.", required = true) @PathVariable String dataVolume,
         @RequestBody(required = true, description = "Contains information needed for sharing a data volume.")
+        @org.springframework.web.bind.annotation.RequestBody
                      List<UpdateSharedWithEntry> sharedWithEntities,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1440,11 +1457,11 @@ public class ApiController {
     /**
      * Endpoint for deleting user volume.
      */
-    @Operation(summary = "Deletes a userVolume.", 
-               description = "Deletes a userVolume. This action is only allowed to the owner of this userVolume.", 
+    @Operation(summary = "Deletes a userVolume.",
+               description = "Deletes a userVolume. This action is only allowed to the owner of this userVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
@@ -1452,12 +1469,12 @@ public class ApiController {
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when deleting user volume "
                                                        + "or permissions issue.")
-    })                            
+    })
     @DeleteMapping("/api/volume/{rootVolume}/{ownerName}/{userVolume:.+}")
     public ResponseEntity<JsonNode> deleteUserVolume(
-        @Parameter(description = "Name of the rootVolume.", required = true, 
+        @Parameter(description = "Name of the rootVolume.", required = true,
                     example = "Storage") @PathVariable String rootVolume,
-        @Parameter(description = "Name of the user that owns this userVolume.", 
+        @Parameter(description = "Name of the user that owns this userVolume.",
                     required = true) @PathVariable String ownerName,
         @Parameter(description = "Name of the userVolume.", required = true) @PathVariable String userVolume,
         @Parameter(description = "If the user volume does not exist, an error will be thrown when quiet=false.",
@@ -1523,11 +1540,11 @@ public class ApiController {
     /**
      * Endpoint for deleting service volume.
      */
-    @Operation(summary = "Deletes a serviceVolume.", 
+    @Operation(summary = "Deletes a serviceVolume.",
                description = "Deletes a serviceVolume. This action is only allowed to the owner of this serviceVolume.",
                parameters = {
-                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.", 
-                              required = true, schema = @Schema(type = "string")) 
+                   @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
+                              required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
@@ -1535,19 +1552,19 @@ public class ApiController {
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when deleting service volume "
                                                        + "or permissions issue.")
-    })                                
+    })
     @DeleteMapping("/api/service/{rootVolume}/{ownerName}/{serviceVolume:.+}")
     public ResponseEntity<JsonNode> deleteServiceVolume(
-        @Parameter(description = "Name of the rootVolume.", required = true, 
+        @Parameter(description = "Name of the rootVolume.", required = true,
                    example = "Storage") @PathVariable String rootVolume,
-        @Parameter(description = "Name of the user that owns this serviceVolume.", 
+        @Parameter(description = "Name of the user that owns this serviceVolume.",
                    required = true) @PathVariable String ownerName,
-        @Parameter(description = "Name of the serviceVolume.", required = true, 
+        @Parameter(description = "Name of the serviceVolume.", required = true,
                    example = "Storage") @PathVariable String serviceVolume,
         @Parameter(description = "If the service volume does not exist, an error will be thrown when quiet=false.",
                    example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
-        @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.", 
-                   required = true, schema = @Schema(type = "string")) 
+        @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.",
+                   required = true, schema = @Schema(type = "string"))
                    @RequestHeader(value = "X-Service-Auth-ID", required = true) String serviceToken,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1620,26 +1637,27 @@ public class ApiController {
     /**
      * Endpoint for patching user volume.
      */
-    @Operation(summary = "Updates userVolume metadata.", 
-               description = "Updates userVolume metadata, such as name and description.", 
+    @Operation(summary = "Updates userVolume metadata.",
+               description = "Updates userVolume metadata, such as name and description.",
                parameters = {
                    @Parameter(in = ParameterIn.HEADER, name = "X-Auth-Token", description = "User's auth token.",
-                             required = true, schema = @Schema(type = "string")) 
+                             required = true, schema = @Schema(type = "string"))
                }
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401", description = "User's auth token is missing or invalid."),
         @ApiResponse(responseCode = "500", description = "Internal error when updating userVolume metadata.")
-    })                                    
+    })
     @PatchMapping("/api/volume/{rootVolume}/{ownerName}/{userVolume}")
     public ResponseEntity<JsonNode> patchUserVolume(
-        @Parameter(description = "Name of the rootVolume.", required = true, 
+        @Parameter(description = "Name of the rootVolume.", required = true,
                    example = "Storage") @PathVariable String rootVolume,
-        @Parameter(description = "Name of the user that owns this userVolume.", 
+        @Parameter(description = "Name of the user that owns this userVolume.",
                    required = true) @PathVariable String ownerName,
         @Parameter(description = "Name of the userVolume.", required = true) @PathVariable String userVolume,
         @RequestBody(required = true, description = "Contains information needed for updating user volume info.")
+        @org.springframework.web.bind.annotation.RequestBody
                      UpdatedUserVolumeInfo volumeInfo,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
