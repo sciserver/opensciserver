@@ -6,9 +6,11 @@ RUN apt-get -y update \
     && apt-get install -y libev-dev libffi-dev python-dev libssl-dev default-mysql-client python-mysqldb memcached \
     && apt-get -y clean
 
+COPY requirements.txt /opt/keystone-requirements.txt
+
 RUN git clone -b ${SERVER_VERSION} https://github.com/openstack/keystone.git /opt/keystone \
     && cd /opt/keystone \
-    && pip install -r requirements.txt \
+    && pip install -r /opt/keystone-requirements.txt \
     && pip install . \
     && cp -r etc /etc/keystone \
     && pip install python-openstackclient==5.2.1 \

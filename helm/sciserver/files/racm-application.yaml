@@ -76,6 +76,16 @@ spring.mvc.pathmatch.matching-strategy: ant-path-matcher
 
 
 logging.console: true
+logging.application: RACM
+logging.rabbitmq.host: {{ include "sciserver.rabbitmq_host" . }}
+logging.rabbitmq.exchange: {{ .Values.logging.rabbitmq.exchange }}
+
+# Auth interceptor is not currently used by RACM, so do not do the prefetch (to
+# save on a redundant network call)
+# TODO: update this config when the interceptor is used
+auth.prefetch: false
+# When enabled, it should use this url
+auth.portal.url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
 
 # placeholders for flyway
 # # only needed if running flyway for initializing the database
