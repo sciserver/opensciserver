@@ -1,0 +1,282 @@
+type ComputeDataVolume {
+  publisherDID: String!
+  writable: Boolean!
+}
+
+type Container {
+  accessedAt: DateTime!
+  createdAt: DateTime!
+  dataVolumes: [ComputeDataVolume!]!
+  description: String
+  displayName: String!
+  domainID: Int!
+  domainName: String!
+  id: ID!
+  imageName: String!
+  maxSecs: Int!
+  name: String!
+  nodeName: String!
+  status: ContainerStatus!
+  userVolumes: [ID!]!
+}
+
+type ContainerDetail {
+  dataVolumes: [DataVolume!]!
+  id: ID!
+  userVolumes: [UserVolume!]!
+}
+
+input ContainerDetailParams {
+  dataVolumeIds: [ID!]!
+  domainId: ID!
+  userVolumeIds: [ID!]!
+}
+
+input ContainerParams {
+  dataVolumeIds: [ID!]!
+  domainName: String!
+  imageName: String!
+  userVolumeIds: [ID!]!
+}
+
+enum ContainerStatus {
+  CREATED
+  NONE
+}
+
+input CreateJobParams {
+  command: String!
+  dockerComputeEndpoint: String!
+  dockerImageName: String!
+  resultsFolderURI: String!
+  scriptURI: String!
+  submitterDID: String!
+  userVolumes: [ID!]!
+  volumeContainers: [ID!]!
+}
+
+type DataVolume {
+  allowedActions: [String]!
+  description: String!
+  displayName: String
+  id: ID!
+  name: String!
+  owningResourceId: ID
+  pathOnFileSystem: String
+  publisherDID: String!
+  racmUUID: String!
+  resourceUUID: ID
+  sharedWith: [String]!
+  url: URL
+  writable: Boolean!
+}
+
+type Dataset {
+  catalog: String
+  description: String
+  logo: URL
+  name: String!
+  readme: String
+  resources: [Resource!]!
+  source: String!
+  summary: String!
+  tags: [String!]!
+  volumeID: ID!
+}
+
+input DatasetDetailInput {
+  catalog: String
+  name: String!
+  source: String!
+  volumeID: ID!
+}
+
+scalar DateTime
+
+type Domain {
+  apiEndpoint: URL!
+  dataVolumes: [DataVolume!]!
+  description: String!
+  id: ID!
+  images: [Image!]!
+  name: String!
+  publisherDID: String!
+  racmUUID: UUID!
+  userVolumes: [UserVolume!]!
+}
+
+type File {
+  creationTime: DateTime!
+  lastModified: DateTime!
+  name: String!
+  size: Float!
+}
+
+type FileService {
+  apiEndpoint: URL
+  dataVolumes: [DataVolume!]
+  description: String
+  identifier: ID!
+  name: String
+  rootVolumes: [RootVolume!]
+}
+
+type Folder {
+  creationTime: DateTime!
+  lastModified: DateTime!
+  name: String!
+}
+
+type Image {
+  description: String!
+  id: ID!
+  name: String!
+  publisherDID: String!
+  racmUUID: String!
+}
+
+scalar JSONObject
+
+type JSONTree {
+  queryPath: String!
+  root: Root!
+}
+
+type Job {
+  command: String!
+  dataVolumes: [DataVolume!]!
+  dockerComputeEndpoint: URL!
+  dockerComputeResourceContextUUID: UUID!
+  dockerImageName: String!
+  duration: Float!
+  endTime: DateTime!
+  executorDID: String!
+  fullDockerCommand: [String!]!
+  id: ID!
+  messages: [JobMessage!]!
+  resultsFolderURI: String!
+  runByUUID: String!
+  scriptURI: String
+  startTime: DateTime!
+  status: JobStatus!
+  submissionTime: DateTime!
+  submitterDID: String!
+  submitterTrustId: String!
+  timeout: Int!
+  type: String!
+  userVolumes: [JobUserVolume!]!
+  username: String!
+}
+
+input JobFilters {
+  field: String!
+  value: String!
+}
+
+type JobMessage {
+  content: String!
+  id: ID!
+  label: String!
+}
+
+enum JobStatus {
+  ACCEPTED
+  CANCELED
+  ERROR
+  FINISHED
+  PENDING
+  QUEUED
+  STARTED
+  SUCCESS
+}
+
+type JobUserVolume {
+  fullPath: String!
+  id: ID!
+  needsWriteAccess: Boolean!
+  userVolumeId: ID!
+}
+
+type Mutation {
+  createJob(createJobParams: CreateJobParams!): Job!
+  deleteContainer(containerId: ID!, domainId: ID!): Boolean!
+  login(password: String!, username: String!): String!
+  root: String
+}
+
+type Query {
+  getContainerDetail(containerDetailParams: ContainerDetailParams!): ContainerDetail!
+  getContainerID(containerParams: ContainerParams!): ID!
+  getContainers: [Container!]!
+  getDataset(params: DatasetDetailInput!): Dataset
+  getDatasets(volumeType: VolumeType!): [Dataset!]!
+  getDomainByID(id: ID!): Domain
+  getDomains: [Domain!]!
+  getJobs(filters: [JobFilters!]): [Job!]!
+  getJsonTree(volumeName: String!): JSONTree!
+  getUser: User!
+  getVolumes: FileService
+  pingContainer(containerId: ID!): Boolean
+  root: String
+}
+
+type Resource {
+  description: String
+  kind: String!
+  link: String!
+  name: String!
+}
+
+type Root {
+  creationTime: DateTime!
+  files: [File!]!
+  folders: [Folder!]!
+  lastModified: DateTime!
+  name: String!
+}
+
+type RootVolume {
+  allowedActions: [String]!
+  containsSharedVolumes: Boolean!
+  description: String
+  id: ID!
+  name: String
+  owningResourceId: ID
+  pathOnFileSystem: String
+  resourceUUID: ID!
+  sharedWith: [String]!
+  userVolumes: [UserVolume!]!
+}
+
+type Subscription {
+  root: String
+}
+
+scalar URL
+
+scalar UUID
+
+type User {
+  email: String!
+  id: ID!
+  userName: String!
+  visibility: String!
+}
+
+type UserVolume {
+  allowedActions: [String]!
+  description: String
+  id: ID!
+  name: String!
+  owner: String!
+  owningResourceId: ID
+  relativePath: String
+  resourceUUID: ID!
+  rootVolumeName: String!
+  sharedWith: [String]!
+}
+
+enum VolumeType {
+  DATAVOLUME
+  USERVOLUME
+}

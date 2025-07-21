@@ -27,8 +27,12 @@ dashboard-build.image:
 	cd components/ui/dashboard && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/dashboard-build:$(VTAG) -f Dockerfile-configure .
 dashboard.image:
 	cd components/ui/dashboard && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/dashboard:$(VTAG) -f Dockerfile-run .
+web.image:
+	cd components/ui/web && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/web:$(VTAG) .
+graphql.image:
+	cd components/ui/graphql && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/graphql:$(VTAG) .
 
-PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push
+PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push web.push graphql.push
 %.push: %.image
 	docker push $(REPO)/$(subst .push,,$@):$(VTAG)
 
