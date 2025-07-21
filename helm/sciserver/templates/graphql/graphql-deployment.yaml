@@ -30,12 +30,14 @@ spec:
         - name: graphql
           image: "{{ .Values.graphql.image.repository }}:{{ .Values.graphql.image.tag }}"
           imagePullPolicy: {{ .Values.graphql.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.compute.resources | nindent 10 }}
           env:
             - name: FILES_BASE_URL
               value: '{{ include "sciserver.url" . }}fileservice/api/'
-            - name: COMPUTE_BASE_URL                                                                                                                                       
-              value: '{{ include "sciserver.url" . }}compute/api/'                                                                                                             
-            - name: RACM_BASE_URL                                                                                                                                          
+            - name: COMPUTE_BASE_URL
+              value: '{{ include "sciserver.url" . }}compute/api/'
+            - name: RACM_BASE_URL
               value: '{{ include "sciserver.url" . }}racm/'
             - name: LOGIN_PORTAL_BASE_URL
               value: '{{ include "sciserver.url" . }}login-portal/api/'

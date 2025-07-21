@@ -431,6 +431,13 @@ web:
   newComputeSessionDefaults:
     domainName: "Interactive Docker Compute Domain"
     imageName: "Sciserver Essentials (Test)"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 graphql:
   replicaCount: 1
@@ -438,4 +445,10 @@ graphql:
     repository: <<<IMAGE_REPO>>>/graphql
     tag: <<<VTAG>>>
     pullPolicy: Always
-
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi

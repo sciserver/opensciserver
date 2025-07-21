@@ -30,6 +30,8 @@ spec:
         - name: web
           image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
           imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.web.resources | nindent 10 }}
           env:
             - name: NEXT_PUBLIC_LOGIN_PORTAL_URL
               value: '{{ include "sciserver.url" . }}login-portal/'
