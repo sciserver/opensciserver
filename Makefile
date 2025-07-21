@@ -37,7 +37,7 @@ graphql.image:
 rendersvc.image: python
 	cd components/python/rendersvc && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/rendersvc:$(VTAG) -f docker/Dockerfile .
 
-PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push web.push graphql.push
+PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push web.push graphql.push rendersvc.push
 %.push: %.image
 	docker push $(REPO)/$(subst .push,,$@):$(VTAG)
 
