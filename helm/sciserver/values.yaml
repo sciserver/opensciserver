@@ -385,6 +385,13 @@ rendersvc:
   image:
     repository: <<<IMAGE_REPO>>>/rendersvc
     tag: <<<VTAG>>>
+  resources:
+    limits:
+      cpu: 500m
+      memory: 4Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 optionalApps:
   sciDrive:
