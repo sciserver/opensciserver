@@ -27,6 +27,13 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: install python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install tox
       - run: make
       - name: Log in to the Container registry
         uses: docker/login-action@v3

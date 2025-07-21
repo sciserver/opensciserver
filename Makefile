@@ -4,7 +4,7 @@ all: build
 docs:
 	cd docs && make html epub
 
-build: java
+build: java python
 
 java:
 	cd components/java && ./gradlew :racm:modelJar && ./gradlew build
