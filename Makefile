@@ -9,6 +9,9 @@ build: java
 java:
 	cd components/java && ./gradlew :racm:modelJar && ./gradlew build
 
+python:
+	cd components/python && make
+
 clean:
 	cd components/java && ./gradlew clean
 	cd docs && make clean
@@ -31,6 +34,8 @@ web.image:
 	cd components/ui/web && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/web:$(VTAG) .
 graphql.image:
 	cd components/ui/graphql && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/graphql:$(VTAG) .
+rendersvc.image: python
+	cd components/python/rendersvc && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/rendersvc:$(VTAG) -f docker/Dockerfile .
 
 PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push web.push graphql.push
 %.push: %.image
