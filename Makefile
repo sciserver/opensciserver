@@ -46,7 +46,4 @@ images: $(IMAGE_TARGETS)
 publish-images: $(PUSH_TARGETS)
 
 helm:
-	cd helm && mkdir -p build && rm -rf build/sciserver && cp -r sciserver build && cd build/sciserver
-	cd helm/build/sciserver && sed -i="" "s%<<<IMAGE_REPO>>>%$(REPO)%" values.yaml && sed -i="" "s%<<<VTAG>>>%$(VTAG)%" values.yaml image-manifest.yaml Chart.yaml
-	rm helm/build/sciserver/*=
-	cd helm/build && COPYFILE_DISABLE=1 tar -czf sciserver-$(VTAG).tar.gz --no-xattrs sciserver
+	cd helm && ./build.sh $(REPO) $(VTAG)
