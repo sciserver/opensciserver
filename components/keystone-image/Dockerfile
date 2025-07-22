@@ -1,9 +1,9 @@
-FROM python:3.9-buster
+FROM python:3.9-bullseye
 
 ENV SERVER_VERSION=26.0.0
 
 RUN apt-get -y update \
-    && apt-get install -y libev-dev libffi-dev python-dev libssl-dev default-mysql-client python-mysqldb memcached \
+    && apt-get install -y libev-dev libffi-dev python-dev libssl-dev default-mysql-client memcached \
     && apt-get -y clean
 
 COPY requirements.txt /opt/keystone-requirements.txt

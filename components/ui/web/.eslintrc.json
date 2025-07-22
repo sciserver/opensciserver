@@ -1,0 +1,176 @@
+{
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-comments",
+    "jest",
+    "promise",
+    "unicorn",
+    "import",
+    "jsx-a11y"
+  ],
+  "extends": [
+    "airbnb-typescript",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:eslint-comments/recommended",
+    "plugin:promise/recommended",
+    "plugin:unicorn/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:@next/next/recommended",
+    "prettier"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "node": true,
+    "browser": true
+  },
+  "ignorePatterns": [
+    "src/graphql/typings.ts",
+    "*.js"
+  ],
+  "rules": {
+    "no-prototype-builtins": "off",
+    "import/prefer-default-export": "off",
+    "react/destructuring-assignment": "off",
+    "react/jsx-filename-extension": "off",
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": true,
+        "variables": true,
+        "typedefs": true
+      }
+    ],
+    "unicorn/prevent-abbreviations": "off",
+    "react/react-in-jsx-scope": "off",
+    "unicorn/filename-case": "off",
+    "max-classes-per-file": "off",
+    "unicorn/no-null": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "no-param-reassign": "off",
+    "unicorn/explicit-length-check": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/require-default-props": "off",
+    "unicorn/no-reduce": "off",
+    "no-new": "off",
+    "react/prop-types": "off",
+    "react/state-in-constructor": "off",
+    "react/no-unused-state": "off",
+    "react/no-unescaped-entities": "off",
+    "unicorn/no-useless-undefined": "off",
+    "unicorn/no-fn-reference-in-iterator": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "consistent-return": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "class-methods-use-this": "off",
+    "indent": [
+      2,
+      2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "strict": [
+      "warn"
+    ],
+    "quotes": [
+      "warn",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
+    ],
+    "jsx-quotes": [
+      "error",
+      "prefer-double"
+    ],
+    "quote-props": [
+      "warn",
+      "as-needed"
+    ],
+    "semi": [
+      "warn",
+      "always"
+    ],
+    "no-empty": [
+      "warn",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
+    "generator-star-spacing": [
+      "warn",
+      {
+        "before": false,
+        "after": true
+      }
+    ],
+    "keyword-spacing": [
+      "warn",
+      {
+        "before": true,
+        "after": true
+      }
+    ],
+    "brace-style": [
+      "warn",
+      "stroustrup"
+    ],
+    "curly": [
+      "warn",
+      "all"
+    ],
+    "array-bracket-spacing": [
+      "warn",
+      "never"
+    ],
+    "object-curly-spacing": [
+      "warn",
+      "always"
+    ],
+    "object-curly-newline": [
+      "warn",
+      {
+        "multiline": true
+      }
+    ],
+    "space-in-parens": [
+      "warn",
+      "never"
+    ],
+    "@typescript-eslint/lines-between-class-members": [
+      "warn",
+      "always",
+      {
+        "exceptAfterSingleLine": true
+      }
+    ],
+    "comma-dangle": [
+      "warn",
+      "never"
+    ],
+    "new-cap": [
+      "warn",
+      {
+        "capIsNewExceptions": [
+          "Attachment"
+        ],
+        "newIsCapExceptions": [
+          "model"
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      "DebuggerStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ],
+    "unicorn/no-abusive-eslint-disable": "off",
+    "eslint-comments/no-unlimited-disable": "off",
+    "promise/always-return": "off"
+  }
+}
