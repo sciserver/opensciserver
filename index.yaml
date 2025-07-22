@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  sciserver:
+  - apiVersion: v1
+    appVersion: pr-40
+    created: "2025-07-22T16:21:12.573287636Z"
+    description: A Helm chart for SciServer
+    digest: 2f6a20b296d5905e14315d3e067166d54ffda0ddcf635c997ddf500d05749a43
+    name: sciserver
+    urls:
+    - https://github.com/sciserver/opensciserver/releases/download/sciserver-0.0.0/sciserver-0.0.0.tgz
+    version: 0.0.0
+generated: "2025-07-22T16:21:12.573293126Z"
