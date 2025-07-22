@@ -10,4 +10,13 @@ entries:
     urls:
     - https://github.com/sciserver/opensciserver/releases/download/sciserver-0.0.0/sciserver-0.0.0.tgz
     version: 0.0.0
-generated: "2025-07-22T16:21:12.573293126Z"
+  - apiVersion: v1
+    appVersion: pr-40
+    created: "2025-07-22T17:27:48.404830198Z"
+    description: A Helm chart for SciServer
+    digest: 4a98fa2ac883939f0f7fde545a59d18d51cad4f36d8e4ad7d4a3085ee0fcb639
+    name: sciserver
+    urls:
+    - https://github.com/sciserver/opensciserver/releases/download/sciserver-0.0.0-pr-40/sciserver-0.0.0-pr-40.tgz
+    version: 0.0.0-pr-40
+generated: "2025-07-22T17:27:48.404840117Z"
