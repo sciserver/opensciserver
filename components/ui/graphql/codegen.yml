@@ -1,0 +1,13 @@
+schema: src/types/*.ts
+generates:
+  src/generated/typings.ts:
+    config:
+      contextType: ../main#Context
+      scalars:
+        JSONObject: string
+    plugins:
+      - typescript
+      - typescript-resolvers
+  src/generated/schema.graphql:
+    plugins:
+      - schema-ast

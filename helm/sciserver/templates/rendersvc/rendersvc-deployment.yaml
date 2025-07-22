@@ -31,6 +31,8 @@ spec:
       - name: webapp
         image: "{{ .Values.rendersvc.image.repository }}:{{ required "please specify rendersvc image tag or use image manifest" .Values.rendersvc.image.tag }}"
         imagePullPolicy: IfNotPresent
+        resources:
+          {{- toYaml .Values.rendersvc.resources | nindent 10 }}
         env:
         - name: SCISERVER_LOGGING_RMQ_EP
           value: {{ include "sciserver.rabbitmq_host" . }}

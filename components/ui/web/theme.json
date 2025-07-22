@@ -1,0 +1,224 @@
+{
+  "breakpoints": {
+    "values": {
+      "xs": 0,
+      "sm": 600,
+      "md": 1094,
+      "lg": 1280,
+      "xl": 1920
+    }
+  },
+  "props": {
+    "MuiButtonBase": {
+      "disableRipple": true
+    }
+  },
+  "palette": {
+    "common": {
+      "black": "#050505",
+      "white": "#fff",
+      "icon": "#66666b"
+    },
+    "background": {
+      "paper": "#fff",
+      "default": "#fafafa"
+    },
+    "primary": {
+      "light": "rgb(37, 16, 83, 0.2)",
+      "main": "#251053",
+      "dark": "#fff",
+      "contrastText": "#fff"
+    },
+    "secondary": {
+      "light": "rgb(104,40,114, 0.5)",
+      "main": "#682872",
+      "dark": "#041C02",
+      "contrastText": "#fff"
+    },
+    "contrast1": {
+      "main": "#A9327A",
+      "contrastText": "#fff"
+    },
+    "contrast2": {
+      "main": "#20A183",
+      "contrastText": "#fff"
+    },
+    "contrast3": {
+      "main": "#FCB17A",
+      "contrastText": "#fff"
+    },
+    "icons": {
+      "drawer": "#fff",
+      "text": "#fff",
+      "danger": "#FC2828",
+      "success": "#20A183",
+      "play": "#251053"
+    },
+    "warning": {
+      "light": "rgb(244, 121, 32, 0.6)",
+      "main": "#FE7903",
+      "dark": "rgb(221, 107, 31, 1)",
+      "contrastText": "#fff"
+    },
+    "error": {
+      "light": "rgb(255, 16, 31, 0.6)",
+      "main": "#FC2828",
+      "dark": "rgb(200, 16, 31, 1)",
+      "contrastText": "#fff"
+    },
+    "text": {
+      "primary": "#202124",
+      "secondary": "rgba(0, 0, 0, 0.54)",
+      "disabled": "rgba(0, 0, 0, 0.38)",
+      "hint": "rgba(0, 0, 0, 0.38)",
+      "title": "#0F3606"
+    },
+    "appBar": {
+      "background": "linear-gradient(90deg, rgb(104, 40, 114, 0.6)0%, rgb(104, 40, 114, 0.6)30%, rgb(74, 107, 174, 1)100%)"
+    }
+  },
+  "overrides": {
+    "MuiAppBar": {
+      "root": {
+        "box-shadow": "none",
+        "color": "#fff",
+        "border-bottom": "0px",
+        "background-color": "#fff",
+        "z-index": 1201
+      }
+    },
+    "MuiDataGridPanel": {
+      "root": {
+        "z-index": 1
+      }
+    },
+    "MuiToggleButton": {
+      "root": {
+        "color": "#5F6368",
+        "text-transform": "none",
+        "font-weight": 400,
+        "padding": "5px",
+        "height": "36px",
+        "border-color": "#E0E0E0",
+        "&:hover, &.Mui-selected, &.MuiButtonBase-root.Mui-selected:hover": {
+          "background-color": "#023047",
+          "color": "#023047",
+          "border-color": "#023047"
+        },
+        "&.Mui-selected": {
+          "font-weight": 500,
+          "color": "#023047"
+        }
+      }
+    },
+    "MuiButtonGroup": {
+      "groupedOutlinedPrimary": {
+        "&.selected, &:hover": {
+          "color": "#023047",
+          "background-color": "#023047",
+          "border-color": "#023047"
+        },
+        "border": "1px solid rgba(0, 0, 0, 0.14)",
+        "color": "#333333",
+        "text-transform": "none",
+        "font-weight": "normal",
+        "height": "45px",
+        "min-width": "98px"
+      }
+    },
+    "MuiTableCell": {
+      "stickyHeader": {
+        "background-color": "#F5F5F5",
+        "padding": "12px 25px",
+        "font-weight": 500,
+        "border-bottom": "1px solid #E0E0E0",
+        "border-top": "1px solid #E0E0E0",
+        "&:not(.spacer):not(.noborder):not(:last-child):after": {
+          "content": "''",
+          "height": "23px",
+          "width": "0px",
+          "right": "0px",
+          "top": "10px",
+          "border-right": "1px solid #E0E0E0"
+        }
+      }
+    },
+    "typography": {
+      "h5": {
+        "fontFamily": "\"Roboto Slab\", \"serif\"",
+        "font-weight": 500,
+        "font-size": "1.25rem",
+        "color": "#0007E0"
+      }
+    },
+    "MuiTypography": {
+      "h5": {
+        "fontFamily": "\"Roboto Slab\", \"serif\"",
+        "font-weight": 500,
+        "font-size": "1.25rem",
+        "color": "#0007E0"
+      },
+      "subtitle1": {
+        "color": "#333333",
+        "font-weight": 400,
+        "font-size": "1rem"
+      },
+      "subtitle2": {
+        "color": "#70757A",
+        "font-weight": 400,
+        "font-size": "0.875rem"
+      }
+    },
+    "MuiExpansionPanel": {
+      "root": {
+        "box-shadow": "0px 1px 4px rgba(0, 0, 0, 0.12)",
+        "border-radius": "4px"
+      }
+    },
+    "MuiExpansionPanelSummary": {
+      "content": {
+        "margin": "4px 0px",
+        "&.Mui-expanded": {
+          "margin": "4px 0px"
+        }
+      }
+    },
+    "MuiLinearProgress": {
+      "colorPrimary": {
+        "background-color": "#E5E5E9",
+        "height": "8px",
+        "border-radius": "4px"
+      },
+      "barColorPrimary": {
+        "background-color": "#050505"
+      }
+    },
+    "MuiCheckbox": {
+      "root": {
+        "&.Mui-selected": "#023047",
+        "color": "#DADADA",
+        "margin-right": "15px",
+        "margin-left": "5px",
+        "height": "30px",
+        "width": "30px"
+      }
+    },
+    "MuiTabs": {
+      "root": {
+        "&.Mui-selected": "#023047",
+        "border-bottom": "1px solid #e8e8e8",
+        "margin-bottom": "10px"
+      }
+    },
+    "MuiTab": {
+      "root": {
+        "text-transform": "capitalize",
+        "font-weight": "500",
+        "font-style": "normal",
+        "font-size": "14px",
+        "line-height": "16.41px",
+        "letter-spacing": "0.1px"
+      }
+    }
+  }
+}
