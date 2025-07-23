@@ -59,7 +59,7 @@ jobs:
         uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: helm/
-          mark_as_latest: startsWith(github.ref, 'refs/tags/v')
+          mark_as_latest: ${{ startsWith(github.ref, 'refs/tags/v') }}
           packages_with_index: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
