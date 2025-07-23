@@ -26,6 +26,6 @@ data:
     cluster_formation.classic_config.nodes.5 = rabbit@{{ include "sciserver.fullname" . }}-logging-rabbitmq-4.{{ include "sciserver.fullname" . }}-logging-rabbitmq.{{ .Release.Namespace }}.svc.cluster.local
     {{- end}}
     {{- if gt (int .Values.logging.rabbitmq.replicaCount) 5 }}
-    {{ error "RabbitMQ replica count greater than 5 is not supported" }}
+    {{- fail "RabbitMQ replica count greater than 5 is not supported" }}
     {{- end }}
 {{ end -}}
