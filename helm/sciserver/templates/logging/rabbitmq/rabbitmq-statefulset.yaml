@@ -35,7 +35,8 @@ spec:
           {{- toYaml .Values.logging.rabbitmq.resources | nindent 10 }}
         volumeMounts:
         - name: config-volume
-          mountPath: /etc/rabbitmq
+          mountPath: /etc/rabbitmq/conf.d/30-local.conf
+          subPath: 30-local.conf
         - name: rabbitmq-data
           mountPath: /var/lib/rabbitmq/mnesia
         ports:
@@ -48,12 +49,12 @@ spec:
         livenessProbe:
           exec:
             command: ["rabbitmqctl", "status"]
-          initialDelaySeconds: 60
-          periodSeconds: 60
-          timeoutSeconds: 10
+          initialDelaySeconds: 120
+          periodSeconds: 120
+          timeoutSeconds: 60
         readinessProbe:
           exec:
-            command: ["rabbitmqctl", "status"]
+            command: ["pgrep", "beam.smp"]
           initialDelaySeconds: 20
           periodSeconds: 60
           timeoutSeconds: 10
@@ -64,11 +65,6 @@ spec:
                 fieldPath: status.podIP
           - name: RABBITMQ_USE_LONGNAME
             value: "true"
-          # See a note on cluster_formation.k8s.address_type in the config file section
-          - name: RABBITMQ_NODENAME
-            value: "sciserver-logging-rabbit@$(MY_POD_IP)"
-          - name: K8S_SERVICE_NAME
-            value: {{ include "sciserver.fullname" . }}-logging-rabbitmq
           - name: RABBITMQ_ERLANG_COOKIE
             valueFrom:
               secretKeyRef:
@@ -78,11 +74,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "sciserver.fullname" . }}-logging-rabbitmq
-            items:
-            - key: rabbitmq.conf
-              path: rabbitmq.conf
-            - key: enabled_plugins
-              path: enabled_plugins
         - name: rabbitmq-data
           emptyDir:
             medium: Memory
