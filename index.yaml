@@ -1,13 +1,4 @@
 apiVersion: v1
 entries:
-  sciserver:
-  - apiVersion: v1
-    appVersion: pr-40
-    created: "2025-07-22T20:36:20.061959958Z"
-    description: A Helm chart for SciServer
-    digest: 7199c7648a3b9f57f4c53432a81c92eeb9b81b3e2e9a832346b8a02fac08dbef
-    name: sciserver
-    urls:
-    - sciserver-0.0.0-pr-40.tgz
-    version: 0.0.0-pr-40
+  sciserver: []
 generated: "2025-07-22T20:36:20.061988582Z"
