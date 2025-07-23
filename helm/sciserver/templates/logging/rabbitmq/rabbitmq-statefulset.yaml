@@ -26,7 +26,6 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecret }}
       {{ end -}}
-      serviceAccountName: {{ include "sciserver.fullname" . }}-logging-rabbitmq
       terminationGracePeriodSeconds: 10
       containers:
       - name: rabbitmq-k8s
