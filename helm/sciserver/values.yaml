@@ -131,7 +131,7 @@ logging:
     user:
     image:
       repository: rabbitmq
-      tag: "3.11.6"
+      tag: "4.1.2"
       pullPolicy: Always
     service:
       type: ClusterIP
