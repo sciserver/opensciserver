@@ -64,6 +64,12 @@ export const JobsList: FC<Props> = ({ selectJob }) => {
 
   const { loading, data: allJobs } = useQuery(GET_JOBS,
     {
+      variables: {
+        filters: {
+          field: 'type',
+          value: 'jobm.model.COMPMDockerJobModel'
+        }
+      },
       onError: (error: ApolloError) => {
         if (error.message.includes('Unauthorized')) {
           router.push('/login?callbackURL=/jobs');

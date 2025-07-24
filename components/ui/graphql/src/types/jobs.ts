@@ -20,27 +20,27 @@ export const typeDefs = gql`
 
   type Job {
     id: ID!
-    executorDID: String!
     submitterDID: String!
-    submitterTrustId: String!
-    runByUUID: String!
     submissionTime: DateTime!
     startTime: DateTime!
     endTime: DateTime!
     duration: Float!
-    timeout: Int!
     messages: [JobMessage!]!
     status: JobStatus!
     resultsFolderURI: String!
     type: String!
     userVolumes: [JobUserVolume!]!
-    username: String!
-    command: String!
-    dockerComputeEndpoint: URL!
-    dockerComputeResourceContextUUID: UUID!
-    fullDockerCommand: [String!]!
-    dockerImageName: String!
     dataVolumes: [DataVolume!]!
+    command: String!
+    dockerComputeEndpoint: String!
+    dockerImageName: String!
+    fullDockerCommand: [String!]!
+    runByUUID: String
+    timeout: Int
+    dockerComputeResourceContextUUID: UUID
+    submitterTrustId: String
+    username: String
+    executorDID: String
     scriptURI: String
   }
 

@@ -1,14 +1,16 @@
 import { gql } from '@apollo/client';
 
 export const GET_JOBS = gql`
-  query GetJobs {
-    getJobs {
+  query GetJobs($filters: [JobFilters!]) {
+    getJobs(filters: $filters) {
       id
       scriptURI
       resultsFolderURI
       command
       submitterDID
       submissionTime
+      startTime
+      endTime
       status
       dockerImageName
       dockerComputeEndpoint
