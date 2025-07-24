@@ -145,27 +145,27 @@ type JSONTree {
 type Job {
   command: String!
   dataVolumes: [DataVolume!]!
-  dockerComputeEndpoint: URL!
-  dockerComputeResourceContextUUID: UUID!
+  dockerComputeEndpoint: String!
+  dockerComputeResourceContextUUID: UUID
   dockerImageName: String!
   duration: Float!
   endTime: DateTime!
-  executorDID: String!
+  executorDID: String
   fullDockerCommand: [String!]!
   id: ID!
   messages: [JobMessage!]!
   resultsFolderURI: String!
-  runByUUID: String!
+  runByUUID: String
   scriptURI: String
   startTime: DateTime!
   status: JobStatus!
   submissionTime: DateTime!
   submitterDID: String!
-  submitterTrustId: String!
-  timeout: Int!
+  submitterTrustId: String
+  timeout: Int
   type: String!
   userVolumes: [JobUserVolume!]!
-  username: String!
+  username: String
 }
 
 input JobFilters {

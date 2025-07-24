@@ -46,9 +46,9 @@ export class JobsAPI extends RESTDataSource {
 
   // Reducers
   jobReducer(res: any): Job {
-    let userVolumes = res.userVolumes.map((uv: any) => this.volumesAPI.jobUserVolumeReducer(uv));
+    let userVolumes = res.userVolumes ? res.userVolumes.map((uv: any) => this.volumesAPI.jobUserVolumeReducer(uv)) : [];
     userVolumes = sortBy(userVolumes, 'name');
-    let dataVolumes = res.volumeContainers.map((dv: any) => this.volumesAPI.dataVolumeReducer(dv));
+    let dataVolumes = res.volumeContainers ? res.volumeContainers.map((dv: any) => this.volumesAPI.dataVolumeReducer(dv)) : [];
     dataVolumes = sortBy(dataVolumes, 'name');
 
     return {
@@ -63,16 +63,16 @@ export class JobsAPI extends RESTDataSource {
       endTime: res.endTime,
       duration: res.duration,
       timeout: res.timeout,
-      messages: res.messages.map((m: any) => this.jobMessageReducer(m)),
+      messages: res.messages ? res.messages.map((m: any) => this.jobMessageReducer(m)) : [],
       status: res.status,
-      resultsFolderURI: res.resultsFolderURI,
+      resultsFolderURI: res.resultsFolderURI || '',
       type: res.type,
       userVolumes,
       username: res.username,
-      command: res.command,
+      command: res.command || '',
       dockerComputeEndpoint: res.dockerComputeEndpoint,
       dockerComputeResourceContextUUID: res.dockerComputeResourceContextUUID,
-      fullDockerCommand: res.fullDockerCommand,
+      fullDockerCommand: res.fullDockerCommand || [],
       dockerImageName: res.dockerImageName,
       dataVolumes
     };
