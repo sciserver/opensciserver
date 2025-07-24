@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Layout } from 'components/common/layout';
-import { JobsManagement } from 'components/content/jobs/list/jobsManagement';
+import { JobsManagement } from 'components/content/jobs/jobsManagement';
 
 export default function ComputePage() {
   return (

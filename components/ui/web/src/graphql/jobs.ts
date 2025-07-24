@@ -24,6 +24,30 @@ export const GET_JOBS = gql`
   }
 `;
 
+export const JOB_DETAIL_VIEW = gql`
+  query GetJobs($filters: [JobFilters!]) {
+    getJobs(filters: $filters) {
+      id
+      scriptURI
+      resultsFolderURI
+      command
+      submitterDID
+      submissionTime
+      startTime
+      endTime
+      status
+      dockerImageName
+      dockerComputeEndpoint
+      dataVolumes {
+        publisherDID
+      }
+      userVolumes {
+        id
+      }
+    }
+  }
+`;
+
 export const CREATE_JOB = gql`
   mutation CreateJob($createJobParams: CreateJobParams!) {
     createJob(createJobParams: $createJobParams){
