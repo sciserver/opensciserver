@@ -44,6 +44,7 @@ jobs:
       - uses: docker/metadata-action@v5
         id: dockermeta
       - name: Build and push docker images
+        if: false
         run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
       - name: Generate helm tarball
         run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
@@ -51,7 +52,15 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: swap built helm charts
+      - name: upload chart to pages for development builds
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          git checkout gh-pages
+          git add helm/build/sciserver-*.tar.gz
+          git commit -m "upload development helm charts for ${{ github.ref }}"
+          git push
+      - name: swap built helm charts for release builds
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: |
           rm -rf helm/sciserver
           mv helm/build/sciserver helm/sciserver
@@ -64,13 +73,6 @@ jobs:
           packages_with_index: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: upload chart to pages for development builds
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        run: |
-          git checkout gh-pages
-          git add helm/sciserver-*.tar.gz
-          git commit -m "upload development helm charts for ${{ github.ref }}"
-          git push
       - uses: actions/upload-artifact@v4
         with:
           name: helm-charts
