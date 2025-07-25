@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>FileService &#8212; SciServer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SciServer Compute" href="../compute/compute.html" />
+    <link rel="prev" title="RACM API" href="../racm/api.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="fileservice">
+<span id="id1"></span><h1>FileService<a class="headerlink" href="#fileservice" title="Permalink to this heading">¶</a></h1>
+<p>The SciServer FileService is a stand-alone Spring Boot application with a
+<a class="reference external" href="https://apps.sciserver.org/fileservice/swagger-ui/index.html">REST API</a> that allows the interaction with
+the SciServer file system. This includes listing, downloading, uploading, deleting and moving files and/or folders,
+and giving access to data resources such as user or service volumes, among other functions.</p>
+<p>A new FileService instance needs to be registered in SciServer by making an HTTP request to RACM’s <a class="reference internal" href="../racm/api.html#racm-storem-api"><span class="std std-ref">STOREM API</span></a>.
+As a result, the FileService instance will be assigned a UUID, used for uniquely identifying the FileService, and a ServiceID token.
+The UUID and ServiceID need to be saved in the FileService configuration as <code class="docutils literal notranslate"><span class="pre">RACM.resourcecontext.uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">File-service.serviceId</span></code>,
+respectively (see configuration parameters list below). The ServiceID is passed as the <code class="docutils literal notranslate"><span class="pre">X-Service-Auth-ID</span></code> entry in request header
+when the FileService makes HTTP calls to the <a class="reference internal" href="../racm/api.html#racm-storem-api"><span class="std std-ref">STOREM API</span></a>, as a mean for authenticating itself.</p>
+<p>In <a class="reference internal" href="../compute/compute.html#compute"><span class="std std-ref">SciServer Compute</span></a>, users can find and save data in folders under a particular <code class="docutils literal notranslate"><span class="pre">basePath</span></code>, namely <code class="docutils literal notranslate"><span class="pre">/home/idies/workspace</span></code>.
+Under this path, users can find 2 types of <code class="docutils literal notranslate"><span class="pre">topVolumes</span></code>, namely <code class="docutils literal notranslate"><span class="pre">RootVolumes</span></code> and <code class="docutils literal notranslate"><span class="pre">DataVolumes</span></code>, usually mounted on NFS shares:</p>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">RootVolumes</span></code>:</p>
+<p>Under these volumes users can create their own folders, called <code class="docutils literal notranslate"><span class="pre">UserVolumes</span></code>, and share them with other SciServer users or groups.
+The path of those in the file system is <code class="docutils literal notranslate"><span class="pre">/home/idies/workspace/&lt;RootVolumeName&gt;/&lt;UserName&gt;/&lt;UserVolumeName&gt;</span></code>.</p>
+<p>By default, users are able to access two <code class="docutils literal notranslate"><span class="pre">Root</span> <span class="pre">Volumes</span></code> with distinct names:</p>
+<ol class="loweralpha simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Storage</span></code> root volume, with a limit on the total amount of data over all <code class="docutils literal notranslate"><span class="pre">userVolumes</span></code> each user creates under it.
+This limit over all <code class="docutils literal notranslate"><span class="pre">userVolumes</span></code> created by a single user, is physically set on the file system by the stand-alone
+SciServer Quota-Manager application, after the FileService sends to it a request to create a new userVolume.
+If the FileService configuration is missing information about the Quota-Manager, then it will simply locally create a UserVolume folder
+without a quota. Users are given a <code class="docutils literal notranslate"><span class="pre">UserVolume</span></code> under <code class="docutils literal notranslate"><span class="pre">Storage</span></code> by default, named <code class="docutils literal notranslate"><span class="pre">persistent</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Temporary</span></code> root volume has no limit in the amount of data users can store in the <code class="docutils literal notranslate"><span class="pre">User</span> <span class="pre">volumes</span></code> they create under it,
+although data is periodically deleted by a stand-alone crawler application (if it is installed).
+Users are always given a <code class="docutils literal notranslate"><span class="pre">UserVolume</span></code> under <code class="docutils literal notranslate"><span class="pre">Temporary</span></code> by default, named <code class="docutils literal notranslate"><span class="pre">scratch</span></code>.</p></li>
+</ol>
+<p>Users can create and share <code class="docutils literal notranslate"><span class="pre">userVolumes</span></code> in Files tab in the SciServer Dashboard or methods in the SciScript libraries,
+which in turn call the respective endpoints in with calls to the FileService <a class="reference external" href="https://apps.sciserver.org/fileservice/swagger-ui/index.html">REST API</a>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataVolumes</span></code>:</p>
+<p>These <code class="docutils literal notranslate"><span class="pre">topVolumes</span></code> in general contain trusted, curated, and potentially large-scale science datasets that SciServer admins make available to the public
+or a specific group of users, typically in read-only mode. The path of those in the file system is <code class="docutils literal notranslate"><span class="pre">/home/idies/workspace/&lt;DataVolumeName&gt;</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ServiceVolumes</span></code>:</p>
+<p>They Follow the same pattern in the file system as <code class="docutils literal notranslate"><span class="pre">RootVolumes</span></code>, although the creation or deletion of the respective <code class="docutils literal notranslate"><span class="pre">UserVolumes</span></code>
+is not managed by SciServer users, but by separate SciServer services such as CourseWare.</p>
+</li>
+</ol>
+<p>The names and metadata about <code class="docutils literal notranslate"><span class="pre">topVolumes</span></code>, including their base path on the mounted NFS file system, need to be registered by calls to RACM’s <a class="reference internal" href="../racm/api.html#racm-storem-api"><span class="std std-ref">STOREM API</span></a>,
+before these volumes can be given access to and be available to users. The FileService makes periodical calls to STOREM in order to get information about
+all available and possibly newly registered <code class="docutils literal notranslate"><span class="pre">topVolumes</span></code>, in order to automatically refresh that information on its local memory cache.</p>
+<p>The FileService API contains several endpoints for checking the status of the application,
+including a <a class="reference external" href="https://apps.sciserver.org/fileservice/swagger-ui/index.html#/api-controller/getPing">PING endpoint</a>
+for verifying the ta the application is running,
+and the <a class="reference external" href="https://apps.sciserver.org/fileservice/swagger-ui/index.html#/api-controller/getHealthReport">HEALTH endpoint</a>
+for checking whether files can be written and deleted from each of the existing rootVolumes and dataVolumes.</p>
+<p><strong>Configuring, Building and Running the SciServer FileService</strong></p>
+<p>The configuration variables for the FileService are placed in the <code class="docutils literal notranslate"><span class="pre">applications.properties</span></code> and <code class="docutils literal notranslate"><span class="pre">log4j2.xml</span></code> files under
+<code class="docutils literal notranslate"><span class="pre">/src/main/resources/</span></code>. Example instances of those can be found under <code class="docutils literal notranslate"><span class="pre">/conf-example/</span></code>.</p>
+<p>Some important variables in the <code class="docutils literal notranslate"><span class="pre">applications.properties</span></code> file include:</p>
+<ol class="arabic simple">
+<li><p>The URLs pointing to the RACM and LoginPortal REST APIs. If user volume quotas are desired, also include
+the Quota-Manager’s URL and authentication password.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RACM.resourcecontext.uuid</span></code>: the UUID of the FileService resource context instance as registered in RACM,
+which is sent along several HTTP requests to the APIs in order to uniquely identify the FileService instance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">File-service.serviceId</span></code>: unique authentication token the FileService instance, used for authenticating itself as a Service in RACM.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">File-service.default.uservolumes</span></code>: a JSON structure with metadata associated to the default user volumes that are automatically
+created for all SciServer users.</p></li>
+<li><p>RabbitMQ settings: For logging, activity and error messages can be sent to and queued on an external RabbitMQ instance in
+order to be subsequently logged. One must set the RabbitMQ host, exchange and queue names.</p></li>
+</ol>
+<p>On the other hand, <code class="docutils literal notranslate"><span class="pre">log4j2.xml</span></code> file contains configuration in relation to logging messages to a file.</p>
+<p>Since the SciServer FileService source code is integrated with <a class="reference external" href="https://gradle.org">Gradle</a> ,
+one can build and run it locally by executing the respective Gradle targets in Visual Studio/Eclipse, or explicitly by executing <code class="docutils literal notranslate"><span class="pre">./gradlew</span> <span class="pre">build</span></code> or <code class="docutils literal notranslate"><span class="pre">./gradlew</span> <span class="pre">run</span></code>
+on the base level of the project directory. For running it in a production-grade environment, refer to the SciServer Kubernetes setup.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">SciServer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../login/login.html">Login</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../racm/racm.html">Resource Access Control Management (RACM)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FileService</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compute/compute.html">SciServer Compute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compm/compm.html">Asynchronous Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciquery/sciquery.html">SciQuery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciscript/sciscript.html">SciScript Python and R client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clients/clients.html">Java client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../springutils/springutils.html">Spring Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../racm/api.html" title="previous chapter">RACM API</a></li>
+      <li>Next: <a href="../compute/compute.html" title="next chapter">SciServer Compute</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, IDIES, JHU.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/fileservice/fileservice.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

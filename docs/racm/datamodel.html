@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Data Model &#8212; SciServer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model representations" href="representations.html" />
+    <link rel="prev" title="Concepts" href="concepts.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="data-model">
+<span id="racm-datamodel"></span><h1>Data Model<a class="headerlink" href="#data-model" title="Permalink to this heading">¶</a></h1>
+<p>RACM stores information about resources and the permissions users and groups have on these in a relational database,
+and provides the code to interact with this database through REST APIs.</p>
+<p>The database and the code for interacting with it are derived directly from a UML model that is illustrated in the image below</p>
+<img alt="../_images/RACM-UML-core.png" class="align-center" src="../_images/RACM-UML-core.png" />
+<p>In the following sections we describe the main sections of this model.</p>
+<section id="resource-and-resourcetype-action-and-role">
+<h2>Resource and ResourceType, Action and Role<a class="headerlink" href="#resource-and-resourcetype-action-and-role" title="Permalink to this heading">¶</a></h2>
+<p>Our approach recognizes that SciServer manages a phletora of “resources” and that users can be giving access to each of these individually.
+Furthermore, these resources are not all of the same type, and indeed these resource types may be defined dynamically.
+And different actions can be performed on the resources, as defined by their type, and different users will have different rights to execute these.
+In the model this is represented as follows:</p>
+<img alt="../_images/resource_type_action.png" class="align-center" src="../_images/resource_type_action.png" />
+</section>
+<section id="sciserverentity-user-and-usergroup">
+<h2>SciServerEntity, User and UserGroup<a class="headerlink" href="#sciserverentity-user-and-usergroup" title="Permalink to this heading">¶</a></h2>
+<p>The main entities to which permissions can be assigned are Users and (User)Groups.
+SciServer users are defined in the <a class="reference internal" href="../login/login.html#login"><span class="std std-ref">login service</span></a> but are also represented explicitly in the RACM data model.
+Their metadata field are a username, a contactEmail and a userId that identifies them to the login service.</p>
+<p>A UserGroup is a group of users, which allows the system to assign permissions to all the members of a group in one assignment rather
+than having to do so one-by-one.</p>
+<p>In the model User and UserGroup have a common base-clss, SciServerEntity. This class is introduced so that the access control part of
+the model can be modeled with a reference to that class rather than to one of its sub-classes.</p>
+<img alt="../_images/user_group.png" class="align-center" src="../_images/user_group.png" />
+</section>
+<section id="accesscontrol-privilege-and-roleassignment">
+<h2>AccessControl, Privilege and RoleAssignment<a class="headerlink" href="#accesscontrol-privilege-and-roleassignment" title="Permalink to this heading">¶</a></h2>
+<img alt="../_images/access_control.png" class="align-center" src="../_images/access_control.png" />
+</section>
+<section id="contextclass-and-resourcecontext">
+<span id="racm-resourcecontext"></span><h2>ContextClass and ResourceContext<a class="headerlink" href="#contextclass-and-resourcecontext" title="Permalink to this heading">¶</a></h2>
+<img alt="../_images/resource_context.png" class="align-center" src="../_images/resource_context.png" />
+</section>
+<section id="associateresource-and-associatedscientity">
+<h2>AssociateResource and AssociatedSciEntity<a class="headerlink" href="#associateresource-and-associatedscientity" title="Permalink to this heading">¶</a></h2>
+<img alt="../_images/resource_associations.png" class="align-center" src="../_images/resource_associations.png" />
+</section>
+<section id="other-components-of-the-data-model">
+<h2>Other components of the data model<a class="headerlink" href="#other-components-of-the-data-model" title="Permalink to this heading">¶</a></h2>
+<p>All SciServer components rely on RACM for any access control they want to enact on the resources they manage.
+For some of these the RACM model has been extended beyond the core, to facilitate handling of their resources.
+In particular the Filesservice, Compute and the Compute Batch Jobs have explicit components in the model. These are described here.</p>
+<section id="file-service">
+<h3>File service<a class="headerlink" href="#file-service" title="Permalink to this heading">¶</a></h3>
+</section>
+<section id="computedomain">
+<span id="racm-compute-domain"></span><h3>ComputeDomain<a class="headerlink" href="#computedomain" title="Permalink to this heading">¶</a></h3>
+</section>
+<section id="jobm-and-compm">
+<h3>JOBM and COMPM<a class="headerlink" href="#jobm-and-compm" title="Permalink to this heading">¶</a></h3>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">SciServer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../login/login.html">Login</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="racm.html">Resource Access Control Management (RACM)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="representations.html">Model representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="role.html">The Role in SciServer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">RACM API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fileservice/fileservice.html">FileService</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compute/compute.html">SciServer Compute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compm/compm.html">Asynchronous Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciquery/sciquery.html">SciQuery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciscript/sciscript.html">SciScript Python and R client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clients/clients.html">Java client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../springutils/springutils.html">Spring Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="racm.html">Resource Access Control Management (RACM)</a><ul>
+      <li>Previous: <a href="concepts.html" title="previous chapter">Concepts</a></li>
+      <li>Next: <a href="representations.html" title="next chapter">Model representations</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, IDIES, JHU.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/racm/datamodel.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

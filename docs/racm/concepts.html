@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Concepts &#8212; SciServer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Model" href="datamodel.html" />
+    <link rel="prev" title="Resource Access Control Management (RACM)" href="racm.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="concepts">
+<span id="racm-concepts"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this heading">¶</a></h1>
+<p>RACM is the authorization component of SciServer, it provides support for defining permissions to access “resources”.
+RACM supports questions like “what <em>actions</em> can a <em>user</em> perform on a certain <em>resource</em>”, or “what are all <em>resources</em> accessible
+to a certain <em>user</em>”?
+Other components in or related to SciServer can use RACM to store information on the resources they manage to make decisions
+on whether a user can execute certain functionality. These components will implicitly map these functionalities to the
+resources and actions</p>
+<p>So what is a “resource”? In SciServer it is any thing/entity/object that an “action” can be performed on in somee SciServer component
+and in particular where one may restrict the rights to execute these actions. To show some examples:</p>
+<ul class="simple">
+<li><p>a DATABASE is a resource managed by a service for accessing relational databases.
+Actions on it are for example QUERY and UPDATE with obvious semantics.</p></li>
+<li><p>a USER VOLUME is a RESOURCE that represents a POSIX folder in a file system that is created by the user.
+Its actions are READ, WRITE, DELETE.</p></li>
+<li><p>a COMPUTE IMAGE is a RESOURCE managed by our SciServer compute component.
+It represents a Docker (or other) container image and an action is CREATE CONTAINER.</p></li>
+</ul>
+<p>ALl of these RESOURCEs also have the GRANT action, which allows a USER to grant privileges to execute ACTIONs on the RESOURCE.</p>
+<p>Individual USERs can be granted access, but RACM also supports the creation of (USER) GROUPs and assigning of PRIVILEGEs to those. USERs can be invited to a GROUP and inherit the PRIVILEGEs assigned to it.</p>
+<p>RESOURCEs live in a RESOURCE CONTEXT. These often represent a web application or sciserver component that manages the entities represented b the RESOURCE. Examples are
+- SciQuery, managing DATABASEs
+- ComputeDomains, managing COMPUTE IMAGEs
+- FileService, managing USER and DATA VOLUMES.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">SciServer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../login/login.html">Login</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="racm.html">Resource Access Control Management (RACM)</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datamodel.html">Data Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="representations.html">Model representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="role.html">The Role in SciServer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">RACM API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fileservice/fileservice.html">FileService</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compute/compute.html">SciServer Compute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compm/compm.html">Asynchronous Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciquery/sciquery.html">SciQuery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciscript/sciscript.html">SciScript Python and R client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clients/clients.html">Java client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../springutils/springutils.html">Spring Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="racm.html">Resource Access Control Management (RACM)</a><ul>
+      <li>Previous: <a href="racm.html" title="previous chapter">Resource Access Control Management (RACM)</a></li>
+      <li>Next: <a href="datamodel.html" title="next chapter">Data Model</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, IDIES, JHU.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/racm/concepts.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

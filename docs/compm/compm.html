@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Asynchronous Jobs &#8212; SciServer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SciQuery" href="../sciquery/sciquery.html" />
+    <link rel="prev" title="SciServer Compute" href="../compute/compute.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="asynchronous-jobs">
+<span id="compm"></span><h1>Asynchronous Jobs<a class="headerlink" href="#asynchronous-jobs" title="Permalink to this heading">¶</a></h1>
+<p>Although interactive Jupyter Notebook sessions are very convenient for exploring
+data sets and developing/creating analysis pipelines, the
+synchronous nature of these sessions makes them less suited
+for executing larger computational and data-intensive jobs
+that take a longer time to complete.
+Also, bigger demands on compute power, memory, and storage might not
+necessarily fit well within the allocated resources for
+less demanding interactive compute sessions, such as those
+for teaching a class, for example.</p>
+<p>As a solution, SciServer incorporates several components that allow users to run
+asynchronous jobs on dedicated hardware supporting more demanding
+computational and data-intensive workflows. SciServer supports so far 2 classes of jobs: computational jobs that
+run in containerized environments (Containers) in <a class="reference internal" href="../compute/compute.html#compute"><span class="std std-ref">SciServer Compute</span></a> (Compute Jobs),
+and asynchronous SQL queries that run in Relational Databases (RDB Jobs) and managed by <a class="reference internal" href="../sciquery/sciquery.html#sciquery"><span class="std std-ref">SciQuery</span></a>.
+Note that although the job Containers currently derive from Docker Images, other containerization technologies
+could in principle also be used, as long as Kubernetes supports them.</p>
+<p>A job can be submitted and run in a particular <a class="reference internal" href="../racm/datamodel.html#racm-compute-domain"><span class="std std-ref">ComputeDomain</span></a>, which in the case of Compute Jobs, corresponds
+to a group of hardware nodes in <a class="reference internal" href="../compute/compute.html#compute"><span class="std std-ref">SciServer Compute</span></a> (such as Virtual Machines or Kubernetes nodes)
+with guaranteed and predefined storage, memory, and compute or accelerated compute resources (e.g. GPUs)
+allocated for the Container that is spawned on any on the nodes to run the job.
+These domains might be are available to all users or only a selected group of them,
+depending on the respective access controls defined in <a class="reference internal" href="../racm/racm.html#racm"><span class="std std-ref">Resource Access Control Management (RACM)</span></a>.</p>
+<p>When running a job, a job working directory (aka <code class="docutils literal notranslate"><span class="pre">resultsFolderURI</span></code>) is created by
+default in the SciServer file system (if not explicitly defined by the user),
+and is used to store job metadata and/or results. The default location of this directory falls
+under the <code class="docutils literal notranslate"><span class="pre">jobs</span></code> user volume, under the <code class="docutils literal notranslate"><span class="pre">Temporary</span></code> root volume,
+which has no data size quota in case the job results size is big.</p>
+<p><strong>Compute-Manager</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Compute-Manager</span></code> or <code class="docutils literal notranslate"><span class="pre">COMPM</span></code> is a Spring Boot service that manages the life-cycle of jobs. There is a one-to-one relation between a
+an individual instance of a COMPM, and the Compute domain it is associated/registered to.
+There are 2 types of COMPMs: Docker COMPM, for managing Compute Jobs in <a class="reference internal" href="../compute/compute.html#compute"><span class="std std-ref">SciServer Compute</span></a>, and RDB COMPMs for managing SQL Query jobs for <a class="reference internal" href="../sciquery/sciquery.html#sciquery"><span class="std std-ref">SciQuery</span></a>.
+COMPMs run a main (master) thread, which spawns worker treads that are individually in charge of running one job at a time. The main thread
+has an infinite loop, that each time gets new jobs from the JOBM API, and stores them in a queue in memory. Whenever a worker thread is
+available for a new job, it takes it from the queue and starts processing it. Docker COMPMs spawn threads of class <code class="docutils literal notranslate"><span class="pre">DockerJobWorker</span></code>,
+whereas RDB COMPMs spawn threads of class <code class="docutils literal notranslate"><span class="pre">RDBJobWorker</span></code>. The main thread is also in charge of getting the list of cancelled jobs from the JOBM API.</p>
+<p>Each COMPM needs to be registered in SciServer’s RACM database and matched
+to the corresponding Compute Domain it manages the jobs for.
+In the case of Docker COMPMs, SciServer admins can register them interactively on the <a class="reference external" href="https://apps.sciserver.org/racm/compm/mvc/new">RACM UI</a>,
+whereas RDB COMPMs are registered with an HTTP POST request to <a class="reference external" href="https://apps.sciserver.org/racm/jobm/rest/dbcompm">RACM’s REST API</a>.
+In both cases, admins need to specify the job timeout and the maximum number of concurrently running jobs per user,
+and are returned the Universally Unique Identifier (UUID) or <code class="docutils literal notranslate"><span class="pre">CompmID</span></code> for the new COMPM .
+This CompmID needs to be later saved in the COMPM configuration, so that it can be passed as the <code class="docutils literal notranslate"><span class="pre">X-Service-Auth-ID</span></code> entry
+in request header when calling the RACM/JOBM or SciServer-Compute APIs as a means of authenticating itself.</p>
+<p><strong>Configuring, Building and Running COMPMs</strong></p>
+<p>The configuration variables for the Compute-Manager are placed in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> and <code class="docutils literal notranslate"><span class="pre">log4j2.xml</span></code> files under
+<code class="docutils literal notranslate"><span class="pre">/src/main/resources/</span></code>. Example instances of those can be found under <code class="docutils literal notranslate"><span class="pre">/conf.examples/</span></code>.</p>
+<p>Both COMPM types share common configuration variables, stored in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.jobType</span></code>: the COMPM type. Can be <code class="docutils literal notranslate"><span class="pre">docker</span></code> or <code class="docutils literal notranslate"><span class="pre">rdb</span></code>.</p></li>
+<li><p>The REST API URLs of JOBM and the FileService. For the latter, one should also include variables defining the path to the default job directory:
+<code class="docutils literal notranslate"><span class="pre">FileService.basePath</span></code> ,  <code class="docutils literal notranslate"><span class="pre">FileService.rootVolume</span></code>, <code class="docutils literal notranslate"><span class="pre">FileService.userVolume</span></code>, and <code class="docutils literal notranslate"><span class="pre">FileService.jobsFolderRelativePath</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.compmId</span></code>: unique identifier of this compm as registered in RACM.
+It is used for authenticating itself when communicating with other SciServer APIs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.numWorkers</span></code>: The number of worker treads, and same as the maximum number of jobs a COMPM can manage at a time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.idleTimeBetweenJobs</span></code>: idle time interval (measured in seconds) at the end of each JobWorker’s cycle where the worker asks the main thread for a new job.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.idleTimeBetweenJobmRequests</span></code>: idle time interval (measured in seconds) at the end of the main thread’s loop, after it asks JOBM for new jobs and new messages for its managed jobs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.idleTimeBetweenFailedRequests</span></code>: idle time interval (measured in seconds) at the end of loops that repeatedly make calls to a REST API in case the API is unresponsive at the time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.maxTries</span></code>: max number tries before exiting after failed requests for submitting a job to the SciServer-Compute REST API.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.maxNumberOfJobs</span></code>: maximum number of jobs asked to JOBM for COMPM to manage at a time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Compm.minNumberOfJobs</span></code>: minimum number of jobs that COMPM can reach in its local queue, before COMPM starts asking JOBM for a new batch of available jobs.</p></li>
+<li><p>RabbitMQ settings: For logging, activity and error messages can be sent to and queued on an external RabbitMQ instance in
+order to be subsequently logged. One must set the RabbitMQ host, exchange and queue names.</p></li>
+</ol>
+<p>On the other hand, <code class="docutils literal notranslate"><span class="pre">log4j2.xml</span></code> file contains configuration in relation to logging messages to a file.</p>
+<p>Additionally, Docker COMPMs have the following extra configuration variable:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Compute.domainUrl</span></code>: base url pointing to the SciServer-Compute REST API, associated to the Compute Domain that COMPM is registered to.</p></li>
+</ol>
+<p>whereas RDB COMPMs additionally require:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DB.sciquery_db_jdbc_url</span></code>: JDBC URL, pointing to the SciQuery database.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DB.sciquery_db_conn_pool_size</span></code>: pool size of the connection to the SciQuery database.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DB.result_fetch_size</span></code>: batch size (number of rows) fetched at a time from a SQL query result set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUTPUT.WRITER.numRowsPerFlush</span></code>: batch size (number of rows) written at a time in an output writer (e.g. when writing to a CSV file).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUTPUT.WRITER.httpRequestTimeout</span></code>: timeout for establishing an http connection to the SciServer FileService,
+when using it to write a SQL query output result into the SciServer file system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUTPUT.WRITER.dbConnectionTimeout</span></code>: timeout for the table row insert statement for the case of writing a query result set into a database (might be deprecated).</p></li>
+</ol>
+<p>Since the COMPM source code is integrated with <a class="reference external" href="https://gradle.org">Gradle</a> ,
+one can build and run it locally by executing the respective Gradle targets in Visual Studio Code/Eclipse, or explicitly by executing <code class="docutils literal notranslate"><span class="pre">./gradlew</span> <span class="pre">build</span></code> or <code class="docutils literal notranslate"><span class="pre">./gradlew</span> <span class="pre">run</span></code>
+on the base level of the project directory. For running it in a production-grade environment, refer to the SciServer Kubernetes setup.</p>
+<p><strong>Compute Jobs Life Cycle</strong></p>
+<p>There are 2 types of Compute Jobs:</p>
+<ol class="arabic simple">
+<li><p><strong>Script Jobs</strong>: involve any shell command given as input by the user. This command is automatically written in the <code class="docutils literal notranslate"><span class="pre">command.txt</span></code> file under the job directory.</p></li>
+<li><p><strong>Notebook Jobs</strong>: these job use the <code class="docutils literal notranslate"><span class="pre">nbconvert</span></code> command in Jupyter to execute all cells in a Jupyter Notebook, whose path in the SciServer file system is given as input by the user.
+In case the notebook takes input parameters, these parameters can be passed to the job object during submission time,
+and are automatically written into  <code class="docutils literal notranslate"><span class="pre">parameters.txt</span></code> file in the jobs directory, so that the Jupyter Notebook can easily read it during execution time.</p></li>
+</ol>
+<p>In both cases, the standard output and error are automatically written into the <code class="docutils literal notranslate"><span class="pre">stdout.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">stderr.txt</span></code> files
+under the job directory.</p>
+<p>Running a Compute Job requires a particular set of interactions between several SciServer components, as shown in the UML
+Sequence Diagram in <code class="xref std std-numref docutils literal notranslate"><span class="pre">ComputeJobLifeCycle</span></code> below and detailed as follows:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>Client:</dt><dd><p>Users can try the <a class="reference external" href="https://apps.sciserver.org/compute/jobs">JOBS section</a>  in the SciServer-Compute UI to run a Compute Job.
+Alternatively, users can use the Jobs modules in the <a class="reference external" href="https://github.com/sciserver/sciscript-python">SciScript-Python</a>
+and <a class="reference external" href="https://github.com/sciserver/sciscript-r">SciScript-R</a> <a class="reference internal" href="../sciscript/sciscript.html#sciscript"><span class="std std-ref">SciScript Python and R client libraries</span></a> in order to execute jobs
+from a script or Jupyter Notebook, allowing thus programmatic interactions.</p>
+</dd>
+</dl>
+</li>
+<li><p><a class="reference internal" href="../racm/api.html#racm-jobm-api"><span class="std std-ref">JOBM API</span></a>: REST API used by clients to submit and cancel jobs, and
+to get a list of running jobs and their status. JOBM stores the list of all jobs
+in the RACM registry database.</p></li>
+<li><p>COMPM (Compute Manager): Stand-alone service that manages the life-cycle of a job.
+This involves:</p>
+<ol class="loweralpha simple">
+<li><p>Continuously getting new available jobs from JOBM and storying them in its local queue in memory.</p></li>
+<li><p>Automatically creating job directories in the SciServer file system for each new job through calls to the SciServer-FileService API, and copying job metadata into it.</p></li>
+<li><p>Sending the job definition for execution, by means of calling to the REST API of <a class="reference internal" href="../compute/compute.html#compute"><span class="std std-ref">SciServer Compute</span></a> to spawn a Container where the job runs.</p></li>
+<li><p>Getting the jobs status from the SciServer-Compute API and setting status messages in jobs that have finished.</p></li>
+<li><p>Deleting the Container once the job is finished by means of a call to the SciServer-Compute API.</p></li>
+<li><p>Periodically updating job definition and status on JOBM by calls to its API.</p></li>
+</ol>
+</li>
+<li><p><a class="reference internal" href="../fileservice/fileservice.html#fileservice"><span class="std std-ref">FileService</span></a> <a class="reference external" href="https://apps.sciserver.org/fileservice/swagger-ui/index.html">REST API</a> : called by COMPM to create a job directory in the SciServer file system,
+and for copying the jobs definition and metadata into it.</p></li>
+<li><p><a class="reference internal" href="../compute/compute.html#compute"><span class="std std-ref">SciServer Compute</span></a> REST API: called by COMPM to spawn a Container that runs the job, for getting the status of the Container, and for deleting the Container once the job is finished.</p></li>
+</ol>
+<figure class="align-center" id="computejoblifecycle">
+<img alt="compm/_static/DockerJobLifeCycle.drawio.png" src="compm/_static/DockerJobLifeCycle.drawio.png" />
+</figure>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">SciServer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../login/login.html">Login</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../racm/racm.html">Resource Access Control Management (RACM)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fileservice/fileservice.html">FileService</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compute/compute.html">SciServer Compute</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Asynchronous Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciquery/sciquery.html">SciQuery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sciscript/sciscript.html">SciScript Python and R client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clients/clients.html">Java client libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../springutils/springutils.html">Spring Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../compute/compute.html" title="previous chapter">SciServer Compute</a></li>
+      <li>Next: <a href="../sciquery/sciquery.html" title="next chapter">SciQuery</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, IDIES, JHU.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/compm/compm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
