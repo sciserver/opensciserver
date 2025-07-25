@@ -57,12 +57,20 @@ jobs:
           mv helm/build/sciserver helm/sciserver
       - name: helm chart release
         uses: helm/chart-releaser-action@v1.7.0
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         with:
           charts_dir: helm/
-          mark_as_latest: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          mark_as_latest: true
           packages_with_index: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: upload chart to pages for development builds
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          git checkout gh-pages
+          git add helm/sciserver-*.tar.gz
+          git commit -m "upload development helm charts for ${{ github.ref }}"
+          git push
       - uses: actions/upload-artifact@v4
         with:
           name: helm-charts
