@@ -1,2 +1,4 @@
 include:
   - docs/_static/
+keep_files:
+  - docs/_static/
