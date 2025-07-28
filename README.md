@@ -49,7 +49,6 @@ helm -n {namespace} \
   upgrade --install \
   --set prefix={name} \
   --set baseDomain={domain-name} \
-  --set logging.api.image.tag=x \
   --set backup.enable=false \
   --set logging.api.replicaCount=0 \
   --set proxy.cidrWhiteList=0.0.0.0/0 \
@@ -58,9 +57,9 @@ helm -n {namespace} \
   https://sciserver.github.io/opensciserver/sciserver-{version}.tar.gz
 ```
 
-replace `{namespace}`, `{name}` and `{domain-name}` Some options above (such as the
-logging api image tag) are there due to incompleteness of this repo, or needs
-fixing. Once this is installed, the dashboard will be available at
+replace `{namespace}`, `{name}` and `{domain-name}` Some options above (such as
+the logging api replica count) are there due to incompleteness of this repo, or
+needs fixing. Once this is installed, the dashboard will be available at
 `https://{domain-name}/{name}`!
 
 ### From a local build of the charts
