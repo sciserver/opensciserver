@@ -2,11 +2,13 @@ package org.sciserver.springapp.racm.auth;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sciserver.springapp.loginterceptor.Log;
 import org.sciserver.springapp.racm.login.LoginPortalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +20,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.jhu.user.User;
 import retrofit2.Response;
+import sciserver.logging.ServiceLogTimer;
 
 @Component
 @ConditionalOnWebApplication
@@ -37,7 +41,9 @@ public class SciserverQueryParamAuthenticationFilter extends AbstractPreAuthenti
 		if(token != null) {
 			Response<JsonNode> loginPortalResponse;
 			try {
+			    ServiceLogTimer timer = Log.get().startTimer("SciserverQueryParamAuthenticationFilter.getPreAuthenticatedPrincipal:getTokenInfo [ms]");
 				loginPortalResponse = loginPortalService.getTokenInfo(token).execute();
+                timer.stop();
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
