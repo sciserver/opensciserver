@@ -159,11 +159,13 @@ logging:
     replicaCount: 1
     image:
       repository: <<<IMAGE_REPO>>>/log-listener
+      tag: <<<VTAG>>>
       pullPolicy: Always
   api:
     replicaCount: 1
     image:
       repository: <<<IMAGE_REPO>>>/logging-api
+      tag: <<<VTAG>>>
       pullPolicy: Always
 
 # RACM
