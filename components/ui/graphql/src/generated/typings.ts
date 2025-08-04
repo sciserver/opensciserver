@@ -197,6 +197,18 @@ export type Job = {
   username?: Maybe<Scalars['String']>;
 };
 
+export type JobDetailParams = {
+  jobID: Scalars['ID'];
+  resultsFolderURI: Scalars['String'];
+};
+
+export type JobDetails = {
+  __typename?: 'JobDetails';
+  files: Array<File>;
+  id: Scalars['ID'];
+  summary: Scalars['String'];
+};
+
 export type JobFilters = {
   field: Scalars['String'];
   value: Scalars['String'];
@@ -262,6 +274,7 @@ export type Query = {
   getDatasets: Array<Dataset>;
   getDomainByID?: Maybe<Domain>;
   getDomains: Array<Domain>;
+  getJobDetails: JobDetails;
   getJobs: Array<Job>;
   getJsonTree: JsonTree;
   getUser: User;
@@ -293,6 +306,11 @@ export type QueryGetDatasetsArgs = {
 
 export type QueryGetDomainByIdArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryGetJobDetailsArgs = {
+  jobDetailParams: JobDetailParams;
 };
 
 
@@ -465,6 +483,8 @@ export type ResolversTypes = {
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   JSONTree: ResolverTypeWrapper<JsonTree>;
   Job: ResolverTypeWrapper<Job>;
+  JobDetailParams: JobDetailParams;
+  JobDetails: ResolverTypeWrapper<JobDetails>;
   JobFilters: JobFilters;
   JobMessage: ResolverTypeWrapper<JobMessage>;
   JobStatus: JobStatus;
@@ -507,6 +527,8 @@ export type ResolversParentTypes = {
   JSONObject: Scalars['JSONObject'];
   JSONTree: JsonTree;
   Job: Job;
+  JobDetailParams: JobDetailParams;
+  JobDetails: JobDetails;
   JobFilters: JobFilters;
   JobMessage: JobMessage;
   JobUserVolume: JobUserVolume;
@@ -673,6 +695,13 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type JobDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobDetails'] = ResolversParentTypes['JobDetails']> = {
+  files?: Resolver<Array<ResolversTypes['File']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type JobMessageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobMessage'] = ResolversParentTypes['JobMessage']> = {
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -703,6 +732,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
   getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType>;
+  getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobDetailParams'>>;
   getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -791,6 +821,7 @@ export type Resolvers<ContextType = Context> = {
   JSONObject?: GraphQLScalarType;
   JSONTree?: JsonTreeResolvers<ContextType>;
   Job?: JobResolvers<ContextType>;
+  JobDetails?: JobDetailsResolvers<ContextType>;
   JobMessage?: JobMessageResolvers<ContextType>;
   JobUserVolume?: JobUserVolumeResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

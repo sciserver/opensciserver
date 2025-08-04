@@ -1,17 +1,26 @@
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
+import { useQuery } from '@apollo/client';
 import styled from 'styled-components';
 import { IconButton, Snackbar, Typography } from '@mui/material';
 import {
   ArrowBackIos as ArrowBackIcon,
   ContentCopy as ContentCopyIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  Download as DownloadIcon
 } from '@mui/icons-material';
+import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
 
-import { Job } from 'src/graphql/typings';
+import { sanitize } from 'dompurify';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+
+import { filesize } from 'filesize';
+
+import { File, Job, JobDetails } from 'src/graphql/typings';
+import { JOB_DETAIL_VIEW } from 'src/graphql/jobs';
+
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { useQuery } from '@apollo/client';
-import { JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 type Props = {
   job: Job;
@@ -31,7 +40,7 @@ const Styled = styled.div`
   }
 
   .command {
-    width: 90%;
+    width: 80%;
     
     pre {
       display: flex;
@@ -54,13 +63,45 @@ const Styled = styled.div`
     padding-left: 5rem;
   }
 
+  .html-description{
+    padding: 5px 50px 40px 20px;
+    width: 90%;
+    
+    code {
+      text-wrap: wrap;
+    }
+  }
+
+   .grid {
+    width: 77%;
+    margin: 30px 20px;
+
+     .MuiDataGrid-columnHeader {
+      font-style: normal;
+      font-size: 14px;
+      letter-spacing: 0.25px;
+      font-weight: 600;
+      text-transform: capitalize;
+      .MuiCheckbox-root {
+        height: 100%;        
+        padding: 15px;
+      }
+    }
+
+    .MuiDataGrid-cell {
+        padding: 12px 25px;
+        font-weight: 500;
+        border-top: 1px solid #E0E0E0;
+    }
+  }
+
 `;
 
-const tabOptions = ['Summary', 'Output', 'Error'];
+const tabOptions = ['Summary', 'Files'];
 export const JobFullDetail: FC<Props> = ({ job, back }) => {
 
   const [error, setError] = useState<boolean>(false);
-  const [tabValue, setTabValue] = useState<number>(1);
+  const [tabValue, setTabValue] = useState<number>(0);
   const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
 
@@ -68,11 +109,58 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
     {
       onError: () => setError(true),
       variables: {
-
+        jobDetailParams: {
+          jobID: job.id,
+          resultsFolderURI: job.resultsFolderURI
+        }
       }
     }
   );
 
+  const jobDetail = useMemo<JobDetails>(() => {
+    if (data && data.getJobDetails) {
+      return data.getJobDetails;
+    }
+    return {} as JobDetails;
+  }, [data]);
+
+  const columns: GridColDef<File>[] = [
+    {
+      field: 'name',
+      headerName: 'File Name',
+      width: 300
+    },
+    {
+      field: 'size',
+      headerName: 'Size',
+      width: 150,
+      valueGetter: (value, row: File) => filesize(row.size, { standard: 'jedec' })
+    },
+    {
+      field: 'creationTime',
+      headerName: 'Creation Time',
+      width: 250,
+      valueGetter: (value, row: File) => new Date(row.creationTime).toLocaleString()
+    },
+    {
+      field: 'lastModified',
+      headerName: 'Last Modified',
+      width: 250,
+      valueGetter: (value, row: File) => new Date(row.lastModified).toLocaleString()
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      width: 100,
+      getActions: (params) => [
+        <GridActionsCellItem
+          icon={<DownloadIcon className="run-icon" />}
+          label="Download"
+          onClick={() => { }}
+        />
+      ]
+    }
+  ];
 
   return <Styled>
     <div className="header">
@@ -158,7 +246,7 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
     }
     {error ?
       <>
-        <h2>There was an error loading the details for this container.</h2>
+        <h2>There was an error loading the details for this Job.</h2>
         <p>{error}</p>
       </>
       :
@@ -166,9 +254,20 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
         <CustomizedTabs tabs={tabOptions} value={tabValue} setValue={setTabValue} />
         <div>
           {tabValue === 0 ?
-            <p>Summary Content</p>
+            <div className="html-description">
+              <ReactMarkdown className="html-description" rehypePlugins={[rehypeRaw]}>{sanitize(jobDetail.summary)}</ReactMarkdown>
+            </div>
             :
-            <p>Output Content</p>
+            <DataGrid
+              onRowClick={({ row }) => { }}
+              columns={columns}
+              rows={jobDetail.files || []}
+              className="grid"
+              getRowId={(row) => row.name}
+              disableRowSelectionOnClick
+              aria-label="compute sessions list"
+              pageSizeOptions={[5, 10, 25]}
+            />
           }
         </div>
       </>

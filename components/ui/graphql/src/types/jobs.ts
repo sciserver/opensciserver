@@ -43,6 +43,12 @@ export const typeDefs = gql`
     executorDID: String
     scriptURI: String
   }
+  
+  type JobDetails {
+    id: ID!
+    summary: String!
+    files: [File!]!
+  }
 
   input JobFilters {
     field: String!
@@ -59,9 +65,15 @@ export const typeDefs = gql`
     submitterDID: String!
     scriptURI: String!
   }
+  
+  input JobDetailParams {
+    jobID: ID!
+    resultsFolderURI: String!
+  }
 
   type Query {
     getJobs(filters: [JobFilters!]): [Job!]!
+    getJobDetails(jobDetailParams: JobDetailParams!): JobDetails!
   }
 
   type Mutation {

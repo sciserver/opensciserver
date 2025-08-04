@@ -5,11 +5,13 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, Job, JobFilters, JobMessage } from '../generated/typings';
+import { CreateJobParams, Job, JobDetailParams, JobDetails, JobFilters, JobMessage } from '../generated/typings';
 import { VolumesAPI } from './volumes';
 
 export class JobsAPI extends RESTDataSource {
   override baseURL = `${environment.racm.jobsUrl}`;
+  private filesURL = `${environment.files.baseUrl}`;
+
   private token: string;
   private volumesAPI: VolumesAPI;
 
@@ -29,12 +31,23 @@ export class JobsAPI extends RESTDataSource {
     let jobs: Job[] = jobsres.map((r: any) => this.jobReducer(r));
 
     if (filters) {
-
       for (const f of filters) {
         jobs = jobs.filter((j: Job) => j[f.field as keyof Job] === f.value);
       }
     }
     return jobs;
+  }
+
+  async getJobDetails(jobDetailParams: JobDetailParams): Promise<JobDetails> {
+    const sanitizedURI = jobDetailParams.resultsFolderURI.replace('/home/idies/workspace/', '');
+    const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI) || {};
+    const readMeFile = await this.get(`${this.filesURL}file/${sanitizedURI}/README.md`) || {};
+
+    return {
+      id: jobDetailParams.jobID,
+      summary: readMeFile || 'No summary available',
+      files: jobJsontree.root.files || []
+    };
   }
 
   // MUTATIONS //

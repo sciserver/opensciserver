@@ -25,24 +25,15 @@ export const GET_JOBS = gql`
 `;
 
 export const JOB_DETAIL_VIEW = gql`
-  query GetJobs($filters: [JobFilters!]) {
-    getJobs(filters: $filters) {
+  query GetJobDetails($jobDetailParams: JobDetailParams!) {
+    getJobDetails(jobDetailParams: $jobDetailParams) {
       id
-      scriptURI
-      resultsFolderURI
-      command
-      submitterDID
-      submissionTime
-      startTime
-      endTime
-      status
-      dockerImageName
-      dockerComputeEndpoint
-      dataVolumes {
-        publisherDID
-      }
-      userVolumes {
-        id
+      summary
+      files {
+        name
+        size
+        lastModified
+        creationTime
       }
     }
   }
