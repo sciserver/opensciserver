@@ -5,6 +5,9 @@ export const queryResolvers: QueryResolvers = {
   // eslint-disable-next-line no-empty-pattern
   getJobs: async (_, { filters }, { dataSources }) => {
     return dataSources.jobsAPI.getJobs(filters);
+  },
+  getJobDetails: async (_, { jobDetailParams }, { dataSources }) => {
+    return dataSources.jobsAPI.getJobDetails(jobDetailParams);
   }
 };
 

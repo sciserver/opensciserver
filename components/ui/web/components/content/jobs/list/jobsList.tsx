@@ -1,17 +1,16 @@
 import { FC, useMemo } from 'react';
-import { ApolloError, useMutation, useQuery } from '@apollo/client';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import styled from 'styled-components';
+import Swal from 'sweetalert2';
 
 import { CREATE_JOB, GET_JOBS } from 'src/graphql/jobs';
 import { Job } from 'src/graphql/typings';
 
-import { LoadingAnimation } from 'components/common/loadingAnimation';
-
 import noContainersImg from 'public/No-containers.png';
-import { JobsDataGrid } from './jobDatagrid';
-import Swal from 'sweetalert2';
+import { LoadingAnimation } from 'components/common/loadingAnimation';
+import { JobsDataGrid } from 'components/content/jobs/list/jobDatagrid';
 
 const Styled = styled.div`
   .no-active-containers {
@@ -64,6 +63,12 @@ export const JobsList: FC<Props> = ({ selectJob }) => {
 
   const { loading, data: allJobs } = useQuery(GET_JOBS,
     {
+      variables: {
+        filters: {
+          field: 'type',
+          value: 'jobm.model.COMPMDockerJobModel'
+        }
+      },
       onError: (error: ApolloError) => {
         if (error.message.includes('Unauthorized')) {
           router.push('/login?callbackURL=/jobs');

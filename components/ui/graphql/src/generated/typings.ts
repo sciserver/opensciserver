@@ -174,27 +174,39 @@ export type Job = {
   __typename?: 'Job';
   command: Scalars['String'];
   dataVolumes: Array<DataVolume>;
-  dockerComputeEndpoint: Scalars['URL'];
-  dockerComputeResourceContextUUID: Scalars['UUID'];
+  dockerComputeEndpoint: Scalars['String'];
+  dockerComputeResourceContextUUID?: Maybe<Scalars['UUID']>;
   dockerImageName: Scalars['String'];
   duration: Scalars['Float'];
   endTime: Scalars['DateTime'];
-  executorDID: Scalars['String'];
+  executorDID?: Maybe<Scalars['String']>;
   fullDockerCommand: Array<Scalars['String']>;
   id: Scalars['ID'];
   messages: Array<JobMessage>;
   resultsFolderURI: Scalars['String'];
-  runByUUID: Scalars['String'];
+  runByUUID?: Maybe<Scalars['String']>;
   scriptURI?: Maybe<Scalars['String']>;
   startTime: Scalars['DateTime'];
   status: JobStatus;
   submissionTime: Scalars['DateTime'];
   submitterDID: Scalars['String'];
-  submitterTrustId: Scalars['String'];
-  timeout: Scalars['Int'];
+  submitterTrustId?: Maybe<Scalars['String']>;
+  timeout?: Maybe<Scalars['Int']>;
   type: Scalars['String'];
   userVolumes: Array<JobUserVolume>;
-  username: Scalars['String'];
+  username?: Maybe<Scalars['String']>;
+};
+
+export type JobDetailParams = {
+  jobID: Scalars['ID'];
+  resultsFolderURI: Scalars['String'];
+};
+
+export type JobDetails = {
+  __typename?: 'JobDetails';
+  files: Array<File>;
+  id: Scalars['ID'];
+  summary: Scalars['String'];
 };
 
 export type JobFilters = {
@@ -262,6 +274,7 @@ export type Query = {
   getDatasets: Array<Dataset>;
   getDomainByID?: Maybe<Domain>;
   getDomains: Array<Domain>;
+  getJobDetails: JobDetails;
   getJobs: Array<Job>;
   getJsonTree: JsonTree;
   getUser: User;
@@ -293,6 +306,11 @@ export type QueryGetDatasetsArgs = {
 
 export type QueryGetDomainByIdArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryGetJobDetailsArgs = {
+  jobDetailParams: JobDetailParams;
 };
 
 
@@ -465,6 +483,8 @@ export type ResolversTypes = {
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   JSONTree: ResolverTypeWrapper<JsonTree>;
   Job: ResolverTypeWrapper<Job>;
+  JobDetailParams: JobDetailParams;
+  JobDetails: ResolverTypeWrapper<JobDetails>;
   JobFilters: JobFilters;
   JobMessage: ResolverTypeWrapper<JobMessage>;
   JobStatus: JobStatus;
@@ -507,6 +527,8 @@ export type ResolversParentTypes = {
   JSONObject: Scalars['JSONObject'];
   JSONTree: JsonTree;
   Job: Job;
+  JobDetailParams: JobDetailParams;
+  JobDetails: JobDetails;
   JobFilters: JobFilters;
   JobMessage: JobMessage;
   JobUserVolume: JobUserVolume;
@@ -649,27 +671,34 @@ export type JsonTreeResolvers<ContextType = Context, ParentType extends Resolver
 export type JobResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Job'] = ResolversParentTypes['Job']> = {
   command?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   dataVolumes?: Resolver<Array<ResolversTypes['DataVolume']>, ParentType, ContextType>;
-  dockerComputeEndpoint?: Resolver<ResolversTypes['URL'], ParentType, ContextType>;
-  dockerComputeResourceContextUUID?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  dockerComputeEndpoint?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dockerComputeResourceContextUUID?: Resolver<Maybe<ResolversTypes['UUID']>, ParentType, ContextType>;
   dockerImageName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   duration?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   endTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  executorDID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  executorDID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fullDockerCommand?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   messages?: Resolver<Array<ResolversTypes['JobMessage']>, ParentType, ContextType>;
   resultsFolderURI?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  runByUUID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  runByUUID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scriptURI?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   startTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['JobStatus'], ParentType, ContextType>;
   submissionTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   submitterDID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  submitterTrustId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  timeout?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  submitterTrustId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  timeout?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userVolumes?: Resolver<Array<ResolversTypes['JobUserVolume']>, ParentType, ContextType>;
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type JobDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobDetails'] = ResolversParentTypes['JobDetails']> = {
+  files?: Resolver<Array<ResolversTypes['File']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -703,6 +732,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
   getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType>;
+  getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobDetailParams'>>;
   getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -791,6 +821,7 @@ export type Resolvers<ContextType = Context> = {
   JSONObject?: GraphQLScalarType;
   JSONTree?: JsonTreeResolvers<ContextType>;
   Job?: JobResolvers<ContextType>;
+  JobDetails?: JobDetailsResolvers<ContextType>;
   JobMessage?: JobMessageResolvers<ContextType>;
   JobUserVolume?: JobUserVolumeResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
