@@ -26,13 +26,59 @@ Prerequisites:
 * A kubernetes cluster with an ingress controller
 * A domain name that points to the ingress controller, and SSL certificates
 * helm installed
-* This repository checked out (until we can vend the built helm charts to an
-  appropriate stable web location)
 
 Mainline commits, pull-requests and tagged versions have built artifacts
-available on the github container registry with tags matching the version. to
-install we need to build the helm chart reference the appropriate repo location
-and version of built images:
+available on the github container registry with tags matching the version. Helm
+charts are likewise published for each of the above to a github pages site at
+
+https://sciserver.github.io/opensciserver/sciserver-{version}.tar.gz
+
+where `{version}` is either a semver version (such as `1.0.0`) for release
+installs or `pr-{pr-number}` where `{pr-number}` is the pull request number
+(this is indicated in the title of the PR).
+
+### Demo installations
+
+For a demonstration installation with limited dependencies and no persistent
+data, we can install as follows, noting that we are supplying a set of example
+passwords for services that need them:
+
+```sh
+helm -n {namespace} \
+  {name} \
+  upgrade --install \
+  --set prefix={name} \
+  --set baseDomain={domain-name} \
+  --set backup.enable=false \
+  --set logging.api.replicaCount=0 \
+  --set proxy.cidrWhiteList=0.0.0.0/0 \
+  --set dev.nopvc=true \
+  -f https://sciserver.github.io/opensciserver/helm/sciserver/password-manifest.yaml \
+  https://sciserver.github.io/opensciserver/sciserver-{version}.tar.gz
+```
+
+replace `{namespace}`, `{name}` and `{domain-name}` Some options above (such as
+the logging api replica count) are there due to incompleteness of this repo, or
+needs fixing. Once this is installed, the dashboard will be available at
+`https://{domain-name}/{name}`!
+
+### From a local build of the charts
+
+If you need to modify the charts or want to build them locally for any reason,
+follow the below instructions.
+
+First checkout the repository locally:
+
+```
+git clone https://github.com/sciserver/opensciserver.git
+# or for ssh
+# git clone git@github.com:sciserver/opensciserver.git
+cd opensciserver
+```
+
+Then build the helm charts, supplying the image repository location and version
+tag. For official and pr builds, this will be github container registry at the
+address indicated:
 
 ```sh
 # within this repo
@@ -50,28 +96,10 @@ as appropriate (`pr-` plus the pull request number):
 make helm REPO=ghcr.io/sciserver/opensciserver VTAG=pr-6
 ```
 
-Once the charts are built, we can install using helm. For a development
-installation with no pre-existing requirements and no persistent data, we can
-use options as below:
+Once the charts are built, we can install using helm as above, replacing the
+chart URL with the path the the locally built chart.
 
-```sh
-helm -n {namespace} \
-  upgrade --install \
-  --set prefix={name} \
-  --set baseDomain={domain-name} \
-  --set logging.api.image.tag=x \
-  --set backup.enable=false \
-  --set logging.api.replicaCount=0 \
-  --set proxy.cidrWhiteList=0.0.0.0/0 \
-  --set dev.nopvc=true \
-  -f helm/sciserver/password-manifest.yaml \
-  {name} helm/build/sciserver-main.tar.gz \
-```
-
-replace {namespace}, {name} and {domain-name} Some options above (such as the
-logging api image tag) are there due to incompleteness of this repo, or needs
-fixing. Once this is installed, the dashboard will be available at
-https://{domain-name}/{name}!
+### Production installations
 
 🚧❗ More detailed installation instructions coming soon! ❗🚧
 
