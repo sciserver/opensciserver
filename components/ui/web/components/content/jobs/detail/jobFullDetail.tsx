@@ -124,6 +124,11 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
     return {} as JobDetails;
   }, [data]);
 
+
+  const getDownloadURL = (row: File): string => {
+    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}${job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${row.name}`;
+  };
+
   const columns: GridColDef<File>[] = [
     {
       field: 'name',
@@ -156,7 +161,7 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
         <GridActionsCellItem
           icon={<DownloadIcon className="run-icon" />}
           label="Download"
-          onClick={() => { }}
+          onClick={() => window.open(getDownloadURL(params.row), '_blank')}
         />
       ]
     }
@@ -259,7 +264,6 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
             </div>
             :
             <DataGrid
-              onRowClick={({ row }) => { }}
               columns={columns}
               rows={jobDetail.files || []}
               className="grid"
