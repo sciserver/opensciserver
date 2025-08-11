@@ -71,6 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: get tags
+        run: git fetch --tags origin
       - name: Generate helm tarball
         run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ needs.build.outputs.VTAG }}
       - name: configure git for helm release
