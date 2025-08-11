@@ -75,6 +75,9 @@ jobs:
         run: git fetch --tags origin
       - name: Generate helm tarball
         run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ needs.build.outputs.VTAG }}
+      - name: move tarball
+        run: |
+          mv helm/build/sciserver-*.tar.gz .
       - name: configure git for helm release
         run: |
           git config user.name "$GITHUB_ACTOR"
@@ -83,7 +86,6 @@ jobs:
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: |
           git checkout gh-pages
-          mv helm/build/sciserver-*.tar.gz .
           git add sciserver-*.tar.gz
           git commit -m "upload development helm charts for ${{ github.ref }}"
           git push
@@ -104,8 +106,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: helm-charts
-          path: helm/build/*.tar.gz
-
+          path: sciserver-*.tar.gz
 
   docs:
     name: Build docs with Python ${{ matrix.python-version }}
