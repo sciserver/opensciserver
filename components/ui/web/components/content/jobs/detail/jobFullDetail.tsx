@@ -126,7 +126,7 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
 
 
   const getDownloadURL = (row: File): string => {
-    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}${job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${row.name}`;
+    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${row.name}`;
   };
 
   const columns: GridColDef<File>[] = [
