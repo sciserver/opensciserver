@@ -69,7 +69,7 @@ follow the below instructions.
 
 First checkout the repository locally:
 
-```
+```sh
 git clone https://github.com/sciserver/opensciserver.git
 # or for ssh
 # git clone git@github.com:sciserver/opensciserver.git
