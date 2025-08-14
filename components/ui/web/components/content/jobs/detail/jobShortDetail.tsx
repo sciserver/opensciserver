@@ -92,7 +92,7 @@ export const JobShortDetail: FC<Props> = ({ job, isOpen, selectJob }) => {
                   Started:
                 </Typography>
                 <Typography variant="body1" gutterBottom component="div">
-                  {new Date(job.startTime).toLocaleString()}
+                  {job.startTime ? new Date(job.startTime).toLocaleString() : 'N/A'}
                 </Typography>
               </div>
               <div className="job-field">
@@ -100,7 +100,7 @@ export const JobShortDetail: FC<Props> = ({ job, isOpen, selectJob }) => {
                   Ended:
                 </Typography>
                 <Typography variant="body1" gutterBottom component="div">
-                  {new Date(job.endTime).toLocaleString()}
+                  {job.endTime ? new Date(job.endTime).toLocaleString() : 'N/A'}
                 </Typography>
               </div>
             </div>
