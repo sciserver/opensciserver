@@ -439,7 +439,8 @@ web:
   gTag:
   newComputeSessionDefaults:
     domainName: "Interactive Docker Compute Domain"
-    imageName: "Sciserver Essentials (Test)"
+    imageName: "Sciserver Essentials 4.0"
+    quickStartConfig: "dom=Interactive%20Docker%20Compute%20Domain&img=SciServer%20Essentials%204.0&dvs=97"
   resources:
     limits:
       cpu: 500m
