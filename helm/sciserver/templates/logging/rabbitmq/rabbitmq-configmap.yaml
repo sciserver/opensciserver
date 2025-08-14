@@ -10,29 +10,22 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/component: logging-rabbitmq
 data:
-  enabled_plugins: |
-      [rabbitmq_management,rabbitmq_peer_discovery_k8s].
-
-  rabbitmq.conf: |
-      ## Cluster formation. See http://www.rabbitmq.com/cluster-formation.html to learn more.
-      cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
-      cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
-      ## Should RabbitMQ node name be computed from the pod's hostname or IP address?
-      ## IP addresses are not stable, so using [stable] hostnames is recommended when possible.
-      ## Set to "hostname" to use pod hostnames.
-      ## When this value is changed, so should the variable used to set the RABBITMQ_NODENAME
-      ## environment variable.
-      cluster_formation.k8s.address_type = ip
-      ## How often should node cleanup checks run?
-      cluster_formation.node_cleanup.interval = 30
-      ## Set to false if automatic removal of unknown/absent nodes
-      ## is desired. This can be dangerous, see
-      ##  * http://www.rabbitmq.com/cluster-formation.html#node-health-checks-and-cleanup
-      ##  * https://groups.google.com/forum/#!msg/rabbitmq-users/wuOfzEywHXo/k8z_HWIkBgAJ
-      cluster_formation.node_cleanup.only_log_warning = true
-      cluster_partition_handling = autoheal
-      ## See http://www.rabbitmq.com/ha.html#master-migration-data-locality
-      queue_master_locator=min-masters
-      ## See http://www.rabbitmq.com/access-control.html#loopback-users
-      loopback_users.guest = false
+  30-local.conf: |
+    cluster_formation.peer_discovery_backend = classic_config
+    cluster_formation.classic_config.nodes.1 = rabbit@{{ include "sciserver.fullname" . }}-logging-rabbitmq-0.{{ include "sciserver.fullname" . }}-logging-rabbitmq.{{ .Release.Namespace }}.svc.cluster.local
+    {{- if gt (int .Values.logging.rabbitmq.replicaCount) 1 }}
+    cluster_formation.classic_config.nodes.2 = rabbit@{{ include "sciserver.fullname" . }}-logging-rabbitmq-1.{{ include "sciserver.fullname" . }}-logging-rabbitmq.{{ .Release.Namespace }}.svc.cluster.local
+    {{- end}}
+    {{- if gt (int .Values.logging.rabbitmq.replicaCount) 2 }}
+    cluster_formation.classic_config.nodes.3 = rabbit@{{ include "sciserver.fullname" . }}-logging-rabbitmq-2.{{ include "sciserver.fullname" . }}-logging-rabbitmq.{{ .Release.Namespace }}.svc.cluster.local
+    {{- end}}
+    {{- if gt (int .Values.logging.rabbitmq.replicaCount) 3 }}
+    cluster_formation.classic_config.nodes.4 = rabbit@{{ include "sciserver.fullname" . }}-logging-rabbitmq-3.{{ include "sciserver.fullname" . }}-logging-rabbitmq.{{ .Release.Namespace }}.svc.cluster.local
+    {{- end}}
+    {{- if gt (int .Values.logging.rabbitmq.replicaCount) 4 }}
+    cluster_formation.classic_config.nodes.5 = rabbit@{{ include "sciserver.fullname" . }}-logging-rabbitmq-4.{{ include "sciserver.fullname" . }}-logging-rabbitmq.{{ .Release.Namespace }}.svc.cluster.local
+    {{- end}}
+    {{- if gt (int .Values.logging.rabbitmq.replicaCount) 5 }}
+    {{- fail "RabbitMQ replica count greater than 5 is not supported" }}
+    {{- end }}
 {{ end -}}

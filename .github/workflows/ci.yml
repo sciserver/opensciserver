@@ -18,6 +18,8 @@ jobs:
   build:
     name: Build all SciServer components
     runs-on: ubuntu-latest
+    outputs:
+      VTAG: ${{ steps.vtag_output.outputs.VTAG }}
     steps:
       - uses: actions/checkout@v4
       - name: get tags
@@ -43,14 +45,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/metadata-action@v5
         id: dockermeta
+      - name: Store version tag
+        id: vtag_output
+        run:
+          echo VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }} >> $GITHUB_OUTPUT
       - name: Build and push docker images
-        run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
-      - name: Generate helm tarball
-        run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: helm-charts
-          path: helm/build/*.tar.gz
+        run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ steps.vtag_output.outputs.VTAG }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -61,6 +61,46 @@ jobs:
         with:
           name: checkstyle-reports
           path: components/java/**/build/reports/checkstyle/
+
+  helm:
+    needs: build
+    name: publish helm charts
+    concurrency:
+      group: helm-charts-publication
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: get tags
+        run: git fetch --tags origin
+      - name: Generate helm tarball
+        run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ needs.build.outputs.VTAG }}
+      - name: configure git for helm release
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: upload chart to pages for development builds
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          git checkout gh-pages
+          mv helm/build/sciserver-*.tar.gz .
+          git add sciserver-*.tar.gz
+          git commit -m "upload development helm charts for ${{ github.ref }}"
+          git push
+      - name: swap built helm charts for release builds
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          rm -rf helm/sciserver
+          mv helm/build/sciserver helm/sciserver
+      - name: helm chart release
+        uses: helm/chart-releaser-action@v1.7.0
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        with:
+          charts_dir: helm/
+          mark_as_latest: true
+          packages_with_index: true
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
     name: Build docs with Python ${{ matrix.python-version }}

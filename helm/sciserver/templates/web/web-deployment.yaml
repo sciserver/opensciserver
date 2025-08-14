@@ -41,6 +41,8 @@ spec:
               value: '{{ include "sciserver.url" . }}dashboard/files/uservolumes'
             - name: NEXT_PUBLIC_NOTEBOOKS_URL
               value: '{{ include "sciserver.url" . }}compute/'
+            - name: NEXT_PUBLIC_FILE_SERVICE_URL
+              value: '{{ include "sciserver.url" . }}fileservice/api/'
             - name: NEXT_PUBLIC_G_TAG
               value: {{ .Values.web.gTag }}
             - name: NEXT_PUBLIC_BASE_PATH

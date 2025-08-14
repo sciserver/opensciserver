@@ -2,4 +2,4 @@ apiVersion: v1
 appVersion: "<<<VTAG>>>"
 description: A Helm chart for SciServer
 name: sciserver
-version: 0.0.0
+version: <<<HELM_CHART_VERSION>>>

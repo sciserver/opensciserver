@@ -5,11 +5,13 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, Job, JobFilters, JobMessage } from '../generated/typings';
+import { CreateJobParams, Job, JobDetailParams, JobDetails, JobFilters, JobMessage } from '../generated/typings';
 import { VolumesAPI } from './volumes';
 
 export class JobsAPI extends RESTDataSource {
   override baseURL = `${environment.racm.jobsUrl}`;
+  private filesURL = `${environment.files.baseUrl}`;
+
   private token: string;
   private volumesAPI: VolumesAPI;
 
@@ -29,12 +31,23 @@ export class JobsAPI extends RESTDataSource {
     let jobs: Job[] = jobsres.map((r: any) => this.jobReducer(r));
 
     if (filters) {
-
       for (const f of filters) {
         jobs = jobs.filter((j: Job) => j[f.field as keyof Job] === f.value);
       }
     }
     return jobs;
+  }
+
+  async getJobDetails(jobDetailParams: JobDetailParams): Promise<JobDetails> {
+    const sanitizedURI = jobDetailParams.resultsFolderURI.replace('/home/idies/workspace/', '');
+    const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI) || {};
+    const readMeFile = await this.get(`${this.filesURL}file/${sanitizedURI}/README.md`) || {};
+
+    return {
+      id: jobDetailParams.jobID,
+      summary: readMeFile || 'No summary available',
+      files: jobJsontree.root.files || []
+    };
   }
 
   // MUTATIONS //
@@ -46,9 +59,9 @@ export class JobsAPI extends RESTDataSource {
 
   // Reducers
   jobReducer(res: any): Job {
-    let userVolumes = res.userVolumes.map((uv: any) => this.volumesAPI.jobUserVolumeReducer(uv));
+    let userVolumes = res.userVolumes ? res.userVolumes.map((uv: any) => this.volumesAPI.jobUserVolumeReducer(uv)) : [];
     userVolumes = sortBy(userVolumes, 'name');
-    let dataVolumes = res.volumeContainers.map((dv: any) => this.volumesAPI.dataVolumeReducer(dv));
+    let dataVolumes = res.volumeContainers ? res.volumeContainers.map((dv: any) => this.volumesAPI.dataVolumeReducer(dv)) : [];
     dataVolumes = sortBy(dataVolumes, 'name');
 
     return {
@@ -63,16 +76,16 @@ export class JobsAPI extends RESTDataSource {
       endTime: res.endTime,
       duration: res.duration,
       timeout: res.timeout,
-      messages: res.messages.map((m: any) => this.jobMessageReducer(m)),
+      messages: res.messages ? res.messages.map((m: any) => this.jobMessageReducer(m)) : [],
       status: res.status,
-      resultsFolderURI: res.resultsFolderURI,
+      resultsFolderURI: res.resultsFolderURI || '',
       type: res.type,
       userVolumes,
       username: res.username,
-      command: res.command,
+      command: res.command || '',
       dockerComputeEndpoint: res.dockerComputeEndpoint,
       dockerComputeResourceContextUUID: res.dockerComputeResourceContextUUID,
-      fullDockerCommand: res.fullDockerCommand,
+      fullDockerCommand: res.fullDockerCommand || [],
       dockerImageName: res.dockerImageName,
       dataVolumes
     };
