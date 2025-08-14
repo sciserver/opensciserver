@@ -178,7 +178,7 @@ export type Job = {
   dockerComputeResourceContextUUID?: Maybe<Scalars['UUID']>;
   dockerImageName: Scalars['String'];
   duration: Scalars['Float'];
-  endTime: Scalars['DateTime'];
+  endTime?: Maybe<Scalars['DateTime']>;
   executorDID?: Maybe<Scalars['String']>;
   fullDockerCommand: Array<Scalars['String']>;
   id: Scalars['ID'];
@@ -186,7 +186,7 @@ export type Job = {
   resultsFolderURI: Scalars['String'];
   runByUUID?: Maybe<Scalars['String']>;
   scriptURI?: Maybe<Scalars['String']>;
-  startTime: Scalars['DateTime'];
+  startTime?: Maybe<Scalars['DateTime']>;
   status: JobStatus;
   submissionTime: Scalars['DateTime'];
   submitterDID: Scalars['String'];
@@ -675,7 +675,7 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
   dockerComputeResourceContextUUID?: Resolver<Maybe<ResolversTypes['UUID']>, ParentType, ContextType>;
   dockerImageName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   duration?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  endTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endTime?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   executorDID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fullDockerCommand?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -683,7 +683,7 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
   resultsFolderURI?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   runByUUID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scriptURI?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  startTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  startTime?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['JobStatus'], ParentType, ContextType>;
   submissionTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   submitterDID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
