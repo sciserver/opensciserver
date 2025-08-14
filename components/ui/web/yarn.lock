@@ -1851,6 +1851,11 @@ file-entry-cache@^6.0.1:
   dependencies:
     flat-cache "^3.0.4"
 
+filesize@^11.0.2:
+  version "11.0.2"
+  resolved "https://registry.yarnpkg.com/filesize/-/filesize-11.0.2.tgz#b7771e3836812582ad74b8a10d6eb0dc58c1ceda"
+  integrity sha512-s/iAeeWLk5BschUIpmdrF8RA8lhFZ/xDZgKw1Tan72oGws1/dFGB06nYEiyyssWUfjKNQTNRlrwMVjO9/hvXDw==
+
 fill-range@^7.0.1:
   version "7.0.1"
   resolved "https://registry.npmjs.org/fill-range/-/fill-range-7.0.1.tgz"

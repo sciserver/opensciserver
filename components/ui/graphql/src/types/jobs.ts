@@ -20,28 +20,34 @@ export const typeDefs = gql`
 
   type Job {
     id: ID!
-    executorDID: String!
     submitterDID: String!
-    submitterTrustId: String!
-    runByUUID: String!
     submissionTime: DateTime!
     startTime: DateTime!
     endTime: DateTime!
     duration: Float!
-    timeout: Int!
     messages: [JobMessage!]!
     status: JobStatus!
     resultsFolderURI: String!
     type: String!
     userVolumes: [JobUserVolume!]!
-    username: String!
-    command: String!
-    dockerComputeEndpoint: URL!
-    dockerComputeResourceContextUUID: UUID!
-    fullDockerCommand: [String!]!
-    dockerImageName: String!
     dataVolumes: [DataVolume!]!
+    command: String!
+    dockerComputeEndpoint: String!
+    dockerImageName: String!
+    fullDockerCommand: [String!]!
+    runByUUID: String
+    timeout: Int
+    dockerComputeResourceContextUUID: UUID
+    submitterTrustId: String
+    username: String
+    executorDID: String
     scriptURI: String
+  }
+  
+  type JobDetails {
+    id: ID!
+    summary: String!
+    files: [File!]!
   }
 
   input JobFilters {
@@ -59,9 +65,15 @@ export const typeDefs = gql`
     submitterDID: String!
     scriptURI: String!
   }
+  
+  input JobDetailParams {
+    jobID: ID!
+    resultsFolderURI: String!
+  }
 
   type Query {
     getJobs(filters: [JobFilters!]): [Job!]!
+    getJobDetails(jobDetailParams: JobDetailParams!): JobDetails!
   }
 
   type Mutation {

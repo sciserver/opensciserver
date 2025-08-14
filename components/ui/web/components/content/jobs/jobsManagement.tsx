@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { Typography } from '@mui/material';
 
 import { Job } from 'src/graphql/typings';
-import { JobsList } from './jobsList';
+import { JobsList } from 'components/content/jobs/list/jobsList';
+import { JobFullDetail } from './detail/jobFullDetail';
 
 
 const Styled = styled.div`
@@ -15,6 +16,10 @@ export const JobsManagement: FC = ({ }) => {
 
   return <Styled>
     <Typography variant="h3">Jobs</Typography>
-    <JobsList selectJob={setJobSelected} />
+    {jobSelected ?
+      <JobFullDetail job={jobSelected} back={() => setJobSelected(null)} />
+      :
+      <JobsList selectJob={setJobSelected} />
+    }
   </Styled>;
 };

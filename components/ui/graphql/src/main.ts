@@ -74,6 +74,7 @@ server.start().then(() => {
         const { cache } = server;
         const volumesAPI = new VolumesAPI({ cache, token });
         const accountsAPI = new AccountsAPI({ cache, token });
+        const datasetsAPI = new DatasetsAPI({ cache, token });
         const jobsAPI = new JobsAPI({ cache, token, volumesAPI });
         const domainsAPI = new DomainsAPI({ cache, token, volumesAPI });
         const containersAPI = new ContainersAPI({ cache, token, volumesAPI, domainsAPI, accountsAPI });
@@ -83,7 +84,7 @@ server.start().then(() => {
           dataSources: {
             accountsAPI,
             containersAPI,
-            datasetsAPI: new DatasetsAPI({ cache, token }),
+            datasetsAPI,
             domainsAPI,
             jobsAPI,
             volumesAPI
