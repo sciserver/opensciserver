@@ -22,8 +22,6 @@ export const typeDefs = gql`
     id: ID!
     submitterDID: String!
     submissionTime: DateTime!
-    startTime: DateTime!
-    endTime: DateTime!
     duration: Float!
     messages: [JobMessage!]!
     status: JobStatus!
@@ -35,6 +33,8 @@ export const typeDefs = gql`
     dockerComputeEndpoint: String!
     dockerImageName: String!
     fullDockerCommand: [String!]!
+    startTime: DateTime
+    endTime: DateTime
     runByUUID: String
     timeout: Int
     dockerComputeResourceContextUUID: UUID

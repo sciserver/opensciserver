@@ -149,7 +149,7 @@ type Job {
   dockerComputeResourceContextUUID: UUID
   dockerImageName: String!
   duration: Float!
-  endTime: DateTime!
+  endTime: DateTime
   executorDID: String
   fullDockerCommand: [String!]!
   id: ID!
@@ -157,7 +157,7 @@ type Job {
   resultsFolderURI: String!
   runByUUID: String
   scriptURI: String
-  startTime: DateTime!
+  startTime: DateTime
   status: JobStatus!
   submissionTime: DateTime!
   submitterDID: String!
