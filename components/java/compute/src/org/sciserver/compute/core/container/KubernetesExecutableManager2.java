@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.sciserver.authentication.client.AuthenticatedUser;
 import org.sciserver.compute.AppConfig;
 import org.sciserver.compute.core.registry.Container;
