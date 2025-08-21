@@ -258,7 +258,8 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
         }
     }
 
-    private void addVolumes(String source, String dest, Boolean ro, List<V1Volume> vols, List<V1VolumeMount> mounts) throws Exception {
+    private void addVolumes(String source, String dest, Boolean ro, List<V1Volume> vols, List<V1VolumeMount> mounts)
+            throws Exception {
         Pattern pattern = Pattern.compile("(.*)://([^/]+)/(.*)");
         Matcher matcher = pattern.matcher(source);
         if (matcher.find()) {
@@ -271,43 +272,42 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
             V1VolumeMount volumeMount = null;
             
             switch (type) {
-            case "nfs":
-                volume = new V1VolumeBuilder()
-                        .withName(name)
-                        .withNewNfs()
-                            .withServer(srv)
-                            .withPath(path)
+                case "nfs":
+                    volume = new V1VolumeBuilder()
+                            .withName(name)
+                            .withNewNfs()
+                                .withServer(srv)
+                                .withPath(path)
+                                .withReadOnly(ro)
+                            .endNfs()
+                            .build();
+                    volumeMount = new V1VolumeMountBuilder()
+                            .withName(name)
+                            .withMountPath(dest)
                             .withReadOnly(ro)
-                        .endNfs()
-                        .build();
-                volumeMount = new V1VolumeMountBuilder()
-                        .withName(name)
-                        .withMountPath(dest)
-                        .withReadOnly(ro)
-                        .build();
-                break;
-            case "pvc":
-                volume = new V1VolumeBuilder()
-                        .withName(name)
-                        .withNewPersistentVolumeClaim()
-                            .withClaimName(srv)
-                            .endPersistentVolumeClaim()
-                        .build();
-                volumeMount = new V1VolumeMountBuilder()
-                        .withName(name)
-                        .withSubPath(path)
-                        .withMountPath(dest)
-                        .withReadOnly(ro)
-                        .build();
-                break;
-            default:
-                throw new Exception("Unrecognized mount type: " + type);
+                            .build();
+                    break;
+                case "pvc":
+                    volume = new V1VolumeBuilder()
+                            .withName(name)
+                            .withNewPersistentVolumeClaim()
+                                .withClaimName(srv)
+                                .endPersistentVolumeClaim()
+                            .build();
+                    volumeMount = new V1VolumeMountBuilder()
+                            .withName(name)
+                            .withSubPath(path)
+                            .withMountPath(dest)
+                            .withReadOnly(ro)
+                            .build();
+                    break;
+                default:
+                    throw new Exception("Unrecognized mount type: " + type);
             }
             
             vols.add(volume);
             mounts.add(volumeMount);
-        }
-        else {
+        } else {
             throw new Exception("Cannot parse mount source: " + source);
         }
     }
