@@ -461,7 +461,8 @@ public class ApiController {
                     required = true) @PathVariable String topVolume,
         @Parameter(description = "If file already exists at destination path, "
                                 + "an exeception will be thrown when quiet=false.",
-                    example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                    example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                    @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
