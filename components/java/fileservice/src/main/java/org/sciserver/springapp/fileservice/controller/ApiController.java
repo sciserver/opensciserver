@@ -546,7 +546,8 @@ public class ApiController {
         @Parameter(description = "Sets the response content disposition to inline when "
                                + "this parameter is true, or attachment if false.",
                                schema = @Schema(defaultValue = "false", type = "Boolean"),
-                               required = false) Boolean inline,
+                               required = false)
+                               @RequestParam(defaultValue = "false", required = false) Boolean inline,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -724,7 +725,8 @@ public class ApiController {
         @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                     required = true) @PathVariable String topVolume,
         @Parameter(description = "If folder already exists, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(required = false, defaultValue = "false") Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -801,7 +803,8 @@ public class ApiController {
         @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                    required = true) @PathVariable String topVolume,
         @Parameter(description = "If file (or folder) does not exist, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1166,7 +1169,8 @@ public class ApiController {
         @Parameter(description = "Name of the userVolume.",
                    required = true) @PathVariable String userVolume,
         @Parameter(description = "If userVolume already exists, an exeception will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         @RequestHeader(value = "X-Service-Auth-ID", required = false) String xServiceID,
         @RequestBody(required = true, description = "Contains information needed for creating a user volume.")
         @org.springframework.web.bind.annotation.RequestBody
@@ -1478,7 +1482,8 @@ public class ApiController {
                     required = true) @PathVariable String ownerName,
         @Parameter(description = "Name of the userVolume.", required = true) @PathVariable String userVolume,
         @Parameter(description = "If the user volume does not exist, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
 
@@ -1562,7 +1567,8 @@ public class ApiController {
         @Parameter(description = "Name of the serviceVolume.", required = true,
                    example = "Storage") @PathVariable String serviceVolume,
         @Parameter(description = "If the service volume does not exist, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.",
                    required = true, schema = @Schema(type = "string"))
                    @RequestHeader(value = "X-Service-Auth-ID", required = true) String serviceToken,
