@@ -22,4 +22,4 @@ sed -i="" "s%<<<HELM_CHART_VERSION>>>%${HELM_CHART_VERSION}%" Chart.yaml
 rm *=
 
 cd ..
-COPYFILE_DISABLE=1 tar -czf sciserver-${VTAG}.tar.gz --no-xattrs sciserver
+COPYFILE_DISABLE=1 tar -czf sciserver-${VTAG}.tgz --no-xattrs sciserver
