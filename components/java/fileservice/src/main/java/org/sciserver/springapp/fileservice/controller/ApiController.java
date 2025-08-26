@@ -1173,8 +1173,8 @@ public class ApiController {
                    example = "false", schema = @Schema(defaultValue = "false"), required = false)
                    @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         @RequestHeader(value = "X-Service-Auth-ID", required = false) String xServiceID,
-        @RequestBody(required = true, description = "Contains information needed for creating a user volume.")
-        @org.springframework.web.bind.annotation.RequestBody
+        @RequestBody(required = false, description = "Description of the new user volume.")
+        @org.springframework.web.bind.annotation.RequestBody(required = false)
                     CreateUserVolumeRequestBody body,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1281,8 +1281,8 @@ public class ApiController {
         @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.",
                    required = true, schema = @Schema(type = "string"))
                    @RequestHeader(value = "X-Service-Auth-ID", required = true) String serviceToken,
-        @RequestBody(required = true, description = "Contains information needed for creating a service volume.")
-        @org.springframework.web.bind.annotation.RequestBody
+        @RequestBody(required = false, description = "Description of the new service volume.")
+        @org.springframework.web.bind.annotation.RequestBody(required = false)
                      CreateServiceVolumeRequestBody body,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException, Exception {
