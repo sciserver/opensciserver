@@ -197,15 +197,10 @@ export type Job = {
   username?: Maybe<Scalars['String']>;
 };
 
-export type JobDetailParams = {
-  jobID: Scalars['ID'];
-  resultsFolderURI: Scalars['String'];
-};
-
 export type JobDetails = {
   __typename?: 'JobDetails';
   files: Array<File>;
-  id: Scalars['ID'];
+  job: Job;
   summary: Scalars['String'];
 };
 
@@ -310,12 +305,13 @@ export type QueryGetDomainByIdArgs = {
 
 
 export type QueryGetJobDetailsArgs = {
-  jobDetailParams: JobDetailParams;
+  jobId: Scalars['ID'];
 };
 
 
 export type QueryGetJobsArgs = {
   filters?: InputMaybe<Array<JobFilters>>;
+  top?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -483,7 +479,6 @@ export type ResolversTypes = {
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   JSONTree: ResolverTypeWrapper<JsonTree>;
   Job: ResolverTypeWrapper<Job>;
-  JobDetailParams: JobDetailParams;
   JobDetails: ResolverTypeWrapper<JobDetails>;
   JobFilters: JobFilters;
   JobMessage: ResolverTypeWrapper<JobMessage>;
@@ -527,7 +522,6 @@ export type ResolversParentTypes = {
   JSONObject: Scalars['JSONObject'];
   JSONTree: JsonTree;
   Job: Job;
-  JobDetailParams: JobDetailParams;
   JobDetails: JobDetails;
   JobFilters: JobFilters;
   JobMessage: JobMessage;
@@ -697,7 +691,7 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
 
 export type JobDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobDetails'] = ResolversParentTypes['JobDetails']> = {
   files?: Resolver<Array<ResolversTypes['File']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  job?: Resolver<ResolversTypes['Job'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -732,7 +726,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
   getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType>;
-  getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobDetailParams'>>;
+  getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobId'>>;
   getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;

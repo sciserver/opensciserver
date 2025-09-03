@@ -5,7 +5,7 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, Job, JobDetailParams, JobDetails, JobFilters, JobMessage } from '../generated/typings';
+import { CreateJobParams, Job, JobDetails, JobFilters, JobMessage } from '../generated/typings';
 import { VolumesAPI } from './volumes';
 
 export class JobsAPI extends RESTDataSource {
@@ -26,8 +26,9 @@ export class JobsAPI extends RESTDataSource {
   }
 
   // QUERIES //
-  async getJobs(filters: JobFilters[] | undefined | null): Promise<Job[]> {
-    const jobsres = await this.get(`${this.baseURL!}jobs/`) || [];
+  async getJobs(filters: JobFilters[] | undefined | null, top = 10): Promise<Job[]> {
+    const jobsres = await this.get(`${this.baseURL!}jobs?top=${top}`) || [];
+
     let jobs: Job[] = jobsres.map((r: any) => this.jobReducer(r));
 
     if (filters) {
@@ -38,13 +39,14 @@ export class JobsAPI extends RESTDataSource {
     return jobs;
   }
 
-  async getJobDetails(jobDetailParams: JobDetailParams): Promise<JobDetails> {
-    const sanitizedURI = jobDetailParams.resultsFolderURI.replace('/home/idies/workspace/', '');
+  async getJobDetails(jobId: string): Promise<JobDetails> {
+    const job = await this.get(`${this.baseURL!}jobs/${jobId}`);
+    const sanitizedURI = job.resultsFolderURI.replace('/home/idies/workspace/', '');
     const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI) || {};
     const readMeFile = await this.get(`${this.filesURL}file/${sanitizedURI}/README.md`) || {};
 
     return {
-      id: jobDetailParams.jobID,
+      job: this.jobReducer(job),
       summary: readMeFile || 'No summary available',
       files: jobJsontree.root.files || []
     };

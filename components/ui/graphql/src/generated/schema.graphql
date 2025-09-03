@@ -168,14 +168,9 @@ type Job {
   username: String
 }
 
-input JobDetailParams {
-  jobID: ID!
-  resultsFolderURI: String!
-}
-
 type JobDetails {
   files: [File!]!
-  id: ID!
+  job: Job!
   summary: String!
 }
 
@@ -223,8 +218,8 @@ type Query {
   getDatasets(volumeType: VolumeType!): [Dataset!]!
   getDomainByID(id: ID!): Domain
   getDomains: [Domain!]!
-  getJobDetails(jobDetailParams: JobDetailParams!): JobDetails!
-  getJobs(filters: [JobFilters!]): [Job!]!
+  getJobDetails(jobId: ID!): JobDetails!
+  getJobs(filters: [JobFilters!], top: Int): [Job!]!
   getJsonTree(volumeName: String!): JSONTree!
   getUser: User!
   getVolumes: FileService
