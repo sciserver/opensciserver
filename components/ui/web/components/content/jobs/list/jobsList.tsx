@@ -53,11 +53,7 @@ const Styled = styled.div`
   }
 `;
 
-type Props = {
-  selectJob: (job: Job) => void;
-}
-
-export const JobsList: FC<Props> = ({ selectJob }) => {
+export const JobsList: FC = () => {
 
   const router = useRouter();
 
@@ -124,11 +120,12 @@ export const JobsList: FC<Props> = ({ selectJob }) => {
   };
 
   return <Styled>
+    <h1>Jobs</h1>
     {loading &&
       <LoadingAnimation backDropIsOpen={loading} />
     }
     {jobsList.length > 0 &&
-      <JobsDataGrid createJob={createJobHandler} jobsList={jobsList} selectJob={selectJob} />
+      <JobsDataGrid createJob={createJobHandler} jobsList={jobsList} />
     }
     {!loading && !jobsList.length &&
       <div className="no-active-containers">

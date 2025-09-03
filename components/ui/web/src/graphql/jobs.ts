@@ -4,15 +4,15 @@ export const GET_JOBS = gql`
   query GetJobs($filters: [JobFilters!]) {
     getJobs(filters: $filters) {
       id
+      dockerImageName
+      command
       scriptURI
       resultsFolderURI
-      command
-      submitterDID
-      submissionTime
       startTime
       endTime
       status
-      dockerImageName
+      submitterDID
+      submissionTime
       dockerComputeEndpoint
       dataVolumes {
         publisherDID
@@ -25,9 +25,16 @@ export const GET_JOBS = gql`
 `;
 
 export const JOB_DETAIL_VIEW = gql`
-  query GetJobDetails($jobDetailParams: JobDetailParams!) {
-    getJobDetails(jobDetailParams: $jobDetailParams) {
-      id
+  query GetJobDetails($jobId: ID!) {
+    getJobDetails(jobId: $jobId) {
+      job {
+        id
+        dockerImageName
+        startTime
+        endTime
+        command
+        resultsFolderURI
+      }
       summary
       files {
         name

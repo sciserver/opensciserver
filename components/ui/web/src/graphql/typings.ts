@@ -181,7 +181,7 @@ export type Job = {
   dockerComputeResourceContextUUID?: Maybe<Scalars['UUID']>;
   dockerImageName: Scalars['String'];
   duration: Scalars['Float'];
-  endTime: Scalars['DateTime'];
+  endTime?: Maybe<Scalars['DateTime']>;
   executorDID?: Maybe<Scalars['String']>;
   fullDockerCommand: Array<Scalars['String']>;
   id: Scalars['ID'];
@@ -189,7 +189,7 @@ export type Job = {
   resultsFolderURI: Scalars['String'];
   runByUUID?: Maybe<Scalars['String']>;
   scriptURI?: Maybe<Scalars['String']>;
-  startTime: Scalars['DateTime'];
+  startTime?: Maybe<Scalars['DateTime']>;
   status: JobStatus;
   submissionTime: Scalars['DateTime'];
   submitterDID: Scalars['String'];
@@ -200,15 +200,10 @@ export type Job = {
   username?: Maybe<Scalars['String']>;
 };
 
-export type JobDetailParams = {
-  jobID: Scalars['ID'];
-  resultsFolderURI: Scalars['String'];
-};
-
 export type JobDetails = {
   __typename?: 'JobDetails';
   files: Array<File>;
-  id: Scalars['ID'];
+  job: Job;
   summary: Scalars['String'];
 };
 
@@ -313,12 +308,13 @@ export type QueryGetDomainByIdArgs = {
 
 
 export type QueryGetJobDetailsArgs = {
-  jobDetailParams: JobDetailParams;
+  jobId: Scalars['ID'];
 };
 
 
 export type QueryGetJobsArgs = {
   filters?: InputMaybe<Array<JobFilters>>;
+  top?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -486,7 +482,6 @@ export type ResolversTypes = {
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   JSONTree: ResolverTypeWrapper<JsonTree>;
   Job: ResolverTypeWrapper<Job>;
-  JobDetailParams: JobDetailParams;
   JobDetails: ResolverTypeWrapper<JobDetails>;
   JobFilters: JobFilters;
   JobMessage: ResolverTypeWrapper<JobMessage>;
@@ -530,7 +525,6 @@ export type ResolversParentTypes = {
   JSONObject: Scalars['JSONObject'];
   JSONTree: JsonTree;
   Job: Job;
-  JobDetailParams: JobDetailParams;
   JobDetails: JobDetails;
   JobFilters: JobFilters;
   JobMessage: JobMessage;
@@ -678,7 +672,7 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
   dockerComputeResourceContextUUID?: Resolver<Maybe<ResolversTypes['UUID']>, ParentType, ContextType>;
   dockerImageName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   duration?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  endTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endTime?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   executorDID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fullDockerCommand?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -686,7 +680,7 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
   resultsFolderURI?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   runByUUID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scriptURI?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  startTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  startTime?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['JobStatus'], ParentType, ContextType>;
   submissionTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   submitterDID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -700,7 +694,7 @@ export type JobResolvers<ContextType = Context, ParentType extends ResolversPare
 
 export type JobDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobDetails'] = ResolversParentTypes['JobDetails']> = {
   files?: Resolver<Array<ResolversTypes['File']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  job?: Resolver<ResolversTypes['Job'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -735,7 +729,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
   getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType>;
-  getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobDetailParams'>>;
+  getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobId'>>;
   getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
