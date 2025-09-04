@@ -31,7 +31,7 @@ Mainline commits, pull-requests and tagged versions have built artifacts
 available on the github container registry with tags matching the version. Helm
 charts are likewise published for each of the above to a github pages site at
 
-https://sciserver.github.io/opensciserver/sciserver-{version}.tar.gz
+https://sciserver.github.io/opensciserver/sciserver-{version}.tgz
 
 where `{version}` is either a semver version (such as `1.0.0`) for release
 installs or `pr-{pr-number}` where `{pr-number}` is the pull request number
@@ -54,13 +54,25 @@ helm -n {namespace} \
   --set proxy.cidrWhiteList=0.0.0.0/0 \
   --set dev.nopvc=true \
   -f https://sciserver.github.io/opensciserver/helm/sciserver/password-manifest.yaml \
-  https://sciserver.github.io/opensciserver/sciserver-{version}.tar.gz
+  https://sciserver.github.io/opensciserver/sciserver-{version}.tgz
 ```
 
 replace `{namespace}`, `{name}` and `{domain-name}` Some options above (such as
 the logging api replica count) are there due to incompleteness of this repo, or
 needs fixing. Once this is installed, the dashboard will be available at
 `https://{domain-name}/{name}`!
+
+### Stable non-release tags
+
+If for any reason it is necessary to install a non-release version, we publish
+container images and helm charts tagged with the git commit hash to provide a
+stable artifact (e.g. as opposed to `main`).
+
+The helm release for these has the form
+`https://sciserver.github.io/opensciserver/sciserver-g{git-short-hash}`, where
+`{git-short-hash}` is the first seven characters of the git commit hash (e.g.
+`74971a5`, can be found in the commit list on github or using the `git log`
+command line tool or similar)
 
 ### From a local build of the charts
 
@@ -88,7 +100,7 @@ make helm REPO=ghcr.io/sciserver/opensciserver VTAG=main
 The above will build the helm chart where images are located in the official
 github container registry for opensciserver and we want those built from the
 latest commit to main. This will place the zipped chart under
-`helm/build/sciserver-{VTAG}.tar.gz`, which can be directly specified to helm as
+`helm/build/sciserver-{VTAG}.tgz`, which can be directly specified to helm as
 the chart source (see below). To reference a pull request, simply replace `VTAG`
 as appropriate (`pr-` plus the pull request number):
 
