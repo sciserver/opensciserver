@@ -1,5 +1,6 @@
 package org.sciserver.springapp.fileservice;
 
+import java.util.HashMap;
 import java.util.Map;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -26,6 +27,8 @@ public class QuotaManagerMapper {
      * @param quotaManagerConfigMap the configuration map
      */
     public QuotaManagerMapper(Map<String, Map<String, String>> quotaManagerConfigMap) {
+        quotaManagerServices = new HashMap<String, QuotaManagerService>();
+
         quotaManagerConfigMap.forEach((rootVolume, config) -> {
             String url = config.get("url");
             String user = config.get("username");
