@@ -28,7 +28,7 @@ class SpringBeansConfiguration {
     private @Value("${quota-manager.username:user}") String quotaManagerUsername;
     private @Value("${quota-manager.password:}") String quotaManagerPassword;
     private @Value("${quota-manager.request.readTimeout:30}") int quotaManagerReadTimeout;
-    private @Value("${quota-manager-map:#{null}}") Optional<Map<String, Map<String, String>>> quotaManagerMap;
+    private @Value("#{${quota-manager-map:{}}}") Map<String, Map<String, String>> quotaManagerMap;
 
     @Bean
     Config config() throws Exception {
@@ -65,7 +65,7 @@ class SpringBeansConfiguration {
 
     @Bean
     QuotaManagerMapper quotaManagerMapper() {
-        return new QuotaManagerMapper(quotaManagerMap.orElse(Collections.emptyMap()));
+        return new QuotaManagerMapper(quotaManagerMap);
     }
 
     @Bean
