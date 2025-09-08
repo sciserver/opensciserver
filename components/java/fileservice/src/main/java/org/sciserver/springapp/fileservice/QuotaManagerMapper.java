@@ -1,9 +1,16 @@
 package org.sciserver.springapp.fileservice;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.sciserver.springapp.fileservice.dao.QuotaFromManager;
 import org.sciserver.springapp.fileservice.dao.QuotaManagerService;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -13,6 +20,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
  * Maps root volumes to their respective QuotaManagerService instances.
  */
 public class QuotaManagerMapper {
+    private static final Logger LOG = LogManager.getLogger(QuotaManagerMapper.class);
     private Map<String, QuotaManagerService> quotaManagerServices;
 
     /**
@@ -64,5 +72,23 @@ public class QuotaManagerMapper {
      */
     public QuotaManagerService getQuotaManagerService(String rootVolume) {
         return quotaManagerServices.get(rootVolume);
+    }
+
+    /*
+     * Get the usage information from all quota manager services
+     *
+     * @return a collection of QuotaFromManager objects representing the usage information
+     */
+    public Collection<QuotaFromManager> getAllUsage() {
+        Collection<QuotaFromManager> allUsage = new LinkedList<>();
+        for (QuotaManagerService service : quotaManagerServices.values()) {
+            try {
+                Collection<QuotaFromManager> usage = service.getUsage().execute().body();
+                allUsage.addAll(usage);
+            } catch (IOException e) {
+                LOG.error("Error fetching usage from quota manager service", e);
+            }
+        }
+        return allUsage;
     }
 }

@@ -20,10 +20,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 class SpringBeansConfiguration {
     private @Value("${RACM.endpoint}") String racmEndpoint;
     private @Value("${File-service.serviceId}") String fileServiceToken;
-    private @Value("${quota-manager.url:#{null}}") Optional<String> managerUrl;
-    private @Value("${quota-manager.username:user}") String quotaManagerUsername;
-    private @Value("${quota-manager.password:}") String quotaManagerPassword;
-    private @Value("${quota-manager.request.readTimeout:30}") int quotaManagerReadTimeout;
     private @Value("#{${quota-manager-map:{}}}") Map<String, Map<String, String>> quotaManagerMap;
 
     @Bean
