@@ -48,8 +48,6 @@ public class UsageInfoProvider {
     @Scheduled(fixedDelay = 5 * 60 * 1000 ,  initialDelay = 500)
     public void updateUsageCache() throws IOException {
         Cache cache = cacheManager.getCache(ID_CACHE_NAME);
-        synchronized (cache) {
-            cache.put(ID_CACHE_KEY, quotaManagerMapper.getAllUsage());
-        }
+        cache.put(ID_CACHE_KEY, quotaManagerMapper.getAllUsage());
     }
 }
