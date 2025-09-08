@@ -76,6 +76,7 @@ import org.sciserver.springapp.auth.Auth;
 import org.sciserver.springapp.fileservice.Config;
 import org.sciserver.springapp.fileservice.Quartet;
 import org.sciserver.springapp.fileservice.Quintet;
+import org.sciserver.springapp.fileservice.QuotaManagerMapper;
 import org.sciserver.springapp.fileservice.Triplet;
 import org.sciserver.springapp.fileservice.UsageInfoProvider;
 import org.sciserver.springapp.fileservice.Utility;
@@ -152,8 +153,9 @@ public class ApiController {
     private static final int MAX_FILE_SIZE = 4000000; // 4MB
     private static final int MAX_FILES = 100;
 
-    @Autowired(required = false)
-    private QuotaManagerService quotaManagerService;
+    @Autowired
+    private QuotaManagerMapper quotaManagerMapper;
+
     @Autowired
     private RACMClient racmClient;
     @Value("${RACM.resourcecontext.uuid}")
@@ -1219,9 +1221,9 @@ public class ApiController {
                 try {
                     User ownerUser = user;
                     String path = userVolumeNameInFileSystem;
-
-                    if (quotaManagerService != null) {
-                        quotaManagerService.deleteVolume(
+                    QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                    if (quotaManager != null) {
+                        quotaManager.deleteVolume(
                                 new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path)).execute();
                     } else {
                         deleteUserVolume(ownerUser, rootVolume, path, true, pathForLogMessage);
@@ -1337,9 +1339,9 @@ public class ApiController {
                 try {
                     User ownerUser = user;
                     String path = serviceVolumeNameInFileSystem;
-
-                    if (quotaManagerService != null) {
-                        quotaManagerService
+                    QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                    if (quotaManager != null) {
+                        quotaManager
                                 .deleteVolume(new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path))
                                 .execute();
                     } else {
@@ -1510,8 +1512,9 @@ public class ApiController {
             path = path.split("/")[1];
 
             if (path != null && !path.matches("^\\s*$")) {
-                if (quotaManagerService != null) {
-                    Response<Void> response = quotaManagerService.deleteVolume(
+                QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                if (quotaManager != null) {
+                    Response<Void> response = quotaManager.deleteVolume(
                             new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path)).execute();
                     if (!response.isSuccessful()) {
                         throw new Exception("Failure deleting user volume: " + response.message());
@@ -1607,8 +1610,9 @@ public class ApiController {
             path = path.split("/")[1];
 
             if (path != null && !path.matches("^\\s*$")) {
-                if (quotaManagerService != null) {
-                    Response<Void> response = quotaManagerService.deleteVolume(
+                QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                if (quotaManager != null) {
+                    Response<Void> response = quotaManager.deleteVolume(
                             new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path)).execute();
                     if (!response.isSuccessful()) {
                         throw new Exception("Failure deleting service volume: " + response.message()
@@ -2143,8 +2147,9 @@ public class ApiController {
      */
     private void createUserVolume(String userId, String basePathInFileSystem, String rootVolume,
             String userVolumeNameInFileSystem, Boolean quiet, String pathForLogMessage) throws Exception {
-        if (quotaManagerService != null) {
-            Response<Void> response = quotaManagerService
+        QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+        if (quotaManager != null) {
+            Response<Void> response = quotaManager
                     .createVolume(new ManagerVolumeDTO(rootVolume, userId + "/" + userVolumeNameInFileSystem))
                     .execute();
             if (!response.isSuccessful()) {

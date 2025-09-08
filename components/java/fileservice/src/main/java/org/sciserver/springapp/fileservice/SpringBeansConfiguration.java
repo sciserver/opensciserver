@@ -1,6 +1,8 @@
 package org.sciserver.springapp.fileservice;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import okhttp3.Credentials;
@@ -28,9 +30,10 @@ class SpringBeansConfiguration {
     private @Value("${quota-manager.username:user}") String quotaManagerUsername;
     private @Value("${quota-manager.password:}") String quotaManagerPassword;
     private @Value("${quota-manager.request.readTimeout:30}") int quotaManagerReadTimeout;
+    private @Value("${quota-manager-map:#{null}}") Optional<Map<String, Map<String, String>>> quotaManagerMap;
 
     @Bean
-    Config config() throws Exception{
+    Config config() throws Exception {
         Config config = new Config();
         config.load();
         return config;
@@ -62,36 +65,9 @@ class SpringBeansConfiguration {
         return new RACMClient(racmEndpoint, fileServiceToken);
     }
 
-    @Qualifier("okHttpClientQuotaManagerAuthentication")
-    @Bean("okHttpClientQuotaManagerAuthentication")
-    OkHttpClient okHttpClientQuotaManagerAuthentication() {
-        if (!managerUrl.isPresent()) {
-            return null;
-        }
-        return new OkHttpClient().newBuilder()
-                .readTimeout(quotaManagerReadTimeout, TimeUnit.SECONDS)
-                .addInterceptor(chain -> {
-                    final Request request = chain.request()
-                            .newBuilder()
-                            .addHeader("Authorization",
-                                    Credentials.basic(quotaManagerUsername, quotaManagerPassword))
-                            .build();
-
-                    return chain.proceed(request);
-                })
-                .build();
-    }
-
     @Bean
-    QuotaManagerService quotaManagerService(
-            @Qualifier("okHttpClientQuotaManagerAuthentication") Optional<OkHttpClient> okHttpClient) {
-        QuotaManagerService qms = managerUrl.map(s -> new Retrofit.Builder()
-                .baseUrl(s)
-                .addConverterFactory(JacksonConverterFactory.create())
-                .client(okHttpClient.get())
-                .build()
-                .create(QuotaManagerService.class)).orElse((QuotaManagerService)null);
-        return qms;
+    QuotaManagerMapper quotaManagerMapper() {
+        return new QuotaManagerMapper(quotaManagerMap.orElse(Collections.emptyMap()));
     }
 
     @Bean
