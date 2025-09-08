@@ -1,16 +1,12 @@
 package org.sciserver.springapp.fileservice;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.sciserver.racm.client.RACMClient;
-import org.sciserver.springapp.fileservice.dao.QuotaManagerService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;

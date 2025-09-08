@@ -29,6 +29,10 @@ public class QuotaManagerMapper {
     public QuotaManagerMapper(Map<String, Map<String, String>> quotaManagerConfigMap) {
         quotaManagerServices = new HashMap<String, QuotaManagerService>();
 
+        if (quotaManagerConfigMap == null) {
+            return;
+        }
+
         quotaManagerConfigMap.forEach((rootVolume, config) -> {
             String url = config.get("url");
             String user = config.get("username");
