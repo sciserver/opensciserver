@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 
@@ -30,6 +32,7 @@ public class QuotaManagerMapper {
      *     url:
      *     username:
      *     password:
+     *     readTimeout: # optional, in seconds, defaults to 30
      *   ...
      *
      * @param quotaManagerConfigMap the configuration map
@@ -45,12 +48,15 @@ public class QuotaManagerMapper {
             String url = config.get("url");
             String user = config.get("username");
             String password = config.get("password");
+            int readTimeout = Integer.parseInt(config.getOrDefault("readTimeout", "30"));
 
-            OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(
-                chain -> {
-                    return chain.proceed(chain.request().newBuilder()
-                        .header("Authorization", Credentials.basic(user, password))
-                        .build());
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .addInterceptor(
+                    chain -> {
+                        return chain.proceed(chain.request().newBuilder()
+                            .header("Authorization", Credentials.basic(user, password))
+                            .build());
                 }).build();
 
             QuotaManagerService quotaManagerService = new Retrofit.Builder()

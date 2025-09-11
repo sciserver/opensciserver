@@ -2,7 +2,6 @@ package org.sciserver.springapp.fileservice;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
