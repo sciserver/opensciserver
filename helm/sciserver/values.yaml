@@ -283,6 +283,7 @@ fileservice:
   #    url: {url of quota manager for this root volume}
   #    user: {user for authenticating to quota manager}
   #    password: {password for authenticating to quota manager}
+  #    readTimeout: {N in seconds. Optional, defaults to 30}
 
   # max request body size for fileservice uploads enforced at ingress. Use
   # "0" for unlimited, or e.g. "4g" for size limit.
