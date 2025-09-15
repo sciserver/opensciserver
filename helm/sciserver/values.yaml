@@ -451,6 +451,7 @@ web:
 
 graphql:
   replicaCount: 1
+  env: dev
   image:
     repository: <<<IMAGE_REPO>>>/graphql
     tag: <<<VTAG>>>
