@@ -29,6 +29,7 @@ import org.sciserver.racm.collaboration.model.ResourceOwnedGroup;
 import org.sciserver.racm.collaboration.model.ResourceWithAnyType;
 import org.sciserver.racm.collaboration.model.User;
 import org.sciserver.racm.utils.model.NativeQueryResult;
+import org.sciserver.springapp.loginterceptor.Log;
 import org.sciserver.springapp.racm.ugm.controller.UserManagementRESTController;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.RACMNames;
@@ -52,19 +53,27 @@ import edu.jhu.user.Member;
 import edu.jhu.user.MemberStatus;
 import edu.jhu.user.SciserverEntity;
 import edu.jhu.user.UserGroup;
+import sciserver.logging.ServiceLogTimer;
 
 @Repository
 public class CollaborationManager {
 
 	public RepresentationModel<? extends Object> getCollaborations(@ModelAttribute UserProfile up) {
+        ServiceLogTimer timer = Log.get().startTimer("CollaborationManager.getCollaborations:getGroups [ms]");
 		Collection<UserGroup> groups = getGroups(up);
+		timer.stop();
 		
+		timer = Log.get().startTimer("CollaborationManager.getCollaborations:loadGroupUsers [ms]");
 		Collection<SciserverEntity> entities = loadGroupUsers(up);
-  	groups.forEach(ug -> ug.getMember().forEach(Member::getScisEntity));
+		timer.stop();
+		
+		groups.forEach(ug -> ug.getMember().forEach(Member::getScisEntity));
 
 		Map<Long, User> users = new HashMap<>();
 
+        timer = Log.get().startTimer("CollaborationManager.getCollaborations:getAllResources [ms]");
 		Map<UserGroup, List<ResourceFacade>> allResources = getAllResources(up, groups);
+        timer.stop();
 
 		Collection<Collaboration> collaborationResourceList =
 				groups
