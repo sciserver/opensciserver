@@ -276,7 +276,7 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                             .withName(name)
                             .withNewNfs()
                                 .withServer(srv)
-                                .withPath(path)
+                                .withPath("/" + path)
                                 .withReadOnly(ro)
                             .endNfs()
                             .build();
