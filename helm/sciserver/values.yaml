@@ -263,6 +263,7 @@ fileservice:
     server:
     path: /
     mountPath: /srv
+
   # map of extra mounts for the fileservice, each mapping must contain the
   # server, path and mountPath as above, example inline below.
   nfsExtra:
@@ -274,10 +275,16 @@ fileservice:
   #   volname:
   #     claimName: claimname
   #     mountPath: /path
-  quotaManager:
-    url:
-    user: user
-    readTimeout: 60  # in seconds
+
+  # Mapping of rootVolume -> quotaManager configuration. The map should take the
+  # form shown in comment
+  quotaManagerMap:
+  #  rootVolumeName:
+  #    url: {url of quota manager for this root volume}
+  #    user: {user for authenticating to quota manager}
+  #    password: {password for authenticating to quota manager}
+  #    readTimeout: {N in seconds. Optional, defaults to 30}
+
   # max request body size for fileservice uploads enforced at ingress. Use
   # "0" for unlimited, or e.g. "4g" for size limit.
   uploadSizeMax: "0"
