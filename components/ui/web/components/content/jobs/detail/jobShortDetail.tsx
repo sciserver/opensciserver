@@ -15,6 +15,7 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { Job } from 'src/graphql/typings';
+import { useRouter } from 'next/router';
 
 const StyledTableRow = styled(TableRow)`
   .job-details {
@@ -49,18 +50,17 @@ const StyledTableRow = styled(TableRow)`
   .copy-icon {
     padding-left: 5rem;
   }
-    
-
+  
 `;
 
 type Props = {
   job: Job;
   isOpen: boolean;
-  selectJob: (job: Job) => void;
 }
 
-export const JobShortDetail: FC<Props> = ({ job, isOpen, selectJob }) => {
+export const JobShortDetail: FC<Props> = ({ job, isOpen }) => {
 
+  const router = useRouter();
   const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
   return <StyledTableRow>
@@ -105,7 +105,7 @@ export const JobShortDetail: FC<Props> = ({ job, isOpen, selectJob }) => {
               </div>
             </div>
             <div>
-              <Button onClick={() => selectJob(job)} variant="contained" color="primary">
+              <Button onClick={() => router.push(`/jobs/${job.id}`)} variant="contained" color="primary">
                 See full details
               </Button>
             </div>

@@ -41,6 +41,8 @@ spec:
               value: '{{ include "sciserver.url" . }}racm/'
             - name: LOGIN_PORTAL_BASE_URL
               value: '{{ include "sciserver.url" . }}login-portal/api/'
+            - name: IDIES_ENV
+              value: '{{ .Values.graphql.env }}'
           ports:
             - containerPort: 4000
               protocol: TCP

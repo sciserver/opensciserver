@@ -46,11 +46,10 @@ margin-top: 2rem;
 
 type Props = {
   jobsList: Job[];
-  selectJob: (job: Job) => void;
   createJob: (variables: Job) => void;
 }
 
-export const JobsDataGrid: FC<Props> = ({ jobsList, selectJob, createJob }) => {
+export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
 
@@ -125,7 +124,7 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, selectJob, createJob }) => {
                     </Tooltip>
                   </TableCell>
                 </TableRow>
-                <JobShortDetail job={job} isOpen={isRowOpen(job.id)} selectJob={selectJob} />
+                <JobShortDetail job={job} isOpen={isRowOpen(job.id)} />
               </>
             ))}
           </TableBody>
