@@ -1,7 +1,6 @@
-import { FC, useContext, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import router from 'next/router';
 import styled from 'styled-components';
-import Image from 'next/image';
 
 import {
   Divider,
@@ -27,8 +26,6 @@ import { AppContext } from 'context';
 import { DrawerOption } from 'components/common/layout';
 import { HideOnScroll } from 'components/common/hideOnScroll';
 import { Toolbar } from 'components/common/toolbar';
-
-import jupyterLogo from 'public/Jupyter_logo_white.svg';
 
 export const drawerOpenWidth = 200;
 export const drawerClosedWidth = 60;
@@ -103,7 +100,7 @@ const Styled = styled.div`
 
 export const DrawerNav: FC = (props: ComponentProps) => {
 
-  const { drawerOpen, setDrawerOpen, menuOption, setMenuOption, showAppBar } = useContext(AppContext);
+  const { drawerOpen, menuOption, setMenuOption, showAppBar } = useContext(AppContext);
 
   const [toggleDrawerOpen, setToggleDrawerOpen] = useState<boolean>(false);
 
@@ -111,6 +108,11 @@ export const DrawerNav: FC = (props: ComponentProps) => {
     setMenuOption(option);
     router.push(`/${option}`);
   };
+
+  // ON MOUNT: UI config
+  useEffect(() => {
+    setMenuOption(router.asPath.split('/')[1]);
+  }, []);
 
   const drawerOptions: DrawerOption[] = [
     {
@@ -139,12 +141,6 @@ export const DrawerNav: FC = (props: ComponentProps) => {
     }
   ];
 
-  const handleDrawerOpenOnHover = () => {
-    if (!toggleDrawerOpen) {
-      setDrawerOpen(!drawerOpen);
-    }
-  };
-
   return (
     <Styled {...{ open: drawerOpen }}>
       {showAppBar &&
@@ -157,8 +153,6 @@ export const DrawerNav: FC = (props: ComponentProps) => {
       <Drawer
         variant="permanent"
         open={drawerOpen}
-        onMouseEnter={handleDrawerOpenOnHover}
-        onMouseLeave={handleDrawerOpenOnHover}
       >
         <Toolbar isDrawer setToggleDrawerOpen={setToggleDrawerOpen} />
         <Divider />
