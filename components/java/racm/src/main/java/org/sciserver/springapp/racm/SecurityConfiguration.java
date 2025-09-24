@@ -43,7 +43,7 @@ public class SecurityConfiguration {
 	// These endpoints are used by compm's, file services, etc and handle their own authentication
 	private static final String[] NON_USER_ENDPOINTS = new String[] {
 			"/jobm/rest/compmdockerjob/*", "/jobm/rest/compm/checkId", "/jobm/rest/compmjob/*", "/jobm/rest/compmjobs/*",
-			"/jobm/rest/rdbjob/*", "/storem/fileservice/*", "/swagger-ui/*"
+			"/jobm/rest/rdbjob/*", "/storem/fileservice/*", "/swagger-ui/*", "/v3/api-docs"
 	};
 
 	@Bean
