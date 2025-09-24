@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter;
-
 import org.sciserver.springapp.racm.auth.SciserverCookieAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverQueryParamAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverUserDetailsService;
