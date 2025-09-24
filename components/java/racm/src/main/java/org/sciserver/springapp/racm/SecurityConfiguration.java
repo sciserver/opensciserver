@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter;
+
 import org.sciserver.springapp.racm.auth.SciserverCookieAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverQueryParamAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverUserDetailsService;
@@ -30,7 +31,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @ConditionalOnWebApplication
@@ -44,7 +44,7 @@ public class SecurityConfiguration {
 	// These endpoints are used by compm's, file services, etc and handle their own authentication
 	private static final String[] NON_USER_ENDPOINTS = new String[] {
 			"/jobm/rest/compmdockerjob/*", "/jobm/rest/compm/checkId", "/jobm/rest/compmjob/*", "/jobm/rest/compmjobs/*",
-			"/jobm/rest/rdbjob/*", "/storem/fileservice/*"
+			"/jobm/rest/rdbjob/*", "/storem/fileservice/*", "/swagger-ui/*"
 	};
 
 	@Bean
