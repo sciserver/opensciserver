@@ -38,12 +38,12 @@ public class SecurityConfiguration {
 
 	// These endpoints use cookies for authentication
 	private static final String[] webPaths = new String[] {
-			"/", "/index_list.html", "/static/**", ACCESS_DENIED_PAGE,
-			"/compm/mvc/**", "/query/**", "/cctree/**", "/rctree/**"};
+		"/", "/index_list.html", "/static/**", ACCESS_DENIED_PAGE,
+		"/compm/mvc/**", "/query/**", "/cctree/**", "/rctree/**"};
 	// These endpoints are used by compm's, file services, etc and handle their own authentication
 	private static final String[] NON_USER_ENDPOINTS = new String[] {
-			"/jobm/rest/compmdockerjob/*", "/jobm/rest/compm/checkId", "/jobm/rest/compmjob/*", "/jobm/rest/compmjobs/*",
-			"/jobm/rest/rdbjob/*", "/storem/fileservice/*", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**"
+		"/jobm/rest/compmdockerjob/*", "/jobm/rest/compm/checkId", "/jobm/rest/compmjob/*", "/jobm/rest/compmjobs/*",
+		"/jobm/rest/rdbjob/*", "/storem/fileservice/*", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**"
 	};
 
 	@Bean
