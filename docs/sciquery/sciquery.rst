@@ -35,15 +35,15 @@ The operation of the SciQuery system requires interactions/communications with/b
 
 A new SciQuery instance can be added to SciServer by registering it as a service application in RACM.
 As a result, the SciQuery instance will be assigned a ``ServiceID`` token that uniquely 
-identifies it. The ServiceID needs to be saved in SciQuery's configuration 
+identifies it. The ServiceID needs to be saved in the SciQuery :ref:`sciquery_rest_api` configuration 
 file as the ``RACM.resourceContext.serviceToken`` parameter (see configuration parameters list below). 
 The ServiceID needs to be passed as the ``X-Service-Auth-ID`` entry in request headers 
-each time when SciQuery makes HTTP calls to the RACM, as a mean for authenticating itself.
+each time when SciQuery makes HTTP calls to RACM, as a mean for authenticating itself.
 
-As as service, the main object classes that SciQuery manages are a collection of Resource Contexts 
+As a service, the main object classes that SciQuery manages are a collection of Resource Contexts 
 known as Relational Database Compute Domains, or ``RDBComputeDomains``. Each ``RDBComputeDomain`` is defined 
 as a group of physical databases that are laid out in such a way that a connection 
-from a client to one of them can be used to (when allowed to) run a SQL query able to access resources 
+from a client to one of them can be used to (when allowed) run a SQL query able to access resources 
 belonging to another database in the same domain (such as a database table). 
 
 The creation of ``RDBComputeDomains`` needs to be carried on by a SciServer admin user by calling the respective endpoint in the 
@@ -64,7 +64,7 @@ own read-write database context called ``MyDB``. In these databases they can sto
 tables. The owners of these databases can also share them with other SciServer users or groups, with either read-only or read-write access.
 
 As ``MyDBs`` can be shared, the SQL queries submitted by a user to a ``MyDB`` database need to be written 
-with a specific syntax, namely ``mydb:<userName>``, where ``<userName>`` is the name of the owner of that specific ``MyDB``. 
+with a specific syntax - referencing it as ``mydb:<userName>`` - where ``<userName>`` is the name of the owner of that specific ``MyDB``. 
 In case the query points to the ``MyDB`` belonging to the same user that submits the query, 
 then the ``userName`` can be removed and that database can be simply referred as ``MyDB``.
  
@@ -83,8 +83,8 @@ These Endpoints are used to:
 1) Register new ``RDBComputeDomains`` and their ``DatabaseContexts``. After receiving an http request, this API will send it to the JOBM API for the registration, 
    and will as well store them in the :ref:`sciquery_database`.
 
-2) Register ``MyDB`` database on SciQuery. Although currently all ``MyDBs`` are physically create in CasJobs, 
-   this API hs an endpoint for registering this kind of databases in ScIQuery (and RACM).
+2) Register ``MyDB`` database on SciQuery. Although currently all ``MyDBs`` are physically created by CasJobs,
+   this API has an endpoint for registering these kind of databases in SciQuery (and RACM).
 
 3) Discover the ``RDBComputeDomains`` and  ``DatabaseContexts`` available for each user, as well as more fine grained metadata associated to resources within ``DatabaseContexts``. 
    This metadata includes tables, views and columns names and types, functions or procedures and associated parameters, and indexes or constraints.
