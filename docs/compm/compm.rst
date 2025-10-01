@@ -3,6 +3,10 @@
 Asynchronous Jobs
 =================
 
+Overview
+--------
+
+
 Although interactive Jupyter Notebook sessions are very convenient for exploring
 data sets and developing/creating analysis pipelines, the
 synchronous nature of these sessions makes them less suited
@@ -37,8 +41,10 @@ under the ``jobs`` user volume, under the ``Temporary`` root volume,
 which has no data size quota in case the job results size is big.
 
 
+.. _compute_manager:
 
-**Compute-Manager**
+Compute-Manager
+---------------
 
 The ``Compute-Manager`` or ``COMPM`` is a Spring Boot service that manages the life-cycle of jobs. There is a one-to-one relation between a 
 an individual instance of a COMPM, and the Compute domain it is associated/registered to.
@@ -59,6 +65,7 @@ in request header when calling the RACM/JOBM or SciServer-Compute APIs as a mean
 
 
 **Configuring, Building and Running COMPMs**
+
 
 The configuration variables for the Compute-Manager are placed in the ``config.properties`` and ``log4j2.xml`` files under 
 ``/src/main/resources/``. Example instances of those can be found under ``/conf.examples/``.
@@ -118,8 +125,10 @@ on the base level of the project directory. For running it in a production-grade
 
 
 
+.. _compute_jobs_life_cycle:
 
-**Compute Jobs Life Cycle**
+Compute Jobs Life Cycle
+-----------------------
 
 There are 2 types of Compute Jobs:
 
@@ -174,3 +183,51 @@ Sequence Diagram in :numref:`ComputeJobLifeCycle` below and detailed as follows:
    :align: center
    :name: ComputeJobLifeCycle
 
+   Sequence Diagram of the life cycle of a Docker Job.
+
+
+.. _rdb_jobs_life_cycle:
+
+RDB Jobs Life Cycle
+-------------------
+
+As explained in the :ref:`sciquery` section, there are multiple SciServer components involved in 
+running RDB Jobs. A diagram of the needed interactions among these components is shown 
+in :numref:`RDBJobLifeCycle`, with more details as follows:
+
+
+1) :ref:`sciquery_clients`: users can submit a job to the SciQuery :ref:`sciquery_rest_api` from a python Jupyter Notebook, 
+   or from the web on the SciQuery section in the SciServer Dashboard. They can also check the Job status and browse the RDB job history.
+
+2) SciQuery :ref:`sciquery_rest_api`: receives the submitted job, and parses the query to check for access permissions. 
+   The job is then sent to the JOBM REST API and stored in its queue.
+   
+3) RDB COMPM: its tasks involve
+
+   a) Continuously getting new available RDB jobs from JOBM and storying them in its local queue in memory.
+
+   b) Automatically creating job directories in the SciServer file system for each new RDB job through calls to the SciServer-FileService API, 
+      and copying job metadata into it, such as the input SQL query statement provided by the user.
+
+   c) Parses the output target (such as a MyDB or an output file) for each of the individual queries within the input SQL quey statement, 
+      and creates/assigns the needed output writers for each of those queries. Note that it is possible for the result sets of several queries 
+      to be written into the same output, such as in the case of JSON files, for example.
+
+   d) Making a JDBC connection to the database and sending the RDB job's SQL statement for execution.
+
+   e) Receiving and looping over the SQL statement result sets, and using the output writers to write them.
+
+   f) Closing the JDBC connection to the Relational database.
+
+   g) Updating job definition and status on JOBM by calls to its API.
+
+
+4) :ref:`fileservice`: used to create job directories in the SciServer file system for each new RDB jobs, 
+   copy in it the input SQL query statement provided by the user, and writing the result set output files.
+
+
+.. figure:: _static/RDBJobLifeCycle.drawio.png
+   :align: center
+   :name: RDBJobLifeCycle
+
+   Sequence Diagram of the life cycle of an RDB Job.
