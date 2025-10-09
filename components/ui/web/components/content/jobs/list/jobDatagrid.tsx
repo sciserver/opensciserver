@@ -112,8 +112,8 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
               <TableCell className="column-header">Name</TableCell>
               <TableCell className="column-header">Status</TableCell>
               <TableCell className="column-header"></TableCell>
-            </TableRow>
-          </TableHead>
+            </TableRow >
+          </TableHead >
           <TableBody>
             {jobsList.map((job) => (
               <>
@@ -141,13 +141,13 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
                       </IconButton>
                     }
                   </TableCell>
-                </TableRow>
+                </TableRow >
                 <JobShortDetail job={job} isOpen={isRowOpen(job.id)} />
               </>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
-  </Styled>;
+          </TableBody >
+        </Table >
+      </TableContainer >
+    </Paper >
+  </Styled >;
 };
