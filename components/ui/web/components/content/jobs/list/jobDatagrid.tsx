@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
 import {
-  Replay as ReplayIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon
 } from '@mui/icons-material';
@@ -15,8 +14,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Tooltip
+  TableRow
 } from '@mui/material';
 
 import { Job } from 'src/graphql/typings';
@@ -46,10 +44,9 @@ margin-top: 2rem;
 
 type Props = {
   jobsList: Job[];
-  createJob: (variables: Job) => void;
 }
 
-export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
+export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
 
@@ -95,7 +92,6 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
               <TableCell className="column-header">Submitted At</TableCell>
               <TableCell className="column-header">Name</TableCell>
               <TableCell className="column-header">Status</TableCell>
-              <TableCell className="column-header" align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -116,13 +112,6 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
                   </TableCell>
                   <TableCell className="cell">{job.submitterDID}</TableCell>
                   <TableCell className="cell">{getStatus(job)}</TableCell>
-                  <TableCell className="cell" align="right">
-                    <Tooltip title="Re Run Job">
-                      <IconButton color="primary" onClick={() => createJob(job)}>
-                        <ReplayIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
                 </TableRow>
                 <JobShortDetail job={job} isOpen={isRowOpen(job.id)} />
               </>
