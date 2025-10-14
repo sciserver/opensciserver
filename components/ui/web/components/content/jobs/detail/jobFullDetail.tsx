@@ -162,7 +162,6 @@ export const JobFullDetail: FC = () => {
     });
   };
 
-
   const columns: GridColDef<File>[] = [
     {
       field: 'name',
