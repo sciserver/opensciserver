@@ -241,7 +241,7 @@ export const JobFullDetail: FC = () => {
               </p>
             </div>
           </div>
-          <Tooltip title="Re Run Job">
+          <Tooltip title="Re-run Job">
             <IconButton color="primary" onClick={() => rerunJob(jobDetail.job)}>
               <ReplayIcon />
             </IconButton>
