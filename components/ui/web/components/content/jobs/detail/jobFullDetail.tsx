@@ -160,23 +160,6 @@ export const JobFullDetail: FC = () => {
     });
   };
 
-  const rerunJob = (job: Job) => {
-    createJob({
-      variables: {
-        createJobParams: {
-          dockerComputeEndpoint: job.dockerComputeEndpoint,
-          dockerImageName: job.dockerImageName,
-          resultsFolderURI: job.resultsFolderURI,
-          submitterDID: job.submitterDID,
-          volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-          userVolumes: job.userVolumes.map(uv => uv.id),
-          command: job.command,
-          scriptURI: job.scriptURI || ''
-        }
-      }
-    });
-  };
-
   const columns: GridColDef<File>[] = [
     {
       field: 'name',
