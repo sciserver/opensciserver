@@ -33,7 +33,6 @@ export const JOB_DETAIL_VIEW = gql`
         endTime
         command
         submitterDID
-        resultsFolderURI
         dockerComputeEndpoint
         dataVolumes {
           publisherDID
