@@ -1,14 +1,15 @@
 import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import styled from 'styled-components';
 
-import { IconButton, Snackbar, Typography } from '@mui/material';
+import { IconButton, Snackbar, Tooltip } from '@mui/material';
 import {
   ArrowBackIos as ArrowBackIcon,
   ContentCopy as ContentCopyIcon,
   Close as CloseIcon,
-  Download as DownloadIcon
+  Download as DownloadIcon,
+  Replay as ReplayIcon
 } from '@mui/icons-material';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
 
@@ -17,11 +18,12 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { filesize } from 'filesize';
 
-import { File, JobDetails } from 'src/graphql/typings';
-import { JOB_DETAIL_VIEW } from 'src/graphql/jobs';
+import { File, Job, JobDetails } from 'src/graphql/typings';
+import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
+import Swal from 'sweetalert2';
 
 const Styled = styled.div`
   .header {
@@ -94,6 +96,7 @@ const Styled = styled.div`
 `;
 
 const tabOptions = ['Summary', 'Files'];
+
 export const JobFullDetail: FC = () => {
 
   const router = useRouter();
@@ -110,6 +113,24 @@ export const JobFullDetail: FC = () => {
       variables: { jobId: id }
     }
   );
+  const [createJob] = useMutation(CREATE_JOB, {
+    onError: () => Swal.fire({
+      title: 'Unable to add docker job',
+      text: 'Please email <a href=\"mailto:sciserver-helpdesk@jhu.edu\">sciserver-helpdesk@jhu.edu</a> for more assistance.',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      return;
+    }).catch(Error),
+    onCompleted: () => Swal.fire({
+      title: 'Job created successfully',
+      text: 'Your job has been created and is now queued.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      router.reload();
+    })
+  });
 
   const jobDetail = useMemo<JobDetails>(() => {
 
@@ -118,9 +139,25 @@ export const JobFullDetail: FC = () => {
     }
   }, [data]);
 
-
   const getDownloadURL = (row: File): string => {
-    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${row.name}`;
+    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${encodeURIComponent(row.name)}`;
+  };
+
+  const rerunJob = (job: Job) => {
+    createJob({
+      variables: {
+        createJobParams: {
+          dockerComputeEndpoint: job.dockerComputeEndpoint,
+          dockerImageName: job.dockerImageName,
+          resultsFolderURI: job.resultsFolderURI,
+          submitterDID: job.submitterDID,
+          volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
+          userVolumes: job.userVolumes.map(uv => uv.id),
+          command: job.command,
+          scriptURI: job.scriptURI || ''
+        }
+      }
+    });
   };
 
   const columns: GridColDef<File>[] = [
@@ -170,40 +207,45 @@ export const JobFullDetail: FC = () => {
           </IconButton>
           <div>
             <div className="job-field">
-              <Typography variant="h5" gutterBottom component="div">
+              <h3>
                 Job ID:
-              </Typography>
-              <Typography variant="body1" gutterBottom component="div">
+              </h3>
+              <p>
                 {jobDetail.job.id}
-              </Typography>
+              </p>
             </div>
             <div className="job-field">
-              <Typography variant="h5" gutterBottom component="div">
+              <h3>
                 Image:
-              </Typography>
-              <Typography variant="body1" gutterBottom component="div">
+              </h3>
+              <p>
                 {jobDetail.job.dockerImageName}
-              </Typography>
+              </p>
             </div>
           </div>
           <div>
             <div className="job-field">
-              <Typography variant="h5" gutterBottom component="div">
+              <h3>
                 Started:
-              </Typography>
-              <Typography variant="body1" gutterBottom component="div">
+              </h3>
+              <p>
                 {jobDetail.job.startTime ? new Date(jobDetail.job.startTime).toLocaleString() : 'N/A'}
-              </Typography>
+              </p>
             </div>
             <div className="job-field">
-              <Typography variant="h5" gutterBottom component="div">
+              <h3>
                 Ended:
-              </Typography>
-              <Typography variant="body1" gutterBottom component="div">
+              </h3>
+              <p>
                 {jobDetail.job.endTime ? new Date(jobDetail.job.endTime).toLocaleString() : 'N/A'}
-              </Typography>
+              </p>
             </div>
           </div>
+          <Tooltip title="Re-run Job">
+            <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
+              <ReplayIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         {jobDetail.job.command &&
           <div className="command">

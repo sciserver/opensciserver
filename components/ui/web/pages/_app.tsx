@@ -30,29 +30,9 @@ export default function App({ Component, pageProps }: AppProps) {
       Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   }
 
-  h1, h2, h3, h4, h5 {
-    font-family: "Roboto Slab", serif;
-    font-style: normal;
-    font-optical-sizing: auto;
-  }
-    
-  h1, h2, h3 {
-    font-weight: 600;    
-  }
-
-  h4, h5 {
-    font-weight: 400;    
-  }
-
   a {
-    color: #A9327A;
+    color: inherit;
     text-decoration: none;
-  }
-
-  .caption {
-    font-family: "Noto Sans", sans-serif;
-    font-style: normal;
-    font-size: 12px;
   }
 
   * {
@@ -60,16 +40,50 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   main {
-    margin-top: 20px;
+    margin: 3% 5% 5% 10%;
   }
+
+  h1, h2, h3, h4, h5 {
+    font-family: "Roboto Slab", serif;
+    font-style: normal;
+    font-optical-sizing: auto;
+  }
+    
+  h1, h2, h3 {
+      font-weight: 600;    
+  }
+
+  h4, h5 {
+      font-weight: 400;    
+  }
+  
+  p, blockquote {
+    font-family: "Noto Sans", sans-serif;
+    font-style: normal;
+    font-size: 18px;
+    color: #666;
+  }
+  
+  .caption {
+    font-family: "Noto Sans", sans-serif;
+    font-style: normal;
+    font-size: 12px;
+  }
+
+  .MuiCardHeader-title, .MuiDataGrid-columnHeaderTitle {
+    font-family: "Roboto Slab", serif;
+    font-style: normal;
+    font-optical-sizing: auto;
+  }
+
+  .MuiCardHeader-subheader, .MuiTableCell-body, .MuiDataGrid-cell {
+    font-family: "Noto Sans", sans-serif;
+    font-style: normal;
+  }
+
 `;
 
   const theme = createTheme({
-    typography: {
-      h5: { fontFamily: '\"Roboto Slab\", \"serif\"' },
-      h4: { fontFamily: '\"Roboto Slab\", \"serif\"' },
-      h3: { fontFamily: '\"Roboto Slab\", \"serif\"' }
-    },
     ...themeJSON,
     // disable performance-sucking transitions
     transitions: { create: () => 'none' }
@@ -79,6 +93,10 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&family=Slabo+27px&display=swap" rel="stylesheet" />
       </Head>
       <Script
         id="G-TAG"

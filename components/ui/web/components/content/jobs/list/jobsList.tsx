@@ -73,51 +73,12 @@ export const JobsList: FC = () => {
     }
   );
 
-  const [createJob, { data: newJob, error }] = useMutation(CREATE_JOB, {
-    onError: () => Swal.fire({
-      title: 'Unable to add docker job',
-      text: 'Please email <a href=\"mailto:sciserver-helpdesk@jhu.edu\">sciserver-helpdesk@jhu.edu</a> for more assistance.',
-      icon: 'error',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      return;
-    }).catch(Error),
-    onCompleted: () => Swal.fire({
-      title: 'Job created successfully',
-      text: 'Your job has been created and is now queued.',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      router.reload();
-    })
-  });
-
   const jobsList = useMemo<Job[]>(() => {
     if (allJobs && allJobs.getJobs) {
       return allJobs.getJobs;
     }
-    if (newJob && newJob.createJob) {
-      return [...allJobs.getJobs, newJob.createJob];
-    }
     return [];
-  }, [allJobs, newJob]);
-
-  const createJobHandler = (job: Job) => {
-    createJob({
-      variables: {
-        createJobParams: {
-          dockerComputeEndpoint: job.dockerComputeEndpoint,
-          dockerImageName: job.dockerImageName,
-          resultsFolderURI: job.resultsFolderURI,
-          submitterDID: job.submitterDID,
-          volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-          userVolumes: job.userVolumes.map(uv => uv.id),
-          command: job.command,
-          scriptURI: job.scriptURI || ''
-        }
-      }
-    });
-  };
+  }, [allJobs]);
 
   return <Styled>
     <h1>Jobs</h1>
@@ -125,7 +86,7 @@ export const JobsList: FC = () => {
       <LoadingAnimation backDropIsOpen={loading} />
     }
     {jobsList.length > 0 &&
-      <JobsDataGrid createJob={createJobHandler} jobsList={jobsList} />
+      <JobsDataGrid jobsList={jobsList} />
     }
     {!loading && !jobsList.length &&
       <div className="no-active-containers">
