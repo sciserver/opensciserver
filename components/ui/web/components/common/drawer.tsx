@@ -49,7 +49,6 @@ const Styled = styled.div`
 
   .MuiToolbar-root{
     display: flex;
-    background: ${({ theme }) => theme.palette.appBar.background};
     padding-left: 10px;
   }
   
