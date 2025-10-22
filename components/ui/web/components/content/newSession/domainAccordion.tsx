@@ -2,10 +2,10 @@ import { FC, useState } from 'react';
 import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 
-import { ParamAccordionSummary } from 'components/content/compute/newSession/paramAccordionSummary';
+import { ParamAccordionSummary } from 'components/content/newSession/paramAccordionSummary';
+import { Domain } from 'src/graphql/typings';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
-import { Image } from 'src/graphql/typings';
 
 const StyledAccordionDetails = styled(AccordionDetails)`
     height: auto; 
@@ -18,35 +18,34 @@ const StyledAccordionDetails = styled(AccordionDetails)`
     }
 `;
 
-
 type Props = {
-  imageList: Image[],
-  imageChoice?: Image,
-  setImageChoice: (image: Image) => void
+  domainList: Domain[],
+  domainChoice?: Domain,
+  setDomainChoice: (domain: Domain) => void
 };
 
-export const ImageAccordionSummary: FC<Props> = ({ imageList, imageChoice, setImageChoice }) => {
+export const DomainAccordionSummary: FC<Props> = ({ domainList, domainChoice, setDomainChoice }) => {
 
   const [open, setOpen] = useState<boolean>(false);
 
-  const handleOnClickOption = (img: Image) => {
-    setImageChoice(img);
+  const handleOnClickOption = (dom: Domain) => {
+    setDomainChoice(dom);
     setOpen(false);
   };
 
   return <StyledAccordion open={open} setOpen={setOpen}>
     <ParamAccordionSummary
       open={open}
-      title="Image"
-      choice={imageChoice ? { name: imageChoice.name, subtitle: imageChoice.description || 'Description for chosen image' } : undefined}
+      title="Domain"
+      choice={domainChoice ? { name: domainChoice.name, subtitle: domainChoice.description || 'Description for chosen domain' } : undefined}
     />
     <StyledAccordionDetails>
-      {imageList.map(img =>
+      {domainList.map(dom =>
         <InfoCard
-          selected={imageChoice?.id === img.id}
-          title={img.name}
-          subtitle={img.description}
-          action={() => handleOnClickOption(img)}
+          selected={domainChoice!.id === dom.id}
+          title={dom.name}
+          subtitle={dom.description}
+          action={() => handleOnClickOption(dom)}
         />
       )}
     </StyledAccordionDetails>

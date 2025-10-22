@@ -9,7 +9,7 @@ export default function ComputePage() {
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <NewSession sessionType={NewSessionType.INTERACTIVE} />
+        <NewSession sessionType={NewSessionType.JOB} />
       </Layout>
     </>
   );

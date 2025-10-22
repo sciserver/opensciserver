@@ -3,21 +3,22 @@ import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import {
   Button,
+  Chip,
   CircularProgress,
   IconButton,
-  TextField,
-  Typography
+  TextField
 } from '@mui/material';
 import { ArrowBackIos as ArrowBackIcon } from '@mui/icons-material';
 import { useQuery, ApolloError } from '@apollo/client';
 
-import { DomainAccordionSummary } from 'components/content/compute/newSession/domainAccordion';
-import { ImageAccordionSummary } from 'components/content/compute/newSession/imageAccordion';
-import { DataVolAccordionSummary } from 'components/content/compute/newSession/dataVolumeAccordion';
-import { UserVolAccordionSummary } from 'components/content/compute/newSession/userVolumeAccordion';
+import { DomainAccordionSummary } from 'components/content/newSession/domainAccordion';
+import { ImageAccordionSummary } from 'components/content/newSession/imageAccordion';
+import { DataVolAccordionSummary } from 'components/content/newSession/dataVolumeAccordion';
+import { UserVolAccordionSummary } from 'components/content/newSession/userVolumeAccordion';
+import { LoadingAnimation } from 'components/common/loadingAnimation';
+
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
-import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 const Styled = styled.div`
   .header {
@@ -60,8 +61,15 @@ const Styled = styled.div`
   }
 `;
 
+export enum NewSessionType {
+  JOB = 'JOB',
+  INTERACTIVE = 'INTERACTIVE'
+}
+type Props = {
+  sessionType: NewSessionType;
+};
 
-export const NewSession: FC = ({ }) => {
+export const NewSession: FC<Props> = ({ sessionType }) => {
 
   const router = useRouter();
 
@@ -130,13 +138,29 @@ export const NewSession: FC = ({ }) => {
     router.push(url);
   };
 
+  const navigateBack = () => {
+    switch (sessionType) {
+      case NewSessionType.JOB: {
+        router.push('/jobs');
+        break;
+      }
+      case NewSessionType.INTERACTIVE: {
+        router.push('/compute');
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+  };
+
   return <Styled>
     <div className="header">
-      <IconButton onClick={() => router.push('/compute')} >
+      <IconButton onClick={navigateBack} >
         <ArrowBackIcon />
       </IconButton>
-      <Typography variant="h3">New Compute Session</Typography>
-      <Typography className="alert" variant="h4">(BETA version)</Typography>
+      <h1>New {sessionType === NewSessionType.JOB ? 'Job' : 'Compute Session'}</h1>
+      <Chip color="warning" label="Beta version" />
     </div>
     <div className="form">
       <TextField id="standard-basic" label="Session Name" variant="standard" />
