@@ -217,7 +217,7 @@ type Query {
   getDataset(params: DatasetDetailInput!): Dataset
   getDatasets(volumeType: VolumeType!): [Dataset!]!
   getDomainByID(id: ID!): Domain
-  getDomains: [Domain!]!
+  getDomains(jobs: Boolean): [Domain!]!
   getJobDetails(jobId: ID!): JobDetails!
   getJobs(filters: [JobFilters!], top: Int): [Job!]!
   getJsonTree(volumeName: String!): JSONTree!

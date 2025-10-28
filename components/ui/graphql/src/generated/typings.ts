@@ -304,6 +304,11 @@ export type QueryGetDomainByIdArgs = {
 };
 
 
+export type QueryGetDomainsArgs = {
+  jobs?: InputMaybe<Scalars['Boolean']>;
+};
+
+
 export type QueryGetJobDetailsArgs = {
   jobId: Scalars['ID'];
 };
@@ -725,7 +730,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDataset?: Resolver<Maybe<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetArgs, 'params'>>;
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
-  getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType>;
+  getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType, Partial<QueryGetDomainsArgs>>;
   getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobId'>>;
   getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
