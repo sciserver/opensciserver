@@ -1,0 +1,91 @@
+import { FC, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import styled from 'styled-components';
+import { useQuery, ApolloError } from '@apollo/client';
+
+import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
+import { GET_DOMAINS } from 'src/graphql/domains';
+import { NewResource, NewSessionType } from 'components/content/newResource/newResource';
+
+const Styled = styled.div`
+  
+`;
+
+export const NewJob: FC = () => {
+
+  const router = useRouter();
+
+  const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
+
+
+  const { loading: loadingData, data } = useQuery(GET_DOMAINS,
+    {
+      onError: (error: ApolloError) => {
+        if (error.message.includes('Unauthorized')) {
+          router.push('/login?callbackURL=/compute');
+        }
+      }
+    }
+  );
+
+  const [domainChoice, setDomainChoice] = useState<Domain>();
+  const [imageChoice, setImageChoice] = useState<Image>();
+  const [dataVolumesChoice, setDataVolumesChoice] = useState<DataVolume[]>([]);
+  const [userVolumesChoice, setUserVolumesChoice] = useState<UserVolume[]>([]);
+
+  const domainList = useMemo<Domain[]>(() => {
+    if (data && data.getDomains) {
+      setDomainChoice((data.getDomains as Domain[]).find(d => d.name == process.env.NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT));
+      return data.getDomains;
+    }
+    return [];
+  }, [data]);
+
+  const imageList = useMemo<Image[]>(() => {
+    if (domainChoice) {
+      setImageChoice(domainChoice.images.find(d => d.name == process.env.NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT));
+      return domainChoice.images;
+    }
+    return [];
+  }, [domainChoice]);
+
+  const dataVolumeList = useMemo<DataVolume[]>(() => {
+    if (domainChoice) {
+      return domainChoice.dataVolumes;
+    }
+    return [];
+  }, [domainChoice]);
+
+  const userVolumeList = useMemo<UserVolume[]>(() => {
+    if (domainChoice) {
+      return domainChoice.userVolumes;
+    }
+    return [];
+  }, [domainChoice]);
+
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const submit = () => {
+    //TODO: implement submit logic
+  };
+
+  return <Styled>
+    <NewResource
+      sessionType={NewSessionType.JOB}
+      domainList={domainList}
+      domainChoice={domainChoice}
+      setDomainChoice={setDomainChoice}
+      imageList={imageList}
+      imageChoice={imageChoice}
+      setImageChoice={setImageChoice}
+      dataVolumeList={dataVolumeList}
+      dataVolumesChoice={dataVolumesChoice}
+      setDataVolumesChoice={setDataVolumesChoice}
+      userVolumeList={userVolumeList}
+      userVolumesChoice={userVolumesChoice}
+      setUserVolumesChoice={setUserVolumesChoice}
+      submit={submit}
+      loadingSubmit={loadingSubmit}
+      loadingData={loadingData}
+    />
+  </Styled>;
+};

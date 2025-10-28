@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Layout } from 'components/common/layout';
-import { NewSession, NewSessionType } from 'components/content/newSession/newSession';
+import { NewJob } from 'components/content/jobs/newJob';
 
 export default function ComputePage() {
   return (
@@ -9,7 +9,7 @@ export default function ComputePage() {
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <NewSession sessionType={NewSessionType.JOB} />
+        <NewJob />
       </Layout>
     </>
   );

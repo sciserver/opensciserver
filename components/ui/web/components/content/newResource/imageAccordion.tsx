@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 
-import { ParamAccordionSummary } from 'components/content/newSession/paramAccordionSummary';
+import { ParamAccordionSummary } from 'components/content/newResource/paramAccordionSummary';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
 import { Image } from 'src/graphql/typings';
