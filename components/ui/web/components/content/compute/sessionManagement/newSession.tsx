@@ -1,10 +1,27 @@
 import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, ApolloError } from '@apollo/client';
+import { Chip, IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
+import styled from 'styled-components';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
+
 import { NewResource, NewSessionType } from 'components/content/newResource/newResource';
+
+const Styled = styled.div`
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    .alert {
+      color: ${({ theme }) => theme.palette.warning.dark};
+    }
+  }
+`;
 
 export const NewSession: FC = () => {
 
@@ -74,22 +91,31 @@ export const NewSession: FC = () => {
     router.push(url);
   };
 
-  return <NewResource
-    sessionType={NewSessionType.INTERACTIVE}
-    domainList={domainList}
-    domainChoice={domainChoice}
-    setDomainChoice={setDomainChoice}
-    imageList={imageList}
-    imageChoice={imageChoice}
-    setImageChoice={setImageChoice}
-    dataVolumeList={dataVolumeList}
-    dataVolumesChoice={dataVolumesChoice}
-    setDataVolumesChoice={setDataVolumesChoice}
-    userVolumeList={userVolumeList}
-    userVolumesChoice={userVolumesChoice}
-    setUserVolumesChoice={setUserVolumesChoice}
-    submit={submit}
-    loadingSubmit={loadingSubmit}
-    loadingData={loadingData}
-  />;
+  return <Styled>
+    <div className="header">
+      <IconButton onClick={() => router.push('/compute')} >
+        <CloseIcon />
+      </IconButton>
+      <h1>New Compute Session</h1>
+      <Chip color="warning" label="BETA" />
+    </div>
+    <NewResource
+      sessionType={NewSessionType.INTERACTIVE}
+      domainList={domainList}
+      domainChoice={domainChoice}
+      setDomainChoice={setDomainChoice}
+      imageList={imageList}
+      imageChoice={imageChoice}
+      setImageChoice={setImageChoice}
+      dataVolumeList={dataVolumeList}
+      dataVolumesChoice={dataVolumesChoice}
+      setDataVolumesChoice={setDataVolumesChoice}
+      userVolumeList={userVolumeList}
+      userVolumesChoice={userVolumesChoice}
+      setUserVolumesChoice={setUserVolumesChoice}
+      submit={submit}
+      loadingSubmit={loadingSubmit}
+      loadingData={loadingData}
+    />
+  </Styled>;
 };

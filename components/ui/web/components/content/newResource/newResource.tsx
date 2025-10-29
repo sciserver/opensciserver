@@ -1,14 +1,6 @@
 import { FC } from 'react';
-import { useRouter } from 'next/router';
 import styled from 'styled-components';
-import {
-  Button,
-  Chip,
-  CircularProgress,
-  IconButton,
-  TextField
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Button, CircularProgress, TextField } from '@mui/material';
 
 import { DomainAccordionSummary } from 'components/content/newResource/domainAccordion';
 import { ImageAccordionSummary } from 'components/content/newResource/imageAccordion';
@@ -19,16 +11,6 @@ import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 
 const Styled = styled.div`
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-
-    .alert {
-      color: ${({ theme }) => theme.palette.warning.dark};
-    }
-  }
   
   .form {
     display: flex;
@@ -101,32 +83,7 @@ export const NewResource: FC<Props> = ({
   loadingData
 }) => {
 
-  const router = useRouter();
-
-  const navigateBack = () => {
-    switch (sessionType) {
-      case NewSessionType.JOB: {
-        router.push('/jobs');
-        break;
-      }
-      case NewSessionType.INTERACTIVE: {
-        router.push('/compute');
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-  };
-
   return <Styled>
-    <div className="header">
-      <IconButton onClick={navigateBack} >
-        <CloseIcon />
-      </IconButton>
-      <h1>New {sessionType === NewSessionType.JOB ? 'Job' : 'Compute Session'}</h1>
-      <Chip color="warning" label="BETA" />
-    </div>
     <div className="form">
       <TextField id="standard-basic" label={`${sessionType === NewSessionType.JOB ? 'Job' : 'Compute'} Name`} variant="standard" />
       <DomainAccordionSummary domainList={domainList} domainChoice={domainChoice} setDomainChoice={setDomainChoice} />
@@ -137,7 +94,7 @@ export const NewResource: FC<Props> = ({
         {loadingSubmit ?
           <CircularProgress color="secondary" />
           :
-          'Submit'
+          sessionType === NewSessionType.JOB ? 'Next' : 'Submit'
         }
       </Button>
     </div>
