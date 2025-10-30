@@ -8,6 +8,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
 import { NewResource, NewSessionType } from 'components/content/newResource/newResource';
+import { WorkingDirectoryAccordionSummary } from '../newResource/workingDirectoryAccordion';
 
 const Styled = styled.div`
   .header {
@@ -79,6 +80,8 @@ export const NewJob: FC = () => {
   const [imageChoice, setImageChoice] = useState<Image>();
   const [dataVolumesChoice, setDataVolumesChoice] = useState<DataVolume[]>([]);
   const [userVolumesChoice, setUserVolumesChoice] = useState<UserVolume[]>([]);
+  const [useTemporaryVolume, setUseTemporaryVolume] = useState<boolean>(true);
+  const [workingDirectoryUserVolumesChoice, setWorkingDirectoryUserVolumesChoice] = useState<UserVolume>();
 
   const [command, setCommand] = useState<string>('');
 
@@ -107,6 +110,8 @@ export const NewJob: FC = () => {
 
   const userVolumeList = useMemo<UserVolume[]>(() => {
     if (domainChoice) {
+      const defaultUVs = (domainChoice.userVolumes as UserVolume[]).filter(uv => uv.name == 'scratch' || uv.name == 'persistent');
+      setUserVolumesChoice(defaultUVs);
       return domainChoice.userVolumes;
     }
     return [];
@@ -177,17 +182,23 @@ export const NewJob: FC = () => {
         </p>
 
         <div className="checkbox-container">
-          <Checkbox defaultChecked />
+          <Checkbox checked={useTemporaryVolume} onChange={() => setUseTemporaryVolume(!useTemporaryVolume)} />
           <span className="caption">
             Create and use a new folder in the “jobs” temporary volume. The folder will be created automatically.
           </span>
         </div>
-        <p className="bullet">
-          • A copy of this command will be placed in a unique, nested subfolder of <i className="path">/home/idies/workspace/Temporary/jjaime/jobs/</i>.
-        </p>
-        <p className="bullet">
-          • Relative paths will be resolved from this location.
-        </p>
+        {useTemporaryVolume ?
+          <div>
+            <p className="bullet">
+              • A copy of this command will be placed in a unique, nested subfolder of <i className="path">/home/idies/workspace/Temporary/jjaime/jobs/</i>.
+            </p>
+            <p className="bullet">
+              • Relative paths will be resolved from this location.
+            </p>
+          </div>
+          :
+          <WorkingDirectoryAccordionSummary userVolumeList={userVolumesChoice} userVolumeChoice={workingDirectoryUserVolumesChoice} setUserVolumeChoice={setWorkingDirectoryUserVolumesChoice} />
+        }
         <div className="step-buttons">
           <Button className="submit-button" onClick={() => setActiveStep(0)} variant="contained">Previous</Button>
           <Button className="submit-button" type="submit" onClick={submit} variant="contained">Submit</Button>
