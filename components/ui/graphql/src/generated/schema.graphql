@@ -48,6 +48,7 @@ input CreateJobParams {
   command: String!
   dockerComputeEndpoint: String!
   dockerImageName: String!
+  name: String
   resultsFolderURI: String!
   scriptURI: String!
   submitterDID: String!

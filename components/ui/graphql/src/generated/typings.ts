@@ -72,6 +72,7 @@ export type CreateJobParams = {
   command: Scalars['String'];
   dockerComputeEndpoint: Scalars['String'];
   dockerImageName: Scalars['String'];
+  name?: InputMaybe<Scalars['String']>;
   resultsFolderURI: Scalars['String'];
   scriptURI: Scalars['String'];
   submitterDID: Scalars['String'];
