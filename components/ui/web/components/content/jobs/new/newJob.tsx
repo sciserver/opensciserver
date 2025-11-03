@@ -85,7 +85,7 @@ export const NewJob: FC = () => {
 
   const domainList = useMemo<Domain[]>(() => {
     if (data && data.getDomains) {
-      setDomainChoice((data.getDomains as Domain[]).find(d => d.name == process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT));
+      setDomainChoice((data.getDomains as Domain[]).find(d => d.name === process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT));
       return data.getDomains;
     }
     return [];

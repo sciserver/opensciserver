@@ -42,6 +42,7 @@ export const WorkingDirectoryAccordionSummary: FC<Props> = ({ userVolumeList, us
     <StyledAccordionDetails>
       {userVolumeList.map(uv =>
         <InfoCard
+          key={uv.id}
           selected={userVolumeChoice && userVolumeChoice.id === uv.id}
           title={`${uv.name} (${uv.owner})`}
           subtitle={uv.description || 'No description available'}
