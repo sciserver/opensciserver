@@ -93,7 +93,7 @@ export const NewJob: FC = () => {
 
   const imageList = useMemo<Image[]>(() => {
     if (domainChoice) {
-      setImageChoice(domainChoice.images.find(d => d.name == process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT));
+      setImageChoice(domainChoice.images.find(d => d.name === process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT));
       return domainChoice.images;
     }
     return [];
@@ -108,7 +108,7 @@ export const NewJob: FC = () => {
 
   const userVolumeList = useMemo<UserVolume[]>(() => {
     if (domainChoice) {
-      const defaultUVs = (domainChoice.userVolumes as UserVolume[]).filter(uv => uv.name == 'scratch' || uv.name == 'persistent');
+      const defaultUVs = (domainChoice.userVolumes as UserVolume[]).filter(uv => uv.name === 'scratch' || uv.name === 'persistent');
       setUserVolumesChoice(defaultUVs);
       return domainChoice.userVolumes;
     }
@@ -117,7 +117,7 @@ export const NewJob: FC = () => {
 
   const temporaryWorkingDirPath = useMemo<string>(() => {
     return `/home/idies/workspace/Temporary/${userVolumeList.find(uv => uv.name === 'scratch')?.owner ?? ''}/jobs/`;
-  }, []);
+  }, [userVolumeList]);
 
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const submit = () => {
