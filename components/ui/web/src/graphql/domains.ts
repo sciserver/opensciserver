@@ -5,6 +5,8 @@ export const GET_DOMAINS = gql`
     getDomains(jobs: $jobs) {
       name
       id
+      apiEndpoint
+      description
       images {
         id
         name
@@ -15,6 +17,7 @@ export const GET_DOMAINS = gql`
         name
         owner
         description
+        rootVolumeName
       }
       dataVolumes {
         name

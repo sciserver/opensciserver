@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Layout } from 'components/common/layout';
-import { NewJob } from 'components/content/jobs/newJob';
+import { NewJob } from 'components/content/jobs/new/newJob';
 
 export default function ComputePage() {
   return (

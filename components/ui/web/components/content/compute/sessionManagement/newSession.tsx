@@ -39,6 +39,7 @@ export const NewSession: FC = () => {
     }
   );
 
+  const [sessionName, setSessionName] = useState<string>('');
   const [domainChoice, setDomainChoice] = useState<Domain>();
   const [imageChoice, setImageChoice] = useState<Image>();
   const [dataVolumesChoice, setDataVolumesChoice] = useState<DataVolume[]>([]);
@@ -101,6 +102,8 @@ export const NewSession: FC = () => {
     </div>
     <NewResource
       sessionType={NewSessionType.INTERACTIVE}
+      resourceName={sessionName}
+      setResourceName={setSessionName}
       domainList={domainList}
       domainChoice={domainChoice}
       setDomainChoice={setDomainChoice}

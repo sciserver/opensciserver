@@ -2,8 +2,7 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { Button, CircularProgress, TextField } from '@mui/material';
 
-import { DomainAccordionSummary } from 'components/content/newResource/domainAccordion';
-import { ImageAccordionSummary } from 'components/content/newResource/imageAccordion';
+import { Choice, SingleChoiceAccordionSummary } from 'components/content/newResource/singleChoiceAccordion';
 import { DataVolAccordionSummary } from 'components/content/newResource/dataVolumeAccordion';
 import { UserVolAccordionSummary } from 'components/content/newResource/userVolumeAccordion';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
@@ -47,6 +46,8 @@ export enum NewSessionType {
 }
 type Props = {
   sessionType: NewSessionType;
+  resourceName: string;
+  setResourceName: (name: string) => void;
   domainList: Domain[];
   domainChoice?: Domain;
   setDomainChoice: (domain: Domain) => void;
@@ -66,6 +67,8 @@ type Props = {
 
 export const NewResource: FC<Props> = ({
   sessionType,
+  resourceName,
+  setResourceName,
   domainList,
   domainChoice,
   setDomainChoice,
@@ -85,17 +88,37 @@ export const NewResource: FC<Props> = ({
 
   return <Styled>
     <div className="form">
-      <TextField id="standard-basic" label={`${sessionType === NewSessionType.JOB ? 'Job' : 'Compute'} Name`} variant="standard" />
-      <DomainAccordionSummary domainList={domainList} domainChoice={domainChoice} setDomainChoice={setDomainChoice} />
-      <ImageAccordionSummary imageList={imageList} imageChoice={imageChoice} setImageChoice={setImageChoice} />
-      <DataVolAccordionSummary dataVolumeList={dataVolumeList} dataVolumesChoice={dataVolumesChoice} setDataVolumesChoice={setDataVolumesChoice} />
-      <UserVolAccordionSummary userVolumeList={userVolumeList} userVolumesChoice={userVolumesChoice} setUserVolumesChoice={setUserVolumesChoice} />
+      <TextField
+        id="name-textfield"
+        label={`${sessionType === NewSessionType.JOB ? 'Job' : 'Compute'} Name`}
+        variant="standard"
+        value={resourceName}
+        onChange={(e) => setResourceName(e.target.value)}
+      />
+      <SingleChoiceAccordionSummary
+        title="Domain"
+        choiceList={domainList}
+        choice={domainChoice}
+        setChoice={(domain: Choice) => setDomainChoice(domain as Choice & Domain)}
+      />
+      <SingleChoiceAccordionSummary
+        title="Image"
+        choiceList={imageList}
+        choice={imageChoice}
+        setChoice={(image: Choice) => setImageChoice(image as Choice & Image)}
+      />
+      <DataVolAccordionSummary
+        dataVolumeList={dataVolumeList}
+        dataVolumesChoice={dataVolumesChoice}
+        setDataVolumesChoice={setDataVolumesChoice}
+      />
+      <UserVolAccordionSummary
+        userVolumeList={userVolumeList}
+        userVolumesChoice={userVolumesChoice}
+        setUserVolumesChoice={setUserVolumesChoice}
+      />
       <Button className="submit-button" type="submit" onClick={submit} variant="contained">
-        {loadingSubmit ?
-          <CircularProgress color="secondary" />
-          :
-          sessionType === NewSessionType.JOB ? 'Next' : 'Submit'
-        }
+        {loadingSubmit ? <CircularProgress color="secondary" /> : sessionType === NewSessionType.JOB ? 'Next' : 'Submit'}
       </Button>
     </div>
     {loadingData &&

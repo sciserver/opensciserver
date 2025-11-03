@@ -1,14 +1,17 @@
 import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery, ApolloError } from '@apollo/client';
+import { useQuery, ApolloError, useMutation } from '@apollo/client';
 import styled from 'styled-components';
-import { Button, Checkbox, Chip, IconButton, Step, StepLabel, Stepper, TextField } from '@mui/material';
+import { Button, Chip, IconButton, Step, StepLabel, Stepper } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import Swal from 'sweetalert2';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
+import { CREATE_JOB } from 'src/graphql/jobs';
+
 import { NewResource, NewSessionType } from 'components/content/newResource/newResource';
-import { WorkingDirectoryAccordionSummary } from '../newResource/workingDirectoryAccordion';
+import { CommandForm } from 'components/content/jobs/new/commandForm';
 
 const Styled = styled.div`
   .header {
@@ -22,37 +25,10 @@ const Styled = styled.div`
     }
   }
 
-  .command {
+  .step-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin: 2rem 0.5rem;
-
-    p {
-      margin: 0;
-
-      .path {
-        font-family: monospace;
-        color: ${({ theme }) => theme.palette.error.light};
-      }
-    }
-
-    .bullet {
-      margin-left: 1.5rem;
-    }
-
-    .step-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 1rem;
-    }
-
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      gap: 0.2rem;
-
-    }
+    justify-content: space-between;
+    margin-top: 1rem;
   }
 `;
 
@@ -76,6 +52,28 @@ export const NewJob: FC = () => {
     }
   );
 
+  const [createJob] = useMutation(CREATE_JOB, {
+    onError: () => Swal.fire({
+      title: 'Unable to add docker job',
+      text: 'Please email <a href=\"mailto:sciserver-helpdesk@jhu.edu\">sciserver-helpdesk@jhu.edu</a> for more assistance.',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      setLoadingSubmit(false);
+      return;
+    }).catch(Error),
+    onCompleted: () => Swal.fire({
+      title: 'Job created successfully',
+      text: 'Your job has been created and is now queued.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      setLoadingSubmit(false);
+      router.push('/jobs');
+    })
+  });
+
+  const [jobName, setJobName] = useState<string>('');
   const [domainChoice, setDomainChoice] = useState<Domain>();
   const [imageChoice, setImageChoice] = useState<Image>();
   const [dataVolumesChoice, setDataVolumesChoice] = useState<DataVolume[]>([]);
@@ -117,17 +115,45 @@ export const NewJob: FC = () => {
     return [];
   }, [domainChoice]);
 
+  const temporaryWorkingDirPath = useMemo<string>(() => {
+    return `/home/idies/workspace/Temporary/${userVolumeList.find(uv => uv.name === 'scratch')?.owner ?? ''}/jobs/`;
+  }, []);
+
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const submit = () => {
     if (!command.length) {
       setCommandError(true);
       return;
     }
+
+    if (!useTemporaryVolume && !workingDirectoryUserVolumesChoice) {
+      return;
+    }
+    setLoadingSubmit(true);
+
+    const resultsFolderURI = useTemporaryVolume ?
+      temporaryWorkingDirPath :
+      `/home/idies/workspace/${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`;
+
+    createJob({
+      variables: {
+        createJobParams: {
+          dockerComputeEndpoint: domainChoice!.apiEndpoint,
+          dockerImageName: imageChoice!.name,
+          resultsFolderURI,
+          submitterDID: jobName,
+          scriptURI: '',
+          volumeContainers: dataVolumesChoice.map(dv => dv.publisherDID),
+          userVolumes: userVolumesChoice.map(uv => uv.id),
+          command
+        }
+      }
+    });
   };
 
   return <Styled>
     <div className="header">
-      <IconButton onClick={() => router.push('/compute')} >
+      <IconButton onClick={() => router.push('/jobs')} >
         <CloseIcon />
       </IconButton>
       <h1>New Job</h1>
@@ -143,6 +169,8 @@ export const NewJob: FC = () => {
     {activeStep === 0 &&
       <NewResource
         sessionType={NewSessionType.JOB}
+        resourceName={jobName}
+        setResourceName={setJobName}
         domainList={domainList}
         domainChoice={domainChoice}
         setDomainChoice={setDomainChoice}
@@ -161,44 +189,21 @@ export const NewJob: FC = () => {
       />
     }
     {activeStep === 1 &&
-      <div className="command">
-        <TextField
-          id="command-multiline"
-          label="Command"
-          multiline
-          rows={10}
-          value={command}
-          onChange={(e) => {
-            setCommand(e.target.value);
-            setCommandError(false);
-          }}
-          error={commandError}
-          helperText={commandError ? 'Command cannot be empty' : ''}
+      <div>
+        <CommandForm
+          command={command}
+          setCommand={setCommand}
+          commandError={commandError}
+          setCommandError={setCommandError}
+          useTemporaryVolume={useTemporaryVolume}
+          setUseTemporaryVolume={setUseTemporaryVolume}
+          temporaryWorkingDirPath={temporaryWorkingDirPath}
+          workingDirectoryUserVolumesChoice={workingDirectoryUserVolumesChoice}
+          setWorkingDirectoryUserVolumesChoice={setWorkingDirectoryUserVolumesChoice}
+          userVolumesChoice={userVolumesChoice}
+          setActiveStep={setActiveStep}
+          submit={submit}
         />
-        <h4>Working Directory</h4>
-        <p>
-          Select a location to store standard input/output logs, which will also serve as the current working directory for this job.
-          To use other writable user volumes, enable them in the Files tab. <strong>Do not use relative paths in the command.</strong>
-        </p>
-
-        <div className="checkbox-container">
-          <Checkbox checked={useTemporaryVolume} onChange={() => setUseTemporaryVolume(!useTemporaryVolume)} />
-          <span className="caption">
-            Create and use a new folder in the “jobs” temporary volume. The folder will be created automatically.
-          </span>
-        </div>
-        {useTemporaryVolume ?
-          <div>
-            <p className="bullet">
-              • A copy of this command will be placed in a unique, nested subfolder of <i className="path">/home/idies/workspace/Temporary/jjaime/jobs/</i>.
-            </p>
-            <p className="bullet">
-              • Relative paths will be resolved from this location.
-            </p>
-          </div>
-          :
-          <WorkingDirectoryAccordionSummary userVolumeList={userVolumesChoice} userVolumeChoice={workingDirectoryUserVolumesChoice} setUserVolumeChoice={setWorkingDirectoryUserVolumesChoice} />
-        }
         <div className="step-buttons">
           <Button className="submit-button" onClick={() => setActiveStep(0)} variant="contained">Previous</Button>
           <Button className="submit-button" type="submit" onClick={submit} variant="contained">Submit</Button>

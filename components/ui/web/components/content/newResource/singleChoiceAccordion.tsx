@@ -3,7 +3,6 @@ import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 
 import { ParamAccordionSummary } from 'components/content/newResource/paramAccordionSummary';
-import { Domain } from 'src/graphql/typings';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
 
@@ -18,34 +17,40 @@ const StyledAccordionDetails = styled(AccordionDetails)`
     }
 `;
 
+export type Choice = {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 type Props = {
-  domainList: Domain[],
-  domainChoice?: Domain,
-  setDomainChoice: (domain: Domain) => void
+  title: string;
+  choiceList: Choice[],
+  choice?: Choice,
+  setChoice: (choice: Choice) => void
 };
 
-export const DomainAccordionSummary: FC<Props> = ({ domainList, domainChoice, setDomainChoice }) => {
-
+export const SingleChoiceAccordionSummary: FC<Props> = ({ title, choiceList, choice, setChoice }) => {
   const [open, setOpen] = useState<boolean>(false);
 
-  const handleOnClickOption = (dom: Domain) => {
-    setDomainChoice(dom);
+  const handleOnClickOption = (ch: Choice) => {
+    setChoice(ch);
     setOpen(false);
   };
 
   return <StyledAccordion open={open} setOpen={setOpen}>
     <ParamAccordionSummary
       open={open}
-      title="Domain"
-      choice={domainChoice ? { name: domainChoice.name, subtitle: domainChoice.description || 'Description for chosen domain' } : undefined}
+      title={title}
+      choice={choice ? { name: choice.name, subtitle: choice.description || 'No description available' } : undefined}
     />
     <StyledAccordionDetails>
-      {domainList.map(dom =>
+      {choiceList.map(ch =>
         <InfoCard
-          selected={domainChoice!.id === dom.id}
-          title={dom.name}
-          subtitle={dom.description}
-          action={() => handleOnClickOption(dom)}
+          selected={choice!.id === ch.id}
+          title={ch.name}
+          subtitle={ch.description || 'No description available'}
+          action={() => handleOnClickOption(ch)}
         />
       )}
     </StyledAccordionDetails>
