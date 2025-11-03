@@ -41,7 +41,7 @@ type Props = {
   setUseTemporaryVolume: (use: boolean) => void;
   temporaryWorkingDirPath: string;
   workingDirectoryUserVolumesChoice?: UserVolume;
-  setWorkingDirectoryUserVolumesChoice: (workingDiectory: UserVolume) => void;
+  setWorkingDirectoryUserVolumesChoice: (workingDirectory: UserVolume) => void;
   userVolumesChoice: UserVolume[];
   setActiveStep: (step: number) => void;
   submit: () => void;
