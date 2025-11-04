@@ -1,0 +1,56 @@
+{
+  "datasets": [
+    {
+      "name": "Dataset name",
+      "catalog": "Catalog name",
+      "summary": "Short description that will appear in the dataset card view.",
+      "description": "Detailed description that will appear in the dataset detail view. You can use HTML tags here to format the text and include images, links, etc.",
+      "logo": null,
+      "tags": [
+        "tags",
+        "are",
+        "one or two word",
+        "entries",
+        "that people can use to search for datasets"
+      ],
+      "resources": [
+        {
+          "name": "Notebook",
+          "kind": "notebook",
+          "description": "example notebook using example functions",
+          "link": null
+        },
+        {
+          "name": "Database queries",
+          "kind": "notebook",
+          "description": "example showing how to query the catalog database tables in SciServer",
+          "link": null
+        },
+        {
+          "name": "Another notebook",
+          "kind": "notebook",
+          "description": "example notebook demonstrating how to compute density fields",
+          "link": null
+        },
+        {
+          "name": "External link",
+          "kind": "external",
+          "description": "link to external website with more information about the dataset",
+          "link": null
+        },
+        {
+          "name": "Data volume",
+          "kind": "volumes",
+          "description": "link to the SciServer data volume containing the dataset",
+          "link": null
+        },
+        {
+          "name": "Data volume 2",
+          "kind": "volumes",
+          "description": "link to the SciServer data volume containing the dataset",
+          "link": null
+        }
+      ]
+    }
+  ]
+}
