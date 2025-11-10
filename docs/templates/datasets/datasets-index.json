@@ -18,37 +18,37 @@
           "name": "Notebook",
           "kind": "notebook",
           "description": "example notebook using example functions",
-          "link": null
+          "link": "https://example.com"
         },
         {
           "name": "Database queries",
           "kind": "notebook",
           "description": "example showing how to query the catalog database tables in SciServer",
-          "link": null
+          "link": "https://example.com"
         },
         {
           "name": "Another notebook",
           "kind": "notebook",
           "description": "example notebook demonstrating how to compute density fields",
-          "link": null
+          "link": "https://example.com"
         },
         {
           "name": "External link",
           "kind": "external",
           "description": "link to external website with more information about the dataset",
-          "link": null
+          "link": "https://example.com"
         },
         {
           "name": "Data volume",
           "kind": "volumes",
           "description": "link to the SciServer data volume containing the dataset",
-          "link": null
+          "link": "https://example.com"
         },
         {
           "name": "Data volume 2",
           "kind": "volumes",
           "description": "link to the SciServer data volume containing the dataset",
-          "link": null
+          "link": "https://example.com"
         }
       ]
     }
