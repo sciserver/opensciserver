@@ -32,6 +32,7 @@ export const JobsList: FC = () => {
 
   const { loading, data: allJobs } = useQuery(GET_JOBS,
     {
+      fetchPolicy: 'network-only',
       variables: {
         filters: {
           field: 'type',
