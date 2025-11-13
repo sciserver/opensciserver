@@ -27,7 +27,7 @@ const Styled = styled.div`
 `;
 
 const jobStatusPollingInterval = 5000; // 5 seconds
-const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
+const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started, JobStatus.Finished]);
 
 export const JobsList: FC = () => {
 
