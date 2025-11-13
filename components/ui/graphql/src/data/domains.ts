@@ -24,8 +24,8 @@ export class DomainsAPI extends RESTDataSource {
   }
 
   // QUERIES //
-  async getDomains(): Promise<Domain[]> {
-    const res = await this.get(`${this.baseURL!}computedomains/`) || [];
+  async getDomains(jobs = false): Promise<Domain[]> {
+    const res = await this.get(`${this.baseURL!}computedomains${!jobs ? '' : '?batch=true'}`) || [];
     let domains = res.map((r: any) => this.domainReducer(r));
     domains = sortBy(domains, 'name');
 

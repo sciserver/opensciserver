@@ -444,6 +444,7 @@ web:
     tag: <<<VTAG>>>
     pullPolicy: Always
   gTag:
+  helpdeskEmail: "sciserver-helpdesk@jhu.edu"
   newComputeSessionDefaults:
     domainName: "Interactive Docker Compute Domain"
     imageName: "Sciserver Essentials 4.0"

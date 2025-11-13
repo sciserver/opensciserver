@@ -64,6 +64,7 @@ export const typeDefs = gql`
     dockerImageName: String!
     submitterDID: String!
     scriptURI: String!
+    name: String
   }
 
   type Query {

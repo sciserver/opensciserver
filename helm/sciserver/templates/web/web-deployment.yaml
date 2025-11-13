@@ -59,6 +59,8 @@ spec:
               value: {{ .Values.web.newComputeSessionDefaults.imageName }}
             - name: NEXT_PUBLIC_QUICK_START_CONFIG
               value: {{ .Values.web.newComputeSessionDefaults.quickStartConfig }}
+            - name: NEXT_PUBLIC_HELPDESK_EMAIL
+              value: '{{ .Values.web.helpdeskEmail }}'
           ports:
             - containerPort: 3000
               protocol: TCP

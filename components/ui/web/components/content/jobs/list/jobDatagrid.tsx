@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
@@ -6,6 +7,7 @@ import {
 } from '@mui/icons-material';
 
 import {
+  Button,
   Chip,
   IconButton,
   Paper,
@@ -21,11 +23,17 @@ import { Job } from 'src/graphql/typings';
 import { JobShortDetail } from 'components/content/jobs/detail/jobShortDetail';
 
 const Styled = styled.div`
-margin-top: 2rem;
+  margin-top: 2rem;
   
-  .grid {  
+  .new-job {
+    display: block;
+    margin: 1rem 3rem 1rem auto; /* pushes the button to the right */
+  }
+
+  .grid {
     width: inherit;
-     .column-header {
+  
+    .column-header {
       font-style: normal;
       font-size: 14px;
       letter-spacing: 0.25px;
@@ -47,6 +55,8 @@ type Props = {
 }
 
 export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
+
+  const router = useRouter();
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
 
@@ -82,8 +92,15 @@ export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
   };
 
   return <Styled>
-    <Paper sx={{ width: '90%' }}>
-
+    <Button
+      variant="contained"
+      color="primary"
+      className="new-job"
+      onClick={() => router.push('/jobs/new')}
+    >
+      New Job
+    </Button>
+    <Paper sx={{ width: '95%' }}>
       <TableContainer sx={{ maxHeight: 440, minWidth: '100%' }}>
         <Table stickyHeader className="grid" aria-label=" Jobs Data Table">
           <TableHead>

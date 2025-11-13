@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { AccordionSummary, IconButton, Typography } from '@mui/material';
+import { AccordionSummary, IconButton } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon, Help as HelpIcon } from '@mui/icons-material';
 import { InfoCard } from 'components/common/infoCard';
 
@@ -26,7 +26,7 @@ export const ParamAccordionSummary: FC<Props> = ({ title, open, choice, extraTex
   >
     <div className="accordion-header">
       <div className="accordion-title">
-        <Typography className="title" variant="h5">{title}</Typography>
+        <h2>{title}</h2>
         <IconButton onClick={() => { }} >
           <HelpIcon />
         </IconButton>
@@ -41,7 +41,7 @@ export const ParamAccordionSummary: FC<Props> = ({ title, open, choice, extraTex
           />
           <>
             {extraText &&
-              <Typography className="title" variant="h5">{extraText}</Typography>
+              <h3 className="title" >{extraText}</h3>
             }
           </>
         </>
