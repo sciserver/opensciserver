@@ -5,7 +5,7 @@ import { ApolloError, useQuery } from '@apollo/client';
 import styled from 'styled-components';
 
 import { GET_JOBS } from 'src/graphql/jobs';
-import { Job } from 'src/graphql/typings';
+import { Job, JobStatus } from 'src/graphql/typings';
 
 import noContainersImg from 'public/No-containers.png';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
@@ -26,13 +26,16 @@ const Styled = styled.div`
 
 `;
 
+const jobStatusPollingInterval = 5000; // 5 seconds
+const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
+
 export const JobsList: FC = () => {
 
   const router = useRouter();
 
-  const { loading, data: allJobs } = useQuery(GET_JOBS,
+  const { loading, data: allJobs, startPolling, stopPolling } = useQuery(GET_JOBS,
     {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-and-network',
       variables: {
         filters: {
           field: 'type',
@@ -49,7 +52,16 @@ export const JobsList: FC = () => {
 
   const jobsList = useMemo<Job[]>(() => {
     if (allJobs && allJobs.getJobs) {
-      return allJobs.getJobs;
+      const jobs: Job[] = allJobs.getJobs;
+      if (jobs.some(job => jobStatusThatNeedPolling.has(job.status))) {
+        console.log('start polling');
+        startPolling(jobStatusPollingInterval);
+      }
+      else {
+        console.log('stop polling');
+        stopPolling();
+      }
+      return jobs;
     }
     return [];
   }, [allJobs]);
