@@ -241,10 +241,16 @@ export type JobUserVolume = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  cancelJob: Scalars['Boolean'];
   createJob: Job;
   deleteContainer: Scalars['Boolean'];
   login: Scalars['String'];
   root?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCancelJobArgs = {
+  jobId: Scalars['ID'];
 };
 
 
@@ -721,6 +727,7 @@ export type JobUserVolumeResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  cancelJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCancelJobArgs, 'jobId'>>;
   createJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationCreateJobArgs, 'createJobParams'>>;
   deleteContainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContainerArgs, 'containerId' | 'domainId'>>;
   login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'password' | 'username'>>;

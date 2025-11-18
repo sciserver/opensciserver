@@ -72,3 +72,9 @@ export const CREATE_JOB = gql`
     }
   }
 `;
+
+export const CANCEL_JOB = gql`
+  mutation CancelJob($jobId: ID!) {
+    cancelJob(jobId: $jobId)
+  }
+`;

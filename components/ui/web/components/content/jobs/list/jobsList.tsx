@@ -1,15 +1,16 @@
 import { FC, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ApolloError, useQuery } from '@apollo/client';
+import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import styled from 'styled-components';
 
-import { GET_JOBS } from 'src/graphql/jobs';
+import { CANCEL_JOB, GET_JOBS } from 'src/graphql/jobs';
 import { Job, JobStatus } from 'src/graphql/typings';
 
 import noContainersImg from 'public/No-containers.png';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { JobsDataGrid } from 'components/content/jobs/list/jobDatagrid';
+import Swal from 'sweetalert2';
 
 const Styled = styled.div`
   .no-active-containers {
@@ -33,7 +34,7 @@ export const JobsList: FC = () => {
 
   const router = useRouter();
 
-  const { loading, data: allJobs, startPolling, stopPolling } = useQuery(GET_JOBS,
+  const { loading, data: allJobs, startPolling, stopPolling, refetch } = useQuery(GET_JOBS,
     {
       fetchPolicy: 'cache-and-network',
       variables: {
@@ -49,6 +50,18 @@ export const JobsList: FC = () => {
       }
     }
   );
+
+  const [cancelJob] = useMutation(CANCEL_JOB, {
+    onError: () => Swal.fire({
+      title: 'Unable to cancel docker job',
+      text: `Please email <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
+      icon: 'error',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      refetch();
+      // setLoadingSubmit(false);
+    })
+  });
 
   const jobsList = useMemo<Job[]>(() => {
     if (allJobs && allJobs.getJobs) {
@@ -72,7 +85,7 @@ export const JobsList: FC = () => {
       <LoadingAnimation backDropIsOpen={loading} />
     }
     {jobsList.length > 0 &&
-      <JobsDataGrid jobsList={jobsList} />
+      <JobsDataGrid jobsList={jobsList} cancelJob={cancelJob} />
     }
     {!loading && !jobsList.length &&
       <div className="no-active-containers">
