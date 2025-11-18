@@ -15,5 +15,9 @@ export const mutationResolvers: MutationResolvers = {
   createJob: async (_, { createJobParams }, { dataSources }) => {
     const created = await dataSources.jobsAPI.createJob(createJobParams);
     return created;
+  },
+  cancelJob: async (_, { jobId }, { dataSources }) => {
+    const cancelled = await dataSources.jobsAPI.cancelJob(jobId);
+    return cancelled;
   }
 };

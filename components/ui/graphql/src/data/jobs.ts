@@ -55,8 +55,12 @@ export class JobsAPI extends RESTDataSource {
   // MUTATIONS //
   async createJob(createJobParams: CreateJobParams): Promise<Job> {
     const response = await this.post(`${this.baseURL!}jobs/docker`, { body: createJobParams });
-
     return this.jobReducer(response);
+  }
+
+  async cancelJob(jobId: string): Promise<boolean> {
+    await this.post(`${this.baseURL!}jobs/${jobId}/cancel`);
+    return true;
   }
 
   // Reducers
