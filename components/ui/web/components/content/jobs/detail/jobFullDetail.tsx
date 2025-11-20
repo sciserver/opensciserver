@@ -241,11 +241,13 @@ export const JobFullDetail: FC = () => {
               </p>
             </div>
           </div>
-          <Tooltip title="Re-run Job">
-            <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
-              <ReplayIcon />
-            </IconButton>
-          </Tooltip>
+          {jobDetail.job.resultsFolderURI.length > 0 &&
+            <Tooltip title="Re-run Job">
+              <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
+                <ReplayIcon />
+              </IconButton>
+            </Tooltip>
+          }
         </div>
         {jobDetail.job.command &&
           <div className="command">

@@ -38,6 +38,7 @@ export const JobsList: FC = () => {
     {
       fetchPolicy: 'cache-and-network',
       variables: {
+        top: 100,
         filters: {
           field: 'type',
           value: 'jobm.model.COMPMDockerJobModel'
