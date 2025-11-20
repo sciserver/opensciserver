@@ -128,7 +128,7 @@ export const JobFullDetail: FC = () => {
       icon: 'success',
       confirmButtonText: 'OK'
     }).then(() => {
-      router.reload();
+      router.push('/jobs');
     })
   });
 
@@ -144,12 +144,14 @@ export const JobFullDetail: FC = () => {
   };
 
   const rerunJob = (job: Job) => {
+    const resultsFolderURI = job.resultsFolderURI.split('/').slice(0, -2).join('/');
+
     createJob({
       variables: {
         createJobParams: {
           dockerComputeEndpoint: job.dockerComputeEndpoint,
           dockerImageName: job.dockerImageName,
-          resultsFolderURI: job.resultsFolderURI,
+          resultsFolderURI,
           submitterDID: job.submitterDID,
           volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
           userVolumes: job.userVolumes.map(uv => uv.id),
