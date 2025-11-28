@@ -1,9 +1,9 @@
 CREATE or ALTER function [racm].[nextJobsRestricted](@compmUUID varchar(64), @timeout real, 
         @interval real, @maxNum integer, @maxPerUser integer) 
 returns @rt table(
-	  jobId bigint, submitterId bigint,
-	  computeDomainId bigint, submitTime datetime,
-	  usageWeight float, numQueued integer, numStarted integer, ranking integer) 
+      jobId bigint, submitterId bigint,
+      computeDomainId bigint, submitTime datetime,
+      usageWeight float, numQueued integer, numStarted integer, ranking integer) 
 as
 begin
 
@@ -22,17 +22,18 @@ select dj.submitterId
 ,      count(*) as numJobs
 ,      sum(case when dj.status between 2 and 4 then 1 else 0 end) as numQueued
 ,      sum(case when dj.status = 8 then 1 else 0 end) as numStarted
-,      sum(case when dj.finishedTime is null then @timeout -- should really be cast(datediff(second,startedTime, getDate()) as float)
+,      sum(case when dj.finishedTime is null then @timeout 
                 else cast(datediff(second,dj.startedTime, dj.finishedtime) as float)
 				end ) as totTime
-,      sum((case when dj.finishedTime is null then @timeout -- should really be cast(datediff(second,startedTime, getDate()) as float)
+,      sum((case when dj.finishedTime is null then @timeout 
                 else cast(datediff_big(millisecond,dj.startedTime, dj.finishedtime) as float)
 				end )/datediff_big(millisecond,dj.startedTime,@currentDate)) as usageWeight
-  from compm c , job dj 
- where c.uuid = @compmUUID
-   and dj.computeDomainId=c.computeDomainId
+  from compm c 
+  join job dj
+    on dj.computeDomainId=c.computeDomainId
    and dj.status > 1 -- PENDING
    and dj.startedTime >= dateadd(second,-@interval,getDate())
+ where c.uuid = @compmUUID
  group by submitterid
 
 declare @pending table (id bigint, submitterId bigint, computeDomainId bigint,
@@ -65,7 +66,7 @@ select * -- jobId,submitterId, computeDomainId, submitTime , usageWeight, numQue
   from final
  where ranking <= @maxNum 
 
-  return 
+return 
 end
 
 
