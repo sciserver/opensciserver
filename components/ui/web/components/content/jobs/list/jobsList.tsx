@@ -78,7 +78,7 @@ export const JobsList: FC = () => {
       return jobs;
     }
     return [];
-  }, [allJobs]);
+  }, [allJobs, startPolling, stopPolling]);
 
   return <Styled>
     <h1>Jobs</h1>
