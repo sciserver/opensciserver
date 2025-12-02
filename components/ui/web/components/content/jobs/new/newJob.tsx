@@ -54,8 +54,8 @@ export const NewJob: FC = () => {
 
   const [createJob] = useMutation(CREATE_JOB, {
     onError: () => Swal.fire({
-      title: 'Unable to add docker job',
-      text: `Please email <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
+      title: 'Unable to add job',
+      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
       icon: 'error',
       confirmButtonText: 'OK'
     }).then(() => {

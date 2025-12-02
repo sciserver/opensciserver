@@ -54,8 +54,8 @@ export const JobsList: FC = () => {
 
   const [cancelJob] = useMutation(CANCEL_JOB, {
     onError: () => Swal.fire({
-      title: 'Unable to cancel docker job',
-      text: `Please email <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
+      title: 'Unable to cancel job',
+      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
       icon: 'error',
       confirmButtonText: 'OK'
     }).then(() => {
