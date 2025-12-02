@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
 
-import { NewResource, NewSessionType } from 'components/content/newResource/newResource';
+import { NewComputeSession, NewComputeSessionType } from 'components/content/newComputeSession/newComputeSession';
 
 const Styled = styled.div`
   .header {
@@ -100,8 +100,8 @@ export const NewSession: FC = () => {
       <h1>New Compute Session</h1>
       <Chip color="warning" label="BETA" />
     </div>
-    <NewResource
-      sessionType={NewSessionType.INTERACTIVE}
+    <NewComputeSession
+      sessionType={NewComputeSessionType.INTERACTIVE}
       resourceName={sessionName}
       setResourceName={setSessionName}
       domainList={domainList}

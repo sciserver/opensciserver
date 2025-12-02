@@ -2,9 +2,9 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { Button, CircularProgress, TextField } from '@mui/material';
 
-import { Choice, SingleChoiceAccordionSummary } from 'components/content/newResource/singleChoiceAccordion';
-import { DataVolAccordionSummary } from 'components/content/newResource/dataVolumeAccordion';
-import { UserVolAccordionSummary } from 'components/content/newResource/userVolumeAccordion';
+import { Choice, SingleChoiceAccordionSummary } from 'components/content/newComputeSession/singleChoiceAccordion';
+import { DataVolAccordionSummary } from 'components/content/newComputeSession/dataVolumeAccordion';
+import { UserVolAccordionSummary } from 'components/content/newComputeSession/userVolumeAccordion';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
@@ -40,12 +40,12 @@ const Styled = styled.div`
   }
 `;
 
-export enum NewSessionType {
+export enum NewComputeSessionType {
   JOB = 'JOB',
   INTERACTIVE = 'INTERACTIVE'
 }
 type Props = {
-  sessionType: NewSessionType;
+  sessionType: NewComputeSessionType;
   resourceName: string;
   setResourceName: (name: string) => void;
   domainList: Domain[];
@@ -65,7 +65,7 @@ type Props = {
   loadingData: boolean;
 };
 
-export const NewResource: FC<Props> = ({
+export const NewComputeSession: FC<Props> = ({
   sessionType,
   resourceName,
   setResourceName,
@@ -90,7 +90,7 @@ export const NewResource: FC<Props> = ({
     <div className="form">
       <TextField
         id="name-textfield"
-        label={`${sessionType === NewSessionType.JOB ? 'Job' : 'Compute'} Name`}
+        label={`${sessionType === NewComputeSessionType.JOB ? 'Job' : 'Compute'} Name`}
         variant="standard"
         value={resourceName}
         onChange={(e) => setResourceName(e.target.value)}
@@ -118,7 +118,7 @@ export const NewResource: FC<Props> = ({
         setUserVolumesChoice={setUserVolumesChoice}
       />
       <Button className="submit-button" type="submit" onClick={submit} variant="contained">
-        {loadingSubmit ? <CircularProgress color="secondary" /> : sessionType === NewSessionType.JOB ? 'Next' : 'Submit'}
+        {loadingSubmit ? <CircularProgress color="secondary" /> : sessionType === NewComputeSessionType.JOB ? 'Next' : 'Submit'}
       </Button>
     </div>
     {loadingData &&

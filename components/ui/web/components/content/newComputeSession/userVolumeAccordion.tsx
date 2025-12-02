@@ -3,7 +3,7 @@ import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 import { remove } from 'lodash';
 
-import { ParamAccordionSummary } from 'components/content/newResource/paramAccordionSummary';
+import { ParamAccordionSummary } from 'components/content/newComputeSession/paramAccordionSummary';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
 import { UserVolume } from 'src/graphql/typings';
