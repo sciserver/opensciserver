@@ -3,7 +3,7 @@ import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 import { remove } from 'lodash';
 
-import { ParamAccordionSummary } from 'components/content/compute/newSession/paramAccordionSummary';
+import { ParamAccordionSummary } from 'components/content/newComputeSession/paramAccordionSummary';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
 import { UserVolume } from 'src/graphql/typings';
@@ -23,7 +23,7 @@ const StyledAccordionDetails = styled(AccordionDetails)`
 type Props = {
   userVolumeList: UserVolume[],
   userVolumesChoice: UserVolume[],
-  setUserVolumesChoice: (dataVols: UserVolume[]) => void
+  setUserVolumesChoice: (userVols: UserVolume[]) => void
 };
 
 export const UserVolAccordionSummary: FC<Props> = ({ userVolumeList, userVolumesChoice, setUserVolumesChoice }) => {
@@ -47,7 +47,7 @@ export const UserVolAccordionSummary: FC<Props> = ({ userVolumeList, userVolumes
     <ParamAccordionSummary
       open={open}
       title="User Volumes"
-      choice={userVolumesChoice[0] ? { name: `${userVolumesChoice[0].name} (${userVolumesChoice[0].owner})`, subtitle: userVolumesChoice[0].description || 'Description for chosen dv' } : undefined}
+      choice={userVolumesChoice[0] ? { name: `${userVolumesChoice[0].name} (${userVolumesChoice[0].owner})`, subtitle: userVolumesChoice[0].description || 'No description available' } : undefined}
       extraText={userVolumesChoice.length > 1 ? `${userVolumesChoice.length - 1}+ chosen` : ''}
     />
     <StyledAccordionDetails>
