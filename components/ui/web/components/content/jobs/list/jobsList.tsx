@@ -1,11 +1,10 @@
 import { FC, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ApolloError, useMutation, useQuery } from '@apollo/client';
+import { ApolloError, useQuery } from '@apollo/client';
 import styled from 'styled-components';
-import Swal from 'sweetalert2';
 
-import { CREATE_JOB, GET_JOBS } from 'src/graphql/jobs';
+import { GET_JOBS } from 'src/graphql/jobs';
 import { Job } from 'src/graphql/typings';
 
 import noContainersImg from 'public/No-containers.png';
@@ -25,32 +24,6 @@ const Styled = styled.div`
     gap: 1rem;
   }
 
-  .grid {
-    width: 95%;
-    border: none;
-
-     .MuiDataGrid-columnHeader {
-      font-style: normal;
-      font-size: 14px;
-      letter-spacing: 0.25px;
-      font-weight: 600;
-      text-transform: capitalize;
-      .MuiCheckbox-root {
-        height: 100%;        
-        padding: 15px;
-      }
-    }
-
-    .MuiDataGrid-cell {
-        padding: 12px 25px;
-        font-weight: 500;
-        border-top: 1px solid #E0E0E0;
-    }
-
-    .icon {
-      color: ${({ theme }) => theme.palette.icons.danger};
-    }
-  }
 `;
 
 export const JobsList: FC = () => {
