@@ -10,7 +10,7 @@ import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
 import { CREATE_JOB } from 'src/graphql/jobs';
 
-import { NewResource, NewSessionType } from 'components/content/newResource/newResource';
+import { NewComputeSession, NewComputeSessionType } from 'components/content/newComputeSession/newComputeSession';
 import { CommandForm } from 'components/content/jobs/new/commandForm';
 
 const Styled = styled.div`
@@ -167,8 +167,8 @@ export const NewJob: FC = () => {
       ))}
     </Stepper>
     {activeStep === 0 &&
-      <NewResource
-        sessionType={NewSessionType.JOB}
+      <NewComputeSession
+        sessionType={NewComputeSessionType.JOB}
         resourceName={jobName}
         setResourceName={setJobName}
         domainList={domainList}
