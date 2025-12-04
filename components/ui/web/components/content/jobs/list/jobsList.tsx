@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ApolloError, useQuery } from '@apollo/client';
+import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import styled from 'styled-components';
 
 import { CANCEL_JOB, GET_JOBS } from 'src/graphql/jobs';
@@ -17,7 +17,7 @@ const Styled = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-  }  
+  }
 
   .resources {
     margin: 1rem;
