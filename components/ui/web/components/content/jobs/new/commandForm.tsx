@@ -63,6 +63,7 @@ export const CommandForm: FC<Props> = ({
       id="command-multiline"
       label="Command"
       multiline
+      placeholder="Type your command here. This will be run as a bash shell command."
       rows={10}
       value={command}
       onChange={(e) => {

@@ -115,8 +115,8 @@ export const JobFullDetail: FC = () => {
   );
   const [createJob] = useMutation(CREATE_JOB, {
     onError: () => Swal.fire({
-      title: 'Unable to add docker job',
-      text: 'Please email <a href=\"mailto:sciserver-helpdesk@jhu.edu\">sciserver-helpdesk@jhu.edu</a> for more assistance.',
+      title: 'Unable to add job',
+      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
       icon: 'error',
       confirmButtonText: 'OK'
     }).then(() => {
@@ -128,7 +128,7 @@ export const JobFullDetail: FC = () => {
       icon: 'success',
       confirmButtonText: 'OK'
     }).then(() => {
-      router.reload();
+      router.push('/jobs');
     })
   });
 
@@ -144,12 +144,14 @@ export const JobFullDetail: FC = () => {
   };
 
   const rerunJob = (job: Job) => {
+    const resultsFolderURI = job.resultsFolderURI.split('/').slice(0, -2).join('/');
+
     createJob({
       variables: {
         createJobParams: {
           dockerComputeEndpoint: job.dockerComputeEndpoint,
           dockerImageName: job.dockerImageName,
-          resultsFolderURI: job.resultsFolderURI,
+          resultsFolderURI,
           submitterDID: job.submitterDID,
           volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
           userVolumes: job.userVolumes.map(uv => uv.id),
@@ -241,11 +243,13 @@ export const JobFullDetail: FC = () => {
               </p>
             </div>
           </div>
-          <Tooltip title="Re-run Job">
-            <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
-              <ReplayIcon />
-            </IconButton>
-          </Tooltip>
+          {jobDetail.job.resultsFolderURI.length > 0 &&
+            <Tooltip title="Re-run Job">
+              <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
+                <ReplayIcon />
+              </IconButton>
+            </Tooltip>
+          }
         </div>
         {jobDetail.job.command &&
           <div className="command">
