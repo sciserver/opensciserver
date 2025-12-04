@@ -23,6 +23,7 @@ const StyledTableRow = styled(TableRow)`
     justify-content: space-between;
     align-items: center;
     
+    
     .job-field {
       display : flex;
       gap: 0.5rem;
