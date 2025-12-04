@@ -118,7 +118,7 @@ export const DrawerNav: FC = (props: ComponentProps) => {
     {
       name: 'Home',
       value: 'home',
-      onClick: () => window.location.href = process.env.NEXT_PUBLIC_FILES_URL || '',
+      onClick: () => window.location.href = process.env.NEXT_PUBLIC_DASHBOARD_URL || '',
       icon: <HomeIcon />
     },
     {
