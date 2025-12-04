@@ -23,10 +23,15 @@ const StyledTableRow = styled(TableRow)`
     justify-content: space-between;
     align-items: center;
     
+    
     .job-field {
       display : flex;
       gap: 0.5rem;
       align-items: center;
+
+      p, h3 {
+        margin: 0.2rem;
+      }
     }
   }
 
@@ -67,7 +72,7 @@ export const JobShortDetail: FC<Props> = ({ job, isOpen }) => {
   return <StyledTableRow>
     <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
       <Collapse in={isOpen} timeout="auto" unmountOnExit>
-        <Box sx={{ margin: 5 }}>
+        <Box sx={{ margin: 1.5 }}>
           <div className="job-details">
             <div>
               <div className="job-field">

@@ -205,6 +205,7 @@ type JobUserVolume {
 }
 
 type Mutation {
+  cancelJob(jobId: ID!): Boolean!
   createJob(createJobParams: CreateJobParams!): Job!
   deleteContainer(containerId: ID!, domainId: ID!): Boolean!
   login(password: String!, username: String!): String!

@@ -74,5 +74,6 @@ export const typeDefs = gql`
 
   type Mutation {
     createJob(createJobParams: CreateJobParams!): Job!
+    cancelJob(jobId: ID!): Boolean!
   }
 `;

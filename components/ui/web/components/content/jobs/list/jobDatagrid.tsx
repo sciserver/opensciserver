@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
 
 import {
@@ -19,7 +20,7 @@ import {
   TableRow
 } from '@mui/material';
 
-import { Job } from 'src/graphql/typings';
+import { Job, JobStatus } from 'src/graphql/typings';
 import { JobShortDetail } from 'components/content/jobs/detail/jobShortDetail';
 
 const Styled = styled.div`
@@ -50,12 +51,27 @@ const Styled = styled.div`
   }
 `;
 
+const getStatus = (job: Job) => {
+  switch (job.status) {
+    case JobStatus.Success: {
+      return 'success';
+    }
+    case JobStatus.Error: {
+      return 'error';
+    }
+    default: {
+      return 'secondary';
+    }
+  }
+};
+
 type Props = {
   jobsList: Job[];
+  cancelJob: (jobId: { variables: { jobId: string; }; }) => void;
 }
 
-export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
-
+const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
+export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
   const router = useRouter();
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
@@ -77,20 +93,6 @@ export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
   // Check if a specific row is open
   const isRowOpen = (jobId: string) => openRows.has(jobId);
 
-  const getStatus = (job: Job) => {
-    switch (job.status) {
-      case 'SUCCESS': {
-        return <Chip label="Success" color="success" />;
-      }
-      case 'ERROR': {
-        return <Chip label="Error" color="error" />;
-      }
-      default: {
-        return <Chip label={job.status} color="primary" />;
-      }
-    }
-  };
-
   return <Styled>
     <Button
       variant="contained"
@@ -109,6 +111,7 @@ export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
               <TableCell className="column-header">Submitted At</TableCell>
               <TableCell className="column-header">Name</TableCell>
               <TableCell className="column-header">Status</TableCell>
+              <TableCell className="column-header"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -128,7 +131,16 @@ export const JobsDataGrid: FC<Props> = ({ jobsList }) => {
                     {new Date(job.submissionTime).toLocaleString()}
                   </TableCell>
                   <TableCell className="cell">{job.submitterDID}</TableCell>
-                  <TableCell className="cell">{getStatus(job)}</TableCell>
+                  <TableCell className="cell">
+                    <Chip label={job.status} color={getStatus(job)} />
+                  </TableCell>
+                  <TableCell className="cell">
+                    {jobStatusAllowCancel.has(job.status) &&
+                      <IconButton onClick={() => cancelJob({ variables: { jobId: job.id } })} size="small">
+                        <CancelIcon className="delete-icon" />
+                      </IconButton>
+                    }
+                  </TableCell>
                 </TableRow>
                 <JobShortDetail job={job} isOpen={isRowOpen(job.id)} />
               </>
