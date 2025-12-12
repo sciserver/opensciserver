@@ -39,6 +39,8 @@ spec:
               value: '{{ include "sciserver.url" . }}graphql'
             - name: NEXT_PUBLIC_FILES_URL
               value: '{{ include "sciserver.url" . }}dashboard/files/uservolumes'
+            - name: NEXT_PUBLIC_DASHBOARD_URL
+              value: '{{ include "sciserver.url" . }}dashboard/'
             - name: NEXT_PUBLIC_NOTEBOOKS_URL
               value: '{{ include "sciserver.url" . }}compute/'
             - name: NEXT_PUBLIC_FILE_SERVICE_URL

@@ -19,6 +19,7 @@ import {
 import {
   AutoGraph as AutoGraphIcon,
   Folder as FolderIcon,
+  Home as HomeIcon,
   Terminal as TerminalIcon
 } from '@mui/icons-material';
 
@@ -114,6 +115,12 @@ export const DrawerNav: FC = (props: ComponentProps) => {
   }, []);
 
   const drawerOptions: DrawerOption[] = [
+    {
+      name: 'Home',
+      value: 'home',
+      onClick: () => window.location.href = process.env.NEXT_PUBLIC_DASHBOARD_URL || '',
+      icon: <HomeIcon />
+    },
     {
       name: 'Datasets',
       value: 'datasets',
