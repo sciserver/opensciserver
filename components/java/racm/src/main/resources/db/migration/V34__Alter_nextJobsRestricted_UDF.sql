@@ -24,10 +24,10 @@ select dj.submitterId
 ,      sum(case when dj.status = 8 then 1 else 0 end) as numStarted
 ,      sum(case when dj.finishedTime is null then @timeout 
                 else cast(datediff(second,dj.startedTime, dj.finishedtime) as float)
-				end ) as totTime
+           end ) as totTime
 ,      sum((case when dj.finishedTime is null then @timeout 
                 else cast(datediff_big(millisecond,dj.startedTime, dj.finishedtime) as float)
-				end )/datediff_big(millisecond,dj.startedTime,@currentDate)) as usageWeight
+            end )/datediff_big(millisecond,dj.startedTime,@currentDate)) as usageWeight
   from compm c 
   join job dj
     on dj.computeDomainId=c.computeDomainId
@@ -37,7 +37,7 @@ select dj.submitterId
  group by submitterid
 
 declare @pending table (id bigint, submitterId bigint, computeDomainId bigint,
-                        submitTime datetime,rankSubmitted integer)
+                        submitTime datetime, rankSubmitted integer)
 
 insert into @pending
 select dj.id, dj.submitterId, dj.computeDomainId, submitTime,
@@ -62,12 +62,9 @@ select j.id as jobId,j.submitterId, j.computeDomainId, j.submitTime
     and j.rankSubmitted+isnull(p.numQueued,0)+isnull(p.numStarted,0)<=@maxPerUser
 )
 insert into @rt
-select * -- jobId,submitterId, computeDomainId, submitTime , usageWeight, numQueued, numStarted, ranking
+select * -- RETURNS: jobId,submitterId, computeDomainId, submitTime , usageWeight, numQueued, numStarted, ranking
   from final
  where ranking <= @maxNum 
 
 return 
 end
-
-
-
