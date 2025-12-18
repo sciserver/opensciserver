@@ -1,4 +1,4 @@
-CREATE or ALTER function [racm].[nextJobsRestricted](@compmUUID varchar(64), @timeout real, 
+CREATE OR ALTER function [racm].[nextJobsRestricted](@compmUUID varchar(64), @timeout real, 
         @interval real, @maxNum integer, @maxPerUser integer) 
 returns @rt table(
       jobId bigint, submitterId bigint,
@@ -7,7 +7,7 @@ returns @rt table(
 as
 begin
 
-declare @computeDomainId bigint, @currentDate datetime = getDate()
+declare @computeDomainId bigint, @currentDate datetime = getDate();
 
 select @computeDomainId = computeDomainId
   from COMPM
@@ -15,7 +15,7 @@ select @computeDomainId = computeDomainId
 ;
 
 declare @prev table (submitterId bigint, numJobs integer, numQueued integer,
-                     numStarted integer, totTime float, usageWeight float)
+                     numStarted integer, totTime float, usageWeight float);
 
 insert into @prev
 select dj.submitterId
@@ -31,13 +31,14 @@ select dj.submitterId
   from compm c 
   join job dj
     on dj.computeDomainId=c.computeDomainId
-   and dj.status > 1 -- PENDING
+   and dj.status > 1 -- 1 = PENDING
    and dj.startedTime >= dateadd(second,-@interval,getDate())
  where c.uuid = @compmUUID
  group by submitterid
+;
 
 declare @pending table (id bigint, submitterId bigint, computeDomainId bigint,
-                        submitTime datetime, rankSubmitted integer)
+                        submitTime datetime, rankSubmitted integer);
 
 insert into @pending
 select dj.id, dj.submitterId, dj.computeDomainId, submitTime,
@@ -46,9 +47,9 @@ select dj.id, dj.submitterId, dj.computeDomainId, submitTime,
   join job dj 
     on dj.computeDomainId=c.computeDomainId
  where c.uuid = @compmUUID
-   and dj.status=1 -- PENDING
-
+   and dj.status=1 -- 1 = PENDING
 ;
+
 with final as (
 select j.id as jobId,j.submitterId, j.computeDomainId, j.submitTime  
 ,      isnull(p.usageWeight,0) as usageWeight
@@ -65,6 +66,7 @@ insert into @rt
 select * -- RETURNS: jobId,submitterId, computeDomainId, submitTime , usageWeight, numQueued, numStarted, ranking
   from final
  where ranking <= @maxNum 
+;
 
 return 
 end
