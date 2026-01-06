@@ -32,7 +32,7 @@ export const UserVolAccordionSummary: FC<Props> = ({ userVolumeList, userVolumes
 
   const handleOnClickOption = (uv: UserVolume) => {
     const uvs = userVolumesChoice;
-    const tempUv = uvs.find(i => i.id === uv.id);
+    const tempUv = uvs.find(i => i && i.id === uv.id);
 
     if (tempUv) {
       remove(uvs, (i) => i.id === uv.id);
