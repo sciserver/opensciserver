@@ -39,7 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   main {
-    margin: 3% 5% 5% 10%;
+    margin: 1% 5% 5% 10%;
   }
 
   h1, h2, h3, h4, h5 {

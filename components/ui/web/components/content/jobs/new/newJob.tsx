@@ -2,7 +2,7 @@ import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, ApolloError, useMutation } from '@apollo/client';
 import styled from 'styled-components';
-import { Button, Chip, IconButton, Step, StepLabel, Stepper } from '@mui/material';
+import { Button, Chip, Divider, IconButton, Step, StepLabel, Stepper } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 
@@ -12,24 +12,55 @@ import { CREATE_JOB } from 'src/graphql/jobs';
 
 import { NewComputeSession, NewComputeSessionType } from 'components/content/newComputeSession/newComputeSession';
 import { CommandForm } from 'components/content/jobs/new/commandForm';
+import { NewComputeSessionOptions } from 'components/content/newComputeSession/newComputeSessionOptions';
 
 const Styled = styled.div`
+  margin-top: -1%;
+
+  .content {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    grid-template-rows: auto;
+    grid-template-areas: 
+      "header header"
+      "left-panel right-panel";
+  }
+
   .header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+      grid-area: header;
+      
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
 
-    .alert {
-      color: ${({ theme }) => theme.palette.warning.dark};
+        .alert {
+          color: ${({ theme }) => theme.palette.warning.dark};
+        }
+      }
     }
-  }
 
-  .step-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
+    .divider {
+      margin-left: -3rem; 
+      margin-right: -4rem;
+    }
+
+    .left-panel {
+      grid-area: left-panel;
+      border-right: 1px solid ${({ theme }) => theme.palette.divider};
+    }
+    .right-panel {
+      grid-area: right-panel;
+      margin-left: 2rem;
+      margin-top: 1rem;
+    }
+
+      
+    .step-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
 `;
 
 const steps = ['Select Domain & Image', 'Set Command', 'Submit'];
@@ -153,62 +184,89 @@ export const NewJob: FC = () => {
 
   return <Styled>
     <div className="header">
-      <IconButton onClick={() => router.push('/jobs')} >
-        <CloseIcon />
-      </IconButton>
-      <h1>New Job</h1>
-      <Chip color="warning" label="BETA" />
-    </div>
-    <Stepper activeStep={activeStep} alternativeLabel>
-      {steps.map((label) => (
-        <Step key={label}>
-          <StepLabel>{label}</StepLabel>
-        </Step>
-      ))}
-    </Stepper>
-    {activeStep === 0 &&
-      <NewComputeSession
-        sessionType={NewComputeSessionType.JOB}
-        resourceName={jobName}
-        setResourceName={setJobName}
-        domainList={domainList}
-        domainChoice={domainChoice}
-        setDomainChoice={setDomainChoice}
-        imageList={imageList}
-        imageChoice={imageChoice}
-        setImageChoice={setImageChoice}
-        dataVolumeList={dataVolumeList}
-        dataVolumesChoice={dataVolumesChoice}
-        setDataVolumesChoice={setDataVolumesChoice}
-        userVolumeList={userVolumeList}
-        userVolumesChoice={userVolumesChoice}
-        setUserVolumesChoice={setUserVolumesChoice}
-        submit={() => setActiveStep(1)}
-        loadingSubmit={loadingSubmit}
-        loadingData={loadingData}
-      />
-    }
-    {activeStep === 1 &&
-      <div>
-        <CommandForm
-          command={command}
-          setCommand={setCommand}
-          commandError={commandError}
-          setCommandError={setCommandError}
-          useTemporaryVolume={useTemporaryVolume}
-          setUseTemporaryVolume={setUseTemporaryVolume}
-          temporaryWorkingDirPath={temporaryWorkingDirPath}
-          workingDirectoryUserVolumesChoice={workingDirectoryUserVolumesChoice}
-          setWorkingDirectoryUserVolumesChoice={setWorkingDirectoryUserVolumesChoice}
-          userVolumesChoice={userVolumesChoice}
-          setActiveStep={setActiveStep}
-          submit={submit}
-        />
-        <div className="step-buttons">
-          <Button className="submit-button" onClick={() => setActiveStep(0)} variant="contained">Previous</Button>
-          <Button className="submit-button" type="submit" onClick={submit} variant="contained">Submit</Button>
-        </div>
+      <div className="title">
+        <IconButton onClick={() => router.push('/jobs')} >
+          <CloseIcon />
+        </IconButton>
+        <h3>New Job</h3>
+        <Chip color="warning" label="BETA" />
       </div>
-    }
+      {/* <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper> */}
+    </div>
+    <Divider className="divider" />
+    <div className="content">
+      <div className="left-panel">
+        <NewComputeSessionOptions
+          domainList={domainList}
+          domainChoice={domainChoice}
+          setDomainChoice={setDomainChoice}
+          imageList={imageList}
+          imageChoice={imageChoice}
+          setImageChoice={setImageChoice}
+          dataVolumeList={dataVolumeList}
+          dataVolumesChoice={dataVolumesChoice}
+          setDataVolumesChoice={setDataVolumesChoice}
+          userVolumeList={userVolumeList}
+          userVolumesChoice={userVolumesChoice}
+          setUserVolumesChoice={setUserVolumesChoice}
+          submit={() => setActiveStep(1)}
+          loadingSubmit={loadingSubmit}
+          loadingData={loadingData}
+
+        />
+      </div>
+      <div className="right-panel">
+        {activeStep === 0 &&
+          <NewComputeSession
+            sessionType={NewComputeSessionType.JOB}
+            resourceName={jobName}
+            setResourceName={setJobName}
+            domainList={domainList}
+            domainChoice={domainChoice}
+            setDomainChoice={setDomainChoice}
+            imageList={imageList}
+            imageChoice={imageChoice}
+            setImageChoice={setImageChoice}
+            dataVolumeList={dataVolumeList}
+            dataVolumesChoice={dataVolumesChoice}
+            setDataVolumesChoice={setDataVolumesChoice}
+            userVolumeList={userVolumeList}
+            userVolumesChoice={userVolumesChoice}
+            setUserVolumesChoice={setUserVolumesChoice}
+            submit={() => setActiveStep(1)}
+            loadingSubmit={loadingSubmit}
+            loadingData={loadingData}
+          />
+        }
+        {activeStep === 1 &&
+          <div>
+            <CommandForm
+              command={command}
+              setCommand={setCommand}
+              commandError={commandError}
+              setCommandError={setCommandError}
+              useTemporaryVolume={useTemporaryVolume}
+              setUseTemporaryVolume={setUseTemporaryVolume}
+              temporaryWorkingDirPath={temporaryWorkingDirPath}
+              workingDirectoryUserVolumesChoice={workingDirectoryUserVolumesChoice}
+              setWorkingDirectoryUserVolumesChoice={setWorkingDirectoryUserVolumesChoice}
+              userVolumesChoice={userVolumesChoice}
+              setActiveStep={setActiveStep}
+              submit={submit}
+            />
+            <div className="step-buttons">
+              <Button className="submit-button" onClick={() => setActiveStep(0)} variant="contained">Previous</Button>
+              <Button className="submit-button" type="submit" onClick={submit} variant="contained">Submit</Button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   </Styled>;
 };

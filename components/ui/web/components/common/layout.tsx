@@ -45,9 +45,8 @@ export const Layout: FC<Props> = ({ children }) => {
       <DrawerNav />
       <Alert className="alert" severity="warning">
         This is a beta release of SciServer V3.0. We're actively improving it and adding new features.
-        If you have any feedback, please let us know by adding an issue to our
-        <Link rel="noopener noreferrer" target="_blank" href="https://github.com/sciserver/opensciserver/issues">Github Repo</Link>
-        or contacting us at <Link href={`mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}`}>{process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</Link>.
+        If you have any feedback, please let us know by adding an issue to our <Link rel="noopener noreferrer" target="_blank" href="https://github.com/sciserver/opensciserver/issues">Github Repo</Link> or
+        contacting us at <Link href={`mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}`}>{process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</Link>.
       </Alert>
       <main>{children}</main>
     </Styled>

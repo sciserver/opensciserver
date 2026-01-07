@@ -2,7 +2,7 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { TextField, Checkbox } from '@mui/material';
 
-import { WorkingDirectoryAccordionSummary } from 'components/content/newResource/workingDirectoryAccordion';
+import { WorkingDirectoryAccordionSummary } from 'components/content/newComputeSession/workingDirectoryAccordion';
 import { UserVolume } from 'src/graphql/typings';
 
 const Styled = styled.div`
