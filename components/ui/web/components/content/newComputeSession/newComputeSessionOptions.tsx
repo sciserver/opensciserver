@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
-import { Button, CircularProgress, Divider, TextField, InputAdornment, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
-import { Search as SearchIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { Divider } from '@mui/material';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { CustomizedTabs } from 'components/common/tabs';
@@ -11,7 +10,6 @@ import { DataVolumeOptions } from './dataVolumeOptions';
 import { UserVolumeOptions } from './userVolumeOptions';
 
 const Styled = styled.div`
-  overflow-y: auto; 
 
   .options-divider {
     margin-left: -3rem;

@@ -1,75 +1,87 @@
-import { FC } from 'react';
+import { FC, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useQuery, ApolloError } from '@apollo/client';
 import styled from 'styled-components';
-import { Button, CircularProgress, TextField } from '@mui/material';
-
-import { Choice, SingleChoiceAccordionSummary } from 'components/content/newComputeSession/singleChoiceAccordion';
-import { DataVolAccordionSummary } from 'components/content/newComputeSession/dataVolumeAccordion';
-import { UserVolAccordionSummary } from 'components/content/newComputeSession/userVolumeAccordion';
-import { LoadingAnimation } from 'components/common/loadingAnimation';
+import { Chip, Divider, IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
+import { GET_DOMAINS } from 'src/graphql/domains';
+
+import { NewComputeSessionOptions } from 'components/content/newComputeSession/newComputeSessionOptions';
+import { NewComputeSessionForm } from 'components/content/newComputeSession/newComputeSessionForm';
 
 const Styled = styled.div`
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin: 2rem 0.5rem;
-    width: 90%;
-    
-    .accordion-header {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      
-      .accordion-title { 
-        display: flex;
-        width: 120px;
-        align-items: center;
+  margin-top: -1%;
+  margin-bottom: -10%;
 
-        .title {
-          text-transform: capitalize;
+  .content {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    grid-template-rows: auto;
+    grid-template-areas: 
+      "header header"
+      "left-panel right-panel";
+  }
+
+  .header {
+      grid-area: header;
+      
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .alert {
+          color: ${({ theme }) => theme.palette.warning.dark};
         }
       }
     }
 
-    .submit-button {
-      margin: 2rem 0.1rem;
+    .divider {
+      margin-left: -3rem; 
+      margin-right: -4rem;
     }
-  }
+
+    .left-panel {
+      height: 100%;
+      padding-bottom: 2rem;
+      grid-area: left-panel;
+      border-right: 1px solid ${({ theme }) => theme.palette.divider};
+    }
+
+    .right-panel {
+      padding: 1rem;
+      grid-area: right-panel;
+      margin-left: 2rem;
+    }
+      
+    .step-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
 `;
 
-export enum NewComputeSessionType {
-  JOB = 'JOB',
-  INTERACTIVE = 'INTERACTIVE'
-}
 type Props = {
-  sessionType: NewComputeSessionType;
-  resourceName: string;
-  setResourceName: (name: string) => void;
-  domainList: Domain[];
+  sessionName: string;
+  setSessionName: (name: string) => void;
   domainChoice?: Domain;
-  setDomainChoice: (domain: Domain) => void;
+  setDomainChoice: (domain: Domain | undefined) => void;
   imageChoice?: Image;
-  setImageChoice: (image: Image) => void;
+  setImageChoice: (image: Image | undefined) => void;
   dataVolumesChoice: DataVolume[];
   setDataVolumesChoice: (dataVols: DataVolume[]) => void;
   userVolumesChoice: UserVolume[];
   setUserVolumesChoice: (userVols: UserVolume[]) => void;
-  imageList: Image[];
-  dataVolumeList: DataVolume[];
-  userVolumeList: UserVolume[];
   submit: () => void;
   loadingSubmit: boolean;
-  loadingData: boolean;
+  isJob?: boolean;
 };
 
 export const NewComputeSession: FC<Props> = ({
-  sessionType,
-  resourceName,
-  setResourceName,
-  domainList,
+  sessionName,
+  setSessionName,
   domainChoice,
   setDomainChoice,
   imageChoice,
@@ -78,51 +90,100 @@ export const NewComputeSession: FC<Props> = ({
   setDataVolumesChoice,
   userVolumesChoice,
   setUserVolumesChoice,
-  imageList,
-  dataVolumeList,
-  userVolumeList,
   submit,
   loadingSubmit,
-  loadingData
+  isJob
 }) => {
 
-  return <Styled>
-    <div className="form">
-      <TextField
-        id="name-textfield"
-        label={`${sessionType === NewComputeSessionType.JOB ? 'Job' : 'Compute'} Name`}
-        variant="standard"
-        value={resourceName}
-        onChange={(e) => setResourceName(e.target.value)}
-      />
-      <SingleChoiceAccordionSummary
-        title="Domain"
-        choiceList={domainList}
-        choice={domainChoice}
-        setChoice={(domain: Choice) => setDomainChoice(domain as Choice & Domain)}
-      />
-      <SingleChoiceAccordionSummary
-        title="Image"
-        choiceList={imageList}
-        choice={imageChoice}
-        setChoice={(image: Choice) => setImageChoice(image as Choice & Image)}
-      />
-      <DataVolAccordionSummary
-        dataVolumeList={dataVolumeList}
-        dataVolumesChoice={dataVolumesChoice}
-        setDataVolumesChoice={setDataVolumesChoice}
-      />
-      <UserVolAccordionSummary
-        userVolumeList={userVolumeList}
-        userVolumesChoice={userVolumesChoice}
-        setUserVolumesChoice={setUserVolumesChoice}
-      />
-      <Button className="submit-button" type="submit" onClick={submit} variant="contained">
-        {loadingSubmit ? <CircularProgress color="secondary" /> : sessionType === NewComputeSessionType.JOB ? 'Next' : 'Submit'}
-      </Button>
-    </div>
-    {loadingData &&
-      <LoadingAnimation backDropIsOpen={loadingData} />
+  const router = useRouter();
+
+  const { loading: loadingData, data } = useQuery(GET_DOMAINS,
+    {
+      variables: { jobs: isJob },
+      onError: (error: ApolloError) => {
+        if (error.message.includes('Unauthorized')) {
+          router.push('/login?callbackURL=/jobs/new');
+        }
+      }
     }
-  </Styled >;
+  );
+
+  const domainList = useMemo<Domain[]>(() => {
+    if (data && data.getDomains) {
+      const defaultDomainName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT;
+      setDomainChoice((data.getDomains as Domain[]).find(d => d.name === defaultDomainName));
+      return data.getDomains;
+    }
+    return [];
+  }, [data]);
+
+  const imageList = useMemo<Image[]>(() => {
+    if (domainChoice) {
+      const defaultImageName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT;
+      setImageChoice(domainChoice.images.find(d => d.name === defaultImageName));
+      return domainChoice.images;
+    }
+    return [];
+  }, [domainChoice]);
+
+  const dataVolumeList = useMemo<DataVolume[]>(() => {
+    if (domainChoice) {
+      return domainChoice.dataVolumes;
+    }
+    return [];
+  }, [domainChoice]);
+
+  const userVolumeList = useMemo<UserVolume[]>(() => {
+    if (domainChoice) {
+      const defaultUVs = (domainChoice.userVolumes as UserVolume[]).filter(uv => uv.name === 'scratch' || uv.name === 'persistent');
+      setUserVolumesChoice(defaultUVs);
+      return domainChoice.userVolumes;
+    }
+    return [];
+  }, [domainChoice]);
+
+  return <Styled>
+    <div className="header">
+      <div className="title">
+        <IconButton onClick={() => router.push('/jobs')} >
+          <CloseIcon />
+        </IconButton>
+        <h3>New {isJob ? 'Job' : 'Compute Session'}</h3>
+        <Chip color="warning" label="BETA" />
+      </div>
+    </div>
+    <Divider className="divider" />
+    <div className="content">
+      <div className="left-panel">
+        <NewComputeSessionOptions
+          domainList={domainList}
+          domainChoice={domainChoice}
+          setDomainChoice={setDomainChoice}
+          imageList={imageList}
+          imageChoice={imageChoice}
+          setImageChoice={setImageChoice}
+          dataVolumeList={dataVolumeList}
+          dataVolumesChoice={dataVolumesChoice}
+          setDataVolumesChoice={setDataVolumesChoice}
+          userVolumeList={userVolumeList}
+          userVolumesChoice={userVolumesChoice}
+          setUserVolumesChoice={setUserVolumesChoice}
+        />
+      </div>
+      <div className="right-panel">
+        <NewComputeSessionForm
+          sessionName={sessionName}
+          setSessionName={setSessionName}
+          domainChoice={domainChoice}
+          imageChoice={imageChoice}
+          dataVolumesChoice={dataVolumesChoice}
+          userVolumesChoice={userVolumesChoice}
+          submit={submit}
+          loadingSubmit={loadingSubmit}
+          loadingData={loadingData}
+          isJob
+        />
+      </div>
+    </div>
+  </Styled>;
 };

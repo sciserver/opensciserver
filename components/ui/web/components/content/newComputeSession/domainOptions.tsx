@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { Domain } from 'src/graphql/typings';
@@ -18,7 +18,18 @@ type Props = {
 
 export const DomainOptions: FC<Props> = ({ domainList, domainChoice, setDomainChoice }) => {
 
-  const [filteredDomains, setFilteredDomains] = useState<Domain[]>(domainList);
+  const [filteredDomains, setFilteredDomains] = useState<Domain[]>([]);
+
+  useEffect(() => {
+    setFilteredDomains(domainList);
+  }, [domainList]);
+
+  const filteredEssentials = useMemo<Domain[]>(() => {
+    return filteredDomains.filter(d => d.name.toLowerCase().includes('domain') && !d.name.toLowerCase().includes('deprecated'));
+  }, [filteredDomains]);
+  const filteredGPU = useMemo<Domain[]>(() => {
+    return filteredDomains.filter(d => d.name.toLowerCase().includes('gpu'));
+  }, [filteredDomains]);
 
   const searchDatasetParams = (domain: Domain, input: string) => {
     return textSearch(domain.description || '', input)
@@ -32,50 +43,45 @@ export const DomainOptions: FC<Props> = ({ domainList, domainChoice, setDomainCh
 
   return <Styled>
     <SearchBar placeholder="Search domains" onChangeParam={onSearch} />
-    <h3>Default</h3>
+    {filteredEssentials.length > 0 &&
+      <>
+        <h3>Default</h3>
+        <section>
+          {filteredEssentials.map(d =>
+            <article key={d.id}>
+              <OptionCard
+                selected={domainChoice?.id === d.id}
+                title={d.name}
+                description={d.description || 'No description available'}
+                action={() => setDomainChoice(d)}
+              />
+            </article>
+          )}
+        </section>
+        <Divider />
+      </>
+    }
+    {filteredGPU.length > 0 &&
+      <>
+        <h3>GPU</h3>
+        <section>
+          {filteredGPU.map(d =>
+            <article key={d.id}>
+              <OptionCard
+                selected={domainChoice?.id === d.id}
+                title={d.name}
+                description={d.description || 'No description available'}
+                action={() => setDomainChoice(d)}
+              />
+            </article>
+          )}
+        </section>
+        <Divider />
+      </>
+    }
+    <h3>All</h3>
     <section>
-      {filteredDomains.filter(d => d.name.toLowerCase().includes('domain') && !d.name.toLowerCase().includes('deprecated')).map(d =>
-        <article key={d.id}>
-          <OptionCard
-            selected={domainChoice?.id === d.id}
-            title={d.name}
-            description={d.description || 'No description available'}
-            action={() => setDomainChoice(d)}
-          />
-        </article>
-      )}
-    </section>
-    <Divider />
-    <h3>GPU</h3>
-    <section>
-      {filteredDomains.filter(d => d.name.toLowerCase().includes('gpu')).map(d =>
-        <article key={d.id}>
-          <OptionCard
-            selected={domainChoice?.id === d.id}
-            title={d.name}
-            description={d.description || 'No description available'}
-            action={() => setDomainChoice(d)}
-          />
-        </article>
-      )}
-    </section>
-    <Divider />
-    <h3>Specialized</h3>
-    <section>
-      {filteredDomains.filter(d => d.name.toLowerCase() === 'sequencer' || d.name.toLowerCase().includes('covid')).map(d =>
-        <article key={d.id}>
-          <OptionCard
-            selected={domainChoice?.id === d.id}
-            title={d.name}
-            description={d.description || 'No description available'}
-            action={() => setDomainChoice(d)}
-          />
-        </article>
-      )}
-    </section>
-    <h3>Deprecated</h3>
-    <section>
-      {filteredDomains.filter(d => d.name.toLowerCase().includes('deprecated')).map(d =>
+      {filteredDomains.map(d =>
         <article key={d.id}>
           <OptionCard
             selected={domainChoice?.id === d.id}

@@ -2,21 +2,36 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { Button, CircularProgress, TextField } from '@mui/material';
 
-import { Choice, SingleChoiceAccordionSummary } from 'components/content/newComputeSession/singleChoiceAccordion';
-import { DataVolAccordionSummary } from 'components/content/newComputeSession/dataVolumeAccordion';
-import { UserVolAccordionSummary } from 'components/content/newComputeSession/userVolumeAccordion';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
-import { InfoCard } from 'components/common/infoCard';
+import { OptionCard } from 'components/common/optionCard';
+import { CommandForm } from '../jobs/new/commandForm';
 
 const Styled = styled.div`
-  
+  width: 100%;
+
+  .session-name {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .submit-button {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0.1rem;
+  }
 `;
 
 type Props = {
-  resourceName: string;
-  setResourceName: (name: string) => void;
+  sessionName: string;
+  setSessionName: (name: string) => void;
   domainChoice?: Domain;
   imageChoice?: Image;
   dataVolumesChoice: DataVolume[];
@@ -24,62 +39,80 @@ type Props = {
   submit: () => void;
   loadingSubmit: boolean;
   loadingData: boolean;
+  isJob?: boolean;
+  command?: string;
+  setCommand?: (cmd: string) => void;
 };
 
 export const NewComputeSessionForm: FC<Props> = ({
-  resourceName,
-  setResourceName,
+  sessionName,
+  setSessionName,
   domainChoice,
   imageChoice,
   dataVolumesChoice,
   userVolumesChoice,
   submit,
   loadingSubmit,
-  loadingData
+  loadingData,
+  isJob = false,
+  command,
+  setCommand
 }) => {
 
   return <Styled>
-    <div className="form">
-      <TextField
-        id="name-textfield"
-        label="Session Name"
-        variant="standard"
-        value={resourceName}
-        onChange={(e) => setResourceName(e.target.value)}
-      />
-      <h3>Domain</h3>
-      <InfoCard
-        title={domainChoice ? domainChoice.name : 'No domain selected'}
-        subtitle={domainChoice ? domainChoice.name : ''}
-        action={() => { }}
-        width={200}
-      />
-      <h3>Image</h3>
-      <InfoCard
-        title={imageChoice ? imageChoice.name : 'No image selected'}
-        subtitle={imageChoice ? imageChoice.name : ''}
-        action={() => { }}
-        width={200}
-      />
-      <h3>Data Volumes</h3>
+    <TextField
+      id="name-textfield"
+      label="Session Name"
+      variant="standard"
+      value={sessionName}
+      className="session-name"
+      onChange={(e) => setSessionName(e.target.value)}
+    />
+    <div className="summary">
+      <div>
+        <h3>Domain</h3>
+        <OptionCard
+          title={domainChoice ? domainChoice.name : 'No domain selected'}
+          description={domainChoice ? domainChoice.name : ''}
+          action={() => { }}
+          width={250}
+        />
+      </div>
+      <div>
+        <h3>Image</h3>
+        <OptionCard
+          title={imageChoice ? imageChoice.name : 'No image selected'}
+          description={imageChoice ? imageChoice.name : ''}
+          action={() => { }}
+          width={250}
+        />
+      </div>
+    </div>
+    <h3>Data Volumes</h3>
+    {dataVolumesChoice.length === 0 && <p>No data volumes selected</p>}
+    <div className="summary">
       {dataVolumesChoice.map(dv =>
-        <InfoCard
+        <OptionCard
           title={dv.name}
-          subtitle={dv.description || ''}
+          description={dv.description || ''}
           action={() => { }}
           width={200}
         />
       )}
-      <h3>User Volumes</h3>
+    </div>
+    <h3>User Volumes</h3>
+    <div className="summary">
       {userVolumesChoice.map(uv =>
-        <InfoCard
-          title={uv.name}
-          subtitle={uv.description || ''}
+        <OptionCard
+          title={`${uv.name} (${uv.owner})`}
+          description={uv.description || ''}
           action={() => { }}
           width={200}
         />
       )}
-      <Button className="submit-button" type="submit" onClick={submit} variant="contained">
+    </div>
+    <div className="submit-button" >
+      <Button type="submit" onClick={submit} variant="contained">
         {loadingSubmit ? <CircularProgress color="secondary" /> : 'Submit'}
       </Button>
     </div>
