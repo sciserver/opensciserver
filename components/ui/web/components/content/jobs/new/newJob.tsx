@@ -13,6 +13,7 @@ import { CREATE_JOB } from 'src/graphql/jobs';
 import { NewComputeSession, NewComputeSessionType } from 'components/content/newComputeSession/newComputeSession';
 import { CommandForm } from 'components/content/jobs/new/commandForm';
 import { NewComputeSessionOptions } from 'components/content/newComputeSession/newComputeSessionOptions';
+import { NewComputeSessionForm } from 'components/content/newComputeSession/newComputeSessionForm';
 
 const Styled = styled.div`
   margin-top: -1%;
@@ -215,57 +216,20 @@ export const NewJob: FC = () => {
           userVolumeList={userVolumeList}
           userVolumesChoice={userVolumesChoice}
           setUserVolumesChoice={setUserVolumesChoice}
-          submit={() => setActiveStep(1)}
-          loadingSubmit={loadingSubmit}
-          loadingData={loadingData}
-
         />
       </div>
       <div className="right-panel">
-        {activeStep === 0 &&
-          <NewComputeSession
-            sessionType={NewComputeSessionType.JOB}
-            resourceName={jobName}
-            setResourceName={setJobName}
-            domainList={domainList}
-            domainChoice={domainChoice}
-            setDomainChoice={setDomainChoice}
-            imageList={imageList}
-            imageChoice={imageChoice}
-            setImageChoice={setImageChoice}
-            dataVolumeList={dataVolumeList}
-            dataVolumesChoice={dataVolumesChoice}
-            setDataVolumesChoice={setDataVolumesChoice}
-            userVolumeList={userVolumeList}
-            userVolumesChoice={userVolumesChoice}
-            setUserVolumesChoice={setUserVolumesChoice}
-            submit={() => setActiveStep(1)}
-            loadingSubmit={loadingSubmit}
-            loadingData={loadingData}
-          />
-        }
-        {activeStep === 1 &&
-          <div>
-            <CommandForm
-              command={command}
-              setCommand={setCommand}
-              commandError={commandError}
-              setCommandError={setCommandError}
-              useTemporaryVolume={useTemporaryVolume}
-              setUseTemporaryVolume={setUseTemporaryVolume}
-              temporaryWorkingDirPath={temporaryWorkingDirPath}
-              workingDirectoryUserVolumesChoice={workingDirectoryUserVolumesChoice}
-              setWorkingDirectoryUserVolumesChoice={setWorkingDirectoryUserVolumesChoice}
-              userVolumesChoice={userVolumesChoice}
-              setActiveStep={setActiveStep}
-              submit={submit}
-            />
-            <div className="step-buttons">
-              <Button className="submit-button" onClick={() => setActiveStep(0)} variant="contained">Previous</Button>
-              <Button className="submit-button" type="submit" onClick={submit} variant="contained">Submit</Button>
-            </div>
-          </div>
-        }
+        <NewComputeSessionForm
+          resourceName={jobName}
+          setResourceName={setJobName}
+          domainChoice={domainChoice}
+          imageChoice={imageChoice}
+          dataVolumesChoice={dataVolumesChoice}
+          userVolumesChoice={userVolumesChoice}
+          submit={submit}
+          loadingSubmit={loadingSubmit}
+          loadingData={loadingData}
+        />
       </div>
     </div>
   </Styled>;
