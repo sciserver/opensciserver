@@ -64,6 +64,7 @@ export const typeDefs = gql`
     dockerImageName: String!
     submitterDID: String!
     scriptURI: String!
+    name: String
   }
 
   type Query {
@@ -73,5 +74,6 @@ export const typeDefs = gql`
 
   type Mutation {
     createJob(createJobParams: CreateJobParams!): Job!
+    cancelJob(jobId: ID!): Boolean!
   }
 `;

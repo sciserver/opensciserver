@@ -1,6 +1,5 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@mui/material';
 
 import { Container } from 'src/graphql/typings';
 
@@ -15,7 +14,7 @@ export const SessionManagement: FC = ({ }) => {
   const [containerSelected, setContainerSelected] = useState<Container | null>(null);
 
   return <Styled>
-    <Typography variant="h3">Compute Sessions</Typography>
+    <h1>Compute Sessions</h1>
     {containerSelected ?
       <ContainerDetail row={containerSelected} back={() => setContainerSelected(null)} />
       :

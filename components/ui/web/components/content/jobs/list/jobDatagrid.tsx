@@ -1,12 +1,14 @@
 import { FC, useState } from 'react';
+import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import {
-  Replay as ReplayIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
 
 import {
+  Button,
   Chip,
   IconButton,
   Paper,
@@ -15,19 +17,24 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Tooltip
+  TableRow
 } from '@mui/material';
 
-import { Job } from 'src/graphql/typings';
+import { Job, JobStatus } from 'src/graphql/typings';
 import { JobShortDetail } from 'components/content/jobs/detail/jobShortDetail';
 
 const Styled = styled.div`
-margin-top: 2rem;
+  margin-top: 2rem;
   
-  .grid {  
+  .new-job {
+    display: block;
+    margin: 1rem 3rem 1rem auto; /* pushes the button to the right */
+  }
+
+  .grid {
     width: inherit;
-     .column-header {
+  
+    .column-header {
       font-style: normal;
       font-size: 14px;
       letter-spacing: 0.25px;
@@ -44,12 +51,28 @@ margin-top: 2rem;
   }
 `;
 
+const getStatus = (job: Job) => {
+  switch (job.status) {
+    case JobStatus.Success: {
+      return 'success';
+    }
+    case JobStatus.Error: {
+      return 'error';
+    }
+    default: {
+      return 'secondary';
+    }
+  }
+};
+
 type Props = {
   jobsList: Job[];
-  createJob: (variables: Job) => void;
+  cancelJob: (jobId: { variables: { jobId: string; }; }) => void;
 }
 
-export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
+const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
+export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
+  const router = useRouter();
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
 
@@ -70,23 +93,16 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
   // Check if a specific row is open
   const isRowOpen = (jobId: string) => openRows.has(jobId);
 
-  const getStatus = (job: Job) => {
-    switch (job.status) {
-      case 'SUCCESS': {
-        return <Chip label="Success" color="success" />;
-      }
-      case 'ERROR': {
-        return <Chip label="Error" color="error" />;
-      }
-      default: {
-        return <Chip label={job.status} color="primary" />;
-      }
-    }
-  };
-
   return <Styled>
-    <Paper sx={{ width: '90%' }}>
-
+    <Button
+      variant="contained"
+      color="primary"
+      className="new-job"
+      onClick={() => router.push('/jobs/new')}
+    >
+      New Job
+    </Button>
+    <Paper sx={{ width: '95%' }}>
       <TableContainer sx={{ maxHeight: 440, minWidth: '100%' }}>
         <Table stickyHeader className="grid" aria-label=" Jobs Data Table">
           <TableHead>
@@ -95,7 +111,7 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
               <TableCell className="column-header">Submitted At</TableCell>
               <TableCell className="column-header">Name</TableCell>
               <TableCell className="column-header">Status</TableCell>
-              <TableCell className="column-header" align="right">Actions</TableCell>
+              <TableCell className="column-header"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -115,13 +131,15 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, createJob }) => {
                     {new Date(job.submissionTime).toLocaleString()}
                   </TableCell>
                   <TableCell className="cell">{job.submitterDID}</TableCell>
-                  <TableCell className="cell">{getStatus(job)}</TableCell>
-                  <TableCell className="cell" align="right">
-                    <Tooltip title="Re Run Job">
-                      <IconButton color="primary" onClick={() => createJob(job)}>
-                        <ReplayIcon />
+                  <TableCell className="cell">
+                    <Chip label={job.status} color={getStatus(job)} />
+                  </TableCell>
+                  <TableCell className="cell">
+                    {jobStatusAllowCancel.has(job.status) &&
+                      <IconButton onClick={() => cancelJob({ variables: { jobId: job.id } })} size="small">
+                        <CancelIcon className="delete-icon" />
                       </IconButton>
-                    </Tooltip>
+                    }
                   </TableCell>
                 </TableRow>
                 <JobShortDetail job={job} isOpen={isRowOpen(job.id)} />

@@ -2,10 +2,9 @@ import { FC, useState } from 'react';
 import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 
-import { ParamAccordionSummary } from 'components/content/compute/newSession/paramAccordionSummary';
+import { ParamAccordionSummary } from 'components/content/newComputeSession/paramAccordionSummary';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
-import { Image } from 'src/graphql/typings';
 
 const StyledAccordionDetails = styled(AccordionDetails)`
     height: auto; 
@@ -18,35 +17,40 @@ const StyledAccordionDetails = styled(AccordionDetails)`
     }
 `;
 
+export type Choice = {
+  id: string;
+  name: string;
+  description?: string;
+}
 
 type Props = {
-  imageList: Image[],
-  imageChoice?: Image,
-  setImageChoice: (image: Image) => void
+  title: string;
+  choiceList: Choice[],
+  choice?: Choice,
+  setChoice: (choice: Choice) => void
 };
 
-export const ImageAccordionSummary: FC<Props> = ({ imageList, imageChoice, setImageChoice }) => {
-
+export const SingleChoiceAccordionSummary: FC<Props> = ({ title, choiceList, choice, setChoice }) => {
   const [open, setOpen] = useState<boolean>(false);
 
-  const handleOnClickOption = (img: Image) => {
-    setImageChoice(img);
+  const handleOnClickOption = (ch: Choice) => {
+    setChoice(ch);
     setOpen(false);
   };
 
   return <StyledAccordion open={open} setOpen={setOpen}>
     <ParamAccordionSummary
       open={open}
-      title="Image"
-      choice={imageChoice ? { name: imageChoice.name, subtitle: imageChoice.description || 'Description for chosen image' } : undefined}
+      title={title}
+      choice={choice ? { name: choice.name, subtitle: choice.description || 'No description available' } : undefined}
     />
     <StyledAccordionDetails>
-      {imageList.map(img =>
+      {choiceList.map(ch =>
         <InfoCard
-          selected={imageChoice?.id === img.id}
-          title={img.name}
-          subtitle={img.description}
-          action={() => handleOnClickOption(img)}
+          selected={choice!.id === ch.id}
+          title={ch.name}
+          subtitle={ch.description || 'No description available'}
+          action={() => handleOnClickOption(ch)}
         />
       )}
     </StyledAccordionDetails>

@@ -72,6 +72,7 @@ export type CreateJobParams = {
   command: Scalars['String'];
   dockerComputeEndpoint: Scalars['String'];
   dockerImageName: Scalars['String'];
+  name?: InputMaybe<Scalars['String']>;
   resultsFolderURI: Scalars['String'];
   scriptURI: Scalars['String'];
   submitterDID: Scalars['String'];
@@ -237,10 +238,16 @@ export type JobUserVolume = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  cancelJob: Scalars['Boolean'];
   createJob: Job;
   deleteContainer: Scalars['Boolean'];
   login: Scalars['String'];
   root?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCancelJobArgs = {
+  jobId: Scalars['ID'];
 };
 
 
@@ -301,6 +308,11 @@ export type QueryGetDatasetsArgs = {
 
 export type QueryGetDomainByIdArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryGetDomainsArgs = {
+  jobs?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -712,6 +724,7 @@ export type JobUserVolumeResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  cancelJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCancelJobArgs, 'jobId'>>;
   createJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationCreateJobArgs, 'createJobParams'>>;
   deleteContainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContainerArgs, 'containerId' | 'domainId'>>;
   login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'password' | 'username'>>;
@@ -725,7 +738,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDataset?: Resolver<Maybe<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetArgs, 'params'>>;
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
-  getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType>;
+  getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType, Partial<QueryGetDomainsArgs>>;
   getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobId'>>;
   getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;

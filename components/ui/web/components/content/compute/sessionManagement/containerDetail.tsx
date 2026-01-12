@@ -1,6 +1,6 @@
 import { FC, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { IconButton, Typography } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { ArrowBackIos as ArrowBackIcon } from '@mui/icons-material';
 import { SimpleTreeView, TreeItem } from '@mui/x-tree-view';
 import styled from 'styled-components';
@@ -87,22 +87,22 @@ export const ContainerDetail: FC<Props> = ({ row, back }) => {
         </IconButton>
         <div className="info">
           <div className="label">
-            <Typography variant="h5">Domain:</Typography>
-            <Typography variant="body1">{row.domainName}</Typography>
+            <h3>Domain:</h3>
+            <p>{row.domainName}</p>
           </div>
           <div className="label">
-            <Typography variant="h5">Image:</Typography>
-            <Typography variant="body1">{row.imageName}</Typography>
+            <h3>Image:</h3>
+            <p>{row.imageName}</p>
           </div>
         </div>
         <div className="info">
           <div className="label">
-            <Typography variant="h5">Last active:</Typography>
-            <Typography variant="body1">{new Date(row.accessedAt).toLocaleDateString()}</Typography>
+            <h3>Last active:</h3>
+            <p>{new Date(row.accessedAt).toLocaleDateString()}</p>
           </div>
           <div className="label">
-            <Typography variant="h5">Expires at:</Typography>
-            <Typography variant="body1">{getExpireTime(new Date(row.createdAt), row.maxSecs)}</Typography>
+            <h3>Expires at:</h3>
+            <p>{getExpireTime(new Date(row.createdAt), row.maxSecs)}</p>
           </div>
         </div>
       </div>

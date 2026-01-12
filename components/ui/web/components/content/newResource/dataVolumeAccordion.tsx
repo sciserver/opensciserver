@@ -1,9 +1,9 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { AccordionDetails } from '@mui/material';
 import styled from 'styled-components';
 import { remove } from 'lodash';
 
-import { ParamAccordionSummary } from 'components/content/compute/newSession/paramAccordionSummary';
+import { ParamAccordionSummary } from 'components/content/newResource/paramAccordionSummary';
 import { StyledAccordion } from 'components/common/accordion';
 import { InfoCard } from 'components/common/infoCard';
 import { DataVolume } from 'src/graphql/typings';

@@ -24,19 +24,17 @@
       "default": "#fafafa"
     },
     "primary": {
-      "light": "rgb(37, 16, 83, 0.2)",
-      "main": "#251053",
-      "dark": "#fff",
+      "light": "rgb(14, 54, 89, 0.2)",
+      "main": "#0E3659",
       "contrastText": "#fff"
     },
     "secondary": {
-      "light": "rgb(104,40,114, 0.5)",
-      "main": "#682872",
-      "dark": "#041C02",
+      "light": "rgb(57,140,191, 0.5)",
+      "main": "#398CBF",
       "contrastText": "#fff"
     },
     "contrast1": {
-      "main": "#A9327A",
+      "main": "#B0C1D9",
       "contrastText": "#fff"
     },
     "contrast2": {
