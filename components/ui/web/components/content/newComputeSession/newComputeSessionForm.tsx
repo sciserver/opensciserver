@@ -2,11 +2,8 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { Button, CircularProgress, TextField } from '@mui/material';
 
-import { LoadingAnimation } from 'components/common/loadingAnimation';
-
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { OptionCard } from 'components/common/optionCard';
-import { CommandForm } from '../jobs/new/commandForm';
 
 const Styled = styled.div`
   width: 100%;
@@ -52,11 +49,7 @@ export const NewComputeSessionForm: FC<Props> = ({
   dataVolumesChoice,
   userVolumesChoice,
   submit,
-  loadingSubmit,
-  loadingData,
-  isJob = false,
-  command,
-  setCommand
+  loadingSubmit
 }) => {
 
   return <Styled>
@@ -116,8 +109,5 @@ export const NewComputeSessionForm: FC<Props> = ({
         {loadingSubmit ? <CircularProgress color="secondary" /> : 'Submit'}
       </Button>
     </div>
-    {loadingData &&
-      <LoadingAnimation backDropIsOpen={loadingData} />
-    }
   </Styled >;
 };

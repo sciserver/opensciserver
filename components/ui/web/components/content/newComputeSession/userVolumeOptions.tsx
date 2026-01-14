@@ -1,14 +1,28 @@
 import { FC, useMemo, useState } from 'react';
 import styled from 'styled-components';
-
-import { UserVolume } from 'src/graphql/typings';
-import { OptionCard } from 'components/common/optionCard';
-import { Divider } from '@mui/material';
-import { SearchBar } from 'components/common/search';
-import { textSearch } from 'src/utils/search';
+import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { remove } from 'lodash';
 
+import { UserVolume } from 'src/graphql/typings';
+import { textSearch } from 'src/utils/search';
+
+import { OptionCard } from 'components/common/optionCard';
+import { SearchBar } from 'components/common/search';
+
 const Styled = styled.div`
+  .search-bar {
+    position: sticky;
+    top: 0;
+    margin-bottom: 1.5rem;
+    z-index: 10;
+    background-color: white;
+  }
+
+  .options-content {
+    max-height: 600px;
+    overflow-y: auto;
+  }
 `;
 
 type Props = {
@@ -51,54 +65,78 @@ export const UserVolumeOptions: FC<Props> = ({ userVolumeList, userVolumesChoice
   };
 
   return <Styled>
-    <SearchBar placeholder="Search user volumes" onChangeParam={onSearch} />
-    {filteredOwned.length > 0 &&
-      <>
-        <h3>Owned by me</h3>
-        <section>
-          {filteredOwned.map(uv =>
-            <article key={uv.id}>
-              <OptionCard
-                selected={userVolumesChoice.some(dvc => dvc.id === uv.id)}
-                title={`${uv.name} (${uv.owner})`}
-                description={uv.description || 'No description available'}
-                action={() => handleOnClickOption(uv)}
-              />
-            </article>
+    <SearchBar className="search-bar" placeholder="Search user volumes" onChangeParam={onSearch} />
+    <div className="options-content">
+      {filteredOwned.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Owned by me</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredOwned.map(uv =>
+                <OptionCard
+                  key={uv.id}
+                  selected={userVolumesChoice.some(uvc => uvc.id === uv.id)}
+                  title={uv.name}
+                  description={uv.description || 'No description available'}
+                  action={() => handleOnClickOption(uv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredShared.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Shared</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredShared.map(uv =>
+                <OptionCard
+                  key={uv.id}
+                  selected={userVolumesChoice.some(uvc => uvc.id === uv.id)}
+                  title={uv.name}
+                  description={uv.description || 'No description available'}
+                  action={() => handleOnClickOption(uv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+        >
+          <h3>All</h3>
+        </AccordionSummary>
+        <AccordionDetails className="option-items">
+          {filteredUserVols.map(uv =>
+            <OptionCard
+              key={uv.id}
+              selected={userVolumesChoice.some(uvc => uvc.id === uv.id)}
+              title={uv.name}
+              description={uv.description || 'No description available'}
+              action={() => handleOnClickOption(uv)}
+            />
           )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredShared.length > 0 &&
-      <>
-        <h3>Shared</h3>
-        <section>
-          {filteredShared.map(uv =>
-            <article key={uv.id}>
-              <OptionCard
-                selected={userVolumesChoice.some(dvc => dvc.id === uv.id)}
-                title={`${uv.name} (${uv.owner})`}
-                description={uv.description || 'No description available'}
-                action={() => handleOnClickOption(uv)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    <h3>All</h3>
-    <section>
-      {filteredUserVols.map(uv =>
-        <article key={uv.id}>
-          <OptionCard
-            title={`${uv.name} (${uv.owner})`}
-            description={uv.description || 'No description available'}
-            action={() => handleOnClickOption(uv)}
-          />
-        </article>
-      )}
-    </section>
+        </AccordionDetails>
+      </Accordion>
+    </div>
   </Styled>;
 };

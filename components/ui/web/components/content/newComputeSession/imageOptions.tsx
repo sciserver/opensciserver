@@ -1,13 +1,28 @@
 import { FC, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 
 import { Image } from 'src/graphql/typings';
-import { OptionCard } from 'components/common/optionCard';
-import { Divider } from '@mui/material';
-import { SearchBar } from 'components/common/search';
 import { textSearch } from 'src/utils/search';
 
+import { OptionCard } from 'components/common/optionCard';
+import { SearchBar } from 'components/common/search';
+
 const Styled = styled.div`
+
+  .search-bar {
+    position: sticky;
+    top: 0;
+    margin-bottom: 1.5rem;
+    z-index: 10;
+    background-color: white;
+  }
+
+  .options-content {
+    max-height: 600px;
+    overflow-y: auto;
+  }
 `;
 
 type Props = {
@@ -51,127 +66,179 @@ export const ImageOptions: FC<Props> = ({ imageList, imageChoice, setImageChoice
   };
 
   return <Styled>
-    <SearchBar placeholder="Search images" onChangeParam={onSearch} />
-    {filteredEssentials.length > 0 &&
-      <>
-        <h3>Essentials</h3>
-        <section>
-          {filteredEssentials.map(i =>
-            <article key={i.id}>
-              <OptionCard
-                selected={imageChoice?.id === i.id}
-                title={i.name}
-                description={i.description || 'No description available'}
-                action={() => setImageChoice(i)}
-              />
-            </article>
+    <SearchBar className="search-bar" placeholder="Search images" onChangeParam={onSearch} />
+    <div className="options-content">
+      {filteredEssentials.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <h3>Default</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredEssentials.map(i =>
+                <OptionCard
+                  key={i.id}
+                  selected={imageChoice?.id === i.id}
+                  title={i.name}
+                  description={i.description || 'No description available'}
+                  action={() => setImageChoice(i)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+
+      }
+      {filteredAstro.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <h3>Astronomy</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredAstro.map(i =>
+                <OptionCard
+                  key={i.id}
+                  selected={imageChoice?.id === i.id}
+                  title={i.name}
+                  description={i.description || 'No description available'}
+                  action={() => setImageChoice(i)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredCosmo.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <h3>Cosmology</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredCosmo.map(i =>
+                <OptionCard
+                  key={i.id}
+                  selected={imageChoice?.id === i.id}
+                  title={i.name}
+                  description={i.description || 'No description available'}
+                  action={() => setImageChoice(i)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredHeasarc.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <h3>HEASARC</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredHeasarc.map(i =>
+                <OptionCard
+                  key={i.id}
+                  selected={imageChoice?.id === i.id}
+                  title={i.name}
+                  description={i.description || 'No description available'}
+                  action={() => setImageChoice(i)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredSimulations.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <h3>Simulations</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredSimulations.map(i =>
+                <OptionCard
+                  key={i.id}
+                  selected={imageChoice?.id === i.id}
+                  title={i.name}
+                  description={i.description || 'No description available'}
+                  action={() => setImageChoice(i)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredTurbulence.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <h3>Turbulence</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredTurbulence.map(i =>
+                <OptionCard
+                  key={i.id}
+                  selected={imageChoice?.id === i.id}
+                  title={i.name}
+                  description={i.description || 'No description available'}
+                  action={() => setImageChoice(i)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+        >
+          <h3>All</h3>
+        </AccordionSummary>
+        <AccordionDetails className="option-items">
+          {filteredImages.map(i =>
+            <OptionCard
+              key={i.id}
+              selected={imageChoice?.id === i.id}
+              title={i.name}
+              description={i.description || 'No description available'}
+              action={() => setImageChoice(i)}
+            />
           )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredAstro.length > 0 &&
-      <>
-        <h3>Astronomy</h3>
-        <section>
-          {filteredAstro.map(i =>
-            <article key={i.id}>
-              <OptionCard
-                selected={imageChoice?.id === i.id}
-                title={i.name}
-                description={i.description || 'No description available'}
-                action={() => setImageChoice(i)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredCosmo.length > 0 &&
-      <>
-        <h3>Cosmology</h3>
-        <section>
-          {filteredCosmo.map(i =>
-            <article key={i.id}>
-              <OptionCard
-                selected={imageChoice?.id === i.id}
-                title={i.name}
-                description={i.description || 'No description available'}
-                action={() => setImageChoice(i)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredHeasarc.length > 0 &&
-      <>
-        <h3>HEASARC</h3>
-        <section>
-          {filteredHeasarc.map(i =>
-            <article key={i.id}>
-              <OptionCard
-                selected={imageChoice?.id === i.id}
-                title={i.name}
-                description={i.description || 'No description available'}
-                action={() => setImageChoice(i)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredSimulations.length > 0 &&
-      <>
-        <h3>Simulations</h3>
-        <section>
-          {filteredSimulations.map(i =>
-            <article key={i.id}>
-              <OptionCard
-                selected={imageChoice?.id === i.id}
-                title={i.name}
-                description={i.description || 'No description available'}
-                action={() => setImageChoice(i)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredTurbulence.length > 0 &&
-      <>
-        <h3>Turbulence</h3>
-        <section>
-          {filteredTurbulence.map(i =>
-            <article key={i.id}>
-              <OptionCard
-                selected={imageChoice?.id === i.id}
-                title={i.name}
-                description={i.description || 'No description available'}
-                action={() => setImageChoice(i)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    <h3>All</h3>
-    <section>
-      {filteredImages.map(i =>
-        <article key={i.id}>
-          <OptionCard
-            selected={imageChoice?.id === i.id}
-            title={i.name}
-            description={i.description || 'No description available'}
-            action={() => setImageChoice(i)}
-          />
-        </article>
-      )}
-    </section>
+        </AccordionDetails>
+      </Accordion>
+    </div>
   </Styled>;
 };

@@ -8,6 +8,8 @@ import { DomainOptions } from './domainOptions';
 import { ImageOptions } from './imageOptions';
 import { DataVolumeOptions } from './dataVolumeOptions';
 import { UserVolumeOptions } from './userVolumeOptions';
+import { CommandForm } from '../jobs/new/commandForm';
+import { WorkingDirectoryForm } from '../jobs/new/workingDirectoryForm';
 
 const Styled = styled.div`
 
@@ -24,19 +26,16 @@ const Styled = styled.div`
     }
   }
 
-  section {
-    display: grid;
-    grid-gap: 1rem;
-    grid-auto-flow: column;
-    overflow: auto;
-    height: 7rem;
-  }
-
-  article {
-    white-space: nowrap;
-    margin: 10px 0;
+  .MuiAccordion-root{
+    box-shadow: none;
   }
   
+  .option-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+     
 `;
 
 type Props = {
@@ -52,6 +51,11 @@ type Props = {
   userVolumeList: UserVolume[];
   userVolumesChoice: UserVolume[];
   setUserVolumesChoice: (userVols: UserVolume[]) => void;
+  tabs: string[];
+  command?: string;
+  setCommand?: (command: string) => void;
+  commandError?: boolean;
+  setCommandError?: (error: boolean) => void;
 };
 
 export const NewComputeSessionOptions: FC<Props> = ({
@@ -66,13 +70,18 @@ export const NewComputeSessionOptions: FC<Props> = ({
   userVolumesChoice,
   setUserVolumesChoice,
   dataVolumeList,
-  userVolumeList
+  userVolumeList,
+  command,
+  setCommand,
+  commandError,
+  setCommandError,
+  tabs
 }) => {
 
   const [tabValue, setTabValue] = useState(0);
 
   return <Styled>
-    <CustomizedTabs tabs={['Domains', 'Images', 'Data vols', 'User vols']} value={tabValue} setValue={setTabValue} />
+    <CustomizedTabs tabs={tabs} value={tabValue} setValue={setTabValue} />
     <Divider className="options-divider" />
     <div className="content-options">
       {tabValue === 0 &&
@@ -102,6 +111,14 @@ export const NewComputeSessionOptions: FC<Props> = ({
           userVolumesChoice={userVolumesChoice}
           setUserVolumesChoice={setUserVolumesChoice}
         />
+      }
+      {/* Job Specific Components */}
+      {tabValue === 4 &&
+        <CommandForm command={command} setCommand={setCommand} commandError={commandError} setCommandError={setCommandError} />
+      }
+      {tabValue === 5 &&
+        <>working directory</>
+        // <WorkingDirectoryForm />
       }
     </div>
   </Styled >;

@@ -96,6 +96,8 @@ export const NewJob: FC = () => {
     setDataVolumesChoice={setDataVolumesChoice}
     userVolumesChoice={userVolumesChoice}
     setUserVolumesChoice={setUserVolumesChoice}
+    command={command}
+    setCommand={setCommand}
     submit={submit}
     loadingSubmit={loadingSubmit}
     isJob

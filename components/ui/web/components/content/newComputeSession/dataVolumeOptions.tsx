@@ -1,14 +1,28 @@
 import { FC, useMemo, useState } from 'react';
 import styled from 'styled-components';
-
-import { DataVolume } from 'src/graphql/typings';
-import { OptionCard } from 'components/common/optionCard';
-import { Divider } from '@mui/material';
-import { SearchBar } from 'components/common/search';
-import { textSearch } from 'src/utils/search';
+import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { remove } from 'lodash';
 
+import { DataVolume } from 'src/graphql/typings';
+import { textSearch } from 'src/utils/search';
+
+import { OptionCard } from 'components/common/optionCard';
+import { SearchBar } from 'components/common/search';
+
 const Styled = styled.div`
+  .search-bar {
+    position: sticky;
+    top: 0;
+    margin-bottom: 1.5rem;
+    z-index: 10;
+    background-color: white;
+  }
+
+  .options-content {
+    max-height: 600px;
+    overflow-y: auto;
+  }
 `;
 
 type Props = {
@@ -65,127 +79,178 @@ export const DataVolumeOptions: FC<Props> = ({ dataVolumeList, dataVolumesChoice
   };
 
   return <Styled>
-    <SearchBar placeholder="Search data volumes" onChangeParam={onSearch} />
-    {filteredEssentials.length > 0 &&
-      <>
-        <h3>Essentials</h3>
-        <section>
-          {filteredEssentials.map(dv =>
-            <article key={dv.id}>
-              <OptionCard
-                selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
-                title={dv.name}
-                description={dv.description || 'No description available'}
-                action={() => handleOnClickOption(dv)}
-              />
-            </article>
+    <SearchBar className="search-bar" placeholder="Search data volumes" onChangeParam={onSearch} />
+    <div className="options-content">
+      {filteredEssentials.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Essentials</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredEssentials.map(dv =>
+                <OptionCard
+                  key={dv.id}
+                  selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+                  title={dv.name}
+                  description={dv.description || 'No description available'}
+                  action={() => handleOnClickOption(dv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredAstronomy.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Astronomy</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredAstronomy.map(dv =>
+                <OptionCard
+                  key={dv.id}
+                  selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+                  title={dv.name}
+                  description={dv.description || 'No description available'}
+                  action={() => handleOnClickOption(dv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredAstropath.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Astropath</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredAstropath.map(dv =>
+                <OptionCard
+                  key={dv.id}
+                  selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+                  title={dv.name}
+                  description={dv.description || 'No description available'}
+                  action={() => handleOnClickOption(dv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredSimulations.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Simulations</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredSimulations.map(dv =>
+                <OptionCard
+                  key={dv.id}
+                  selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+                  title={dv.name}
+                  description={dv.description || 'No description available'}
+                  action={() => handleOnClickOption(dv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredSDSS.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>SDSS</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredSDSS.map(dv =>
+                <OptionCard
+                  key={dv.id}
+                  selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+                  title={dv.name}
+                  description={dv.description || 'No description available'}
+                  action={() => handleOnClickOption(dv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      {filteredTurbulence.length > 0 &&
+        <>
+          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <h3>Turbulence</h3>
+            </AccordionSummary>
+            <AccordionDetails className="option-items">
+              {filteredTurbulence.map(dv =>
+                <OptionCard
+                  key={dv.id}
+                  selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+                  title={dv.name}
+                  description={dv.description || 'No description available'}
+                  action={() => handleOnClickOption(dv)}
+                />
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+        </>
+      }
+      <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+        >
+          <h3>All</h3>
+        </AccordionSummary>
+        <AccordionDetails className="option-items">
+          {filteredDatavols.map(dv =>
+            <OptionCard
+              key={dv.id}
+              selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
+              title={dv.name}
+              description={dv.description || 'No description available'}
+              action={() => handleOnClickOption(dv)}
+            />
           )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredAstronomy.length > 0 &&
-      <>
-        <h3>Astronomy</h3>
-        <section>
-          {filteredAstronomy.map(dv =>
-            <article key={dv.id}>
-              <OptionCard
-                selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
-                title={dv.name}
-                description={dv.description || 'No description available'}
-                action={() => handleOnClickOption(dv)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredAstropath.length > 0 &&
-      <>
-        <h3>Astropath</h3>
-        <section>
-          {filteredAstropath.map(dv =>
-            <article key={dv.id}>
-              <OptionCard
-                selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
-                title={dv.name}
-                description={dv.description || 'No description available'}
-                action={() => handleOnClickOption(dv)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredSimulations.length > 0 &&
-      <>
-        <h3>Simulations</h3>
-        <section>
-          {filteredSimulations.map(dv =>
-            <article key={dv.id}>
-              <OptionCard
-                selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
-                title={dv.name}
-                description={dv.description || 'No description available'}
-                action={() => handleOnClickOption(dv)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredSDSS.length > 0 &&
-      <>
-        <h3>SDSS</h3>
-        <section>
-          {filteredSDSS.map(dv =>
-            <article key={dv.id}>
-              <OptionCard
-                selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
-                title={dv.name}
-                description={dv.description || 'No description available'}
-                action={() => handleOnClickOption(dv)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    {filteredTurbulence.length > 0 &&
-      <>
-        <h3>Turbulence</h3>
-        <section>
-          {filteredTurbulence.map(dv =>
-            <article key={dv.id}>
-              <OptionCard
-                selected={dataVolumesChoice.some(dvc => dvc.id === dv.id)}
-                title={dv.name}
-                description={dv.description || 'No description available'}
-                action={() => handleOnClickOption(dv)}
-              />
-            </article>
-          )}
-        </section>
-        <Divider />
-      </>
-    }
-    <h3>All</h3>
-    <section>
-      {filteredDatavols.map(dv =>
-        <article key={dv.id}>
-          <OptionCard
-
-            title={dv.name}
-            description={dv.description || 'No description available'}
-            action={() => handleOnClickOption(dv)}
-          />
-        </article>
-      )}
-    </section>
+        </AccordionDetails>
+      </Accordion>
+    </div>
   </Styled>;
 };

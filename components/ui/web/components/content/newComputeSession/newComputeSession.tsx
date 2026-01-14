@@ -1,8 +1,8 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, ApolloError } from '@apollo/client';
 import styled from 'styled-components';
-import { Chip, Divider, IconButton } from '@mui/material';
+import { Button, Chip, CircularProgress, Divider, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
@@ -10,6 +10,7 @@ import { GET_DOMAINS } from 'src/graphql/domains';
 
 import { NewComputeSessionOptions } from 'components/content/newComputeSession/newComputeSessionOptions';
 import { NewComputeSessionForm } from 'components/content/newComputeSession/newComputeSessionForm';
+import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 const Styled = styled.div`
   margin-top: -1%;
@@ -17,7 +18,7 @@ const Styled = styled.div`
 
   .content {
     display: grid;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 60% 40%;
     grid-template-rows: auto;
     grid-template-areas: 
       "header header"
@@ -26,6 +27,9 @@ const Styled = styled.div`
 
   .header {
       grid-area: header;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       
       .title {
         display: flex;
@@ -74,6 +78,8 @@ type Props = {
   setDataVolumesChoice: (dataVols: DataVolume[]) => void;
   userVolumesChoice: UserVolume[];
   setUserVolumesChoice: (userVols: UserVolume[]) => void;
+  command: string;
+  setCommand: (command: string) => void;
   submit: () => void;
   loadingSubmit: boolean;
   isJob?: boolean;
@@ -90,6 +96,8 @@ export const NewComputeSession: FC<Props> = ({
   setDataVolumesChoice,
   userVolumesChoice,
   setUserVolumesChoice,
+  command,
+  setCommand,
   submit,
   loadingSubmit,
   isJob
@@ -142,6 +150,14 @@ export const NewComputeSession: FC<Props> = ({
     return [];
   }, [domainChoice]);
 
+  const tabs = useMemo<string[]>(() => {
+    let baseTabs = ['Domains', 'Images', 'Data vols', 'User vols'];
+    if (isJob) {
+      baseTabs = [...baseTabs, 'Command', 'Working Directory'];
+    }
+    return baseTabs;
+  }, [isJob]);
+
   return <Styled>
     <div className="header">
       <div className="title">
@@ -150,6 +166,11 @@ export const NewComputeSession: FC<Props> = ({
         </IconButton>
         <h3>New {isJob ? 'Job' : 'Compute Session'}</h3>
         <Chip color="warning" label="BETA" />
+      </div>
+      <div className="submit-button" >
+        <Button type="submit" onClick={submit} variant="contained">
+          {loadingSubmit ? <CircularProgress color="secondary" /> : 'Submit'}
+        </Button>
       </div>
     </div>
     <Divider className="divider" />
@@ -168,6 +189,9 @@ export const NewComputeSession: FC<Props> = ({
           userVolumeList={userVolumeList}
           userVolumesChoice={userVolumesChoice}
           setUserVolumesChoice={setUserVolumesChoice}
+          tabs={tabs}
+          command={command}
+          setCommand={() => { }}
         />
       </div>
       <div className="right-panel">
@@ -185,5 +209,8 @@ export const NewComputeSession: FC<Props> = ({
         />
       </div>
     </div>
+    {loadingData &&
+      <LoadingAnimation backDropIsOpen={loadingData} />
+    }
   </Styled>;
 };
