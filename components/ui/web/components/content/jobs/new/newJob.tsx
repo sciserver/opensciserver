@@ -21,11 +21,7 @@ export const NewJob: FC = () => {
   const [dataVolumesChoice, setDataVolumesChoice] = useState<DataVolume[]>([]);
   const [userVolumesChoice, setUserVolumesChoice] = useState<UserVolume[]>([]);
   const [command, setCommand] = useState<string>('');
-  const [useTemporaryVolume, setUseTemporaryVolume] = useState<boolean>(true);
-  const [workingDirectoryUserVolumesChoice, setWorkingDirectoryUserVolumesChoice] = useState<UserVolume>();
-
-  const [commandError, setCommandError] = useState<boolean>(false);
-
+  const [resultsFolderURI, setResultsFolderURI] = useState<string>('');
 
   const [createJob] = useMutation(CREATE_JOB, {
     onError: () => Swal.fire({
@@ -48,25 +44,10 @@ export const NewJob: FC = () => {
     })
   });
 
-
-  // TODO: get userName from user profile
-  const temporaryWorkingDirPath = `/home/idies/workspace/Temporary/\${userName}/jobs/`;
-
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const submit = () => {
-    if (!command.length) {
-      setCommandError(true);
-      return;
-    }
 
-    if (!useTemporaryVolume && !workingDirectoryUserVolumesChoice) {
-      return;
-    }
     setLoadingSubmit(true);
-
-    const resultsFolderURI = useTemporaryVolume ?
-      temporaryWorkingDirPath :
-      `/home/idies/workspace/${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`;
 
     createJob({
       variables: {
@@ -86,6 +67,7 @@ export const NewJob: FC = () => {
 
 
   return <NewComputeSession
+    isJob
     sessionName={sessionName}
     setSessionName={setSessionName}
     domainChoice={domainChoice}
@@ -98,8 +80,9 @@ export const NewJob: FC = () => {
     setUserVolumesChoice={setUserVolumesChoice}
     command={command}
     setCommand={setCommand}
+    resultsFolderURI={resultsFolderURI}
+    setResultsFolderURI={setResultsFolderURI}
     submit={submit}
     loadingSubmit={loadingSubmit}
-    isJob
   />;
 };

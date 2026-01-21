@@ -1,9 +1,9 @@
-import { FC } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Checkbox } from '@mui/material';
 
 import { UserVolume } from 'src/graphql/typings';
-import { UserVolumeOptions } from 'components/content/newComputeSession/userVolumeOptions';
+import { OptionCard } from 'components/common/optionCard';
 
 const Styled = styled.div`
   display: flex;
@@ -33,23 +33,37 @@ const Styled = styled.div`
 `;
 
 type Props = {
-  useTemporaryVolume: boolean;
-  setUseTemporaryVolume: (use: boolean) => void;
-  temporaryWorkingDirPath: string;
-  workingDirectoryUserVolumesChoice?: UserVolume;
-  setWorkingDirectoryUserVolumesChoice: (workingDirectory: UserVolume) => void;
+  resultsFolderURI: string;
+  setResultsFolderURI: (uri: string) => void;
   userVolumesList: UserVolume[];
-  userVolumesChoice: UserVolume[];
 };
 export const WorkingDirectoryForm: FC<Props> = ({
-  useTemporaryVolume,
-  setUseTemporaryVolume,
-  temporaryWorkingDirPath,
-  workingDirectoryUserVolumesChoice,
-  setWorkingDirectoryUserVolumesChoice,
-  userVolumesList,
-  userVolumesChoice
+  resultsFolderURI,
+  setResultsFolderURI,
+  userVolumesList
 }) => {
+
+  const [useTemporaryVolume, setUseTemporaryVolume] = useState<boolean>(true);
+  const [workingDirectoryUserVolumesChoice, setWorkingDirectoryUserVolumesChoice] = useState<UserVolume>();
+
+  const filteredOwned = useMemo<UserVolume[]>(() => {
+    return userVolumesList.filter(i => i.owner === 'jjaime');
+  }, [userVolumesList]);
+
+  useEffect(() => {
+    const scratchVol = filteredOwned.find(uv => uv.name === 'scratch');
+    setWorkingDirectoryUserVolumesChoice(scratchVol);
+  }, [filteredOwned]);
+
+  useEffect(() => {
+    if (useTemporaryVolume) {
+      setResultsFolderURI(`/home/idies/workspace/Temporary/jjaime/jobs/`);
+      return;
+    }
+
+    setResultsFolderURI(`/home/idies/workspace/${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`);
+  }, [useTemporaryVolume, workingDirectoryUserVolumesChoice]);
+
   return <Styled>
     <h4>Working Directory</h4>
     <p>
@@ -66,14 +80,24 @@ export const WorkingDirectoryForm: FC<Props> = ({
     {useTemporaryVolume ?
       <div>
         <p className="bullet">
-          • A copy of this command will be placed in a unique, nested subfolder of <i className="path">{temporaryWorkingDirPath}</i>.
+          • A copy of this command will be placed in a unique, nested subfolder of <i className="path">{resultsFolderURI}</i>.
         </p>
         <p className="bullet">
           • Relative paths will be resolved from this location.
         </p>
       </div>
       :
-      <UserVolumeOptions userVolumeList={userVolumesList} userVolumesChoice={userVolumesChoice} setUserVolumesChoice={() => { }} />
+      <div className="option-items">
+        {filteredOwned.map(uv =>
+          <OptionCard
+            key={uv.id}
+            selected={workingDirectoryUserVolumesChoice?.id === uv.id}
+            title={uv.name}
+            description={uv.description || 'No description available'}
+            action={() => setWorkingDirectoryUserVolumesChoice(uv)}
+          />
+        )}
+      </div>
     }
   </Styled>;
 };

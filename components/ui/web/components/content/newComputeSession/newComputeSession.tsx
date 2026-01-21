@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, ApolloError } from '@apollo/client';
 import styled from 'styled-components';
@@ -78,8 +78,10 @@ type Props = {
   setDataVolumesChoice: (dataVols: DataVolume[]) => void;
   userVolumesChoice: UserVolume[];
   setUserVolumesChoice: (userVols: UserVolume[]) => void;
-  command: string;
-  setCommand: (command: string) => void;
+  command?: string;
+  setCommand?: (command: string) => void;
+  resultsFolderURI?: string;
+  setResultsFolderURI?: (uri: string) => void;
   submit: () => void;
   loadingSubmit: boolean;
   isJob?: boolean;
@@ -98,6 +100,8 @@ export const NewComputeSession: FC<Props> = ({
   setUserVolumesChoice,
   command,
   setCommand,
+  resultsFolderURI,
+  setResultsFolderURI,
   submit,
   loadingSubmit,
   isJob
@@ -115,6 +119,8 @@ export const NewComputeSession: FC<Props> = ({
       }
     }
   );
+
+  const [commandError, setCommandError] = useState<boolean>(false);
 
   const domainList = useMemo<Domain[]>(() => {
     if (data && data.getDomains) {
@@ -158,6 +164,15 @@ export const NewComputeSession: FC<Props> = ({
     return baseTabs;
   }, [isJob]);
 
+  const handleSubmit = () => {
+    if (isJob && (!command || !command.length)) {
+      setCommandError(true);
+
+      return;
+    }
+    submit();
+  };
+
   return <Styled>
     <div className="header">
       <div className="title">
@@ -168,7 +183,7 @@ export const NewComputeSession: FC<Props> = ({
         <Chip color="warning" label="BETA" />
       </div>
       <div className="submit-button" >
-        <Button type="submit" onClick={submit} variant="contained">
+        <Button type="submit" onClick={handleSubmit} variant="contained">
           {loadingSubmit ? <CircularProgress color="secondary" /> : 'Submit'}
         </Button>
       </div>
@@ -191,7 +206,11 @@ export const NewComputeSession: FC<Props> = ({
           setUserVolumesChoice={setUserVolumesChoice}
           tabs={tabs}
           command={command}
-          setCommand={() => { }}
+          setCommand={setCommand}
+          commandError={commandError}
+          setCommandError={setCommandError}
+          resultsFolderURI={resultsFolderURI}
+          setResultsFolderURI={setResultsFolderURI}
         />
       </div>
       <div className="right-panel">

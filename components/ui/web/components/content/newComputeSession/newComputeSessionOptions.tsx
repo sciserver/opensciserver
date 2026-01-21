@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@mui/material';
 
@@ -56,6 +56,8 @@ type Props = {
   setCommand?: (command: string) => void;
   commandError?: boolean;
   setCommandError?: (error: boolean) => void;
+  resultsFolderURI?: string;
+  setResultsFolderURI?: (uri: string) => void;
 };
 
 export const NewComputeSessionOptions: FC<Props> = ({
@@ -75,10 +77,18 @@ export const NewComputeSessionOptions: FC<Props> = ({
   setCommand,
   commandError,
   setCommandError,
+  resultsFolderURI,
+  setResultsFolderURI,
   tabs
 }) => {
 
   const [tabValue, setTabValue] = useState(0);
+
+  useEffect(() => {
+    if (commandError) {
+      setTabValue(4);
+    }
+  }, [commandError]);
 
   return <Styled>
     <CustomizedTabs tabs={tabs} value={tabValue} setValue={setTabValue} />
@@ -117,8 +127,7 @@ export const NewComputeSessionOptions: FC<Props> = ({
         <CommandForm command={command} setCommand={setCommand} commandError={commandError} setCommandError={setCommandError} />
       }
       {tabValue === 5 &&
-        <>working directory</>
-        // <WorkingDirectoryForm />
+        <WorkingDirectoryForm resultsFolderURI={resultsFolderURI!} setResultsFolderURI={setResultsFolderURI!} userVolumesList={userVolumeList} />
       }
     </div>
   </Styled >;

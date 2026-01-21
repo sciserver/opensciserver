@@ -4,6 +4,7 @@ import { Button, CircularProgress, TextField } from '@mui/material';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 import { OptionCard } from 'components/common/optionCard';
+import { SelectedOptionCard } from 'components/common/selectedOptionCard';
 
 const Styled = styled.div`
   width: 100%;
@@ -64,20 +65,22 @@ export const NewComputeSessionForm: FC<Props> = ({
     <div className="summary">
       <div>
         <h3>Domain</h3>
-        <OptionCard
+        <SelectedOptionCard
           title={domainChoice ? domainChoice.name : 'No domain selected'}
-          description={domainChoice ? domainChoice.name : ''}
+          description={domainChoice ? domainChoice.description || '' : ''}
           action={() => { }}
           width={250}
+          imageSource="https://plus.unsplash.com/premium_photo-1669839137069-4166d6ea11f4?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         />
       </div>
       <div>
         <h3>Image</h3>
-        <OptionCard
+        <SelectedOptionCard
           title={imageChoice ? imageChoice.name : 'No image selected'}
-          description={imageChoice ? imageChoice.name : ''}
+          description={imageChoice ? imageChoice.description || '' : ''}
           action={() => { }}
           width={250}
+          imageSource="https://plus.unsplash.com/premium_photo-1669839137069-4166d6ea11f4?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         />
       </div>
     </div>
