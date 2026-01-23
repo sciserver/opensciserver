@@ -1,10 +1,20 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { Button, CircularProgress, TextField } from '@mui/material';
+import {
+  Avatar,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListSubheader,
+  TextField
+} from '@mui/material';
+import { MoreHoriz as MoreHorizIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
-import { OptionCard } from 'components/common/optionCard';
-import { SelectedOptionCard } from 'components/common/selectedOptionCard';
+
+import logo from 'public/logo-sm.png';
 
 const Styled = styled.div`
   width: 100%;
@@ -13,18 +23,13 @@ const Styled = styled.div`
     width: 100%;
     margin-bottom: 1.5rem;
   }
-
   .summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
+    max-height: 500px;
+    overflow-y: auto;
   }
-
-  .submit-button {
-    display: flex;
-    justify-content: center;
-    margin: 2rem 0.1rem;
-  }
+  .description {
+    max-width: 200px;
+    }
 `;
 
 type Props = {
@@ -48,9 +53,7 @@ export const NewComputeSessionForm: FC<Props> = ({
   domainChoice,
   imageChoice,
   dataVolumesChoice,
-  userVolumesChoice,
-  submit,
-  loadingSubmit
+  userVolumesChoice
 }) => {
 
   return <Styled>
@@ -62,55 +65,125 @@ export const NewComputeSessionForm: FC<Props> = ({
       className="session-name"
       onChange={(e) => setSessionName(e.target.value)}
     />
-    <div className="summary">
-      <div>
-        <h3>Domain</h3>
-        <SelectedOptionCard
-          title={domainChoice ? domainChoice.name : 'No domain selected'}
-          description={domainChoice ? domainChoice.description || '' : ''}
-          action={() => { }}
-          width={250}
-          imageSource="https://plus.unsplash.com/premium_photo-1669839137069-4166d6ea11f4?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        />
-      </div>
-      <div>
-        <h3>Image</h3>
-        <SelectedOptionCard
-          title={imageChoice ? imageChoice.name : 'No image selected'}
-          description={imageChoice ? imageChoice.description || '' : ''}
-          action={() => { }}
-          width={250}
-          imageSource="https://plus.unsplash.com/premium_photo-1669839137069-4166d6ea11f4?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        />
-      </div>
-    </div>
-    <h3>Data Volumes</h3>
-    {dataVolumesChoice.length === 0 && <p>No data volumes selected</p>}
-    <div className="summary">
-      {dataVolumesChoice.map(dv =>
-        <OptionCard
-          title={dv.name}
-          description={dv.description || ''}
-          action={() => { }}
-          width={200}
-        />
-      )}
-    </div>
-    <h3>User Volumes</h3>
-    <div className="summary">
-      {userVolumesChoice.map(uv =>
-        <OptionCard
-          title={`${uv.name} (${uv.owner})`}
-          description={uv.description || ''}
-          action={() => { }}
-          width={200}
-        />
-      )}
-    </div>
-    <div className="submit-button" >
-      <Button type="submit" onClick={submit} variant="contained">
-        {loadingSubmit ? <CircularProgress color="secondary" /> : 'Submit'}
-      </Button>
-    </div>
+    <List
+      className="summary"
+      sx={{
+        '& ul': { padding: 0 }
+      }}
+      subheader={<li />}
+    >
+      <li key={`section-domain`}>
+        <ul>
+          <ListSubheader><h3>Domain</h3></ListSubheader>
+          <ListItem
+            secondaryAction={
+              <>
+                <IconButton aria-label="star">
+                  <StarBorderIcon />
+                </IconButton>
+                <IconButton aria-label="more options">
+                  <MoreHorizIcon />
+                </IconButton>
+              </>
+            }
+          >
+            <ListItemAvatar>
+              <Avatar alt="Sciserver Logo" src={logo.src} />
+            </ListItemAvatar>
+            <ListItemText
+              primary={domainChoice ? domainChoice.name : 'No domain selected'}
+              secondary={<span className="description">
+                {domainChoice ? domainChoice.description || '' : ''}
+              </span>}
+            />
+
+          </ListItem>
+        </ul>
+      </li>
+      <li key={`section-image`}>
+        <ul>
+          <ListSubheader><h3>Image</h3></ListSubheader>
+          <ListItem
+            secondaryAction={
+              <>
+                <IconButton aria-label="star">
+                  <StarBorderIcon />
+                </IconButton>
+                <IconButton aria-label="more options">
+                  <MoreHorizIcon />
+                </IconButton>
+              </>
+            }
+          >
+            <ListItemAvatar>
+              <Avatar alt="Sciserver Logo" src={logo.src} />
+            </ListItemAvatar>
+            <ListItemText
+              primary={imageChoice ? imageChoice.name : 'No image selected'}
+              secondary={imageChoice ? imageChoice.description || '' : ''}
+            />
+          </ListItem>
+        </ul>
+      </li>
+      <li key={`section-data-volumes`}>
+        <ul>
+          <ListSubheader><h3>Data Volumes</h3></ListSubheader>
+          {dataVolumesChoice.length === 0 &&
+            <ListItem>
+              <ListItemText primary="No data volumes selected" />
+            </ListItem>
+          }
+          {dataVolumesChoice.map(dv =>
+            <ListItem
+              secondaryAction={
+                <>
+                  <IconButton aria-label="star">
+                    <StarBorderIcon />
+                  </IconButton>
+                  <IconButton aria-label="more options">
+                    <MoreHorizIcon />
+                  </IconButton>
+                </>
+              }
+            >
+              <ListItemAvatar>
+                <Avatar alt="Sciserver Logo" src={logo.src} />
+              </ListItemAvatar>
+              <ListItemText
+                primary={dv.name}
+                secondary={dv.description || ''}
+              />
+            </ListItem>
+          )}
+        </ul>
+      </li>
+      <li key={`section-user-volumes`}>
+        <ul>
+          <ListSubheader><h3>User Volumes</h3></ListSubheader>
+          {userVolumesChoice.map(uv =>
+            <ListItem
+              secondaryAction={
+                <>
+                  <IconButton aria-label="star">
+                    <StarBorderIcon />
+                  </IconButton>
+                  <IconButton aria-label="more options">
+                    <MoreHorizIcon />
+                  </IconButton>
+                </>
+              }
+            >
+              <ListItemAvatar>
+                <Avatar alt="Sciserver Logo" src={logo.src} />
+              </ListItemAvatar>
+              <ListItemText
+                primary={uv.name}
+                secondary={uv.description || ''}
+              />
+            </ListItem>
+          )}
+        </ul>
+      </li>
+    </List>
   </Styled >;
 };
