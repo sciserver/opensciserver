@@ -1,7 +1,7 @@
 import { FC, useContext, useEffect, useState } from 'react';
 import router from 'next/router';
+import { useLazyQuery } from '@apollo/client';
 import styled from 'styled-components';
-
 import {
   Divider,
   Drawer,
@@ -15,7 +15,6 @@ import {
   Avatar,
   IconButton
 } from '@mui/material';
-
 import {
   AutoGraph as AutoGraphIcon,
   Folder as FolderIcon,
@@ -23,10 +22,13 @@ import {
   Terminal as TerminalIcon
 } from '@mui/icons-material';
 
-import { AppContext } from 'context';
+import { AppContext, UserContext } from 'context';
+import { GET_USER } from 'src/graphql/accounts';
+
 import { DrawerOption } from 'components/common/layout';
 import { HideOnScroll } from 'components/common/hideOnScroll';
 import { Toolbar } from 'components/common/toolbar';
+import { stringAvatar } from 'src/utils/account';
 
 export const drawerOpenWidth = 200;
 export const drawerClosedWidth = 60;
@@ -100,7 +102,10 @@ const Styled = styled.div`
 
 export const DrawerNav: FC = (props: ComponentProps) => {
 
+  const { user, setUser } = useContext(UserContext);
   const { drawerOpen, menuOption, setMenuOption, showAppBar } = useContext(AppContext);
+
+  const [getUser, { data: userData }] = useLazyQuery(GET_USER);
 
   const [toggleDrawerOpen, setToggleDrawerOpen] = useState<boolean>(false);
 
@@ -112,7 +117,17 @@ export const DrawerNav: FC = (props: ComponentProps) => {
   // ON MOUNT: UI config
   useEffect(() => {
     setMenuOption(router.asPath.split('/')[1]);
+
+    if (!user) {
+      getUser();
+    }
   }, []);
+
+  useEffect(() => {
+    if (userData && userData.getUser) {
+      setUser(userData.getUser);
+    }
+  }, [userData]);
 
   const drawerOptions: DrawerOption[] = [
     {
@@ -176,18 +191,14 @@ export const DrawerNav: FC = (props: ComponentProps) => {
             )}
           </List>
           {/* // To be update with username initial in upcoming PR where user details are fetched */}
-          {drawerOpen ?
-            <div className="user-info">
-              <IconButton>
-                <Avatar />
-              </IconButton>
-              <span>username</span>
-            </div>
-            :
+          <div className="user-info">
             <IconButton>
-              <Avatar />
+              <Avatar {...stringAvatar(user && user.userName ? user.userName : 'Kent Dodds')} />
             </IconButton>
-          }
+            {drawerOpen &&
+              <span>{user?.userName}</span>
+            }
+          </div>
         </div>
       </Drawer>
     </Styled >
