@@ -1,9 +1,10 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { remove } from 'lodash';
 
+import { UserContext } from 'context';
 import { UserVolume } from 'src/graphql/typings';
 import { textSearch } from 'src/utils/search';
 
@@ -32,14 +33,17 @@ type Props = {
 };
 
 export const UserVolumeOptions: FC<Props> = ({ userVolumeList, userVolumesChoice, setUserVolumesChoice }) => {
+
+  const { user } = useContext(UserContext);
+
   const [filteredUserVols, setFilteredUserVols] = useState<UserVolume[]>(userVolumeList);
 
   const filteredOwned = useMemo<UserVolume[]>(() => {
-    return filteredUserVols.filter(i => i.owner === 'jjaime');
-  }, [filteredUserVols]);
+    return filteredUserVols.filter(i => i.owner === user?.userName);
+  }, [filteredUserVols, user]);
   const filteredShared = useMemo<UserVolume[]>(() => {
-    return filteredUserVols.filter(i => i.owner !== 'jjaime');
-  }, [filteredUserVols]);
+    return filteredUserVols.filter(i => i.owner !== user?.userName);
+  }, [filteredUserVols, user]);
 
   const searchDatasetParams = (uv: UserVolume, input: string) => {
     return textSearch(uv.description || '', input)

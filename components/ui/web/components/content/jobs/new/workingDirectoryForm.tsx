@@ -1,7 +1,8 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Checkbox } from '@mui/material';
 
+import { UserContext } from 'context';
 import { UserVolume } from 'src/graphql/typings';
 import { OptionCard } from 'components/common/optionCard';
 
@@ -43,12 +44,13 @@ export const WorkingDirectoryForm: FC<Props> = ({
   userVolumesList
 }) => {
 
+  const { user } = useContext(UserContext);
   const [useTemporaryVolume, setUseTemporaryVolume] = useState<boolean>(true);
   const [workingDirectoryUserVolumesChoice, setWorkingDirectoryUserVolumesChoice] = useState<UserVolume>();
 
   const filteredOwned = useMemo<UserVolume[]>(() => {
-    return userVolumesList.filter(i => i.owner === 'jjaime');
-  }, [userVolumesList]);
+    return userVolumesList.filter(i => i.owner === user?.userName);
+  }, [userVolumesList, user]);
 
   useEffect(() => {
     const scratchVol = filteredOwned.find(uv => uv.name === 'scratch');
@@ -57,12 +59,12 @@ export const WorkingDirectoryForm: FC<Props> = ({
 
   useEffect(() => {
     if (useTemporaryVolume) {
-      setResultsFolderURI(`/home/idies/workspace/Temporary/jjaime/jobs/`);
+      setResultsFolderURI(`/home/idies/workspace/Temporary/${user?.userName}/jobs/`);
       return;
     }
 
     setResultsFolderURI(`/home/idies/workspace/${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`);
-  }, [useTemporaryVolume, workingDirectoryUserVolumesChoice]);
+  }, [useTemporaryVolume, workingDirectoryUserVolumesChoice, user]);
 
   return <Styled>
     <h4>Working Directory</h4>
