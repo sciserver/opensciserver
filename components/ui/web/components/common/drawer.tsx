@@ -193,7 +193,7 @@ export const DrawerNav: FC = (props: ComponentProps) => {
           {/* // To be update with username initial in upcoming PR where user details are fetched */}
           <div className="user-info">
             <IconButton>
-              <Avatar {...stringAvatar(user?.userName || '')} />
+              <Avatar {...stringAvatar(user?.userName || 'Unknown User')} />
             </IconButton>
             {drawerOpen &&
               <span>{user?.userName}</span>
