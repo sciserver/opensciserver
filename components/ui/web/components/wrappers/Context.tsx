@@ -2,8 +2,8 @@ import { useState, FC, useEffect } from 'react';
 
 // Context
 import { UserContext, AppContext } from 'context';
-import { User } from 'src/models/user';
 import { AuthService } from 'src/services/AuthService';
+import { User } from 'src/graphql/typings';
 
 interface Props {
   children: any
