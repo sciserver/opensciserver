@@ -445,6 +445,7 @@ web:
     pullPolicy: Always
   gTag:
   helpdeskEmail: "sciserver-helpdesk@jhu.edu"
+  jobWorkspacePath: "/home/idies/workspace/"
   newComputeSessionDefaults:
     domainName: "Interactive Docker Compute Domain"
     imageName: "Sciserver Essentials 4.0"

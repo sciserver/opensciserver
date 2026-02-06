@@ -63,6 +63,8 @@ spec:
               value: {{ .Values.web.newComputeSessionDefaults.quickStartConfig }}
             - name: NEXT_PUBLIC_HELPDESK_EMAIL
               value: '{{ .Values.web.helpdeskEmail }}'
+            - name: NEXT_PUBLIC_JOB_WORKSPACE_PATH
+              value: '{{ .Values.web.jobWorkspacePath }}'
           ports:
             - containerPort: 3000
               protocol: TCP

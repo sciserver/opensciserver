@@ -59,11 +59,11 @@ export const WorkingDirectoryForm: FC<Props> = ({
 
   useEffect(() => {
     if (useTemporaryVolume) {
-      setResultsFolderURI(`/home/idies/workspace/Temporary/${user?.userName}/jobs/`);
+      setResultsFolderURI(`${process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH}Temporary/${user?.userName}/jobs/`);
       return;
     }
 
-    setResultsFolderURI(`/home/idies/workspace/${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`);
+    setResultsFolderURI(`${process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH}${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`);
   }, [useTemporaryVolume, workingDirectoryUserVolumesChoice, user]);
 
   return <Styled>
