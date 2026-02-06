@@ -1,10 +1,11 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, useEffect, useMemo, useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import styled from 'styled-components';
 
 import { Domain } from 'src/graphql/typings';
 import { textSearch } from 'src/utils/search';
+import { domainCategories } from 'src/config/domainCategories';
 
 import { OptionCard } from 'components/common/optionCard';
 import { SearchBar } from 'components/common/search';
@@ -32,17 +33,26 @@ type Props = {
 
 export const DomainOptions: FC<Props> = ({ domainList, domainChoice, setDomainChoice }) => {
 
-  const [filteredDomains, setFilteredDomains] = useState<Domain[]>([]);
+  const [filteredDomains, setFilteredDomains] = useState<Domain[]>(domainList || []);
 
   useEffect(() => {
     setFilteredDomains(domainList);
   }, [domainList]);
 
-  const filteredEssentials = useMemo<Domain[]>(() => {
-    return filteredDomains.filter(d => d.name.toLowerCase().includes('domain') && !d.name.toLowerCase().includes('deprecated'));
-  }, [filteredDomains]);
-  const filteredGPU = useMemo<Domain[]>(() => {
-    return filteredDomains.filter(d => d.name.toLowerCase().includes('gpu'));
+  const categorizedDomains = useMemo(() => {
+    return domainCategories.map(category => {
+      const items = filteredDomains.filter(domain => {
+        const name = domain.name?.toLowerCase() || '';
+        const matchesInclude = category.keywords.some(keyword => name.includes(keyword.toLowerCase()));
+        const matchesExclude = category.excludeKeywords?.some(keyword => name.includes(keyword.toLowerCase())) || false;
+        return matchesInclude && !matchesExclude;
+      });
+
+      return {
+        ...category,
+        items
+      };
+    });
   }, [filteredDomains]);
 
   const searchDatasetParams = (domain: Domain, input: string) => {
@@ -58,56 +68,33 @@ export const DomainOptions: FC<Props> = ({ domainList, domainChoice, setDomainCh
   return <Styled>
     <SearchBar className="search-bar" placeholder="Search domains" onChangeParam={onSearch} />
     <div className="options-content">
-      {filteredEssentials.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>Default</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredEssentials.map(d =>
-                <OptionCard
-                  key={d.id}
-                  selected={domainChoice?.id === d.id}
-                  title={d.name}
-                  description={d.description || 'No description available'}
-                  action={() => setDomainChoice(d)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-
-      }
-      {filteredGPU.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel2-content"
-              id="panel2-header"
-            >
-              <h3>GPU</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredGPU.map(d =>
-                <OptionCard
-                  selected={domainChoice?.id === d.id}
-                  title={d.name}
-                  description={d.description || 'No description available'}
-                  action={() => setDomainChoice(d)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-      }
+      {categorizedDomains
+        .filter(category => category.items.length > 0)
+        .map(category => (
+          <Fragment key={category.key}>
+            <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <h3>{category.title}</h3>
+              </AccordionSummary>
+              <AccordionDetails className="option-items">
+                {category.items.map(d =>
+                  <OptionCard
+                    key={d.id}
+                    selected={domainChoice?.id === d.id}
+                    title={d.name}
+                    description={d.description || 'No description available'}
+                    action={() => setDomainChoice(d)}
+                  />
+                )}
+              </AccordionDetails>
+            </Accordion>
+            <Divider />
+          </Fragment>
+        ))}
       <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}

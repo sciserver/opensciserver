@@ -1,10 +1,11 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, Fragment, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 
 import { Image } from 'src/graphql/typings';
 import { textSearch } from 'src/utils/search';
+import { imageCategories } from 'src/config/imageCategories';
 
 import { OptionCard } from 'components/common/optionCard';
 import { SearchBar } from 'components/common/search';
@@ -33,26 +34,20 @@ type Props = {
 
 export const ImageOptions: FC<Props> = ({ imageList, imageChoice, setImageChoice }) => {
 
-  const [filteredImages, setFilteredImages] = useState<Image[]>(imageList);
+  const [filteredImages, setFilteredImages] = useState<Image[]>(imageList || []);
 
-  const filteredEssentials = useMemo<Image[]>(() => {
-    return filteredImages.filter(i => i.name.toLowerCase().includes('essentials'));
-  }, [filteredImages]);
+  const categorizedImages = useMemo(() => {
+    return imageCategories.map(category => {
+      const items = filteredImages.filter(image => {
+        const name = image.name?.toLowerCase() || '';
+        return category.keywords.some(keyword => name.includes(keyword.toLowerCase()));
+      });
 
-  const filteredAstro = useMemo<Image[]>(() => {
-    return filteredImages.filter(i => i.name.toLowerCase().includes('astro'));
-  }, [filteredImages]);
-  const filteredCosmo = useMemo<Image[]>(() => {
-    return filteredImages.filter(i => i.name.toLowerCase().includes('cosmo'));
-  }, [filteredImages]);
-  const filteredHeasarc = useMemo<Image[]>(() => {
-    return filteredImages.filter(i => i.name.toLowerCase().includes('heasarc'));
-  }, [filteredImages]);
-  const filteredSimulations = useMemo<Image[]>(() => {
-    return filteredImages.filter(i => i.name.toLowerCase().includes('simulation'));
-  }, [filteredImages]);
-  const filteredTurbulence = useMemo<Image[]>(() => {
-    return filteredImages.filter(i => i.name.toLowerCase().includes('turbulence'));
+      return {
+        ...category,
+        items
+      };
+    });
   }, [filteredImages]);
 
   const searchDatasetParams = (image: Image, input: string) => {
@@ -68,157 +63,33 @@ export const ImageOptions: FC<Props> = ({ imageList, imageChoice, setImageChoice
   return <Styled>
     <SearchBar className="search-bar" placeholder="Search images" onChangeParam={onSearch} />
     <div className="options-content">
-      {filteredEssentials.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>Default</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredEssentials.map(i =>
-                <OptionCard
-                  key={i.id}
-                  selected={imageChoice?.id === i.id}
-                  title={i.name}
-                  description={i.description || 'No description available'}
-                  action={() => setImageChoice(i)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-
-      }
-      {filteredAstro.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>Astronomy</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredAstro.map(i =>
-                <OptionCard
-                  key={i.id}
-                  selected={imageChoice?.id === i.id}
-                  title={i.name}
-                  description={i.description || 'No description available'}
-                  action={() => setImageChoice(i)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-      }
-      {filteredCosmo.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>Cosmology</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredCosmo.map(i =>
-                <OptionCard
-                  key={i.id}
-                  selected={imageChoice?.id === i.id}
-                  title={i.name}
-                  description={i.description || 'No description available'}
-                  action={() => setImageChoice(i)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-      }
-      {filteredHeasarc.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>HEASARC</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredHeasarc.map(i =>
-                <OptionCard
-                  key={i.id}
-                  selected={imageChoice?.id === i.id}
-                  title={i.name}
-                  description={i.description || 'No description available'}
-                  action={() => setImageChoice(i)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-      }
-      {filteredSimulations.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>Simulations</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredSimulations.map(i =>
-                <OptionCard
-                  key={i.id}
-                  selected={imageChoice?.id === i.id}
-                  title={i.name}
-                  description={i.description || 'No description available'}
-                  action={() => setImageChoice(i)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-      }
-      {filteredTurbulence.length > 0 &&
-        <>
-          <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <h3>Turbulence</h3>
-            </AccordionSummary>
-            <AccordionDetails className="option-items">
-              {filteredTurbulence.map(i =>
-                <OptionCard
-                  key={i.id}
-                  selected={imageChoice?.id === i.id}
-                  title={i.name}
-                  description={i.description || 'No description available'}
-                  action={() => setImageChoice(i)}
-                />
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
-        </>
-      }
+      {categorizedImages
+        .filter(category => category.items.length > 0)
+        .map(category => (
+          <Fragment key={category.key}>
+            <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <h3>{category.title}</h3>
+              </AccordionSummary>
+              <AccordionDetails className="option-items">
+                {category.items.map(i =>
+                  <OptionCard
+                    key={i.id}
+                    selected={imageChoice?.id === i.id}
+                    title={i.name}
+                    description={i.description || 'No description available'}
+                    action={() => setImageChoice(i)}
+                  />
+                )}
+              </AccordionDetails>
+            </Accordion>
+            <Divider />
+          </Fragment>
+        ))}
       <Accordion defaultExpanded disableGutters sx={{ '&.MuiAccordion-root:before': { display: 'none' } }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
