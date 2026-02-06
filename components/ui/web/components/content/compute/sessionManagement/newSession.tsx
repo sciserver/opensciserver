@@ -1,27 +1,14 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery, ApolloError } from '@apollo/client';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
-import { GET_DOMAINS } from 'src/graphql/domains';
 import { NewComputeSession } from 'components/content/newComputeSession/newComputeSession';
-
 
 export const NewSession: FC = () => {
 
   const router = useRouter();
 
   const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
-
-  const { loading: loadingData, data } = useQuery(GET_DOMAINS,
-    {
-      onError: (error: ApolloError) => {
-        if (error.message.includes('Unauthorized')) {
-          router.push('/login?callbackURL=/compute');
-        }
-      }
-    }
-  );
 
   const [sessionName, setSessionName] = useState<string>('');
   const [domainChoice, setDomainChoice] = useState<Domain>();
@@ -30,7 +17,7 @@ export const NewSession: FC = () => {
   const [userVolumesChoice, setUserVolumesChoice] = useState<UserVolume[]>([]);
 
   const submit = () => {
-    if (domainChoice == undefined || imageChoice == undefined) {
+    if (domainChoice === undefined || imageChoice === undefined) {
       return;
     }
 

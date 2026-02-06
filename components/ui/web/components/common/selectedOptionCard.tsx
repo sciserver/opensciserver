@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { Avatar, Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton } from '@mui/material';
+import { Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton } from '@mui/material';
 import { MoreVert as MoreVertIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
 
 type Props = {
