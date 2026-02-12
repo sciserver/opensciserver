@@ -56,7 +56,13 @@ export const CustomizedTabs: FC<Props> = ({ tabs, value, setValue }) => {
 
   return (
     <Box sx={{ width: '100%', bgcolor: '#fff' }}>
-      <AntTabs value={value} onChange={handleChange} aria-label="tabs">
+      <AntTabs
+        value={value}
+        onChange={handleChange}
+        aria-label="tabs"
+        variant="scrollable"
+        scrollButtons="auto"
+      >
         {tabs.map(t =>
           <AntTab key={t} label={capitalize(t)} />
         )}
