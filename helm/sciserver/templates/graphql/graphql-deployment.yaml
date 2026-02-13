@@ -34,13 +34,13 @@ spec:
             {{- toYaml .Values.compute.resources | nindent 12 }}
           env:
             - name: FILES_BASE_URL
-              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}fileservice/api/{{- end -}}'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}{{- end -}}fileservice/api/'
             - name: COMPUTE_BASE_URL
-              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}compute/api/{{- end -}}'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}{{- end -}}compute/api/'
             - name: RACM_BASE_URL
-              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}racm/{{- end -}}'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}{{- end -}}racm/'
             - name: LOGIN_PORTAL_BASE_URL
-              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}login-portal/api/{{- end -}}'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}{{- end -}}login-portal/api/'
             - name: IDIES_ENV
               value: '{{ .Values.graphql.env }}'
           ports:
