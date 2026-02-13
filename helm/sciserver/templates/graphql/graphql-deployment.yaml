@@ -33,7 +33,6 @@ spec:
           resources:
             {{- toYaml .Values.compute.resources | nindent 12 }}
           env:
-                    env:
             - name: FILES_BASE_URL
               value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}fileservice/api/{{- end -}}'
             - name: COMPUTE_BASE_URL
