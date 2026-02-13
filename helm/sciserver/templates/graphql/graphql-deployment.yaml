@@ -33,14 +33,15 @@ spec:
           resources:
             {{- toYaml .Values.compute.resources | nindent 12 }}
           env:
+                    env:
             - name: FILES_BASE_URL
-              value: '{{ include "sciserver.url" . }}fileservice/api/'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}fileservice/api/{{- end -}}'
             - name: COMPUTE_BASE_URL
-              value: '{{ include "sciserver.url" . }}compute/api/'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}compute/api/{{- end -}}'
             - name: RACM_BASE_URL
-              value: '{{ include "sciserver.url" . }}racm/'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}racm/{{- end -}}'
             - name: LOGIN_PORTAL_BASE_URL
-              value: '{{ include "sciserver.url" . }}login-portal/api/'
+              value: '{{- if eq .Values.graphql.env "dev" -}}https://apps.sciserver.org/{{- else -}}{{ include "sciserver.url" . }}login-portal/api/{{- end -}}'
             - name: IDIES_ENV
               value: '{{ .Values.graphql.env }}'
           ports:
