@@ -9,7 +9,8 @@ import { Box, Button, CircularProgress, TextField } from '@mui/material';
 import { LOGIN } from 'src/graphql/accounts';
 import { AuthService } from 'src/services/AuthService';
 
-import banner from 'public/sciserver_banner.jpg';
+import { ParticlesComp } from 'components/common/particles';
+
 import logo from 'public/sciserver-logo.png';
 
 type StyleProps = {
@@ -31,6 +32,7 @@ const Styled = styled.div`
   
   .login-form {
     width: 100%;
+    z-index: 1;
     max-width: 30rem;
     height: auto;
     background-color: white;
@@ -144,7 +146,7 @@ export const Login: FC = () => {
     }
   }, [data]);
 
-  return <Styled {...{ height }} style={{ backgroundImage: `url(${banner.src})` }}>
+  return <Styled {...{ height }}>
     <div className="login-form">
       <div className="logo">
         <Image src={logo} alt="SciServer logo" />
@@ -193,5 +195,6 @@ export const Login: FC = () => {
         <span className="caption">New to Sciserver? <Link href={process.env.NEXT_PUBLIC_LOGIN_PORTAL_URL || ''}>Create an account</Link></span>
       </Box>
     </div>
+    <ParticlesComp />
   </Styled>;
 };
