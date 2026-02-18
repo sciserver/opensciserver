@@ -9,38 +9,68 @@ import { Box, Button, CircularProgress, TextField } from '@mui/material';
 import { LOGIN } from 'src/graphql/accounts';
 import { AuthService } from 'src/services/AuthService';
 
-import dataImg from 'public/dataImages/milleniumG4.png';
+import banner from 'public/sciserver_banner.jpg';
+import logo from 'public/sciserver-logo.png';
 
 type StyleProps = {
   height: number
 }
 
 const Styled = styled.div`
-  display: grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 100%;
-  height:  ${(props: StyleProps) => props.height}px; 
+  height: ${(props: StyleProps) => props.height}px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1em;
 
   .error {
     color: ${({ theme }) => theme.palette.error.main};
   }
   
   .login-form {
-    justify-self: center;
-    align-self: center;
+    width: 100%;
+    max-width: 30rem;
+    height: auto;
+    background-color: white;
+    border-radius: 6px;
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 
+    .caption {
+      align-self: center;
+      font-size: 0.9rem;
+    }
+
+    .logo {
+      align-self: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5em;
+      margin-bottom: 1em;
+    }
     .form { 
       display: flex;
       flex-direction: column;
       gap: 1.5em;
     }
 
-    .caption {
-      align-self: center;
-    }
-
     a {
       font-weight: bold;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .login-form {
+      padding: 1.5em;
+    }
+
+    .login-form h1 {
+      font-size: 1.5rem;
     }
   }
 `;
@@ -114,9 +144,13 @@ export const Login: FC = () => {
     }
   }, [data]);
 
-  return <Styled {...{ height }}>
+  return <Styled {...{ height }} style={{ backgroundImage: `url(${banner.src})` }}>
     <div className="login-form">
-      <h1>Welcome to Sciserver</h1>
+      <div className="logo">
+        <Image src={logo} alt="SciServer logo" />
+        <span className="caption">Data, Compute, Collaboration</span>
+      </div>
+      <h1>Sign in</h1>
       <Box
         className="form"
         component="form"
@@ -153,14 +187,11 @@ export const Login: FC = () => {
           {loading ?
             <CircularProgress color="secondary" />
             :
-            'LOGIN'
+            'LOG IN'
           }
         </Button>
         <span className="caption">New to Sciserver? <Link href={process.env.NEXT_PUBLIC_LOGIN_PORTAL_URL || ''}>Create an account</Link></span>
       </Box>
-    </div>
-    <div>
-      <Image src={dataImg} alt="Sciserver related images" height={height} width={width / 2} />
     </div>
   </Styled>;
 };
