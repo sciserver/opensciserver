@@ -14,7 +14,8 @@ import {
   Icon,
   AppBar,
   Avatar,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import {
   Folder as FolderIcon,
@@ -187,9 +188,11 @@ export const DrawerNav: FC = (props: ComponentProps) => {
               <>
                 <ListItem key={option.value} disablePadding>
                   <ListItemButton className={menuOption === option.value ? 'selected' : ''} onClick={option.onClick} >
-                    <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
-                      <Icon>{option.icon}</Icon>
-                    </ListItemIcon>
+                    <Tooltip title={drawerOpen ? '' : option.name} >
+                      <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
+                        <Icon>{option.icon}</Icon>
+                      </ListItemIcon>
+                    </Tooltip>
                     <ListItemText className={menuOption === option.value ? '' : 'contrast'} primary={option.name} />
                   </ListItemButton>
                 </ListItem>
