@@ -1,5 +1,6 @@
 import { FC, useContext, useEffect, useState } from 'react';
 import router from 'next/router';
+import Image from 'next/image';
 import { useLazyQuery } from '@apollo/client';
 import styled from 'styled-components';
 import {
@@ -13,13 +14,12 @@ import {
   Icon,
   AppBar,
   Avatar,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import {
-  AutoGraph as AutoGraphIcon,
   Folder as FolderIcon,
-  Home as HomeIcon,
-  Terminal as TerminalIcon
+  Home as HomeIcon
 } from '@mui/icons-material';
 
 import { AppContext, UserContext } from 'context';
@@ -29,6 +29,11 @@ import { DrawerOption } from 'components/common/layout';
 import { HideOnScroll } from 'components/common/hideOnScroll';
 import { Toolbar } from 'components/common/toolbar';
 import { stringAvatar } from 'src/utils/account';
+
+import logo from 'public/sciserver-logo.png';
+import logoDarkbg from 'public/sciserver-logo-dark-bg.png';
+import computeLogo from 'public/SciServer_icons_Compute.svg';
+import jobsLogo from 'public/sciserver_jobs.png';
 
 export const drawerOpenWidth = 200;
 export const drawerClosedWidth = 60;
@@ -137,6 +142,12 @@ export const DrawerNav: FC = (props: ComponentProps) => {
       icon: <HomeIcon />
     },
     {
+      name: 'Files',
+      value: 'files',
+      onClick: () => window.location.href = process.env.NEXT_PUBLIC_FILES_URL || '',
+      icon: <FolderIcon />
+    },
+    {
       name: 'Datasets',
       value: 'datasets',
       onClick: () => handleOptionChange('datasets'),
@@ -146,19 +157,13 @@ export const DrawerNav: FC = (props: ComponentProps) => {
       name: 'Compute',
       value: 'compute',
       onClick: () => handleOptionChange('compute'),
-      icon: <AutoGraphIcon />
+      icon: <Image src={computeLogo} alt="Compute" width={24} height={24} />
     },
     {
       name: 'Jobs',
       value: 'jobs',
       onClick: () => handleOptionChange('jobs'),
-      icon: <TerminalIcon />
-    },
-    {
-      name: 'Files',
-      value: 'files',
-      onClick: () => window.location.href = process.env.NEXT_PUBLIC_FILES_URL || '',
-      icon: <FolderIcon />
+      icon: <Image src={jobsLogo} alt="Jobs" width={24} height={24} />
     }
   ];
 
@@ -167,7 +172,7 @@ export const DrawerNav: FC = (props: ComponentProps) => {
       {showAppBar &&
         <HideOnScroll {...props}>
           <AppBar>
-            <Toolbar setToggleDrawerOpen={setToggleDrawerOpen} />
+            <Toolbar logo={logoDarkbg} setToggleDrawerOpen={setToggleDrawerOpen} />
           </AppBar>
         </HideOnScroll>
       }
@@ -175,20 +180,25 @@ export const DrawerNav: FC = (props: ComponentProps) => {
         variant="permanent"
         open={drawerOpen}
       >
-        <Toolbar isDrawer setToggleDrawerOpen={setToggleDrawerOpen} />
+        <Toolbar isDrawer logo={logo} setToggleDrawerOpen={setToggleDrawerOpen} />
         <Divider />
         <div className="drawer-flex">
           <List>
-            {drawerOptions.map(option =>
-              <ListItem key={option.value} disablePadding>
-                <ListItemButton className={menuOption === option.value ? 'selected' : ''} onClick={option.onClick} >
-                  <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
-                    <Icon>{option.icon}</Icon>
-                  </ListItemIcon>
-                  <ListItemText className={menuOption === option.value ? '' : 'contrast'} primary={option.name} />
-                </ListItemButton>
-              </ListItem>
-            )}
+            {drawerOptions.map((option, index) => (
+              <>
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton className={menuOption === option.value ? 'selected' : ''} onClick={option.onClick} >
+                    <Tooltip title={drawerOpen ? '' : option.name} >
+                      <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
+                        <Icon>{option.icon}</Icon>
+                      </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText className={menuOption === option.value ? '' : 'contrast'} primary={option.name} />
+                  </ListItemButton>
+                </ListItem>
+                {index === 1 && <Divider sx={{ margin: '10px 0' }} />}
+              </>
+            ))}
           </List>
           {/* // To be update with username initial in upcoming PR where user details are fetched */}
           <div className="user-info">

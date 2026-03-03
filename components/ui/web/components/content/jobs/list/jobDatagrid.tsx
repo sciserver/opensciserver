@@ -1,5 +1,4 @@
 import { FC, useState } from 'react';
-import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
@@ -8,7 +7,6 @@ import {
 } from '@mui/icons-material';
 
 import {
-  Button,
   Chip,
   IconButton,
   Paper,
@@ -25,11 +23,6 @@ import { JobShortDetail } from 'components/content/jobs/detail/jobShortDetail';
 
 const Styled = styled.div`
   margin-top: 2rem;
-  
-  .new-job {
-    display: block;
-    margin: 1rem 3rem 1rem auto; /* pushes the button to the right */
-  }
 
   .grid {
     width: inherit;
@@ -72,7 +65,6 @@ type Props = {
 
 const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
 export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
-  const router = useRouter();
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
 
@@ -94,14 +86,6 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
   const isRowOpen = (jobId: string) => openRows.has(jobId);
 
   return <Styled>
-    <Button
-      variant="contained"
-      color="primary"
-      className="new-job"
-      onClick={() => router.push('/jobs/new')}
-    >
-      New Job
-    </Button>
     <Paper sx={{ width: '95%' }}>
       <TableContainer sx={{ maxHeight: 440, minWidth: '100%' }}>
         <Table stickyHeader className="grid" aria-label=" Jobs Data Table">
