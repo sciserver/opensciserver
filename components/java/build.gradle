@@ -12,5 +12,11 @@ subprojects {
         showViolations false
     }
 
+<<<<<<< HEAD
 
+=======
+    configurations.all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+>>>>>>> 0b12f400a108e534ee6c09a6081216095aa5ccfb
 }
