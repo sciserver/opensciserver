@@ -10,7 +10,7 @@
 ## Building
 - Gradle root is at `components/java/` (where `settings.gradle` lives)
 - Build racm and deps: `cd components/java && ./gradlew :racm:modelJar && ./gradlew :racm:build`
-- Root `build.gradle` excludes `spring-boot-starter-logging` globally to avoid log4j bridge conflicts
+- RACM's `build.gradle` excludes `spring-boot-starter-logging` to avoid log4j bridge conflicts
 
 ## Eclipse Setup
 - Import as Gradle project from `components/java/` — creates separate projects per subproject
@@ -21,7 +21,7 @@
 - Run/debug `org.sciserver.springapp.RACMApplication` as Java Application
 - Requires two `-javaagent` VM arguments in Debug Configuration:
   - `-javaagent:<path>/aspectjweaver-1.9.22.1.jar` (AspectJ load-time weaving, found in Gradle cache)
-  - `-javaagent:<path>/spring-instrument-5.3.31.jar` (Spring classloader instrumentation, stored in `racm/lib/`)
+  - `-javaagent:<path>/spring-instrument-<version>.jar` (Spring classloader instrumentation, stored in `racm/lib/`; version should match Spring Framework)
 - The `lib/` folder is gitignored and holds JARs needed only for local Eclipse debugging
 - Without these agents, `@EnableLoadTimeWeaving` and EclipseLink entity enhancement will fail
 
@@ -32,7 +32,7 @@
 - In production, Helm generates `racm-application.yaml` with all config (see `helm/sciserver/files/racm-application.yaml`)
 
 ## Key Architecture
-- Spring Boot 2.7.18 with EclipseLink JPA (not Hibernate)
+- Spring Boot with EclipseLink JPA (not Hibernate)
 - AspectJ for `@Transactional` support (`AdviceMode.ASPECTJ`)
 - SQL Server database
 - Auth: header, cookie, and query param filters via Spring Security

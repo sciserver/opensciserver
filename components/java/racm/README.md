@@ -22,7 +22,7 @@ without needing an external servlet container.
 - SQL Server with a `racm` database
 - Two Java agent JARs (required by AspectJ load-time weaving and EclipseLink):
   - `aspectjweaver-1.9.22.1.jar` (available in Gradle cache after building)
-  - `spring-instrument-5.3.31.jar` (download from Maven Central, store in `racm/lib/` which is gitignored)
+  - `spring-instrument.jar` (download from Maven Central, store in `racm/lib/` which is gitignored; version should match the Spring Framework version used by the project)
 
 ### Configuration
 
@@ -61,7 +61,7 @@ Both Java agents must be passed as VM arguments when launching:
 
 ```
 -javaagent:<path-to>/aspectjweaver-1.9.22.1.jar
--javaagent:<path-to>/racm/lib/spring-instrument-5.3.31.jar
+-javaagent:<path-to>/racm/lib/spring-instrument-<version>.jar
 ```
 
 Without these, `@EnableLoadTimeWeaving` and EclipseLink entity enhancement will
