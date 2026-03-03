@@ -2,15 +2,17 @@ import { FC, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ApolloError, useMutation, useQuery } from '@apollo/client';
+import { Button } from '@mui/material';
 import styled from 'styled-components';
+import Swal from 'sweetalert2';
 
 import { CANCEL_JOB, GET_JOBS } from 'src/graphql/jobs';
 import { Job, JobStatus } from 'src/graphql/typings';
 
-import noContainersImg from 'public/No-containers.png';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { JobsDataGrid } from 'components/content/jobs/list/jobDatagrid';
-import Swal from 'sweetalert2';
+
+import noContainersImg from 'public/No-containers.png';
 
 const Styled = styled.div`
   .no-active-containers {
@@ -23,6 +25,11 @@ const Styled = styled.div`
     margin: 1rem;
     display: flex;
     gap: 1rem;
+  }
+
+  .new-job {
+    display: block;
+    margin: 1rem 3rem 1rem auto; /* pushes the button to the right */
   }
 
 `;
@@ -86,7 +93,17 @@ export const JobsList: FC = () => {
       <LoadingAnimation backDropIsOpen={loading} />
     }
     {jobsList.length > 0 &&
-      <JobsDataGrid jobsList={jobsList} cancelJob={cancelJob} />
+      <>
+        <Button
+          variant="contained"
+          color="primary"
+          className="new-job"
+          onClick={() => router.push('/jobs/new')}
+        >
+          New Job
+        </Button>
+        <JobsDataGrid jobsList={jobsList} cancelJob={cancelJob} />
+      </>
     }
     {!loading && !jobsList.length &&
       <div className="no-active-containers">
