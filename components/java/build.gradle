@@ -11,4 +11,8 @@ subprojects {
         maxWarnings 0
         showViolations false
     }
+
+    configurations.all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
 }
