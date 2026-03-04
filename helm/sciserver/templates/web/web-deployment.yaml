@@ -38,7 +38,7 @@ spec:
             - name: NEXT_PUBLIC_LOGIN_PORTAL_URL
               value: '{{ include "sciserver.url" . }}login-portal/'
             - name: NEXT_PUBLIC_GRAPHQL_URL
-              value: '{{ if eq .Values.graphql.env "dev" }}{{ .Values.web.graphql.url }}{{ else }}{{ include "sciserver.url" . }}graphql{{ end }}'
+              value: '{{ if eq .Values.graphql.env "dev" }}{{ .Values.web.graphql.url }}graphql{{ else }}{{ include "sciserver.url" . }}graphql{{ end }}'
             - name: NEXT_PUBLIC_FILES_URL
               value: '{{ include "sciserver.url" . }}dashboard/files/uservolumes'
             - name: NEXT_PUBLIC_DASHBOARD_URL
