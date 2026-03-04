@@ -33,6 +33,8 @@ spec:
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
           env:
+            - name: NEXT_PUBLIC_BASE_URL
+              value: '{{ include "sciserver.url" . }}'
             - name: NEXT_PUBLIC_LOGIN_PORTAL_URL
               value: '{{ include "sciserver.url" . }}login-portal/'
             - name: NEXT_PUBLIC_GRAPHQL_URL
