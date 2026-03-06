@@ -5,7 +5,6 @@
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { addMocksToSchema } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import express from 'express';
 import http from 'http';
@@ -42,12 +41,7 @@ const httpServer = http.createServer(app);
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const server = new ApolloServer<Context>({
-  schema: process.env.IDIES_ENV === 'test' ? addMocksToSchema(
-    {
-      schema,
-      mocks: { DateTime: () => new Date() }
-    }
-  ) : schema,
+  schema,
   plugins: process.env.IDIES_ENV !== 'production' ?
     [
       // eslint-disable-next-line new-cap
