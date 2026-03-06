@@ -152,7 +152,7 @@ function dc_update() {
 				<div class="form-group">
 					<label for="imageId">Compute Image</label>
 					<a rel="noopener" target="_blank"
-						href="http://www.sciserver.org/support/compute-images/" title="More Info on Compute Images">
+						href="http://www.sciserver.org/compute-images/" title="More Info on Compute Images">
 						<i aria-hidden="true" class="fa fa-question-circle"></i>
 						<span class="sr-only">More Info on Compute Images</span>
 					</a>
