@@ -28,7 +28,11 @@ docs/_build/
 .idea
 .project
 .classpath
+.settings/
+bin/
+*.bak
 .gradle
+ajcore.*.txt
 **/WebContent/WEB-INF/application.properties
 **/WebContent/WEB-INF/version
 
