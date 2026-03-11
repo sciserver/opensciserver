@@ -459,6 +459,7 @@ web:
       memory: 128Mi
 
 graphql:
+  # url: ''   If URL is set, the graphql deployment will be skipped and the url will be used for the web deployment
   replicaCount: 1
   env: dev
   image:
