@@ -33,6 +33,11 @@
       "main": "#398CBF",
       "contrastText": "#fff"
     },
+    "secondary-temp": {
+      "light": "rgb(57,140,191, 0.5)",
+      "main": "#51AFDC",
+      "contrastText": "#fff"
+    },
     "contrast1": {
       "main": "#B0C1D9",
       "contrastText": "#fff"

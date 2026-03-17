@@ -140,7 +140,7 @@ export const JobFullDetail: FC = () => {
   }, [data]);
 
   const getDownloadURL = (row: File): string => {
-    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${encodeURIComponent(row.name)}`;
+    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace(process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH || '', '')}/${encodeURIComponent(row.name)}`;
   };
 
   const rerunJob = (job: Job) => {

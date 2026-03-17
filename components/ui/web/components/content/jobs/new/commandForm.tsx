@@ -1,9 +1,6 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { TextField, Checkbox } from '@mui/material';
-
-import { WorkingDirectoryAccordionSummary } from 'components/content/newResource/workingDirectoryAccordion';
-import { UserVolume } from 'src/graphql/typings';
+import { TextField } from '@mui/material';
 
 const Styled = styled.div`
   display: flex;
@@ -33,30 +30,17 @@ const Styled = styled.div`
 `;
 
 type Props = {
-  command: string;
-  setCommand: (command: string) => void;
-  commandError: boolean;
-  setCommandError: (error: boolean) => void;
-  useTemporaryVolume: boolean;
-  setUseTemporaryVolume: (use: boolean) => void;
-  temporaryWorkingDirPath: string;
-  workingDirectoryUserVolumesChoice?: UserVolume;
-  setWorkingDirectoryUserVolumesChoice: (workingDirectory: UserVolume) => void;
-  userVolumesChoice: UserVolume[];
-  setActiveStep: (step: number) => void;
-  submit: () => void;
+  command?: string;
+  setCommand?: (command: string) => void;
+  commandError?: boolean;
+  setCommandError?: (error: boolean) => void;
 };
+
 export const CommandForm: FC<Props> = ({
   command,
   setCommand,
   commandError,
-  setCommandError,
-  useTemporaryVolume,
-  setUseTemporaryVolume,
-  temporaryWorkingDirPath,
-  workingDirectoryUserVolumesChoice,
-  setWorkingDirectoryUserVolumesChoice,
-  userVolumesChoice
+  setCommandError
 }) => {
   return <Styled>
     <TextField
@@ -67,35 +51,11 @@ export const CommandForm: FC<Props> = ({
       rows={10}
       value={command}
       onChange={(e) => {
-        setCommand(e.target.value);
-        setCommandError(false);
+        setCommand?.(e.target.value);
+        setCommandError?.(false);
       }}
       error={commandError}
       helperText={commandError ? 'Command cannot be empty' : ''}
     />
-    <h4>Working Directory</h4>
-    <p>
-      Select a location to store standard input/output logs, which will also serve as the current working directory for this job.
-      To use other writable user volumes, enable them in the Files tab. <strong>Do not use relative paths in the command.</strong>
-    </p>
-
-    <div className="checkbox-container">
-      <Checkbox checked={useTemporaryVolume} onChange={() => setUseTemporaryVolume(!useTemporaryVolume)} />
-      <span className="caption">
-        Create and use a new folder in the “jobs” temporary volume. The folder will be created automatically.
-      </span>
-    </div>
-    {useTemporaryVolume ?
-      <div>
-        <p className="bullet">
-          • A copy of this command will be placed in a unique, nested subfolder of <i className="path">{temporaryWorkingDirPath}</i>.
-        </p>
-        <p className="bullet">
-          • Relative paths will be resolved from this location.
-        </p>
-      </div>
-      :
-      <WorkingDirectoryAccordionSummary userVolumeList={userVolumesChoice} userVolumeChoice={workingDirectoryUserVolumesChoice} setUserVolumeChoice={setWorkingDirectoryUserVolumesChoice} />
-    }
   </Styled>;
 };
