@@ -36,6 +36,8 @@ const Styled = styled.div`
 
 const jobStatusPollingInterval = 5000; // 5 seconds
 const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started, JobStatus.Finished]);
+export const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
+export const jobStatusAllowRerun = new Set([JobStatus.Error, JobStatus.Success]);
 
 export const JobsList: FC = () => {
 

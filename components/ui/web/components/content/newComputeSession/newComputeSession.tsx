@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Button, Chip, CircularProgress, Divider, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
-import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
+import { DataVolume, Domain, Image, Job, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
 
 import { NewComputeSessionOptions } from 'components/content/newComputeSession/newComputeSessionOptions';
@@ -85,6 +85,7 @@ type Props = {
   submit: () => void;
   loadingSubmit: boolean;
   isJob?: boolean;
+  editJob?: Job;
 };
 
 export const NewComputeSession: FC<Props> = ({
@@ -104,7 +105,8 @@ export const NewComputeSession: FC<Props> = ({
   setResultsFolderURI,
   submit,
   loadingSubmit,
-  isJob
+  isJob,
+  editJob
 }) => {
 
   const router = useRouter();
@@ -124,17 +126,29 @@ export const NewComputeSession: FC<Props> = ({
 
   const domainList = useMemo<Domain[]>(() => {
     if (data && data.getDomains) {
-      const defaultDomainName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT;
-      setDomainChoice((data.getDomains as Domain[]).find(d => d.name === defaultDomainName));
+      if (editJob) {
+        const editJobDomain = (data.getDomains as Domain[]).find((d: Domain) => d.apiEndpoint === editJob.dockerComputeEndpoint);
+        setDomainChoice(editJobDomain);
+      }
+      else {
+        const defaultDomainName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT;
+        setDomainChoice((data.getDomains as Domain[]).find(d => d.name === defaultDomainName));
+      }
       return data.getDomains;
     }
     return [];
-  }, [data]);
+  }, [data, editJob]);
 
   const imageList = useMemo<Image[]>(() => {
     if (domainChoice) {
-      const defaultImageName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT;
-      setImageChoice(domainChoice.images.find(d => d.name === defaultImageName));
+      if (editJob) {
+        const editJobImage = domainChoice.images.find(d => d.name === editJob.dockerImageName);
+        setImageChoice(editJobImage);
+      }
+      else {
+        const defaultImageName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT;
+        setImageChoice(domainChoice.images.find(d => d.name === defaultImageName));
+      }
       return domainChoice.images;
     }
     return [];

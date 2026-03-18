@@ -17,13 +17,14 @@ import { sanitize } from 'dompurify';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { filesize } from 'filesize';
+import Swal from 'sweetalert2';
 
 import { File, Job, JobDetails } from 'src/graphql/typings';
 import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import Swal from 'sweetalert2';
+import { jobStatusAllowRerun } from 'components/content/jobs/list/jobsList';
 
 const Styled = styled.div`
   .header {
@@ -113,6 +114,7 @@ export const JobFullDetail: FC = () => {
       variables: { jobId: id }
     }
   );
+
   const [createJob] = useMutation(CREATE_JOB, {
     onError: () => Swal.fire({
       title: 'Unable to add job',
@@ -243,7 +245,7 @@ export const JobFullDetail: FC = () => {
               </p>
             </div>
           </div>
-          {jobDetail.job.resultsFolderURI.length > 0 &&
+          {jobDetail.job.resultsFolderURI.length > 0 && jobStatusAllowRerun.has(jobDetail.job.status) &&
             <Tooltip title="Re-run Job">
               <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
                 <ReplayIcon />

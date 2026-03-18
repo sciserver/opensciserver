@@ -113,9 +113,7 @@ export const Login: FC = () => {
       return;
     }
 
-    const query = router.query;
-
-    const { callbackURL } = query;
+    const { callbackURL } = router.query;
 
     if (callbackURL) {
       setCallback(decodeURIComponent((callbackURL as string).replace(/\+/g, ' ')));
