@@ -99,6 +99,9 @@ spec:
         {{- range $key, $val := .Values.fileservice.pvcVolumes }}
         - name: {{ $key }}
           mountPath: {{ $val.mountPath }}
+          {{- if $val.subPath }}
+          subPath: {{ $val.subPath }}
+          {{- end }}
         {{- end }}
         livenessProbe:
           timeoutSeconds: 5
