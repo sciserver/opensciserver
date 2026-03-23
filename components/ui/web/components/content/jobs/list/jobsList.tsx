@@ -67,21 +67,24 @@ export const JobsList: FC = () => {
       text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
       icon: 'error',
       confirmButtonText: 'OK'
-    }).then(() => {
-      refetch();
-      // setLoadingSubmit(false);
-    })
+    }).then(() => refetch()),
+    onCompleted: () => Swal.fire({
+      title: 'Job cancelled',
+      text: 'The job has been successfully cancelled.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => refetch())
   });
 
   const jobsList = useMemo<Job[]>(() => {
     if (allJobs && allJobs.getJobs) {
       const jobs: Job[] = allJobs.getJobs;
       if (jobs.some(job => jobStatusThatNeedPolling.has(job.status))) {
-        console.log('start polling');
+        console.info('Starting polling');
         startPolling(jobStatusPollingInterval);
       }
       else {
-        console.log('stop polling');
+        console.info('Stopping polling');
         stopPolling();
       }
       return jobs;

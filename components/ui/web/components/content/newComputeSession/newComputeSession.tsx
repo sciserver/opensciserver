@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, ApolloError } from '@apollo/client';
 import styled from 'styled-components';
@@ -152,23 +152,29 @@ export const NewComputeSession: FC<Props> = ({
       return domainChoice.images;
     }
     return [];
-  }, [domainChoice]);
+  }, [domainChoice, editJob]);
 
   const dataVolumeList = useMemo<DataVolume[]>(() => {
     if (domainChoice) {
+      if (editJob) {
+        setDataVolumesChoice(editJob.dataVolumes.map(dv => domainChoice.dataVolumes.find(dvl => dvl.id === dv.id)!));
+      }
       return domainChoice.dataVolumes;
     }
     return [];
-  }, [domainChoice]);
+  }, [domainChoice, editJob]);
 
   const userVolumeList = useMemo<UserVolume[]>(() => {
     if (domainChoice) {
       const defaultUVs = (domainChoice.userVolumes as UserVolume[]).filter(uv => uv.name === 'scratch' || uv.name === 'persistent');
       setUserVolumesChoice(defaultUVs);
+      if (editJob) {
+        setUserVolumesChoice(editJob.userVolumes.map(uv => domainChoice.userVolumes.find(uvl => uvl.id === uv.userVolumeId)!));
+      }
       return domainChoice.userVolumes;
     }
     return [];
-  }, [domainChoice]);
+  }, [domainChoice, editJob]);
 
   const tabs = useMemo<string[]>(() => {
     let baseTabs = ['Domains', 'Images', 'Data vols', 'User vols'];
@@ -177,6 +183,14 @@ export const NewComputeSession: FC<Props> = ({
     }
     return baseTabs;
   }, [isJob]);
+
+  useEffect(() => {
+    if (editJob) {
+      const editResultsFolderURI = editJob.resultsFolderURI.split('/').slice(0, -2).join('/');
+      setCommand!(editJob.command);
+      setResultsFolderURI!(editResultsFolderURI);
+    }
+  }, [editJob]);
 
   const handleSubmit = () => {
     if (isJob && (!command || !command.length)) {
@@ -225,6 +239,7 @@ export const NewComputeSession: FC<Props> = ({
           setCommandError={setCommandError}
           resultsFolderURI={resultsFolderURI}
           setResultsFolderURI={setResultsFolderURI}
+          isEditJob={!!editJob}
         />
       </div>
       <div className="right-panel">

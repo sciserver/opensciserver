@@ -145,22 +145,44 @@ export const JobFullDetail: FC = () => {
     return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace(process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH || '', '')}/${encodeURIComponent(row.name)}`;
   };
 
-  const rerunJob = (job: Job) => {
-    const resultsFolderURI = job.resultsFolderURI.split('/').slice(0, -2).join('/');
+  const rerunJob = async (job: Job) => {
+    await Swal.fire({
+      title: 'Rerun job',
+      text: `Do you want to run job ${job.id} again as is, or would you like to review and modify the job parameters before submitting?`,
+      icon: 'question',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Rerun unmodified',
+      denyButtonText: 'Review and modify',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const resultsFolderURI = job.resultsFolderURI.split('/').slice(0, -2).join('/');
 
-    createJob({
-      variables: {
-        createJobParams: {
-          dockerComputeEndpoint: job.dockerComputeEndpoint,
-          dockerImageName: job.dockerImageName,
-          resultsFolderURI,
-          submitterDID: job.submitterDID,
-          volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-          userVolumes: job.userVolumes.map(uv => uv.id),
-          command: job.command,
-          scriptURI: job.scriptURI || ''
-        }
+        createJob({
+          variables: {
+            createJobParams: {
+              dockerComputeEndpoint: job.dockerComputeEndpoint,
+              dockerImageName: job.dockerImageName,
+              resultsFolderURI,
+              submitterDID: job.submitterDID,
+              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
+              userVolumes: job.userVolumes.map(uv => uv.id),
+              command: job.command,
+              scriptURI: job.scriptURI || ''
+            }
+          }
+        });
+        return;
       }
+      if (result.isDenied) {
+        router.push({
+          pathname: '/jobs/new',
+          query: { rerunFromJobId: job.id }
+        });
+      }
+    }).then(() => {
+      return;
     });
   };
 

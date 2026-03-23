@@ -42,6 +42,7 @@ export const JOB_DETAIL_VIEW = gql`
         }
         userVolumes {
           id
+          userVolumeId
         }
       }
       summary
