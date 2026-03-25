@@ -16,6 +16,7 @@ export const typeDefs = gql`
     userVolumes: [ID!]!
     dataVolumes: [ComputeDataVolume!]!
     description: String
+    json: JSONObject
   }
 
   type ContainerDetail {

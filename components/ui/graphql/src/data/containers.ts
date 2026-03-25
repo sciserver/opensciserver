@@ -170,7 +170,8 @@ export class ContainersAPI extends RESTDataSource {
       maxSecs: res.maxSecs,
       userVolumes: res.json.userVolumes.map((r: any) => r.userVolumeId),
       dataVolumes: res.json.volumeContainers.map((r: any) => this.volumesAPI.computeDataVolumeReducer(r)),
-      description: res.description
+      description: res.description,
+      json: res.json
     };
   }
 
