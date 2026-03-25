@@ -34,6 +34,13 @@ const Styled = styled.div`
 
   .grid {
     width: inherit;
+
+    .job-row {
+      :hover {
+        background-color: ${({ theme }) => theme.palette.action.hover};
+        cursor: pointer;
+      }
+    }
   
     .column-header {
       font-style: normal;
@@ -173,7 +180,7 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
           <TableBody>
             {jobsList.map((job) => (
               <>
-                <TableRow key={job.id}>
+                <TableRow className="job-row" onClick={() => toggleRow(job.id)} key={job.id}>
                   <TableCell>
                     <IconButton
                       aria-label="expand row"
@@ -200,7 +207,7 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
                     }
                     {jobStatusAllowCancel.has(job.status) &&
                       <Tooltip title="Cancel Job">
-                        <IconButton onClick={() => cancelJob({ variables: { jobId: job.id } })} size="small">
+                        <IconButton onClick={() => cancelJob({ variables: { jobId: job.id } })} size="medium">
                           <CancelIcon className="delete-icon" />
                         </IconButton>
                       </Tooltip>

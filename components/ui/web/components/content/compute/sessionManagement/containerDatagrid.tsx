@@ -5,6 +5,7 @@ import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams } f
 import { Delete as DeleteIcon, PlayArrow as PlayArrowIcon } from '@mui/icons-material';
 
 import { Container } from 'src/graphql/typings';
+import { Tooltip } from '@mui/material';
 
 const Styled = styled.div`
   .grid {
@@ -117,15 +118,23 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
       flex: 0.8,
       getActions: (params) => [
         <GridActionsCellItem
-          icon={<PlayArrowIcon className="run-icon" />}
+          icon={
+            <Tooltip title="Run Container">
+              <PlayArrowIcon className="run-icon" />
+            </Tooltip>
+          }
           label="Run"
           onClick={runContainer(params)}
         />,
-        <GridActionsCellItem
-          icon={<DeleteIcon className="delete-icon" />}
-          label="Delete"
-          onClick={deleteContainer(params.id)}
-        />
+        // <GridActionsCellItem
+        //   icon={
+        //     <Tooltip title="Delete Container">
+        //       <DeleteIcon className="delete-icon" />
+        //     </Tooltip>
+        //   }
+        //   label="Delete"
+        //   onClick={deleteContainer(params.id)}
+        // />
       ]
     }
   ];
