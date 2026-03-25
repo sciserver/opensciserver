@@ -5,7 +5,6 @@ import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams } f
 import { Delete as DeleteIcon, PlayArrow as PlayArrowIcon } from '@mui/icons-material';
 
 import { Container } from 'src/graphql/typings';
-import { getExpireTime } from 'src/utils/dates';
 
 const Styled = styled.div`
   .grid {
@@ -47,6 +46,7 @@ type Props = {
 export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer }) => {
   const router = useRouter();
 
+  // TODO: implement delete container mutation and logic
   const deleteContainer = useCallback(
     (id: GridRowId) => () => {
       // Delete logic goes here
@@ -66,16 +66,19 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
       if (userVolumes.length) {
         url += `&uvs=${userVolumes.map(uv => uv)}`;
       }
-
       router.push(url);
-    },
-    []);
+    }, []);
 
   const columns: GridColDef<Container>[] = [
     {
+      field: 'id',
+      headerName: 'ID',
+      width: 100
+    },
+    {
       field: 'imageName',
       headerName: 'Image',
-      width: 200
+      flex: 1
     },
     {
       field: 'domainName',
@@ -85,39 +88,33 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
     {
       field: 'dataVolumes',
       headerName: 'DataVols',
-      width: 100,
+      flex: 0.5,
       valueGetter: (value, row: Container) => row.dataVolumes.length
     },
     {
       field: 'userVolumes',
       headerName: 'UserVols',
-      width: 100,
+      flex: 0.5,
       valueGetter: (value, row: Container) => row.userVolumes.length
-    },
-    {
-      field: 'expiry',
-      headerName: 'Expires in',
-      width: 120,
-      valueGetter: (value, row: Container) => getExpireTime(new Date(row.createdAt), row.maxSecs)
     },
     {
       field: 'accessedAt',
       headerName: 'Last Accessed',
       type: 'dateTime',
-      width: 220,
+      width: 150,
       valueGetter: (value) => new Date(value)
     },
     {
       field: 'createdAt',
       headerName: 'Created',
       type: 'date',
-      width: 150,
+      flex: 0.6,
       valueGetter: (value) => new Date(value)
     },
     {
       field: 'actions',
       type: 'actions',
-      width: 100,
+      flex: 0.8,
       getActions: (params) => [
         <GridActionsCellItem
           icon={<PlayArrowIcon className="run-icon" />}
