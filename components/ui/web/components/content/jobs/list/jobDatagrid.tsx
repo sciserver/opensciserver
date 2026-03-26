@@ -36,7 +36,7 @@ const Styled = styled.div`
     width: inherit;
 
     .job-row {
-      :hover {
+      &:hover {
         background-color: ${({ theme }) => theme.palette.action.hover};
         cursor: pointer;
       }
