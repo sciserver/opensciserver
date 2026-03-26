@@ -101,6 +101,7 @@ loginPortal:
     # when validationEnabled is true. One way to create:
     #  dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64
     secretKey: "KQB7Lb7ACGHjHh8ikzjqb0GyeElfQpb1q/pUtFW1NFs="
+  alertMessage:
   disclaimerInfo:
   displaySciserverLogin: true
   keycloakLoginButtonText: "Sign in with Globus"
