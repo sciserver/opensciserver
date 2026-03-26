@@ -50,7 +50,7 @@ spec:
             - name: NEXT_PUBLIC_G_TAG
               value: {{ .Values.web.gTag }}
             - name: NEXT_PUBLIC_BASE_PATH
-              value: '/{{ include "sciserver.prefix" . }}web'
+              value: '/web'
             - name: NEXT_PUBLIC_COMPUTE_USER_INACTIVITY_TIMEOUT
               value: '2400000'
             - name: NEXT_PUBLIC_COMPUTE_PING_INTERVAL
