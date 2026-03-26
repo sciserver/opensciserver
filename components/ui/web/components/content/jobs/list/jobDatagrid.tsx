@@ -200,14 +200,20 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
                   <TableCell className="cell" id="actions-cell">
                     {job.resultsFolderURI.length > 0 && jobStatusAllowRerun.has(job.status) &&
                       <Tooltip title="Re-run Job">
-                        <IconButton onClick={(e) => { e.stopPropagation(); rerunJob(job); }} size="small">
+                        <IconButton onClick={(e) => {
+                          e.stopPropagation();
+                          rerunJob(job);
+                        }} size="small">
                           <ReplayIcon className="replay-icon" />
                         </IconButton>
                       </Tooltip>
                     }
                     {jobStatusAllowCancel.has(job.status) &&
                       <Tooltip title="Cancel Job">
-                        <IconButton onClick={(e) => { e.stopPropagation(); cancelJob({ variables: { jobId: job.id } }); }} size="medium">
+                        <IconButton onClick={(e) => {
+                          e.stopPropagation();
+                          cancelJob({ variables: { jobId: job.id } });
+                        }} size="medium">
                           <CancelIcon className="delete-icon" />
                         </IconButton>
                       </Tooltip>
