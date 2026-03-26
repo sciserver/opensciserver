@@ -1,6 +1,7 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useLazyQuery, useMutation } from '@apollo/client';
+import { sanitize } from 'dompurify';
 import Swal from 'sweetalert2';
 
 import { DataVolume, Domain, Image, Job, UserVolume } from 'src/graphql/typings';
@@ -87,7 +88,9 @@ export const NewJob: FC = () => {
       return;
     }
 
-    const { rerunFromJobId } = router.query;
+    let { rerunFromJobId } = router.query;
+
+    rerunFromJobId = sanitize(rerunFromJobId as string);
 
     if (rerunFromJobId) {
       getEditJob({ variables: { jobId: rerunFromJobId } });
