@@ -68,7 +68,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
         url += `&uvs=${userVolumes.map(uv => uv)}`;
       }
       router.push(url);
-    }, []);
+    }, [router]);
 
   const columns: GridColDef<Container>[] = [
     {
