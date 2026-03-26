@@ -143,7 +143,7 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
               resultsFolderURI,
               submitterDID: job.submitterDID,
               volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-              userVolumes: job.userVolumes.map(uv => uv.id),
+              userVolumes: job.userVolumes.map(uv => uv.userVolumeId),
               command: job.command,
               scriptURI: job.scriptURI || ''
             }
