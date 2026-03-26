@@ -79,8 +79,12 @@ export const WorkingDirectoryForm: FC<Props> = ({
   }, [useTemporaryVolume, workingDirectoryUserVolumesChoice, user]);
 
   useEffect(() => {
+    if (useTemporaryVolume) {
+      return;
+    }
+
     setResultsFolderURI(userSetResultFolderBasePath + pathToFile);
-  }, [pathToFile, userSetResultFolderBasePath]);
+  }, [pathToFile, userSetResultFolderBasePath, useTemporaryVolume]);
 
   return <Styled>
     <h4>Working Directory</h4>
