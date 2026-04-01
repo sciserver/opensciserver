@@ -126,6 +126,11 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
           label="Run"
           onClick={runContainer(params)}
         />,
+        // NOTE: Delete action is currently hidden until the delete container 
+        // functionality works end-to-end. The code is left here for reference
+        // and future implementation. There are permission issues that we haven't
+        // dealt with yet around deleting containers that need to be resolved before 
+        // this can be implemented.
         // <GridActionsCellItem
         //   icon={
         //     <Tooltip title="Delete Container">

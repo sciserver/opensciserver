@@ -27,7 +27,7 @@ export const LoadingAnimation: FC<Props> = ({ backDropIsOpen }) => {
   return (
     <StyledBackdrop {...{ drawerOpen }} open={backDropIsOpen} >
       <div className="loading-div">
-        <Image src={logoGif} alt="Sciserver logo gif" />
+        <Image src={logoGif} alt="Sciserver is loading logo gif" />
       </div>
     </StyledBackdrop>
   );

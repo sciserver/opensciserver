@@ -24,7 +24,7 @@ import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { jobStatusAllowRerun } from 'components/content/jobs/list/jobsList';
+import { jobStatusAllowRerun, ReRunJobModalWording } from 'components/content/jobs/list/jobsList';
 
 const Styled = styled.div`
   .header {
@@ -146,18 +146,13 @@ export const JobFullDetail: FC = () => {
   };
 
   const rerunJob = async (job: Job) => {
-    await Swal.fire({
-      title: 'Rerun job',
-      text: `Do you want to run job ${job.id} again as is, or would you like to review and modify the job parameters before submitting?`,
-      icon: 'question',
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: 'Rerun unmodified',
-      denyButtonText: 'Review and modify',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
+    await Swal.fire(ReRunJobModalWording as any).then((result) => {
       if (result.isConfirmed) {
-        const resultsFolderURI = job.resultsFolderURI.split('/').slice(0, -2).join('/');
+        const resultsFolderURI = job.resultsFolderURI
+          .split('/')
+          // compm adds subdirs to the results folder, this indicates last non-dynamic index
+          .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
+          .join('/');
 
         createJob({
           variables: {
@@ -167,7 +162,7 @@ export const JobFullDetail: FC = () => {
               resultsFolderURI,
               submitterDID: job.submitterDID,
               volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-              userVolumes: job.userVolumes.map(uv => uv.userVolumeId),
+              userVolumes: job.userVolumes.map(uv => uv.id),
               command: job.command,
               scriptURI: job.scriptURI || ''
             }

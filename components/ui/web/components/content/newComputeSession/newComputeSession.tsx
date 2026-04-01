@@ -186,7 +186,12 @@ export const NewComputeSession: FC<Props> = ({
 
   useEffect(() => {
     if (editJob) {
-      const editResultsFolderURI = editJob.resultsFolderURI.split('/').slice(0, -2).join('/');
+      const editResultsFolderURI = editJob.resultsFolderURI
+        .split('/')
+        // compm adds subdirs to the results folder, this indicates last non-dynamic index
+        .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
+        .join('/');
+
       setCommand!(editJob.command);
       setResultsFolderURI!(editResultsFolderURI);
     }

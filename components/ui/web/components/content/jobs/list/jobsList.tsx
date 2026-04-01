@@ -38,6 +38,16 @@ const jobStatusPollingInterval = 5000; // 5 seconds
 const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started, JobStatus.Finished]);
 export const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
 export const jobStatusAllowRerun = new Set([JobStatus.Error, JobStatus.Success]);
+export const ReRunJobModalWording = {
+  title: 'Rerun job',
+  text: `Do you want to run this job again as is, or would you like to review and modify the job parameters before submitting?`,
+  icon: 'question',
+  showCancelButton: true,
+  showDenyButton: true,
+  confirmButtonText: 'Rerun unmodified',
+  denyButtonText: 'Review and modify',
+  cancelButtonText: 'Cancel'
+};
 
 export const JobsList: FC = () => {
 
