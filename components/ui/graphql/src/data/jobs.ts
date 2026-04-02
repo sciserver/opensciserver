@@ -5,7 +5,7 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage } from '../generated/typings';
+import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage, JobStatus } from '../generated/typings';
 import { VolumesAPI } from './volumes';
 
 export class JobsAPI extends RESTDataSource {
@@ -45,7 +45,9 @@ export class JobsAPI extends RESTDataSource {
 
     let files: File[] = [];
     let summary = 'No summary available';
-    if (job.resultsFolderURI.length) {
+    // only attempt to get files and summary if job is successful or failed,
+    // otherwise the results folder may not exist and we will get an error
+    if (job.resultsFolderURI.length && (job.status === JobStatus.Success || job.status === JobStatus.Error)) {
       const sanitizedURI = job.resultsFolderURI.replace('/home/idies/workspace/', '');
       const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI) || {};
       files = jobJsontree.root.files || [];

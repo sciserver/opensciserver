@@ -1,6 +1,6 @@
 import { FC, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Checkbox } from '@mui/material';
+import { Checkbox, TextField } from '@mui/material';
 
 import { UserContext } from 'context';
 import { UserVolume } from 'src/graphql/typings';
@@ -29,7 +29,14 @@ const Styled = styled.div`
     display: flex;
     align-items: center;
     gap: 0.2rem;
+  }
 
+  .option-items {
+    justify-content: center;
+  }
+
+  .path-to-file {
+    overflow-wrap: break-word;
   }
 `;
 
@@ -47,6 +54,8 @@ export const WorkingDirectoryForm: FC<Props> = ({
   const { user } = useContext(UserContext);
   const [useTemporaryVolume, setUseTemporaryVolume] = useState<boolean>(true);
   const [workingDirectoryUserVolumesChoice, setWorkingDirectoryUserVolumesChoice] = useState<UserVolume>();
+  const [userSetResultFolderBasePath, setUserSetResultFolderBasePath] = useState<string>('');
+  const [pathToFile, setPathToFile] = useState<string>('');
 
   const filteredOwned = useMemo<UserVolume[]>(() => {
     return userVolumesList.filter(i => i.owner === user?.userName);
@@ -60,11 +69,22 @@ export const WorkingDirectoryForm: FC<Props> = ({
   useEffect(() => {
     if (useTemporaryVolume) {
       setResultsFolderURI(`${process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH}Temporary/${user?.userName}/jobs/`);
+      setPathToFile('');
       return;
     }
 
-    setResultsFolderURI(`${process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH}${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`);
+    const basepath = `${process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH}${workingDirectoryUserVolumesChoice!.rootVolumeName}/${workingDirectoryUserVolumesChoice!.owner}/${workingDirectoryUserVolumesChoice!.name}/`;
+    setUserSetResultFolderBasePath(basepath);
+    setResultsFolderURI(basepath);
   }, [useTemporaryVolume, workingDirectoryUserVolumesChoice, user]);
+
+  useEffect(() => {
+    if (useTemporaryVolume) {
+      return;
+    }
+
+    setResultsFolderURI(userSetResultFolderBasePath + pathToFile);
+  }, [pathToFile, userSetResultFolderBasePath, useTemporaryVolume]);
 
   return <Styled>
     <h4>Working Directory</h4>
@@ -82,24 +102,33 @@ export const WorkingDirectoryForm: FC<Props> = ({
     {useTemporaryVolume ?
       <div>
         <p className="bullet">
-          • A copy of this command will be placed in a unique, nested subfolder of <i className="path">{resultsFolderURI}</i>.
-        </p>
-        <p className="bullet">
           • Relative paths will be resolved from this location.
         </p>
       </div>
       :
-      <div className="option-items">
-        {filteredOwned.map(uv =>
-          <OptionCard
-            key={uv.id}
-            selected={workingDirectoryUserVolumesChoice?.id === uv.id}
-            title={uv.name}
-            description={uv.description || 'No description available'}
-            action={() => setWorkingDirectoryUserVolumesChoice(uv)}
-          />
-        )}
-      </div>
+      <>
+        <div className="option-items">
+          {filteredOwned.map(uv =>
+            <OptionCard
+              key={uv.id}
+              selected={workingDirectoryUserVolumesChoice?.id === uv.id}
+              title={uv.name}
+              description={uv.description || 'No description available'}
+              action={() => setWorkingDirectoryUserVolumesChoice(uv)}
+            />
+          )}
+        </div>
+        <TextField
+          id="path-to-file"
+          label="Path within user volume (optional)"
+          placeholder="Type the path to the file here."
+          value={pathToFile}
+          onChange={(e) => setPathToFile(e.target.value)}
+        />
+      </>
     }
+    <p className="bullet path-to-file">
+      • A copy of this command will be placed in a unique, nested subfolder of <i className="path">{resultsFolderURI}</i>.
+    </p>
   </Styled>;
 };

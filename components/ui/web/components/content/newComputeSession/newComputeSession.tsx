@@ -1,11 +1,11 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, ApolloError } from '@apollo/client';
 import styled from 'styled-components';
 import { Button, Chip, CircularProgress, Divider, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
-import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
+import { DataVolume, Domain, Image, Job, UserVolume } from 'src/graphql/typings';
 import { GET_DOMAINS } from 'src/graphql/domains';
 
 import { NewComputeSessionOptions } from 'components/content/newComputeSession/newComputeSessionOptions';
@@ -85,6 +85,7 @@ type Props = {
   submit: () => void;
   loadingSubmit: boolean;
   isJob?: boolean;
+  editJob?: Job;
 };
 
 export const NewComputeSession: FC<Props> = ({
@@ -104,7 +105,8 @@ export const NewComputeSession: FC<Props> = ({
   setResultsFolderURI,
   submit,
   loadingSubmit,
-  isJob
+  isJob,
+  editJob
 }) => {
 
   const router = useRouter();
@@ -124,37 +126,55 @@ export const NewComputeSession: FC<Props> = ({
 
   const domainList = useMemo<Domain[]>(() => {
     if (data && data.getDomains) {
-      const defaultDomainName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT;
-      setDomainChoice((data.getDomains as Domain[]).find(d => d.name === defaultDomainName));
+      if (editJob) {
+        const editJobDomain = (data.getDomains as Domain[]).find((d: Domain) => d.apiEndpoint === editJob.dockerComputeEndpoint);
+        setDomainChoice(editJobDomain);
+      }
+      else {
+        const defaultDomainName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT;
+        setDomainChoice((data.getDomains as Domain[]).find(d => d.name === defaultDomainName));
+      }
       return data.getDomains;
     }
     return [];
-  }, [data]);
+  }, [data, editJob]);
 
   const imageList = useMemo<Image[]>(() => {
     if (domainChoice) {
-      const defaultImageName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT;
-      setImageChoice(domainChoice.images.find(d => d.name === defaultImageName));
+      if (editJob) {
+        const editJobImage = domainChoice.images.find(d => d.name === editJob.dockerImageName);
+        setImageChoice(editJobImage);
+      }
+      else {
+        const defaultImageName = isJob ? process.env.NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT : process.env.NEXT_PUBLIC_NEW_SESSION_IMAGE_NAME_DEFAULT;
+        setImageChoice(domainChoice.images.find(d => d.name === defaultImageName));
+      }
       return domainChoice.images;
     }
     return [];
-  }, [domainChoice]);
+  }, [domainChoice, editJob]);
 
   const dataVolumeList = useMemo<DataVolume[]>(() => {
     if (domainChoice) {
+      if (editJob) {
+        setDataVolumesChoice(editJob.dataVolumes.map(dv => domainChoice.dataVolumes.find(dvl => dvl.id === dv.id)!));
+      }
       return domainChoice.dataVolumes;
     }
     return [];
-  }, [domainChoice]);
+  }, [domainChoice, editJob]);
 
   const userVolumeList = useMemo<UserVolume[]>(() => {
     if (domainChoice) {
       const defaultUVs = (domainChoice.userVolumes as UserVolume[]).filter(uv => uv.name === 'scratch' || uv.name === 'persistent');
       setUserVolumesChoice(defaultUVs);
+      if (editJob) {
+        setUserVolumesChoice(editJob.userVolumes.map(uv => domainChoice.userVolumes.find(uvl => uvl.id === uv.userVolumeId)!));
+      }
       return domainChoice.userVolumes;
     }
     return [];
-  }, [domainChoice]);
+  }, [domainChoice, editJob]);
 
   const tabs = useMemo<string[]>(() => {
     let baseTabs = ['Domains', 'Images', 'Data vols', 'User vols'];
@@ -163,6 +183,19 @@ export const NewComputeSession: FC<Props> = ({
     }
     return baseTabs;
   }, [isJob]);
+
+  useEffect(() => {
+    if (editJob) {
+      const editResultsFolderURI = editJob.resultsFolderURI
+        .split('/')
+        // compm adds subdirs to the results folder, this indicates last non-dynamic index
+        .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
+        .join('/');
+
+      setCommand!(editJob.command);
+      setResultsFolderURI!(editResultsFolderURI);
+    }
+  }, [editJob]);
 
   const handleSubmit = () => {
     if (isJob && (!command || !command.length)) {
@@ -211,6 +244,7 @@ export const NewComputeSession: FC<Props> = ({
           setCommandError={setCommandError}
           resultsFolderURI={resultsFolderURI}
           setResultsFolderURI={setResultsFolderURI}
+          isEditJob={!!editJob}
         />
       </div>
       <div className="right-panel">

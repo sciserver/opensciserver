@@ -54,40 +54,47 @@ const Styled = styled.div`
   }
 `;
 
+const userInactivityTimeOut = Number.parseInt(process.env.NEXT_PUBLIC_COMPUTE_USER_INACTIVITY_TIMEOUT || '2400000'); // User inactivity 40 minutes
 
 export const ContainerRun: FC = ({ }) => {
 
   const router = useRouter();
-
   const query = router.query;
 
-  const [containerId, setContainerId] = useState<string>();
-
-  const userInactivityTimeOut = Number.parseInt(process.env.NEXT_PUBLIC_COMPUTE_USER_INACTIVITY_TIMEOUT || '2400000'); // User inactivity 40 minutes
-  const [pingInterval, setPingInterval] = useState<number | null>(Number.parseInt(process.env.NEXT_PUBLIC_COMPUTE_PING_INTERVAL || '300000')); //Try pinging container every 5 minutes
-
-  const [userLastActivity, setUserLastActivity] = useState<number>(Date.now());
-
+  // Graphql calls and data
   const [getContainerID, { loading: loadingContainerID, data: dataContainerID, error: errorContainerID }] =
     useLazyQuery(GET_CONTAINER_ID);
-
   const [pingContainer] = useLazyQuery(PING_CONTAINER, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' });
 
+  // Context Management
   const { token } = useContext(UserContext);
   const { drawerOpen, setMenuOption } = useContext(AppContext);
 
+  // State Management
+  const [pingInterval, setPingInterval] = useState<number | null>(Number.parseInt(process.env.NEXT_PUBLIC_COMPUTE_PING_INTERVAL || '300000')); //Try pinging container every 5 minutes
+  const [containerId, setContainerId] = useState<string>();
+  const [userLastActivity, setUserLastActivity] = useState<number>(Date.now());
   const [path, setPath] = useState<string>('/');
-  const [backDropIsOpen, setBackDropIsOpen] = useState<boolean>(false);
   const [loadingIframe, setLoadingIframe] = useState<boolean>(false);
-
   const [iframeWidth, setIframeWidth] = useState<number>(0);
   const [iframeHeight, setIframeHeight] = useState<number>(0);
 
+  const globalLoading = useMemo(() => {
+    if (router.isReady) {
+      return loadingContainerID || loadingIframe;
+    }
+    return true;
+  }, [loadingContainerID, loadingIframe, router]);
 
   const handleWindowResize = () => {
     setIframeWidth(window.innerWidth - (drawerOpen ? drawerOpenWidth : drawerClosedWidth));
     setIframeHeight(window.innerHeight - appBarHeight);
   };
+
+  // Listens for drawerOpen state variable and adjusts width when it changes
+  useEffect(() => {
+    handleWindowResize();
+  }, [drawerOpen]);
 
   // ON MOUNT: UI config
   useEffect(() => {
@@ -97,18 +104,12 @@ export const ContainerRun: FC = ({ }) => {
     setIframeHeight(window.innerHeight - appBarHeight);
   }, []);
 
-  // Listens for drawerOpen state variable and adjusts width when it changes
-  useEffect(() => {
-    handleWindowResize();
-  }, [drawerOpen]);
-
   // ON MOUNT: API calling
   useEffect(() => {
     if (!router.isReady) {
       return;
     }
 
-    setBackDropIsOpen(true);
     let { img, dom, dvs, uvs, p } = query;
 
     img = sanitize(img as string);
@@ -132,8 +133,6 @@ export const ContainerRun: FC = ({ }) => {
         }
       }
     });
-
-
   }, [router]);
 
   const showReloadModal = () => {
@@ -163,15 +162,15 @@ export const ContainerRun: FC = ({ }) => {
 
   const checkTimeSinceLastActive = async () => {
 
-    console.log(`Checking activity @${new Date()}`);
+    console.info(`Checking activity @${new Date()}`);
     const timeSinceLastActivity = Date.now() - userLastActivity;
 
     if (pingInterval && timeSinceLastActivity < pingInterval) {
-      console.log(`Recent activity detected for container ${containerId}: last active ${timeSinceLastActivity} ms ago, interval ${pingInterval} ms`);
+      console.info(`Recent activity detected for container ${containerId}: last active ${timeSinceLastActivity} ms ago, interval ${pingInterval} ms`);
       pingContainer({ variables: { containerId } });
       return;
     }
-    console.log(`No user activity detected in the past ${pingInterval! / 60_000} minutes`);
+    console.info(`No user activity detected in the past ${pingInterval! / 60_000} minutes`);
     if (timeSinceLastActivity >= userInactivityTimeOut) {
       // pingInterval set to null to stop interval 
       setPingInterval(null);
@@ -224,8 +223,8 @@ export const ContainerRun: FC = ({ }) => {
       height={iframeHeight}
       onLoad={() => setLoadingIframe(false)}
     />
-    {loadingContainerID || loadingIframe &&
-      <LoadingAnimation backDropIsOpen={backDropIsOpen} />
+    {globalLoading &&
+      <LoadingAnimation backDropIsOpen={globalLoading} />
     }
   </Styled>;
 };

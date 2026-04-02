@@ -24,6 +24,7 @@ export const GET_CONTAINERS = gql`
       name
       id
       status
+      json
       dataVolumes {
         publisherDID
       }

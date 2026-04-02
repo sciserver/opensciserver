@@ -185,8 +185,8 @@ export const DrawerNav: FC = (props: ComponentProps) => {
         <div className="drawer-flex">
           <List>
             {drawerOptions.map((option, index) => (
-              <>
-                <ListItem key={option.value} disablePadding>
+              <div key={option.value}>
+                <ListItem disablePadding>
                   <ListItemButton className={menuOption === option.value ? 'selected' : ''} onClick={option.onClick} >
                     <Tooltip title={drawerOpen ? '' : option.name} >
                       <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
@@ -197,7 +197,7 @@ export const DrawerNav: FC = (props: ComponentProps) => {
                   </ListItemButton>
                 </ListItem>
                 {index === 1 && <Divider sx={{ margin: '10px 0' }} />}
-              </>
+              </div>
             ))}
           </List>
           {/* // To be update with username initial in upcoming PR where user details are fetched */}

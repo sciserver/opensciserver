@@ -5,7 +5,7 @@ import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams } f
 import { Delete as DeleteIcon, PlayArrow as PlayArrowIcon } from '@mui/icons-material';
 
 import { Container } from 'src/graphql/typings';
-import { getExpireTime } from 'src/utils/dates';
+import { Tooltip } from '@mui/material';
 
 const Styled = styled.div`
   .grid {
@@ -47,6 +47,7 @@ type Props = {
 export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer }) => {
   const router = useRouter();
 
+  // TODO: implement delete container mutation and logic
   const deleteContainer = useCallback(
     (id: GridRowId) => () => {
       // Delete logic goes here
@@ -66,16 +67,19 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
       if (userVolumes.length) {
         url += `&uvs=${userVolumes.map(uv => uv)}`;
       }
-
       router.push(url);
-    },
-    []);
+    }, [router]);
 
   const columns: GridColDef<Container>[] = [
     {
+      field: 'id',
+      headerName: 'ID',
+      width: 100
+    },
+    {
       field: 'imageName',
       headerName: 'Image',
-      width: 200
+      flex: 1
     },
     {
       field: 'domainName',
@@ -85,50 +89,57 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
     {
       field: 'dataVolumes',
       headerName: 'DataVols',
-      width: 100,
+      flex: 0.5,
       valueGetter: (value, row: Container) => row.dataVolumes.length
     },
     {
       field: 'userVolumes',
       headerName: 'UserVols',
-      width: 100,
+      flex: 0.5,
       valueGetter: (value, row: Container) => row.userVolumes.length
-    },
-    {
-      field: 'expiry',
-      headerName: 'Expires in',
-      width: 120,
-      valueGetter: (value, row: Container) => getExpireTime(new Date(row.createdAt), row.maxSecs)
     },
     {
       field: 'accessedAt',
       headerName: 'Last Accessed',
       type: 'dateTime',
-      width: 220,
+      width: 150,
       valueGetter: (value) => new Date(value)
     },
     {
       field: 'createdAt',
       headerName: 'Created',
       type: 'date',
-      width: 150,
+      flex: 0.6,
       valueGetter: (value) => new Date(value)
     },
     {
       field: 'actions',
       type: 'actions',
-      width: 100,
+      flex: 0.8,
       getActions: (params) => [
         <GridActionsCellItem
-          icon={<PlayArrowIcon className="run-icon" />}
+          icon={
+            <Tooltip title="Run Container">
+              <PlayArrowIcon className="run-icon" />
+            </Tooltip>
+          }
           label="Run"
           onClick={runContainer(params)}
         />,
-        <GridActionsCellItem
-          icon={<DeleteIcon className="delete-icon" />}
-          label="Delete"
-          onClick={deleteContainer(params.id)}
-        />
+        // NOTE: Delete action is currently hidden until the delete container 
+        // functionality works end-to-end. The code is left here for reference
+        // and future implementation. There are permission issues that we haven't
+        // dealt with yet around deleting containers that need to be resolved before 
+        // this can be implemented.
+        // <GridActionsCellItem
+        //   icon={
+        //     <Tooltip title="Delete Container">
+        //       <DeleteIcon className="delete-icon" />
+        //     </Tooltip>
+        //   }
+        //   label="Delete"
+        //   onClick={deleteContainer(params.id)}
+        // />
       ]
     }
   ];

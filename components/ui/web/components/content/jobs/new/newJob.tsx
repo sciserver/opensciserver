@@ -1,12 +1,14 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { sanitize } from 'dompurify';
 import Swal from 'sweetalert2';
 
-import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
-import { CREATE_JOB } from 'src/graphql/jobs';
+import { DataVolume, Domain, Image, Job, UserVolume } from 'src/graphql/typings';
+import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { NewComputeSession } from 'components/content/newComputeSession/newComputeSession';
+import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 
 export const NewJob: FC = () => {
@@ -44,6 +46,21 @@ export const NewJob: FC = () => {
     })
   });
 
+  const [getEditJob, { loading: loadingEditJob, data: dataEditJob }] =
+    useLazyQuery(
+      JOB_DETAIL_VIEW,
+      {
+        onError: () => Swal.fire({
+          title: 'Unable to load job for editing',
+          text: `Please try again.`,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          router.push('/jobs');
+        }).catch(Error)
+      }
+    );
+
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const submit = () => {
 
@@ -65,24 +82,49 @@ export const NewJob: FC = () => {
     });
   };
 
+  // ON MOUNT: if rerunFromJobId is present, load the job details and pre-populate the form
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
 
-  return <NewComputeSession
-    isJob
-    sessionName={sessionName}
-    setSessionName={setSessionName}
-    domainChoice={domainChoice}
-    setDomainChoice={setDomainChoice}
-    imageChoice={imageChoice}
-    setImageChoice={setImageChoice}
-    dataVolumesChoice={dataVolumesChoice}
-    setDataVolumesChoice={setDataVolumesChoice}
-    userVolumesChoice={userVolumesChoice}
-    setUserVolumesChoice={setUserVolumesChoice}
-    command={command}
-    setCommand={setCommand}
-    resultsFolderURI={resultsFolderURI}
-    setResultsFolderURI={setResultsFolderURI}
-    submit={submit}
-    loadingSubmit={loadingSubmit}
-  />;
+    let { rerunFromJobId } = router.query;
+
+    rerunFromJobId = sanitize(rerunFromJobId as string);
+
+    if (rerunFromJobId) {
+      getEditJob({ variables: { jobId: rerunFromJobId } });
+    }
+  }, [router]);
+
+  const editJob = useMemo<Job | undefined>(() => {
+    if (dataEditJob && dataEditJob.getJobDetails) {
+      return dataEditJob.getJobDetails.job;
+    }
+    return undefined;
+  }, [dataEditJob]);
+
+  return <>
+    <NewComputeSession
+      isJob
+      editJob={editJob}
+      sessionName={sessionName}
+      setSessionName={setSessionName}
+      domainChoice={domainChoice}
+      setDomainChoice={setDomainChoice}
+      imageChoice={imageChoice}
+      setImageChoice={setImageChoice}
+      dataVolumesChoice={dataVolumesChoice}
+      setDataVolumesChoice={setDataVolumesChoice}
+      userVolumesChoice={userVolumesChoice}
+      setUserVolumesChoice={setUserVolumesChoice}
+      command={command}
+      setCommand={setCommand}
+      resultsFolderURI={resultsFolderURI}
+      setResultsFolderURI={setResultsFolderURI}
+      submit={submit}
+      loadingSubmit={loadingSubmit}
+    />
+    <LoadingAnimation backDropIsOpen={loadingEditJob} />
+  </>;
 };
