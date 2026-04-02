@@ -48,7 +48,7 @@ spec:
             - name: NEXT_PUBLIC_FILE_SERVICE_URL
               value: '{{ include "sciserver.url" . }}fileservice/api/'
             - name: NEXT_PUBLIC_GLOBUS_CALLBACK_URL
-              value: '{{ include "sciserver.url" . }}{{ include "sciserver.prefix" . }}web/login'
+              value: '{{ include "sciserver.url" . }}web/login'
             - name: NEXT_PUBLIC_G_TAG
               value: {{ .Values.web.gTag }}
             - name: NEXT_PUBLIC_BASE_PATH
