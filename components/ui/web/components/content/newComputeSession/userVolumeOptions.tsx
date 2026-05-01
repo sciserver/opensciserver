@@ -105,7 +105,7 @@ export const UserVolumeOptions: FC<Props> = ({ userVolumeList, userVolumesChoice
                   <OptionCard
                     key={uv.id}
                     selected={userVolumesChoice.some(uvc => uvc.id === uv.id)}
-                    title={uv.name}
+                    title={`${uv.name} (${uv.owner})`}
                     description={uv.description || 'No description available'}
                     action={() => handleOnClickOption(uv)}
                   />
@@ -128,7 +128,7 @@ export const UserVolumeOptions: FC<Props> = ({ userVolumeList, userVolumesChoice
             <OptionCard
               key={uv.id}
               selected={userVolumesChoice.some(uvc => uvc.id === uv.id)}
-              title={uv.name}
+              title={`${uv.name} (${uv.owner})`}
               description={uv.description || 'No description available'}
               action={() => handleOnClickOption(uv)}
             />
