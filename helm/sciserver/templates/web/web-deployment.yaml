@@ -69,6 +69,10 @@ spec:
               value: '{{ .Values.web.helpdeskEmail }}'
             - name: NEXT_PUBLIC_JOB_WORKSPACE_PATH
               value: '{{ .Values.web.jobWorkspacePath }}'
+            - name: NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT
+              value: '{{ .Values.web.newJobDefaults.domainName }}'
+            - name: NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT
+              value: '{{ .Values.web.newJobDefaults.imageName }}'
           ports:
             - containerPort: 3000
               protocol: TCP

@@ -451,6 +451,9 @@ web:
     domainName: "Interactive Docker Compute Domain"
     imageName: "Sciserver Essentials 4.0"
     quickStartConfig: "dom=Interactive%20Docker%20Compute%20Domain&img=SciServer%20Essentials%204.0&dvs=97"
+  newJobDefaults:
+    domainName: "Small Jobs Domain"
+    imageName: "SciServer Essentials 4.0"
   resources:
     limits:
       cpu: 500m
