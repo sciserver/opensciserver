@@ -103,14 +103,19 @@ export const JobFullDetail: FC = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const [error, setError] = useState<boolean>(false);
   const [tabValue, setTabValue] = useState<number>(0);
   const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
   const { loading, data } = useQuery(JOB_DETAIL_VIEW,
     {
-      onError: () => setError(true),
-      onCompleted: () => setError(false),
+      onError: (error) => {
+        void Swal.fire({
+          title: 'There was an error loading the job details',
+          text: error.message,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      },
       variables: { jobId: id }
     }
   );
@@ -328,12 +333,6 @@ export const JobFullDetail: FC = () => {
     }
     {loading &&
       <LoadingAnimation backDropIsOpen={loading} />
-    }
-    {error &&
-      <>
-        <h2>There was an error loading the details for this Job.</h2>
-        <p>{error}</p>
-      </>
     }
   </Styled>;
 };
