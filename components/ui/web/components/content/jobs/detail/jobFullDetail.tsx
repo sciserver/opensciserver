@@ -1,3 +1,4 @@
+/* eslint-disable promise/no-promise-in-callback */
 import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client';
@@ -108,14 +109,14 @@ export const JobFullDetail: FC = () => {
 
   const { loading, data } = useQuery(JOB_DETAIL_VIEW,
     {
-      onError: (error) => {
-        void Swal.fire({
-          title: 'There was an error loading the job details',
-          text: error.message,
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-      },
+      onError: (error) => Swal.fire({
+        title: 'There was an error loading the job details',
+        text: error.message,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        router.push('/jobs');
+      }).catch(Error),
       variables: { jobId: id }
     }
   );
