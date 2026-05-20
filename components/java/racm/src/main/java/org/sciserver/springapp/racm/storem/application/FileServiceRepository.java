@@ -64,6 +64,7 @@ import org.sciserver.racm.storem.model.UpdatedRootVolumeInfo;
 import org.sciserver.racm.storem.model.UpdatedUserVolumeInfo;
 import org.sciserver.racm.storem.model.UserVolumeModel;
 import org.sciserver.racm.utils.model.NativeQueryResult;
+import org.sciserver.springapp.loginterceptor.Log;
 import org.sciserver.springapp.racm.login.InsufficientPermissionsException;
 import org.sciserver.springapp.racm.login.NotAuthorizedException;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
@@ -89,6 +90,7 @@ import edu.jhu.user.SciserverEntity;
 import edu.jhu.user.ServiceAccount;
 import edu.jhu.user.User;
 import edu.jhu.user.UserGroup;
+import sciserver.logging.ServiceLogTimer;
 
 /*
  * Repository to obtain or register file service-related objects from a database
@@ -142,7 +144,9 @@ class FileServiceRepository {
                 "";
         Query q = tom.createNativeQuery(sql).setParameter(1, up.getUsername());
         List<MinimalFileServiceModel> fms = new ArrayList<MinimalFileServiceModel>();
+        ServiceLogTimer timer = Log.get().startTimer("FileServiceRepository.getMinimalFileServices:tom.executeNativeQuery [ms]");
         List<?> rows = tom.executeNativeQuery(q);
+        timer.stop();
         for(Object r : rows) {
             Object[] row = (Object[]) r;
             MinimalFileServiceModel fm = new MinimalFileServiceModel((String)row[0], (String)row[1],(String)row[2],(String)row[3]);

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sciserver.springapp.loginterceptor.Log;
 import org.sciserver.springapp.racm.login.LoginPortalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,6 +22,7 @@ import org.springframework.web.util.WebUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import retrofit2.Response;
+import sciserver.logging.ServiceLogTimer;
 
 @Component
 @ConditionalOnWebApplication
@@ -40,7 +42,9 @@ public class SciserverCookieAuthenticationFilter extends AbstractPreAuthenticate
 		if(token != null) {
 			Response<JsonNode> loginPortalResponse;
 			try {
+			    ServiceLogTimer timer = Log.get().startTimer("SciserverCookieAuthenticationFilter.getPreAuthenticatedPrincipal:getTokenInfo [ms]");
 				loginPortalResponse = loginPortalService.getTokenInfo(token).execute();
+				timer.stop();
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
