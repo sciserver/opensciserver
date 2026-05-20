@@ -1,8 +1,10 @@
+/* eslint-disable promise/catch-or-return */
 import { FC, useMemo } from 'react';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import styled from 'styled-components';
+import Swal from 'sweetalert2';
 
 import { GET_CONTAINERS } from 'src/graphql/containers';
 import { Container } from 'src/graphql/typings';
@@ -72,18 +74,40 @@ export const ContainerList: FC<Props> = ({ selectContainer }) => {
     }
   );
 
+  const showNewSessionModal = (pathToSession: string) => {
+    Swal.fire({
+      title: 'Notice about New Session creation',
+      html: `This interactive session will terminate after a period of inactivity. 
+      For long-running, asynchronous workloads please use <strong>JOBS</strong>. 
+      Whenever you use SciServer, be sure to save your data in a user- or data-volume.
+      `,
+      icon: 'info',
+      confirmButtonText: 'Continue',
+      denyButtonText: 'Go to Jobs',
+      showDenyButton: true
+    }).then((result) => {
+      if (result.isDenied) {
+        router.push('/jobs/new');
+      }
+      if (result.isConfirmed) {
+        router.push(pathToSession);
+      }
+    });
+
+  };
+
   const newSessionOptions = [
     {
       title: 'New Quick Notebook',
       subtitle: 'Start a notebook with basic configuration for a quick start',
       imageSource: 'dataImages/SMUDGE_Disk_particles.png',
-      action: () => router.push(`/compute/run?${process.env.NEXT_PUBLIC_QUICK_START_CONFIG}`)
+      action: () => showNewSessionModal(`/compute/run?${process.env.NEXT_PUBLIC_QUICK_START_CONFIG}`)
     },
     {
       title: 'New Custom Session',
       subtitle: 'Start a compute session with custom configuration',
       imageSource: 'dataImages/HEASARC.jpeg',
-      action: () => router.push('/compute/new')
+      action: () => showNewSessionModal('/compute/new')
     }
   ];
 
