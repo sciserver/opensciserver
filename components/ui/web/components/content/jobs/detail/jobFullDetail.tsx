@@ -1,3 +1,4 @@
+/* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable promise/no-promise-in-callback */
 import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';

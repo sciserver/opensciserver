@@ -1,3 +1,4 @@
+/* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable promise/catch-or-return */
 import { FC, useMemo } from 'react';
 import { ApolloError, useQuery } from '@apollo/client';

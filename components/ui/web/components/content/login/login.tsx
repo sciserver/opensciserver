@@ -214,7 +214,7 @@ export const Login: FC = () => {
           size="large"
           onClick={() => {
             const globusURL = `${process.env.NEXT_PUBLIC_LOGIN_PORTAL_URL || ''}keycloak-sso?callbackUrl=${process.env.NEXT_PUBLIC_GLOBUS_CALLBACK_URL || ''}`;
-            router.push(globusURL);
+            window.location.href = globusURL;
           }}
           startIcon={<Image src="https://www.globus.org/assets/images/logo_globus-solid.svg" alt="Globus logo" width="40" height="40" />}
         >
