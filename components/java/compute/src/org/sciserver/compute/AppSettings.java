@@ -52,6 +52,7 @@ public class AppSettings {
     private final String skyServerUrl;
     private final String skyQueryUrl;
     private final String helpUrl;
+    private final String jobsMigrationUrl;
     private final String sciserverVersion;
     private final String[] privilegedGroups;
     private final String[] developerGroups;
@@ -99,6 +100,7 @@ public class AppSettings {
         skyServerUrl = properties.getProperty("SkyServer.Url");
         skyQueryUrl = properties.getProperty("SkyQuery.Url");
         helpUrl = properties.getProperty("ComputeHelp.Url");
+        jobsMigrationUrl = properties.getProperty("ComputeJobsMigration.Url", "");
         sciserverVersion = properties.getProperty("sciserver.version");
         privilegedGroups = properties.getProperty("privileged_groups", "").split(",");
         developerGroups = properties.getProperty("developer_groups", "").split(",");
@@ -316,6 +318,10 @@ public class AppSettings {
 
     public String getHelpUrl() {
         return helpUrl;
+    }
+
+    public String getJobsMigrationUrl() {
+        return jobsMigrationUrl;
     }
 
     public String getSciserverVersion() {
