@@ -63,7 +63,7 @@
 
                   <div class="panel panel-primary">
                     <div class="panel-heading" id="jobs-heading">
-                      <h2 class="panel-title">Compute Jobs</h2>
+                      <h2 class="panel-title">Compute Jobs kjsnjknbjksnjkans</h2>
                       <div id="run-button-groups-holder">
                         <button id="run-command-button" class="btn btn-success btn-sm disabled" data-runtype="command">
                           Run Command
