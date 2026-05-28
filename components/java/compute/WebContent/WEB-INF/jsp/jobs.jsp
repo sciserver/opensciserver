@@ -19,7 +19,7 @@
                 integrity="sha256-WolrNTZ9lY0QL5f0/Qi1yw3RGnDLig2HVLYkrshm7Y0=" crossorigin="anonymous" />
               <link rel="stylesheet"
                 href="https://cdn.jsdelivr.net/npm/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
-              <link rel="stylesheet" href="<spring:url value=" /static/css/jobs.css" />"/>
+              <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/jobs.css" />
               <spring:eval
                 expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getApplicationName()"
                 var="applicationName" />
@@ -113,7 +113,7 @@
                   <script src="https://cdnjs.cloudflare.com/ajax/libs/uiv/0.21.4/uiv.min.js"
                     integrity="sha256-CAAtHx0AnDoxr2ewKFpA8kEqaf98PcNPt7SgP5ML3Gg=" crossorigin="anonymous"></script>
                   <script src="https://cdn.jsdelivr.net/npm/vue-multiselect@2.1.0"></script>
-                  <script async src="<spring:url value=" /static/js/jobs.js" />"></script>
+                  <script async src="${pageContext.request.contextPath}/static/js/jobs.js"></script>
           </body>
 
           </html>
