@@ -19,7 +19,6 @@
                 integrity="sha256-WolrNTZ9lY0QL5f0/Qi1yw3RGnDLig2HVLYkrshm7Y0=" crossorigin="anonymous" />
               <link rel="stylesheet"
                 href="https://cdn.jsdelivr.net/npm/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
-              <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/jobs.css" />
               <spring:eval
                 expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getApplicationName()"
                 var="applicationName" />
