@@ -303,7 +303,7 @@ compute:
   image:
     repository: <<<IMAGE_REPO>>>/compute
     tag: <<<VTAG>>>
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   # Set jobsEnabled to false to remove the jobs link from compute navbar
   jobsEnabled: true
   # Set showStorageInformation to false to remove file storage warnings from compute interactive UI
