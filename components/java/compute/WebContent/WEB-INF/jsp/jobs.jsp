@@ -37,6 +37,10 @@
 			${alert}</div>
 	</c:if>
 
+  <div class="alert alert-primary" role="alert">
+    This is a primary alert—check it out!
+  </div>
+
 	<div class="container">
 		<div class="panel panel-primary">
 			<div class="panel-heading" id="jobs-heading">
