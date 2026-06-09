@@ -81,6 +81,20 @@
 	margin: 1px;
 }
 
+.alert-primary {
+	color: #ffffff;
+	background-color: #337ab7;
+	border-color: #286090;
+}
+
+.alert-primary hr {
+	border-top-color: #204d74;
+}
+
+.alert-primary .alert-link {
+	color: #e8f1fb;
+}
+
 .list-group-horizontal .list-group-item {
 	display: inline-block;
 
