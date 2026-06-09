@@ -38,8 +38,12 @@
 	</c:if>
 
   <div class="alert alert-primary" role="alert">
-    This is a primary alert—check it out!
-  </div>
+    <strong>Try the new Jobs experience.</strong>
+    <span>
+      We are migrating to a new app with the same core workflow plus new features.
+      You can opt in now and switch back any time. Click <a href="${fn:escapeXml(jobsMigrationUrl)}"> to try it out.
+    </span>
+</div>
 
 	<div class="container">
 		<div class="panel panel-primary">
