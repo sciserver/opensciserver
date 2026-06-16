@@ -64,6 +64,7 @@ public class AppSettings {
     private final Set<SciServerLink> uiSciServerLinks;
     private final boolean uiJobsEnabled;
     private final boolean uiInformationEnabled;
+    private final boolean uiNewAppBannerEnabled;
 
     private final String policiesUrl;
 
@@ -113,6 +114,7 @@ public class AppSettings {
 
         uiJobsEnabled = Boolean.parseBoolean(properties.getProperty("ui.jobs.enabled", "true"));
         uiInformationEnabled = Boolean.parseBoolean(properties.getProperty("ui.information.enabled", "true"));
+        uiNewAppBannerEnabled = Boolean.parseBoolean(properties.getProperty("ui.newAppBanner.enabled", "true"));
 
         uiSciServerLinks = parseSciServerLinks();
 
@@ -358,6 +360,10 @@ public class AppSettings {
 
     public boolean isUiInformationEnabled() {
         return uiInformationEnabled;
+    }
+    
+    public boolean isUiNewAppBannerEnabled() {
+        return uiNewAppBannerEnabled;
     }
 
     public String getPoliciesUrl() {
