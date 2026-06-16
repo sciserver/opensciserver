@@ -303,7 +303,7 @@ compute:
   image:
     repository: <<<IMAGE_REPO>>>/compute
     tag: <<<VTAG>>>
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   # Set jobsEnabled to false to remove the jobs link from compute navbar
   jobsEnabled: true
   # Set showStorageInformation to false to remove file storage warnings from compute interactive UI
@@ -312,6 +312,8 @@ compute:
   enableDBBasedCleanup: true
   # use this option only in cases where you have a very old compute database (basically you should not need this)
   changelogSkipInit: false
+  # Set jobsEnabled to false to remove the jobs link from compute navbar
+  newComputeAppBannerEnabled: true
   # comma-separated list of groups
   privilegedGroups: admin
   dask:

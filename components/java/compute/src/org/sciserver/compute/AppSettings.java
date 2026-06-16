@@ -52,6 +52,7 @@ public class AppSettings {
     private final String skyServerUrl;
     private final String skyQueryUrl;
     private final String helpUrl;
+    private final String jobsMigrationUrl;
     private final String sciserverVersion;
     private final String[] privilegedGroups;
     private final String[] developerGroups;
@@ -63,6 +64,7 @@ public class AppSettings {
     private final Set<SciServerLink> uiSciServerLinks;
     private final boolean uiJobsEnabled;
     private final boolean uiInformationEnabled;
+    private final boolean uiNewAppBannerEnabled;
 
     private final String policiesUrl;
 
@@ -99,6 +101,7 @@ public class AppSettings {
         skyServerUrl = properties.getProperty("SkyServer.Url");
         skyQueryUrl = properties.getProperty("SkyQuery.Url");
         helpUrl = properties.getProperty("ComputeHelp.Url");
+        jobsMigrationUrl = properties.getProperty("ComputeJobsMigration.Url", "");
         sciserverVersion = properties.getProperty("sciserver.version");
         privilegedGroups = properties.getProperty("privileged_groups", "").split(",");
         developerGroups = properties.getProperty("developer_groups", "").split(",");
@@ -111,6 +114,7 @@ public class AppSettings {
 
         uiJobsEnabled = Boolean.parseBoolean(properties.getProperty("ui.jobs.enabled", "true"));
         uiInformationEnabled = Boolean.parseBoolean(properties.getProperty("ui.information.enabled", "true"));
+        uiNewAppBannerEnabled = Boolean.parseBoolean(properties.getProperty("ui.newAppBanner.enabled", "true"));
 
         uiSciServerLinks = parseSciServerLinks();
 
@@ -318,6 +322,10 @@ public class AppSettings {
         return helpUrl;
     }
 
+    public String getJobsMigrationUrl() {
+        return jobsMigrationUrl;
+    }
+
     public String getSciserverVersion() {
         return applicationName + " " + sciserverVersion;
     }
@@ -352,6 +360,10 @@ public class AppSettings {
 
     public boolean isUiInformationEnabled() {
         return uiInformationEnabled;
+    }
+    
+    public boolean isUiNewAppBannerEnabled() {
+        return uiNewAppBannerEnabled;
     }
 
     public String getPoliciesUrl() {
