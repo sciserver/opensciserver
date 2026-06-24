@@ -73,6 +73,8 @@ spec:
               value: '{{ .Values.web.newJobDefaults.domainName }}'
             - name: NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT
               value: '{{ .Values.web.newJobDefaults.imageName }}'
+            - name: NEXT_PUBLIC_GLOBUS_ENABLED
+              value: '{{ .Values.web.globusEnabled }}'
           ports:
             - containerPort: 3000
               protocol: TCP
