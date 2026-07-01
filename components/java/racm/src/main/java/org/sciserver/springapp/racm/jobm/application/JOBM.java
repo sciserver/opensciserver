@@ -450,6 +450,21 @@ public class JOBM {
 		}
 		return jobs;
 	}
+
+	public long queryUserDockerJobsCount(UserProfile user) throws VOURPException {
+		TransientObjectManager tom = vourpContext.newTOM();
+		Query q = tom.createNativeQuery(
+      String.format(
+        "select count(*) from DockerJob where submitterId=%d", user.getId()
+      )
+    );
+
+		List<?> rows = tom.executeNativeQuery(q);
+		if (rows == null || rows.isEmpty()) {
+			return 0L;
+		}
+		return ((Number) rows.get(0)).longValue();
+	}
 	/**
 	 * Find all rdb jobs for a user, with specified constraints.
 	 * @param user The user for whom the jobs are queried.
@@ -657,3 +672,5 @@ public class JOBM {
 		return r;
 	}
 }
+
+

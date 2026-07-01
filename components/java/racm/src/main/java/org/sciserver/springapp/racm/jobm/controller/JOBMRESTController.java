@@ -102,6 +102,22 @@ public class JOBMRESTController {
 	}
 
 	/**
+	 * Return the total number of DockerJob records.
+	 *
+	 * @return
+	 */
+	@GetMapping("/jobs/count")
+	public ResponseEntity<JsonNode> queryDockerJobsCount(@AuthenticationPrincipal UserProfile up) {
+		try {
+			long count = jobm.queryUserDockerJobsCount(up);
+			return jsonAPIHelper.success(count);
+		} catch (Exception e) {
+			return jsonAPIHelper.logAndReturnJsonExceptionEntity(
+					"Error querying docker jobs count", Optional.of(up), e, true);
+		}
+	}
+
+	/**
 	 * Return list of "my" jobs with status.<br/>
 	 * Use ...?all or ...?open t ask for open jobs or all jobs
 	 * filtering, e.g. between two times.
