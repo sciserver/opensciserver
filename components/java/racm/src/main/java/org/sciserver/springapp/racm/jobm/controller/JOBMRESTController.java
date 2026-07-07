@@ -110,7 +110,9 @@ public class JOBMRESTController {
     public ResponseEntity<JsonNode> queryDockerJobsCount(@AuthenticationPrincipal UserProfile up) {
         try {
             long count = jobm.queryUserDockerJobsCount(up);
-            return jsonAPIHelper.success(count);
+            ObjectNode result = om.createObjectNode();
+            result.put("count", count);
+            return jsonAPIHelper.success(result);
         } catch (Exception e) {
             return jsonAPIHelper.logAndReturnJsonExceptionEntity(
                     "Error querying docker jobs count", Optional.of(up), e, true);

@@ -455,8 +455,8 @@ public class JOBM {
         TransientObjectManager tom = vourpContext.newTOM();
         Query q = tom.createNativeQuery(
       String.format(
-        "select count(*) from DockerJob where submitterId=%d", user.getId()
-      )
+        "select count(*) from DockerJob where submitterId=:id"
+      ).setParameter("id", user.getId())
     );
 
         List<?> rows = tom.executeNativeQuery(q);
