@@ -454,7 +454,7 @@ public class JOBM {
     public long queryUserDockerJobsCount(UserProfile user) throws VOURPException {
         TransientObjectManager tom = vourpContext.newTOM();
         String sql = String.format("select count(*) from DockerJob where submitterId=:id");
-        Query q = tom.createNativeQuery(sql).setParameter("id", user.getId());
+        Query q = tom.createNativeQuery(sql).setParameter(1, user.getId());
 
         List<?> rows = tom.executeNativeQuery(q);
         if (rows == null || rows.isEmpty()) {
