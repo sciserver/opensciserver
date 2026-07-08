@@ -45,7 +45,7 @@ export const typeDefs = gql`
   }
   
   type JobDetails {
-    id: ID!
+    job: Job!
     summary: String!
     files: [File!]!
   }
@@ -64,19 +64,16 @@ export const typeDefs = gql`
     dockerImageName: String!
     submitterDID: String!
     scriptURI: String!
-  }
-  
-  input JobDetailParams {
-    jobID: ID!
-    resultsFolderURI: String!
+    name: String
   }
 
   type Query {
-    getJobs(filters: [JobFilters!]): [Job!]!
-    getJobDetails(jobDetailParams: JobDetailParams!): JobDetails!
+    getJobs(filters: [JobFilters!], top: Int): [Job!]!
+    getJobDetails(jobId: ID!): JobDetails!
   }
 
   type Mutation {
     createJob(createJobParams: CreateJobParams!): Job!
+    cancelJob(jobId: ID!): Boolean!
   }
 `;

@@ -13,6 +13,7 @@ type Container {
   domainName: String!
   id: ID!
   imageName: String!
+  json: JSONObject
   maxSecs: Int!
   name: String!
   nodeName: String!
@@ -48,6 +49,7 @@ input CreateJobParams {
   command: String!
   dockerComputeEndpoint: String!
   dockerImageName: String!
+  name: String
   resultsFolderURI: String!
   scriptURI: String!
   submitterDID: String!
@@ -168,14 +170,9 @@ type Job {
   username: String
 }
 
-input JobDetailParams {
-  jobID: ID!
-  resultsFolderURI: String!
-}
-
 type JobDetails {
   files: [File!]!
-  id: ID!
+  job: Job!
   summary: String!
 }
 
@@ -209,6 +206,7 @@ type JobUserVolume {
 }
 
 type Mutation {
+  cancelJob(jobId: ID!): Boolean!
   createJob(createJobParams: CreateJobParams!): Job!
   deleteContainer(containerId: ID!, domainId: ID!): Boolean!
   login(password: String!, username: String!): String!
@@ -222,9 +220,9 @@ type Query {
   getDataset(params: DatasetDetailInput!): Dataset
   getDatasets(volumeType: VolumeType!): [Dataset!]!
   getDomainByID(id: ID!): Domain
-  getDomains: [Domain!]!
-  getJobDetails(jobDetailParams: JobDetailParams!): JobDetails!
-  getJobs(filters: [JobFilters!]): [Job!]!
+  getDomains(jobs: Boolean): [Domain!]!
+  getJobDetails(jobId: ID!): JobDetails!
+  getJobs(filters: [JobFilters!], top: Int): [Job!]!
   getJsonTree(volumeName: String!): JSONTree!
   getUser: User!
   getVolumes: FileService

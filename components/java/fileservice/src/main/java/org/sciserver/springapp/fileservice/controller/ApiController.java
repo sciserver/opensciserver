@@ -63,6 +63,7 @@ import org.sciserver.authentication.client.UnauthenticatedException;
 import org.sciserver.authentication.client.User;
 import org.sciserver.clientutils.SciServerClientException;
 import org.sciserver.racm.client.RACMClient;
+import org.sciserver.racm.storem.model.DataVolumeModel;
 import org.sciserver.racm.storem.model.FileServiceModel;
 import org.sciserver.racm.storem.model.RegisterNewServiceVolumeModel;
 import org.sciserver.racm.storem.model.RegisterNewUserVolumeModel;
@@ -70,12 +71,15 @@ import org.sciserver.racm.storem.model.RegisteredDataVolumeModel;
 import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.racm.storem.model.RegisteredRootVolumeModel;
 import org.sciserver.racm.storem.model.RegisteredServiceVolumeModel;
+import org.sciserver.racm.storem.model.RootVolumeModel;
 import org.sciserver.racm.storem.model.UpdateSharedWithEntry;
 import org.sciserver.racm.storem.model.UpdatedUserVolumeInfo;
+import org.sciserver.racm.storem.model.UserVolumeModel;
 import org.sciserver.springapp.auth.Auth;
 import org.sciserver.springapp.fileservice.Config;
 import org.sciserver.springapp.fileservice.Quartet;
 import org.sciserver.springapp.fileservice.Quintet;
+import org.sciserver.springapp.fileservice.QuotaManagerMapper;
 import org.sciserver.springapp.fileservice.Triplet;
 import org.sciserver.springapp.fileservice.UsageInfoProvider;
 import org.sciserver.springapp.fileservice.Utility;
@@ -152,8 +156,9 @@ public class ApiController {
     private static final int MAX_FILE_SIZE = 4000000; // 4MB
     private static final int MAX_FILES = 100;
 
-    @Autowired(required = false)
-    private QuotaManagerService quotaManagerService;
+    @Autowired
+    private QuotaManagerMapper quotaManagerMapper;
+
     @Autowired
     private RACMClient racmClient;
     @Value("${RACM.resourcecontext.uuid}")
@@ -461,7 +466,8 @@ public class ApiController {
                     required = true) @PathVariable String topVolume,
         @Parameter(description = "If file already exists at destination path, "
                                 + "an exeception will be thrown when quiet=false.",
-                    example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                    example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                    @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -546,7 +552,8 @@ public class ApiController {
         @Parameter(description = "Sets the response content disposition to inline when "
                                + "this parameter is true, or attachment if false.",
                                schema = @Schema(defaultValue = "false", type = "Boolean"),
-                               required = false) Boolean inline,
+                               required = false)
+                               @RequestParam(defaultValue = "false", required = false) Boolean inline,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -642,6 +649,9 @@ public class ApiController {
                     HttpStatus.BAD_REQUEST);
         }
 
+        // Fetch all volume info in a single RACM call instead of per-file
+        FileServiceModel volumes = racmClient.getDetailsOfFileService(user.getToken(), fileServiceIdentifier);
+
         String topVolume = null;
         String ownerName = null;
         String userVolume = null;
@@ -660,10 +670,8 @@ public class ApiController {
                 userVolume = quartet.x3;
                 path = quartet.x4;
 
-                ArrayList<String> permissions = new ArrayList<>(Collections.singletonList("read"));
-                Quintet<Boolean, String, String, String, String> info = generalCheck(user, topVolume, permissions,
-                        userVolume,
-                        ownerName, path);
+                Quintet<Boolean, String, String, String, String> info = checkPermissionFromVolumes(
+                        "read", volumes, topVolume, ownerName, userVolume, path);
                 Boolean isTopVolumeADataVolume = info.x1;
 
                 // this is the relative path, in case of user volume, and base path in case of
@@ -691,6 +699,10 @@ public class ApiController {
                     files.add(new FileDataResponse(filePath, base64String));
                 }
 
+            } catch (VolumeNotFoundException e) {
+                files.add(new FileDataResponse(filePath, HttpStatus.NOT_FOUND, e.getMessage()));
+            } catch (VolumeAccessDeniedException e) {
+                files.add(new FileDataResponse(filePath, HttpStatus.FORBIDDEN, e.getMessage()));
             } catch (Exception e) {
                 files.add(new FileDataResponse(filePath, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
             }
@@ -724,7 +736,8 @@ public class ApiController {
         @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                     required = true) @PathVariable String topVolume,
         @Parameter(description = "If folder already exists, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(required = false, defaultValue = "false") Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -801,7 +814,8 @@ public class ApiController {
         @Parameter(description = "Name of the top volume, which can be a rootVolume or a dataVolume.",
                    required = true) @PathVariable String topVolume,
         @Parameter(description = "If file (or folder) does not exist, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         HttpServletRequest request,
         HttpServletResponse response
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1166,10 +1180,11 @@ public class ApiController {
         @Parameter(description = "Name of the userVolume.",
                    required = true) @PathVariable String userVolume,
         @Parameter(description = "If userVolume already exists, an exeception will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         @RequestHeader(value = "X-Service-Auth-ID", required = false) String xServiceID,
-        @RequestBody(required = true, description = "Contains information needed for creating a user volume.")
-        @org.springframework.web.bind.annotation.RequestBody
+        @RequestBody(required = false, description = "Description of the new user volume.")
+        @org.springframework.web.bind.annotation.RequestBody(required = false)
                     CreateUserVolumeRequestBody body,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
@@ -1214,9 +1229,9 @@ public class ApiController {
                 try {
                     User ownerUser = user;
                     String path = userVolumeNameInFileSystem;
-
-                    if (quotaManagerService != null) {
-                        quotaManagerService.deleteVolume(
+                    QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                    if (quotaManager != null) {
+                        quotaManager.deleteVolume(
                                 new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path)).execute();
                     } else {
                         deleteUserVolume(ownerUser, rootVolume, path, true, pathForLogMessage);
@@ -1276,8 +1291,8 @@ public class ApiController {
         @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.",
                    required = true, schema = @Schema(type = "string"))
                    @RequestHeader(value = "X-Service-Auth-ID", required = true) String serviceToken,
-        @RequestBody(required = true, description = "Contains information needed for creating a service volume.")
-        @org.springframework.web.bind.annotation.RequestBody
+        @RequestBody(required = false, description = "Description of the new service volume.")
+        @org.springframework.web.bind.annotation.RequestBody(required = false)
                      CreateServiceVolumeRequestBody body,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException, Exception {
@@ -1332,9 +1347,9 @@ public class ApiController {
                 try {
                     User ownerUser = user;
                     String path = serviceVolumeNameInFileSystem;
-
-                    if (quotaManagerService != null) {
-                        quotaManagerService
+                    QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                    if (quotaManager != null) {
+                        quotaManager
                                 .deleteVolume(new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path))
                                 .execute();
                     } else {
@@ -1478,7 +1493,8 @@ public class ApiController {
                     required = true) @PathVariable String ownerName,
         @Parameter(description = "Name of the userVolume.", required = true) @PathVariable String userVolume,
         @Parameter(description = "If the user volume does not exist, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         HttpServletRequest request
     ) throws UnauthenticatedException, SciServerClientException {
 
@@ -1504,8 +1520,9 @@ public class ApiController {
             path = path.split("/")[1];
 
             if (path != null && !path.matches("^\\s*$")) {
-                if (quotaManagerService != null) {
-                    Response<Void> response = quotaManagerService.deleteVolume(
+                QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                if (quotaManager != null) {
+                    Response<Void> response = quotaManager.deleteVolume(
                             new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path)).execute();
                     if (!response.isSuccessful()) {
                         throw new Exception("Failure deleting user volume: " + response.message());
@@ -1562,7 +1579,8 @@ public class ApiController {
         @Parameter(description = "Name of the serviceVolume.", required = true,
                    example = "Storage") @PathVariable String serviceVolume,
         @Parameter(description = "If the service volume does not exist, an error will be thrown when quiet=false.",
-                   example = "false", schema = @Schema(defaultValue = "false"), required = false) Boolean quiet,
+                   example = "false", schema = @Schema(defaultValue = "false"), required = false)
+                   @RequestParam(defaultValue = "false", required = false) Boolean quiet,
         @Parameter(in = ParameterIn.HEADER, name = "X-Service-Auth-Token", description = "Service's auth token.",
                    required = true, schema = @Schema(type = "string"))
                    @RequestHeader(value = "X-Service-Auth-ID", required = true) String serviceToken,
@@ -1600,8 +1618,9 @@ public class ApiController {
             path = path.split("/")[1];
 
             if (path != null && !path.matches("^\\s*$")) {
-                if (quotaManagerService != null) {
-                    Response<Void> response = quotaManagerService.deleteVolume(
+                QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+                if (quotaManager != null) {
+                    Response<Void> response = quotaManager.deleteVolume(
                             new ManagerVolumeDTO(rootVolume, ownerUser.getUserId() + "/" + path)).execute();
                     if (!response.isSuccessful()) {
                         throw new Exception("Failure deleting service volume: " + response.message()
@@ -2136,8 +2155,9 @@ public class ApiController {
      */
     private void createUserVolume(String userId, String basePathInFileSystem, String rootVolume,
             String userVolumeNameInFileSystem, Boolean quiet, String pathForLogMessage) throws Exception {
-        if (quotaManagerService != null) {
-            Response<Void> response = quotaManagerService
+        QuotaManagerService quotaManager = quotaManagerMapper.getQuotaManagerService(rootVolume);
+        if (quotaManager != null) {
+            Response<Void> response = quotaManager
                     .createVolume(new ManagerVolumeDTO(rootVolume, userId + "/" + userVolumeNameInFileSystem))
                     .execute();
             if (!response.isSuccessful()) {
@@ -2470,6 +2490,66 @@ public class ApiController {
     }
 
     /**
+     * Check permissions for a volume using a pre-fetched FileServiceModel,
+     * avoiding per-file RACM calls.
+     */
+    private Quintet<Boolean, String, String, String, String> checkPermissionFromVolumes(
+            String requiredAction, FileServiceModel volumes, String topVolume,
+            String ownerName, String userVolume, String path) throws Exception {
+
+        // Check if topVolume is a root volume
+        RootVolumeModel matchedRootVolume = null;
+        for (RootVolumeModel rv : volumes.getRootVolumes()) {
+            if (rv.getName().equals(topVolume)) {
+                matchedRootVolume = rv;
+                break;
+            }
+        }
+
+        boolean isTopVolumeADataVolume = (matchedRootVolume == null);
+        String topVolumeBasePath = null;
+
+        if (!isTopVolumeADataVolume) {
+            if (ownerName == null || ownerName.equals("")) {
+                throw new Exception("owner name is not present");
+            } else if (userVolume == null || userVolume.equals("")) {
+                throw new Exception("user volume is not present");
+            }
+            UserVolumeModel matchedUserVolume = null;
+            for (UserVolumeModel uv : matchedRootVolume.getUserVolumes()) {
+                if (uv.getName().equals(userVolume) && ownerName.equals(uv.getOwner())) {
+                    matchedUserVolume = uv;
+                    break;
+                }
+            }
+            if (matchedUserVolume == null) {
+                throw new VolumeNotFoundException("Volume does not exist");
+            }
+            if (!matchedUserVolume.getAllowedActions().contains(requiredAction)) {
+                throw new VolumeAccessDeniedException("Missing required permissions on volume");
+            }
+            topVolumeBasePath = matchedUserVolume.getRelativePath();
+        } else {
+            DataVolumeModel matchedDataVolume = null;
+            for (DataVolumeModel dv : volumes.getDataVolumes()) {
+                if (dv.getName().equals(topVolume)) {
+                    matchedDataVolume = dv;
+                    break;
+                }
+            }
+            if (matchedDataVolume == null) {
+                throw new VolumeNotFoundException("Volume does not exist");
+            }
+            if (!matchedDataVolume.getAllowedActions().contains(requiredAction)) {
+                throw new VolumeAccessDeniedException("Missing required permissions on volume");
+            }
+            topVolumeBasePath = "";
+        }
+
+        return new Quintet<>(isTopVolumeADataVolume, topVolumeBasePath, ownerName, userVolume, path);
+    }
+
+    /**
      * Get path for log message.
      */
     String getPathForLogMessage(String rootVolume, String ownerName, String userVolume, String path,
@@ -2706,6 +2786,18 @@ public class ApiController {
     protected ResponseEntity<JsonNode> jsonExceptionEntity(Exception e, HttpStatus http) {
         JsonNode json = jsonException(e);
         return new ResponseEntity<>(json, http);
+    }
+
+    private static class VolumeNotFoundException extends Exception {
+        VolumeNotFoundException(String message) {
+            super(message);
+        }
+    }
+
+    private static class VolumeAccessDeniedException extends Exception {
+        VolumeAccessDeniedException(String message) {
+            super(message);
+        }
     }
 
 }

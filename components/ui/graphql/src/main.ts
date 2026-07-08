@@ -5,6 +5,7 @@
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -38,10 +39,10 @@ export type Context = {
 const app = express();
 const httpServer = http.createServer(app);
 
+const schema = makeExecutableSchema({ typeDefs, resolvers });
 const server = new ApolloServer<Context>({
-  typeDefs,
-  resolvers,
-  plugins: process.env.NODE_ENV !== 'production' ?
+  schema,
+  plugins: process.env.IDIES_ENV !== 'production' ?
     [
       // eslint-disable-next-line new-cap
       ApolloServerPluginLandingPageLocalDefault({ footer: false })

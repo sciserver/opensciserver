@@ -73,7 +73,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: get tags
         run: git fetch --tags origin
-      - name: Generate helm tarball
+      - name: Generate hash-version helm tarball (non-release builds only)
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          short_hash=$(git rev-parse --short=7 HEAD)
+          make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=g${short_hash}
+      - name: Generate tagged-version helm tarball
         run: make helm REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ needs.build.outputs.VTAG }}
       - name: configure git for helm release
         run: |
@@ -83,8 +88,8 @@ jobs:
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: |
           git checkout gh-pages
-          mv helm/build/sciserver-*.tar.gz .
-          git add sciserver-*.tar.gz
+          mv helm/build/sciserver-*.tgz .
+          git add sciserver-*.tgz
           git commit -m "upload development helm charts for ${{ github.ref }}"
           git push
       - name: swap built helm charts for release builds

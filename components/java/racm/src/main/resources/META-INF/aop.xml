@@ -6,6 +6,7 @@
 		<!-- weave only our code, vourp, and spring framework -->
 		<include within="org.springframework..*"/>
 		<exclude within="org.springframework.boot.liquibase.*"/>
+		<exclude within="org.springframework.boot.jdbc..*"/>
 		<include within="org.ivoa..*"/>
 		<include within="org.sciserver.racm..*"/>
 		<include within="vourp..*"/>

@@ -1,8 +1,8 @@
-import { FC, useContext, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import router from 'next/router';
-import styled from 'styled-components';
 import Image from 'next/image';
-
+import { useLazyQuery } from '@apollo/client';
+import styled from 'styled-components';
 import {
   Divider,
   Drawer,
@@ -14,21 +14,26 @@ import {
   Icon,
   AppBar,
   Avatar,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material';
-
 import {
-  AutoGraph as AutoGraphIcon,
   Folder as FolderIcon,
-  Terminal as TerminalIcon
+  Home as HomeIcon
 } from '@mui/icons-material';
 
-import { AppContext } from 'context';
+import { AppContext, UserContext } from 'context';
+import { GET_USER } from 'src/graphql/accounts';
+
 import { DrawerOption } from 'components/common/layout';
 import { HideOnScroll } from 'components/common/hideOnScroll';
 import { Toolbar } from 'components/common/toolbar';
+import { stringAvatar } from 'src/utils/account';
 
-import jupyterLogo from 'public/Jupyter_logo_white.svg';
+import logo from 'public/sciserver-logo.png';
+import logoDarkbg from 'public/sciserver-logo-dark-bg.png';
+import computeLogo from 'public/SciServer_icons_Compute.svg';
+import jobsLogo from 'public/sciserver_jobs.png';
 
 export const drawerOpenWidth = 200;
 export const drawerClosedWidth = 60;
@@ -52,7 +57,6 @@ const Styled = styled.div`
 
   .MuiToolbar-root{
     display: flex;
-    background: ${({ theme }) => theme.palette.appBar.background};
     padding-left: 10px;
   }
   
@@ -103,7 +107,10 @@ const Styled = styled.div`
 
 export const DrawerNav: FC = (props: ComponentProps) => {
 
-  const { drawerOpen, setDrawerOpen, menuOption, setMenuOption, showAppBar } = useContext(AppContext);
+  const { user, setUser } = useContext(UserContext);
+  const { drawerOpen, menuOption, setMenuOption, showAppBar } = useContext(AppContext);
+
+  const [getUser, { data: userData }] = useLazyQuery(GET_USER);
 
   const [toggleDrawerOpen, setToggleDrawerOpen] = useState<boolean>(false);
 
@@ -112,7 +119,34 @@ export const DrawerNav: FC = (props: ComponentProps) => {
     router.push(`/${option}`);
   };
 
+  // ON MOUNT: UI config
+  useEffect(() => {
+    setMenuOption(router.asPath.split('/')[1]);
+
+    if (!user) {
+      getUser();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userData && userData.getUser) {
+      setUser(userData.getUser);
+    }
+  }, [userData]);
+
   const drawerOptions: DrawerOption[] = [
+    {
+      name: 'Home',
+      value: 'home',
+      onClick: () => window.location.href = process.env.NEXT_PUBLIC_DASHBOARD_URL || '',
+      icon: <HomeIcon />
+    },
+    {
+      name: 'Files',
+      value: 'files',
+      onClick: () => window.location.href = process.env.NEXT_PUBLIC_FILES_URL || '',
+      icon: <FolderIcon />
+    },
     {
       name: 'Datasets',
       value: 'datasets',
@@ -123,71 +157,58 @@ export const DrawerNav: FC = (props: ComponentProps) => {
       name: 'Compute',
       value: 'compute',
       onClick: () => handleOptionChange('compute'),
-      icon: <AutoGraphIcon />
+      icon: <Image src={computeLogo} alt="Compute" width={24} height={24} />
     },
     {
       name: 'Jobs',
       value: 'jobs',
       onClick: () => handleOptionChange('jobs'),
-      icon: <TerminalIcon />
-    },
-    {
-      name: 'Files',
-      value: 'files',
-      onClick: () => window.location.href = process.env.NEXT_PUBLIC_FILES_URL || '',
-      icon: <FolderIcon />
+      icon: <Image src={jobsLogo} alt="Jobs" width={24} height={24} />
     }
   ];
-
-  const handleDrawerOpenOnHover = () => {
-    if (!toggleDrawerOpen) {
-      setDrawerOpen(!drawerOpen);
-    }
-  };
 
   return (
     <Styled {...{ open: drawerOpen }}>
       {showAppBar &&
         <HideOnScroll {...props}>
           <AppBar>
-            <Toolbar setToggleDrawerOpen={setToggleDrawerOpen} />
+            <Toolbar logo={logoDarkbg} setToggleDrawerOpen={setToggleDrawerOpen} />
           </AppBar>
         </HideOnScroll>
       }
       <Drawer
         variant="permanent"
         open={drawerOpen}
-        onMouseEnter={handleDrawerOpenOnHover}
-        onMouseLeave={handleDrawerOpenOnHover}
       >
-        <Toolbar isDrawer setToggleDrawerOpen={setToggleDrawerOpen} />
+        <Toolbar isDrawer logo={logo} setToggleDrawerOpen={setToggleDrawerOpen} />
         <Divider />
         <div className="drawer-flex">
           <List>
-            {drawerOptions.map(option =>
-              <ListItem key={option.value} disablePadding>
-                <ListItemButton className={menuOption === option.value ? 'selected' : ''} onClick={option.onClick} >
-                  <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
-                    <Icon>{option.icon}</Icon>
-                  </ListItemIcon>
-                  <ListItemText className={menuOption === option.value ? '' : 'contrast'} primary={option.name} />
-                </ListItemButton>
-              </ListItem>
-            )}
+            {drawerOptions.map((option, index) => (
+              <div key={option.value}>
+                <ListItem disablePadding>
+                  <ListItemButton className={menuOption === option.value ? 'selected' : ''} onClick={option.onClick} >
+                    <Tooltip title={drawerOpen ? '' : option.name} >
+                      <ListItemIcon className={menuOption === option.value ? '' : 'contrast'}>
+                        <Icon>{option.icon}</Icon>
+                      </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText className={menuOption === option.value ? '' : 'contrast'} primary={option.name} />
+                  </ListItemButton>
+                </ListItem>
+                {index === 1 && <Divider sx={{ margin: '10px 0' }} />}
+              </div>
+            ))}
           </List>
           {/* // To be update with username initial in upcoming PR where user details are fetched */}
-          {drawerOpen ?
-            <div className="user-info">
-              <IconButton>
-                <Avatar />
-              </IconButton>
-              <span>username</span>
-            </div>
-            :
+          <div className="user-info">
             <IconButton>
-              <Avatar />
+              <Avatar {...stringAvatar(user?.userName || 'Unknown User')} />
             </IconButton>
-          }
+            {drawerOpen &&
+              <span>{user?.userName}</span>
+            }
+          </div>
         </div>
       </Drawer>
     </Styled >

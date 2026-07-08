@@ -3,6 +3,9 @@
 FileService
 ===========
 
+Overview
+--------
+
 The SciServer FileService is a stand-alone Spring Boot application with a 
 `REST API <https://apps.sciserver.org/fileservice/swagger-ui/index.html>`_ that allows the interaction with 
 the SciServer file system. This includes listing, downloading, uploading, deleting and moving files and/or folders, 
@@ -13,6 +16,9 @@ As a result, the FileService instance will be assigned a UUID, used for uniquely
 The UUID and ServiceID need to be saved in the FileService configuration as ``RACM.resourcecontext.uuid`` and ``File-service.serviceId``, 
 respectively (see configuration parameters list below). The ServiceID is passed as the ``X-Service-Auth-ID`` entry in request header 
 when the FileService makes HTTP calls to the :ref:`racm_storem_api`, as a mean for authenticating itself.
+
+Volumes
+-------
 
 In :ref:`compute`, users can find and save data in folders under a particular ``basePath``, namely ``/home/idies/workspace``. 
 Under this path, users can find 2 types of ``topVolumes``, namely ``RootVolumes`` and ``DataVolumes``, usually mounted on NFS shares:
@@ -36,7 +42,7 @@ Under this path, users can find 2 types of ``topVolumes``, namely ``RootVolumes`
        Users are always given a ``UserVolume`` under ``Temporary`` by default, named ``scratch``.
 
     Users can create and share ``userVolumes`` in Files tab in the SciServer Dashboard or methods in the SciScript libraries, 
-    which in turn call the respective endpoints in with calls to the FileService `REST API <https://apps.sciserver.org/fileservice/swagger-ui/index.html>`_.
+    which in turn call the respective endpoints with calls to the FileService `REST API <https://apps.sciserver.org/fileservice/swagger-ui/index.html>`_.
    
 2)  ``DataVolumes``:
 
@@ -60,7 +66,9 @@ and the `HEALTH endpoint <https://apps.sciserver.org/fileservice/swagger-ui/inde
 for checking whether files can be written and deleted from each of the existing rootVolumes and dataVolumes.
 
 
-**Configuring, Building and Running the SciServer FileService**
+Configuring, Building and Running the FileService
+-------------------------------------------------
+
 
 The configuration variables for the FileService are placed in the ``applications.properties`` and ``log4j2.xml`` files under 
 ``/src/main/resources/``. Example instances of those can be found under ``/conf-example/``.

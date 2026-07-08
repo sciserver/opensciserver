@@ -15,16 +15,23 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { Job } from 'src/graphql/typings';
+import { useRouter } from 'next/router';
 
 const StyledTableRow = styled(TableRow)`
   .job-details {
     display: flex;
-    gap: 2rem;
+    justify-content: space-between;
+    align-items: center;
+    
     
     .job-field {
       display : flex;
-      gap: 1rem;
+      gap: 0.5rem;
       align-items: center;
+
+      p, h3 {
+        margin: 0.2rem;
+      }
     }
   }
 
@@ -49,67 +56,65 @@ const StyledTableRow = styled(TableRow)`
   .copy-icon {
     padding-left: 5rem;
   }
-    
-
+  
 `;
 
 type Props = {
   job: Job;
   isOpen: boolean;
-  selectJob: (job: Job) => void;
 }
 
-export const JobShortDetail: FC<Props> = ({ job, isOpen, selectJob }) => {
+export const JobShortDetail: FC<Props> = ({ job, isOpen }) => {
 
+  const router = useRouter();
   const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
   return <StyledTableRow>
     <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
       <Collapse in={isOpen} timeout="auto" unmountOnExit>
-        <Box sx={{ margin: 5 }}>
+        <Box sx={{ margin: 1.5 }}>
           <div className="job-details">
             <div>
               <div className="job-field">
-                <Typography variant="h5" gutterBottom component="div">
+                <h3>
                   Job ID:
-                </Typography>
-                <Typography variant="body1" gutterBottom component="div">
+                </h3>
+                <p>
                   {job.id}
-                </Typography>
+                </p>
               </div>
               <div className="job-field">
-                <Typography variant="h5" gutterBottom component="div">
+                <h3>
                   Image:
-                </Typography>
-                <Typography variant="body1" gutterBottom component="div">
+                </h3>
+                <p>
                   {job.dockerImageName}
-                </Typography>
+                </p>
               </div>
             </div>
             <div>
               <div className="job-field">
-                <Typography variant="h5" gutterBottom component="div">
+                <h3>
                   Started:
-                </Typography>
-                <Typography variant="body1" gutterBottom component="div">
+                </h3>
+                <p>
                   {job.startTime ? new Date(job.startTime).toLocaleString() : 'N/A'}
-                </Typography>
+                </p>
               </div>
               <div className="job-field">
-                <Typography variant="h5" gutterBottom component="div">
+                <h3>
                   Ended:
-                </Typography>
-                <Typography variant="body1" gutterBottom component="div">
+                </h3>
+                <p>
                   {job.endTime ? new Date(job.endTime).toLocaleString() : 'N/A'}
-                </Typography>
+                </p>
               </div>
             </div>
             <div>
-              <Button onClick={() => selectJob(job)} variant="contained" color="primary">
+              <Button onClick={() => router.push(`/jobs/${job.id}`)} variant="contained" color="primary">
                 See full details
               </Button>
             </div>
-
           </div>
           {job.command &&
             <div className="command">

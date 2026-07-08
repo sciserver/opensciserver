@@ -22,13 +22,13 @@ public class UsageInfoProvider {
 
     static final String ID_CACHE_NAME = "usageInfo";
     static final String ID_CACHE_KEY = "usageInfo";
-    private final QuotaManagerService quotaManagerService;
+    @Autowired
+    private final QuotaManagerMapper quotaManagerMapper;
     @Autowired
     private CacheManager cacheManager;
 
-    @Autowired
-    public UsageInfoProvider(Optional<QuotaManagerService> quotaManagerService) {
-        this.quotaManagerService = quotaManagerService.orElse(null);
+    public UsageInfoProvider(QuotaManagerMapper quotaManagerMapper) {
+        this.quotaManagerMapper = quotaManagerMapper;
     }
 
     public Collection<QuotaFromManager> getUsage() throws IOException {
@@ -48,12 +48,6 @@ public class UsageInfoProvider {
     @Scheduled(fixedDelay = 5 * 60 * 1000 ,  initialDelay = 500)
     public void updateUsageCache() throws IOException {
         Cache cache = cacheManager.getCache(ID_CACHE_NAME);
-        Collection<QuotaFromManager> quota;
-        if (quotaManagerService == null) {
-            quota = Collections.emptyList();
-        } else {
-            quota = quotaManagerService.getUsage().execute().body();
-        }
-        cache.put(ID_CACHE_KEY, quota);
+        cache.put(ID_CACHE_KEY, quotaManagerMapper.getAllUsage());
     }
 }

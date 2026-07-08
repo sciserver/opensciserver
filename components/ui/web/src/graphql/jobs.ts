@@ -1,19 +1,18 @@
 import { gql } from '@apollo/client';
 
 export const GET_JOBS = gql`
-  query GetJobs($filters: [JobFilters!]) {
-    getJobs(filters: $filters) {
+  query GetJobs($filters: [JobFilters!], $top: Int) {
+    getJobs(filters: $filters, top: $top) {
       id
-      scriptURI
-      resultsFolderURI
+      dockerImageName
       command
-      submitterDID
-      submissionTime
       startTime
       endTime
       status
-      dockerImageName
+      resultsFolderURI
       dockerComputeEndpoint
+      submitterDID
+      submissionTime
       dataVolumes {
         publisherDID
       }
@@ -25,9 +24,27 @@ export const GET_JOBS = gql`
 `;
 
 export const JOB_DETAIL_VIEW = gql`
-  query GetJobDetails($jobDetailParams: JobDetailParams!) {
-    getJobDetails(jobDetailParams: $jobDetailParams) {
-      id
+  query GetJobDetails($jobId: ID!) {
+    getJobDetails(jobId: $jobId) {
+      job {
+        id
+        dockerImageName
+        startTime
+        scriptURI
+        status
+        resultsFolderURI
+        endTime
+        command
+        submitterDID
+        dockerComputeEndpoint
+        dataVolumes {
+          publisherDID
+        }
+        userVolumes {
+          id
+          userVolumeId
+        }
+      }
       summary
       files {
         name
@@ -57,5 +74,11 @@ export const CREATE_JOB = gql`
         id
       }
     }
+  }
+`;
+
+export const CANCEL_JOB = gql`
+  mutation CancelJob($jobId: ID!) {
+    cancelJob(jobId: $jobId)
   }
 `;

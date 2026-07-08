@@ -1,6 +1,6 @@
 import { FC, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { IconButton, Typography } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { ArrowBackIos as ArrowBackIcon } from '@mui/icons-material';
 import { SimpleTreeView, TreeItem } from '@mui/x-tree-view';
 import styled from 'styled-components';
@@ -9,7 +9,7 @@ import { Container, DataVolume, UserVolume } from 'src/graphql/typings';
 import { VOLUMES_CONTAINER_DETAIL_VIEW } from 'src/graphql/containers';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { CustomizedTabs } from 'components/common/tabs';
-import { getExpireTime } from 'src/utils/dates';
+
 
 type Props = {
   row: Container;
@@ -79,6 +79,14 @@ export const ContainerDetail: FC<Props> = ({ row, back }) => {
     return [];
   }, [data]);
 
+  const tabs = useMemo<string[]>(() => {
+    let baseTabs = ['Data Volumes', 'User Volumes'];
+    if (row.json) {
+      baseTabs = [...baseTabs, 'JSON'];
+    }
+    return baseTabs;
+  }, [row]);
+
   return (
     <Styled>
       <div className="header">
@@ -87,22 +95,22 @@ export const ContainerDetail: FC<Props> = ({ row, back }) => {
         </IconButton>
         <div className="info">
           <div className="label">
-            <Typography variant="h5">Domain:</Typography>
-            <Typography variant="body1">{row.domainName}</Typography>
+            <h3>Domain:</h3>
+            <p>{row.domainName}</p>
           </div>
           <div className="label">
-            <Typography variant="h5">Image:</Typography>
-            <Typography variant="body1">{row.imageName}</Typography>
+            <h3>Image:</h3>
+            <p>{row.imageName}</p>
           </div>
         </div>
         <div className="info">
           <div className="label">
-            <Typography variant="h5">Last active:</Typography>
-            <Typography variant="body1">{new Date(row.accessedAt).toLocaleDateString()}</Typography>
+            <h3>Container ID:</h3>
+            <p>{row.id}</p>
           </div>
           <div className="label">
-            <Typography variant="h5">Expires at:</Typography>
-            <Typography variant="body1">{getExpireTime(new Date(row.createdAt), row.maxSecs)}</Typography>
+            <h3>Last active:</h3>
+            <p>{new Date(row.accessedAt).toLocaleDateString()}</p>
           </div>
         </div>
       </div>
@@ -116,9 +124,9 @@ export const ContainerDetail: FC<Props> = ({ row, back }) => {
         </>
         :
         <>
-          <CustomizedTabs tabs={['Data Volumes', 'User Volumes']} value={tabValue} setValue={setTabValue} />
+          <CustomizedTabs tabs={tabs} value={tabValue} setValue={setTabValue} />
           <div>
-            {tabValue === 0 ?
+            {tabValue === 0 &&
               <SimpleTreeView className="tree-view">
                 {dataVolumes.map(dv =>
                   <TreeItem itemId={dv.id} label={dv.name}>
@@ -126,7 +134,8 @@ export const ContainerDetail: FC<Props> = ({ row, back }) => {
                   </TreeItem>
                 )}
               </SimpleTreeView>
-              :
+            }
+            {tabValue === 1 &&
               <SimpleTreeView className="tree-view">
                 {userVolumes.map(uv =>
                   <TreeItem itemId={`${uv.owner}/${uv.name}`} label={`${uv.name} (${uv.owner})`}>
@@ -134,6 +143,11 @@ export const ContainerDetail: FC<Props> = ({ row, back }) => {
                   </TreeItem>
                 )}
               </SimpleTreeView>
+            }
+            {tabValue === 2 &&
+              <pre>
+                {JSON.stringify(row.json, null, 2)}
+              </pre>
             }
           </div>
         </>

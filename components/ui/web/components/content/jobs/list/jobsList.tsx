@@ -2,22 +2,24 @@ import { FC, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ApolloError, useMutation, useQuery } from '@apollo/client';
+import { Button } from '@mui/material';
 import styled from 'styled-components';
 import Swal from 'sweetalert2';
 
-import { CREATE_JOB, GET_JOBS } from 'src/graphql/jobs';
-import { Job } from 'src/graphql/typings';
+import { CANCEL_JOB, GET_JOBS } from 'src/graphql/jobs';
+import { Job, JobStatus } from 'src/graphql/typings';
 
-import noContainersImg from 'public/No-containers.png';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { JobsDataGrid } from 'components/content/jobs/list/jobDatagrid';
+
+import noContainersImg from 'public/No-containers.png';
 
 const Styled = styled.div`
   .no-active-containers {
     display: flex;
     flex-direction: column;
     align-items: center;
-  }  
+  }
 
   .resources {
     margin: 1rem;
@@ -25,45 +27,37 @@ const Styled = styled.div`
     gap: 1rem;
   }
 
-  .grid {
-    width: 95%;
-    border: none;
-
-     .MuiDataGrid-columnHeader {
-      font-style: normal;
-      font-size: 14px;
-      letter-spacing: 0.25px;
-      font-weight: 600;
-      text-transform: capitalize;
-      .MuiCheckbox-root {
-        height: 100%;        
-        padding: 15px;
-      }
-    }
-
-    .MuiDataGrid-cell {
-        padding: 12px 25px;
-        font-weight: 500;
-        border-top: 1px solid #E0E0E0;
-    }
-
-    .icon {
-      color: ${({ theme }) => theme.palette.icons.danger};
-    }
+  .new-job {
+    display: block;
+    margin: 1rem 3rem 1rem auto; /* pushes the button to the right */
   }
+
 `;
 
-type Props = {
-  selectJob: (job: Job) => void;
-}
+const jobStatusPollingInterval = 5000; // 5 seconds
+const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started, JobStatus.Finished]);
+export const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
+export const jobStatusAllowRerun = new Set([JobStatus.Error, JobStatus.Success]);
+export const ReRunJobModalWording = {
+  title: 'Rerun job',
+  text: `Do you want to run this job again as is, or would you like to review and modify the job parameters before submitting?`,
+  icon: 'question',
+  showCancelButton: true,
+  showDenyButton: true,
+  confirmButtonText: 'Rerun unmodified',
+  denyButtonText: 'Review and modify',
+  cancelButtonText: 'Cancel'
+};
 
-export const JobsList: FC<Props> = ({ selectJob }) => {
+export const JobsList: FC = () => {
 
   const router = useRouter();
 
-  const { loading, data: allJobs } = useQuery(GET_JOBS,
+  const { loading, data: allJobs, startPolling, stopPolling, refetch } = useQuery(GET_JOBS,
     {
+      fetchPolicy: 'cache-and-network',
       variables: {
+        top: 100,
         filters: {
           field: 'type',
           value: 'jobm.model.COMPMDockerJobModel'
@@ -77,58 +71,54 @@ export const JobsList: FC<Props> = ({ selectJob }) => {
     }
   );
 
-  const [createJob, { data: newJob, error }] = useMutation(CREATE_JOB, {
+  const [cancelJob] = useMutation(CANCEL_JOB, {
     onError: () => Swal.fire({
-      title: 'Unable to add docker job',
-      text: 'Please email <a href=\"mailto:sciserver-helpdesk@jhu.edu\">sciserver-helpdesk@jhu.edu</a> for more assistance.',
+      title: 'Unable to cancel job',
+      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
       icon: 'error',
       confirmButtonText: 'OK'
-    }).then(() => {
-      return;
-    }).catch(Error),
+    }).then(() => refetch()),
     onCompleted: () => Swal.fire({
-      title: 'Job created successfully',
-      text: 'Your job has been created and is now queued.',
+      title: 'Job cancelled',
+      text: 'The job has been successfully cancelled.',
       icon: 'success',
       confirmButtonText: 'OK'
-    }).then(() => {
-      router.reload();
-    })
+    }).then(() => refetch())
   });
 
   const jobsList = useMemo<Job[]>(() => {
     if (allJobs && allJobs.getJobs) {
-      return allJobs.getJobs;
-    }
-    if (newJob && newJob.createJob) {
-      return [...allJobs.getJobs, newJob.createJob];
+      const jobs: Job[] = allJobs.getJobs;
+      if (jobs.some(job => jobStatusThatNeedPolling.has(job.status))) {
+        console.info('Starting polling');
+        startPolling(jobStatusPollingInterval);
+      }
+      else {
+        console.info('Stopping polling');
+        stopPolling();
+      }
+      return jobs;
     }
     return [];
-  }, [allJobs, newJob]);
-
-  const createJobHandler = (job: Job) => {
-    createJob({
-      variables: {
-        createJobParams: {
-          dockerComputeEndpoint: job.dockerComputeEndpoint,
-          dockerImageName: job.dockerImageName,
-          resultsFolderURI: job.resultsFolderURI,
-          submitterDID: job.submitterDID,
-          volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-          userVolumes: job.userVolumes.map(uv => uv.id),
-          command: job.command,
-          scriptURI: job.scriptURI || ''
-        }
-      }
-    });
-  };
+  }, [allJobs, startPolling, stopPolling]);
 
   return <Styled>
+    <h1>Jobs</h1>
     {loading &&
       <LoadingAnimation backDropIsOpen={loading} />
     }
     {jobsList.length > 0 &&
-      <JobsDataGrid createJob={createJobHandler} jobsList={jobsList} selectJob={selectJob} />
+      <>
+        <Button
+          variant="contained"
+          color="primary"
+          className="new-job"
+          onClick={() => router.push('/jobs/new')}
+        >
+          New Job
+        </Button>
+        <JobsDataGrid jobsList={jobsList} cancelJob={cancelJob} />
+      </>
     }
     {!loading && !jobsList.length &&
       <div className="no-active-containers">

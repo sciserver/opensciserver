@@ -21,5 +21,12 @@ module.exports = withTM({
   compiler: {
     styledComponents: true,
   },
+  images: {
+    remotePatterns: [{
+      protocol: 'https',
+      hostname: 'www.globus.org',
+      pathname: '/assets/images/**',
+    }]
+  }
 });
 

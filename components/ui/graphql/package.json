@@ -40,6 +40,8 @@
     "@graphql-codegen/schema-ast": "^1.18.1",
     "@graphql-codegen/typescript": "1.21.0",
     "@graphql-codegen/typescript-resolvers": "1.18.2",
+    "@graphql-tools/mock": "^9.0.25",
+    "@graphql-tools/schema": "^10.0.25",
     "@types/lodash": "^4.14.191",
     "@types/uuid": "^8.3.0",
     "@types/webpack-env": "^1.16.0",

@@ -5,12 +5,13 @@ import { FC, useRef, useState } from 'react';
 
 const Search = styled.div`
   background-color: #fff;
-  box-shadow: 0px 8px 20px rgba(0,0,0,0.06);
-  height: 64px;
+  box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.06);
+  height: 3rem;
   border-radius: 8px;
   display: flex;
-  margin-right: 60px;
-  padding-right: 20px;
+  margin-right: 1rem;
+  margin-left: 1rem;
+  padding-right: 0.5rem;
   
   .left-container { 
     display: flex;
@@ -78,6 +79,7 @@ export const SearchBar: FC<Props> = ({ className = '', onChangeParam, placeholde
           placeholder={placeholder || 'Search…'}
           onChange={onChange}
           value={searchStr}
+          size="small"
           inputProps={{ 'aria-label': 'search' }}
           ref={searchInput}
         />

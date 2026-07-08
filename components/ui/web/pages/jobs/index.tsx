@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Layout } from 'components/common/layout';
-import { JobsManagement } from 'components/content/jobs/jobsManagement';
+import { JobsList } from 'components/content/jobs/list/jobsList';
 
 export default function ComputePage() {
   return (
@@ -9,7 +9,7 @@ export default function ComputePage() {
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <JobsManagement />
+        <JobsList />
       </Layout>
     </>
   );

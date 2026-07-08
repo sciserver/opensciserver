@@ -1,20 +1,19 @@
 import { FC, useContext } from 'react';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 
 import { IconButton, Toolbar as ToolBarMUI } from '@mui/material';
 import { ChevronLeft as ChevronLeftIcon, Menu as MenuIcon } from '@mui/icons-material';
 
 import { AppContext } from 'context';
 
-import logo from 'public/SciServ_redux_logo.png';
-
 type Props = {
   setToggleDrawerOpen: (toogleDrawerOpen: boolean) => void;
   isDrawer?: boolean;
+  logo: StaticImageData;
 }
 
-export const Toolbar: FC<Props> = ({ setToggleDrawerOpen, isDrawer = false }) => {
-  const { drawerOpen, setDrawerOpen } = useContext(AppContext);
+export const Toolbar: FC<Props> = ({ setToggleDrawerOpen, isDrawer = false, logo }) => {
+  const { drawerOpen, setDrawerOpen, showAppBar } = useContext(AppContext);
 
   const handleDrawerOpenByMenuButtonClick = () => {
     setToggleDrawerOpen(!drawerOpen);

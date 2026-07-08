@@ -1,6 +1,6 @@
 import { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { CircularProgress, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import styled from 'styled-components';
 import { compact } from 'lodash';
@@ -14,6 +14,7 @@ import { textSearch } from 'src/utils/search';
 import { SearchBar } from 'components/common/search';
 import { AutoCompleteFilter } from 'components/common/autocomplete';
 import { DatasetCard } from 'components/content/datasets/datasetCard';
+import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 const Styled = styled.div`
   margin: 50px 20px 30px 0;
@@ -193,7 +194,7 @@ export const DatasetList: FC = () => {
       </>
     }
     {(loadingDVs || loadingUVs) &&
-      <CircularProgress />
+      <LoadingAnimation backDropIsOpen={loadingDVs && loadingUVs} />
     }
   </Styled>;
 };

@@ -22,7 +22,7 @@ export const typeDefs = gql`
   }
 
   type Query {
-    getDomains: [Domain!]!
+    getDomains(jobs: Boolean): [Domain!]!
     getDomainByID(id: ID!): Domain
   }
 `;

@@ -1,31 +1,32 @@
+/* eslint-disable eslint-comments/disable-enable-pair */
+/* eslint-disable promise/no-promise-in-callback */
 import { FC, useMemo, useState } from 'react';
-import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery } from '@apollo/client';
 import styled from 'styled-components';
-import { IconButton, Snackbar, Typography } from '@mui/material';
+
+import { IconButton, Snackbar, Tooltip } from '@mui/material';
 import {
   ArrowBackIos as ArrowBackIcon,
   ContentCopy as ContentCopyIcon,
   Close as CloseIcon,
-  Download as DownloadIcon
+  Download as DownloadIcon,
+  Replay as ReplayIcon
 } from '@mui/icons-material';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
 
 import { sanitize } from 'dompurify';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-
 import { filesize } from 'filesize';
+import Swal from 'sweetalert2';
 
 import { File, Job, JobDetails } from 'src/graphql/typings';
-import { JOB_DETAIL_VIEW } from 'src/graphql/jobs';
+import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-
-type Props = {
-  job: Job;
-  back: () => void;
-}
+import { jobStatusAllowRerun, ReRunJobModalWording } from 'components/content/jobs/list/jobsList';
 
 const Styled = styled.div`
   .header {
@@ -98,35 +99,93 @@ const Styled = styled.div`
 `;
 
 const tabOptions = ['Summary', 'Files'];
-export const JobFullDetail: FC<Props> = ({ job, back }) => {
 
-  const [error, setError] = useState<boolean>(false);
+export const JobFullDetail: FC = () => {
+
+  const router = useRouter();
+  const { id } = router.query;
+
   const [tabValue, setTabValue] = useState<number>(0);
   const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
-
   const { loading, data } = useQuery(JOB_DETAIL_VIEW,
     {
-      onError: () => setError(true),
-      variables: {
-        jobDetailParams: {
-          jobID: job.id,
-          resultsFolderURI: job.resultsFolderURI
-        }
-      }
+      onError: (error) => Swal.fire({
+        title: 'There was an error loading the job details',
+        text: error.message,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        router.push('/jobs');
+      }).catch(Error),
+      variables: { jobId: id }
     }
   );
 
+  const [createJob] = useMutation(CREATE_JOB, {
+    onError: () => Swal.fire({
+      title: 'Unable to add job',
+      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
+      icon: 'error',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      return;
+    }).catch(Error),
+    onCompleted: () => Swal.fire({
+      title: 'Job created successfully',
+      text: 'Your job has been created and is now queued.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      router.push('/jobs');
+    })
+  });
+
   const jobDetail = useMemo<JobDetails>(() => {
+
     if (data && data.getJobDetails) {
       return data.getJobDetails;
     }
-    return {} as JobDetails;
   }, [data]);
 
-
   const getDownloadURL = (row: File): string => {
-    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${job.resultsFolderURI.replace('/home/idies/workspace/', '')}/${row.name}`;
+    return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace(process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH || '', '')}/${encodeURIComponent(row.name)}`;
+  };
+
+  const rerunJob = async (job: Job) => {
+    await Swal.fire(ReRunJobModalWording as any).then((result) => {
+      if (result.isConfirmed) {
+        const resultsFolderURI = job.resultsFolderURI
+          .split('/')
+          // compm adds subdirs to the results folder, this indicates last non-dynamic index
+          .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
+          .join('/');
+
+        createJob({
+          variables: {
+            createJobParams: {
+              dockerComputeEndpoint: job.dockerComputeEndpoint,
+              dockerImageName: job.dockerImageName,
+              resultsFolderURI,
+              submitterDID: job.submitterDID,
+              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
+              userVolumes: job.userVolumes.map(uv => uv.id),
+              command: job.command,
+              scriptURI: job.scriptURI || ''
+            }
+          }
+        });
+        return;
+      }
+      if (result.isDenied) {
+        router.push({
+          pathname: '/jobs/new',
+          query: { rerunFromJobId: job.id }
+        });
+      }
+    }).then(() => {
+      return;
+    });
   };
 
   const columns: GridColDef<File>[] = [
@@ -168,94 +227,92 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
   ];
 
   return <Styled>
-    <div className="header">
-      <IconButton onClick={back} >
-        <ArrowBackIcon />
-      </IconButton>
+    {jobDetail &&
       <div>
-        <div className="job-field">
-          <Typography variant="h5" gutterBottom component="div">
-            Job ID:
-          </Typography>
-          <Typography variant="body1" gutterBottom component="div">
-            {job.id}
-          </Typography>
-        </div>
-        <div className="job-field">
-          <Typography variant="h5" gutterBottom component="div">
-            Image:
-          </Typography>
-          <Typography variant="body1" gutterBottom component="div">
-            {job.dockerImageName}
-          </Typography>
-        </div>
-      </div>
-      <div>
-        <div className="job-field">
-          <Typography variant="h5" gutterBottom component="div">
-            Started:
-          </Typography>
-          <Typography variant="body1" gutterBottom component="div">
-            {job.startTime ? new Date(job.startTime).toLocaleString() : 'N/A'}
-          </Typography>
-        </div>
-        <div className="job-field">
-          <Typography variant="h5" gutterBottom component="div">
-            Ended:
-          </Typography>
-          <Typography variant="body1" gutterBottom component="div">
-            {job.endTime ? new Date(job.endTime).toLocaleString() : 'N/A'}
-          </Typography>
-        </div>
-      </div>
-
-    </div>
-    {job.command &&
-      <div className="command">
-        <pre>
-          {job.command}
-          <IconButton
-            className="copy-icon"
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={() => {
-              navigator.clipboard.writeText(job.command);
-              setCopiedSnackbarOpen(true);
-            }}
-          >
-            <ContentCopyIcon fontSize="medium" />
+        <div className="header">
+          <IconButton onClick={() => router.back()} >
+            <ArrowBackIcon />
           </IconButton>
-        </pre>
-        <Snackbar
-          open={copiedSnackbarOpen}
-          autoHideDuration={5000}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          onClose={() => setCopiedSnackbarOpen(false)}
-          message="Copied to clipboard!"
-          action={<>
-            <IconButton
-              size="small"
-              aria-label="close"
-              color="inherit"
-              onClick={() => setCopiedSnackbarOpen(false)}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </>}
-        />
-      </div>
-    }
-    {loading &&
-      <LoadingAnimation backDropIsOpen={loading} />
-    }
-    {error ?
-      <>
-        <h2>There was an error loading the details for this Job.</h2>
-        <p>{error}</p>
-      </>
-      :
-      <>
+          <div>
+            <div className="job-field">
+              <h3>
+                Job ID:
+              </h3>
+              <p>
+                {jobDetail.job.id}
+              </p>
+            </div>
+            <div className="job-field">
+              <h3>
+                Image:
+              </h3>
+              <p>
+                {jobDetail.job.dockerImageName}
+              </p>
+            </div>
+          </div>
+          <div>
+            <div className="job-field">
+              <h3>
+                Started:
+              </h3>
+              <p>
+                {jobDetail.job.startTime ? new Date(jobDetail.job.startTime).toLocaleString() : 'N/A'}
+              </p>
+            </div>
+            <div className="job-field">
+              <h3>
+                Ended:
+              </h3>
+              <p>
+                {jobDetail.job.endTime ? new Date(jobDetail.job.endTime).toLocaleString() : 'N/A'}
+              </p>
+            </div>
+          </div>
+          {jobDetail.job.resultsFolderURI.length > 0 && jobStatusAllowRerun.has(jobDetail.job.status) &&
+            <Tooltip title="Re-run Job">
+              <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
+                <ReplayIcon />
+              </IconButton>
+            </Tooltip>
+          }
+        </div>
+        {jobDetail.job.command &&
+          <div className="command">
+            <pre>
+              {jobDetail.job.command}
+              <IconButton
+                className="copy-icon"
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={() => {
+                  navigator.clipboard.writeText(jobDetail.job.command);
+                  setCopiedSnackbarOpen(true);
+                }}
+              >
+                <ContentCopyIcon fontSize="medium" />
+              </IconButton>
+            </pre>
+            <Snackbar
+              open={copiedSnackbarOpen}
+              autoHideDuration={5000}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              onClose={() => setCopiedSnackbarOpen(false)}
+              message="Copied to clipboard!"
+              action={<>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={() => setCopiedSnackbarOpen(false)}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>}
+            />
+          </div>
+        }
         <CustomizedTabs tabs={tabOptions} value={tabValue} setValue={setTabValue} />
         <div>
           {tabValue === 0 ?
@@ -274,7 +331,10 @@ export const JobFullDetail: FC<Props> = ({ job, back }) => {
             />
           }
         </div>
-      </>
+      </div>
+    }
+    {loading &&
+      <LoadingAnimation backDropIsOpen={loading} />
     }
   </Styled>;
 };

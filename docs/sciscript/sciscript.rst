@@ -1,7 +1,7 @@
 .. _sciscript:
 
-SciScript Python and R client libraries
-=======================================
+SciScript client libraries
+==========================
 
 The SciScript `Python <https://github.com/sciserver/sciscript-python>`_  and `R <https://github.com/sciserver/sciscript-r>`_  
 libraries can be imported within Python/R code for the direct interaction with SciServer components and resources.
