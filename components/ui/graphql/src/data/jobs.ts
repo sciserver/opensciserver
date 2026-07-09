@@ -5,7 +5,7 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage, JobStatus } from '../generated/typings';
+import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage, JobsResponse, JobStatus } from '../generated/typings';
 import { VolumesAPI } from './volumes';
 
 export class JobsAPI extends RESTDataSource {
@@ -26,7 +26,8 @@ export class JobsAPI extends RESTDataSource {
   }
 
   // QUERIES //
-  async getJobs(filters: JobFilters[] | undefined | null, top = 10): Promise<Job[]> {
+  async getJobs(filters: JobFilters[] | undefined | null, top = 10): Promise<JobsResponse> {
+    const totalJobs = await this.get(`${this.baseURL!}jobs/count`);
     const jobsres = await this.get(`${this.baseURL!}jobs?top=${top}`) || [];
 
     let jobs: Job[] = jobsres.map((r: any) => this.jobReducer(r));
@@ -36,7 +37,10 @@ export class JobsAPI extends RESTDataSource {
         jobs = jobs.filter((j: Job) => j[f.field as keyof Job] === f.value);
       }
     }
-    return jobs;
+    return {
+      job: jobs,
+      totalJobs
+    };
   }
 
   async getJobDetails(jobId: string): Promise<JobDetails> {

@@ -205,6 +205,11 @@ type JobUserVolume {
   userVolumeId: ID!
 }
 
+type JobsResponse {
+  job: [Job!]!
+  totalJobs: Int!
+}
+
 type Mutation {
   cancelJob(jobId: ID!): Boolean!
   createJob(createJobParams: CreateJobParams!): Job!
@@ -222,7 +227,7 @@ type Query {
   getDomainByID(id: ID!): Domain
   getDomains(jobs: Boolean): [Domain!]!
   getJobDetails(jobId: ID!): JobDetails!
-  getJobs(filters: [JobFilters!], top: Int): [Job!]!
+  getJobs(filters: [JobFilters!], top: Int): JobsResponse!
   getJsonTree(volumeName: String!): JSONTree!
   getUser: User!
   getVolumes: FileService
