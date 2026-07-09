@@ -5,9 +5,18 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage, JobsResponse, JobStatus } from '../generated/typings';
 import { VolumesAPI } from './volumes';
 import { formatDate } from '../utils/date';
+import {
+  CreateJobParams,
+  File,
+  Job,
+  JobDetails,
+  JobFilters,
+  JobMessage,
+  JobsResponse,
+  JobStatus
+} from '../generated/typings';
 
 export class JobsAPI extends RESTDataSource {
   override baseURL = `${environment.racm.jobsUrl}`;
