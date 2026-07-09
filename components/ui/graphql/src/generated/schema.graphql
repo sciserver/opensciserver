@@ -206,7 +206,7 @@ type JobUserVolume {
 }
 
 type JobsResponse {
-  job: [Job!]!
+  jobs: [Job!]!
   totalJobs: Int!
 }
 
@@ -227,7 +227,7 @@ type Query {
   getDomainByID(id: ID!): Domain
   getDomains(jobs: Boolean): [Domain!]!
   getJobDetails(jobId: ID!): JobDetails!
-  getJobs(filters: [JobFilters!], top: Int): JobsResponse!
+  getJobs(end: DateTime, filters: [JobFilters!], top: Int): JobsResponse!
   getJsonTree(volumeName: String!): JSONTree!
   getUser: User!
   getVolumes: FileService

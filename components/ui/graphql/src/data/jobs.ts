@@ -7,6 +7,7 @@ import { sortBy } from 'lodash';
 import { environment } from '../environment';
 import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage, JobsResponse, JobStatus } from '../generated/typings';
 import { VolumesAPI } from './volumes';
+import { formatDate } from '../utils/date';
 
 export class JobsAPI extends RESTDataSource {
   override baseURL = `${environment.racm.jobsUrl}`;
@@ -26,9 +27,16 @@ export class JobsAPI extends RESTDataSource {
   }
 
   // QUERIES //
-  async getJobs(filters: JobFilters[] | undefined | null, top = 10): Promise<JobsResponse> {
+  async getJobs(filters: JobFilters[] | undefined | null, top = 10, end?: string): Promise<JobsResponse> {
     const totalJobs = await this.get(`${this.baseURL!}jobs/count`);
-    const jobsres = await this.get(`${this.baseURL!}jobs?top=${top}`) || [];
+
+    let jobsQueryUrl = `${this.baseURL!}jobs?top=${top}`;
+    if (end) {
+      const dEnd = formatDate(new Date(end));
+      jobsQueryUrl += `&end=${dEnd}`;
+    }
+
+    const jobsres = await this.get(jobsQueryUrl) || [];
 
     let jobs: Job[] = jobsres.map((r: any) => this.jobReducer(r));
 
@@ -38,7 +46,7 @@ export class JobsAPI extends RESTDataSource {
       }
     }
     return {
-      job: jobs,
+      jobs,
       totalJobs
     };
   }

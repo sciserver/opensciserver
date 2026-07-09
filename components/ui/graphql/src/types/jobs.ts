@@ -45,7 +45,7 @@ export const typeDefs = gql`
   }
   
   type JobsResponse {
-    job: [Job!]!
+    jobs: [Job!]!
     totalJobs: Int!
   }
   
@@ -73,7 +73,7 @@ export const typeDefs = gql`
   }
 
   type Query {
-    getJobs(filters: [JobFilters!], top: Int): JobsResponse!
+    getJobs(filters: [JobFilters!], top: Int, end: DateTime): JobsResponse!
     getJobDetails(jobId: ID!): JobDetails!
   }
 

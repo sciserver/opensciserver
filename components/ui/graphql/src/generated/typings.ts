@@ -239,7 +239,7 @@ export type JobUserVolume = {
 
 export type JobsResponse = {
   __typename?: 'JobsResponse';
-  job: Array<Job>;
+  jobs: Array<Job>;
   totalJobs: Scalars['Int'];
 };
 
@@ -329,6 +329,7 @@ export type QueryGetJobDetailsArgs = {
 
 
 export type QueryGetJobsArgs = {
+  end?: InputMaybe<Scalars['DateTime']>;
   filters?: InputMaybe<Array<JobFilters>>;
   top?: InputMaybe<Scalars['Int']>;
 };
@@ -734,7 +735,7 @@ export type JobUserVolumeResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type JobsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobsResponse'] = ResolversParentTypes['JobsResponse']> = {
-  job?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType>;
+  jobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType>;
   totalJobs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
