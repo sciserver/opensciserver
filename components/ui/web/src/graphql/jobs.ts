@@ -3,22 +3,25 @@ import { gql } from '@apollo/client';
 export const GET_JOBS = gql`
   query GetJobs($filters: [JobFilters!], $top: Int) {
     getJobs(filters: $filters, top: $top) {
-      id
-      dockerImageName
-      command
-      startTime
-      endTime
-      status
-      resultsFolderURI
-      dockerComputeEndpoint
-      submitterDID
-      submissionTime
-      dataVolumes {
-        publisherDID
-      }
-      userVolumes {
+      jobs {
         id
+        dockerImageName
+        command
+        startTime
+        endTime
+        status
+        resultsFolderURI
+        dockerComputeEndpoint
+        submitterDID
+        submissionTime
+        dataVolumes {
+          publisherDID
+        }
+        userVolumes {
+          id
+        }
       }
+      totalJobs
     }
   }
 `;
