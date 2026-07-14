@@ -103,11 +103,15 @@ export const JobsList: FC = () => {
 
   const router = useRouter();
 
+  // State to track which job rows are expanded by their ID
+  const [openRows, setOpenRows] = useState<Set<string>>(new Set());
+  const [pageSize, setPageSize] = useState<number>(10);
+
   const { loading, data: allJobs, startPolling, stopPolling, refetch } = useQuery(GET_JOBS,
     {
       fetchPolicy: 'cache-and-network',
       variables: {
-        top: 100,
+        top: pageSize,
         filters: {
           field: 'type',
           value: 'jobm.model.COMPMDockerJobModel'
@@ -136,8 +140,6 @@ export const JobsList: FC = () => {
     }).then(() => refetch())
   });
 
-  // State to track which job rows are expanded by their ID
-  const [openRows, setOpenRows] = useState<Set<string>>(new Set());
 
   const [createJob] = useMutation(CREATE_JOB, {
     onError: () => Swal.fire({
@@ -154,7 +156,7 @@ export const JobsList: FC = () => {
       icon: 'success',
       confirmButtonText: 'OK'
     }).then(() => {
-      router.reload();
+      startPolling(jobStatusPollingInterval);
     })
   });
 
@@ -304,8 +306,10 @@ export const JobsList: FC = () => {
         )
       }}
       rowCount={totalJobs}
-      initialState={{ pagination: { paginationModel: { page: 1, pageSize: 10 } } }}
+      initialState={{ pagination: { paginationModel: { page: 1, pageSize } } }}
       autoHeight
+      onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+      paginationMode="server"
       pageSizeOptions={[10, 25, 50]}
       disableRowSelectionOnClick
       onRowClick={(params) => toggleRow(params.row.id)}
