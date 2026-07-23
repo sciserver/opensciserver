@@ -1,24 +1,29 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ApolloError, useMutation, useQuery } from '@apollo/client';
-import { Button, Chip, IconButton, Tooltip } from '@mui/material';
-import {
-  Cancel as CancelIcon,
-  Replay as ReplayIcon
-} from '@mui/icons-material';
+import { ApolloError, useQuery } from '@apollo/client';
+import { Button, Chip } from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import styled from 'styled-components';
-import Swal from 'sweetalert2';
 
-import { CANCEL_JOB, CREATE_JOB, GET_JOBS } from 'src/graphql/jobs';
+import { GET_JOBS } from 'src/graphql/jobs';
 import { Job, JobStatus } from 'src/graphql/typings';
 
-import { LoadingAnimation } from 'components/common/loadingAnimation';
+import { jobStatusAllowRerun, RerunJobAction } from 'components/content/jobs/list/RerunJobAction';
+import { CancelJobAction, jobStatusAllowCancel } from 'components/content/jobs/list/CancelJobAction';
 
+import { LoadingAnimation } from 'components/common/loadingAnimation';
 import noContainersImg from 'public/No-containers.png';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { JobShortDetail } from '../detail/jobShortDetail';
 
 const Styled = styled.div`
+
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%; 
+
   .header {
     display: flex;
     align-items: center;
@@ -45,6 +50,9 @@ const Styled = styled.div`
 
   .grid {
     width: inherit;
+    flex: 1;
+    min-height: 0;
+    height: clamp(420px, 70vh, 720px);
 
     .job-row {
       &:hover {
@@ -57,8 +65,9 @@ const Styled = styled.div`
       font-style: normal;
       font-size: 14px;
       letter-spacing: 0.25px;
-      font-weight: 600;
+      font-weight: 800;
       text-transform: capitalize;
+      background-color: ${({ theme }) => theme.palette.background.paper};
     }
 
     .delete-icon {
@@ -84,34 +93,28 @@ const getStatus = (job: Job) => {
   }
 };
 
-const jobStatusPollingInterval = 5000; // 5 seconds
+export const jobStatusPollingInterval = 5000; // 5 seconds
 const jobStatusThatNeedPolling = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started, JobStatus.Finished]);
-export const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
-export const jobStatusAllowRerun = new Set([JobStatus.Error, JobStatus.Success]);
-export const ReRunJobModalWording = {
-  title: 'Rerun job',
-  text: `Do you want to run this job again as is, or would you like to review and modify the job parameters before submitting?`,
-  icon: 'question',
-  showCancelButton: true,
-  showDenyButton: true,
-  confirmButtonText: 'Rerun unmodified',
-  denyButtonText: 'Review and modify',
-  cancelButtonText: 'Cancel'
-};
 
 export const JobsList: FC = () => {
 
   const router = useRouter();
 
   // State to track which job rows are expanded by their ID
-  const [openRows, setOpenRows] = useState<Set<string>>(new Set());
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [openRow, setOpenRow] = useState<Job | null>(null);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0
+  });
 
-  const { loading, data: allJobs, startPolling, stopPolling, refetch } = useQuery(GET_JOBS,
+  const [pageCursors, setPageCursors] = useState<string[]>(['']);
+  const currentCursor = pageCursors[paginationModel.page] || '';
+  const { loading, data: allJobs, previousData, startPolling, stopPolling, refetch } = useQuery(GET_JOBS,
     {
       fetchPolicy: 'cache-and-network',
       variables: {
-        top: pageSize,
+        top: paginationModel.pageSize,
+        end: currentCursor,
         filters: {
           field: 'type',
           value: 'jobm.model.COMPMDockerJobModel'
@@ -125,101 +128,48 @@ export const JobsList: FC = () => {
     }
   );
 
-  const [cancelJob] = useMutation(CANCEL_JOB, {
-    onError: () => Swal.fire({
-      title: 'Unable to cancel job',
-      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
-      icon: 'error',
-      confirmButtonText: 'OK'
-    }).then(() => refetch()),
-    onCompleted: () => Swal.fire({
-      title: 'Job cancelled',
-      text: 'The job has been successfully cancelled.',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => refetch())
-  });
+  const jobsData = allJobs ?? previousData;
 
+  const totalJobs = useMemo(() => {
+    if (jobsData?.getJobs) {
+      return jobsData.getJobs.totalJobs;
+    }
+    return 0;
+  }, [jobsData]);
 
-  const [createJob] = useMutation(CREATE_JOB, {
-    onError: () => Swal.fire({
-      title: 'Unable to add job',
-      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
-      icon: 'error',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      return;
-    }).catch(Error),
-    onCompleted: () => Swal.fire({
-      title: 'Job created successfully',
-      text: 'Your job has been created and is now queued.',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      startPolling(jobStatusPollingInterval);
-    })
-  });
-
-  // Toggle a specific row's open state
-  const toggleRow = (jobId: string) => {
-    setOpenRows(prevOpenRows => {
-      const newOpenRows = new Set(prevOpenRows);
-      if (newOpenRows.has(jobId)) {
-        newOpenRows.delete(jobId);
-        return newOpenRows;
+  const jobsList = useMemo<Job[]>(() => {
+    if (jobsData?.getJobs) {
+      const jobs: Job[] = jobsData.getJobs.jobs;
+      if (jobs.some(job => jobStatusThatNeedPolling.has(job.status))) {
+        startPolling(jobStatusPollingInterval);
       }
-
-      newOpenRows.add(jobId);
-      return newOpenRows;
-    });
-  };
-
-  // Check if a specific row is open
-  const isRowOpen = (jobId: string) => openRows.has(jobId);
-
-  const rerunJob = async (job: Job) => {
-    await Swal.fire(ReRunJobModalWording as any).then((result) => {
-      if (result.isConfirmed) {
-        const resultsFolderURI = job.resultsFolderURI
-          .split('/')
-          // compm adds subdirs to the results folder, this indicates last non-dynamic index
-          .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
-          .join('/');
-
-        createJob({
-          variables: {
-            createJobParams: {
-              dockerComputeEndpoint: job.dockerComputeEndpoint,
-              dockerImageName: job.dockerImageName,
-              resultsFolderURI,
-              submitterDID: job.submitterDID,
-              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-              userVolumes: job.userVolumes.map(uv => uv.id),
-              command: job.command,
-              scriptURI: job.scriptURI || ''
-            }
-          }
-        });
-        return;
+      else {
+        stopPolling();
       }
-      if (result.isDenied) {
-        router.push({
-          pathname: '/jobs/new',
-          query: { rerunFromJobId: job.id }
-        });
-      }
-    }).then(() => {
-      return;
-    });
-  };
+      return jobs;
+    }
+    return [];
+  }, [jobsData, startPolling, stopPolling]);
 
   const columns: GridColDef[] = [
-    { field: 'submissionTime', headerName: 'Submitted At', width: 200, valueGetter: (row: any) => new Date(row.submissionTime).toLocaleString() },
-    { field: 'submitterDID', headerName: 'Name', width: 200 },
+    {
+      field: 'submissionTime',
+      headerName: 'Submitted At',
+      headerClassName: 'column-header',
+      flex: 1,
+      valueGetter: (row: string) => new Date(row).toLocaleString()
+    },
+    {
+      field: 'submitterDID',
+      headerName: 'Name',
+      headerClassName: 'column-header',
+      flex: 1
+    },
     {
       field: 'status',
       headerName: 'Status',
-      width: 150,
+      headerClassName: 'column-header',
+      flex: 0.8,
       renderCell: (params) => (
         <Chip label={params.value} color={getStatus(params.row)} />
       )
@@ -227,56 +177,41 @@ export const JobsList: FC = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
+      headerClassName: 'column-header',
+      flex: 0.8,
       renderCell: (params) => (
         <>
           {params.row.resultsFolderURI.length > 0 && jobStatusAllowRerun.has(params.row.status) &&
-            <Tooltip title="Re-run Job">
-              <IconButton onClick={(e) => {
-                e.stopPropagation();
-                rerunJob(params.row);
-              }} size="small">
-                <ReplayIcon className="replay-icon" />
-              </IconButton>
-            </Tooltip>
+            <RerunJobAction job={params.row} startPolling={startPolling} />
           }
           {jobStatusAllowCancel.has(params.row.status) &&
-            <Tooltip title="Cancel Job">
-              <IconButton onClick={(e) => {
-                e.stopPropagation();
-                cancelJob({ variables: { jobId: params.row.id } });
-              }} size="medium">
-                <CancelIcon className="delete-icon" />
-              </IconButton>
-            </Tooltip>
+            <CancelJobAction job={params.row} refetch={refetch} />
           }
         </>
       )
     }
   ];
 
-  const totalJobs = useMemo(() => {
-    if (allJobs && allJobs.getJobs) {
-      return allJobs.getJobs.totalJobs;
-    }
-    return 0;
-  }, [allJobs]);
 
-  const jobsList = useMemo<Job[]>(() => {
-    if (allJobs && allJobs.getJobs) {
-      const jobs: Job[] = allJobs.getJobs.jobs;
-      if (jobs.some(job => jobStatusThatNeedPolling.has(job.status))) {
-        console.info('Starting polling');
-        startPolling(jobStatusPollingInterval);
-      }
-      else {
-        console.info('Stopping polling');
-        stopPolling();
-      }
-      return jobs;
+  // Keeps track of the cursor (submissionDate of last job in the current list) 
+  // for the next page when the user navigates through pages
+  useEffect(() => {
+    if (!allJobs?.getJobs?.jobs?.length) {
+      return;
     }
-    return [];
-  }, [allJobs, startPolling, stopPolling]);
+
+    const nextCursor = allJobs.getJobs.jobs[allJobs.getJobs.jobs.length - 1]?.endTime || '';
+
+    setPageCursors(prevCursors => {
+      if (prevCursors[paginationModel.page + 1] === nextCursor) {
+        return prevCursors;
+      }
+
+      const nextCursors = [...prevCursors];
+      nextCursors[paginationModel.page + 1] = nextCursor;
+      return nextCursors;
+    });
+  }, [allJobs, paginationModel.page]);
 
   return <Styled>
     <div className="header">
@@ -294,31 +229,35 @@ export const JobsList: FC = () => {
     {loading &&
       <LoadingAnimation backDropIsOpen={loading} />
     }
-    <DataGrid
-      rows={jobsList}
-      columns={columns}
-      slots={{
-        noRowsOverlay: () => (
-          <div className="no-active-containers">
-            <Image src={noContainersImg} width={400} alt="No containers illustration" />
-            <h2>You haven't run any jobs yet</h2>
-          </div>
-        )
-      }}
-      rowCount={totalJobs}
-      initialState={{ pagination: { paginationModel: { page: 1, pageSize } } }}
-      autoHeight
-      onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-      paginationMode="server"
-      pageSizeOptions={[10, 25, 50]}
-      disableRowSelectionOnClick
-      onRowClick={(params) => toggleRow(params.row.id)}
-      getRowClassName={(params) => isRowOpen(params.row.id) ? 'job-row open' : 'job-row'}
-      sx={{
-        '& .MuiDataGrid-row': { cursor: 'pointer' },
-        '& .MuiDataGrid-row:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-      }}
-      getRowId={(row) => row.id}
-    />
+    <div className="grid">
+      <DataGrid
+        rows={jobsList}
+        columns={columns}
+        loading={loading}
+        paginationModel={paginationModel}
+        onPaginationModelChange={(model) => setPaginationModel(model)}
+        slots={{
+          noRowsOverlay: () => (
+            <div className="no-active-containers">
+              <Image src={noContainersImg} width={400} alt="No containers illustration" />
+              <h2>You haven't run any jobs yet</h2>
+            </div>
+          )
+        }}
+        rowCount={totalJobs}
+        paginationMode="server"
+        pageSizeOptions={[10, 25, 50]}
+        disableRowSelectionOnClick
+        onRowClick={(params) => setOpenRow(params.row)}
+        sx={{
+          height: '90%',
+          width: '100%'
+        }}
+        getRowId={(row) => row.id}
+      />
+    </div>
+    {openRow &&
+      <JobShortDetail job={openRow} isOpen={true} setOpenRow={setOpenRow} />
+    }
   </Styled>;
 };
