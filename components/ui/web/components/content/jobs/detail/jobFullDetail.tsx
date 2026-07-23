@@ -26,7 +26,7 @@ import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { jobStatusAllowRerun } from 'components/content/jobs/list/jobsList';
+import { jobStatusAllowRerun } from 'components/content/jobs/list/RerunJobAction';
 
 import { JobCreatedModalWording, ReRunJobModalWording, UnableToAddJobModalWording } from 'src/utils/swalWording';
 
