@@ -433,6 +433,21 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
         return oj;
     }
 
+    public String getPodPhase(Container container) {
+        try {
+            V1Pod podInfo = getPodFromRef(container.getDockerRef());
+            String phase = podInfo.getStatus().getPhase();
+            
+            if (("Running".equals(phase) || "Pending".equals(phase))
+                    && podInfo.getMetadata().getDeletionTimestamp() != null) {
+                return "Terminating";
+            }
+            return phase;
+        } catch (Exception e) {
+            return "Unknown";
+        }
+    }
+
     public void startContainer(ExecutableContainer container) throws Exception {
         setupClientsForContainer(container);
         V1Scale scale = new V1ScaleBuilder().withNewMetadata().withNamespace(namespace)
