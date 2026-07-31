@@ -4,7 +4,7 @@ import { Backdrop } from '@mui/material';
 import styled from 'styled-components';
 
 import { AppContext } from 'context';
-import logoGif from 'public/sciserver-logo.gif';
+import logoGif from 'public/sciserver-loading.gif';
 import { drawerClosedWidth, drawerOpenWidth } from 'components/common/drawer';
 
 type Props = {
@@ -27,8 +27,7 @@ export const LoadingAnimation: FC<Props> = ({ backDropIsOpen }) => {
   return (
     <StyledBackdrop {...{ drawerOpen }} open={backDropIsOpen} >
       <div className="loading-div">
-        <Image src={logoGif} alt="Sciserver logo gif" width={170} />
-        <div className="loading">Loading...</div>
+        <Image src={logoGif} alt="Sciserver is loading logo gif" />
       </div>
     </StyledBackdrop>
   );

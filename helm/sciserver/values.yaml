@@ -101,6 +101,7 @@ loginPortal:
     # when validationEnabled is true. One way to create:
     #  dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64
     secretKey: "KQB7Lb7ACGHjHh8ikzjqb0GyeElfQpb1q/pUtFW1NFs="
+  alertMessage:
   disclaimerInfo:
   displaySciserverLogin: true
   keycloakLoginButtonText: "Sign in with Globus"
@@ -302,7 +303,7 @@ compute:
   image:
     repository: <<<IMAGE_REPO>>>/compute
     tag: <<<VTAG>>>
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   # Set jobsEnabled to false to remove the jobs link from compute navbar
   jobsEnabled: true
   # Set showStorageInformation to false to remove file storage warnings from compute interactive UI
@@ -311,6 +312,8 @@ compute:
   enableDBBasedCleanup: true
   # use this option only in cases where you have a very old compute database (basically you should not need this)
   changelogSkipInit: false
+  # Set jobsEnabled to false to remove the jobs link from compute navbar
+  newComputeAppBannerEnabled: true
   # comma-separated list of groups
   privilegedGroups: admin
   dask:
@@ -450,6 +453,9 @@ web:
     domainName: "Interactive Docker Compute Domain"
     imageName: "Sciserver Essentials 4.0"
     quickStartConfig: "dom=Interactive%20Docker%20Compute%20Domain&img=SciServer%20Essentials%204.0&dvs=97"
+  newJobDefaults:
+    domainName: "Small Jobs Domain"
+    imageName: "SciServer Essentials 4.0"
   resources:
     limits:
       cpu: 500m

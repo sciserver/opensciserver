@@ -9,6 +9,8 @@ export const GET_JOBS = gql`
       startTime
       endTime
       status
+      resultsFolderURI
+      dockerComputeEndpoint
       submitterDID
       submissionTime
       dataVolumes {
@@ -29,6 +31,7 @@ export const JOB_DETAIL_VIEW = gql`
         dockerImageName
         startTime
         scriptURI
+        status
         resultsFolderURI
         endTime
         command
@@ -39,6 +42,7 @@ export const JOB_DETAIL_VIEW = gql`
         }
         userVolumes {
           id
+          userVolumeId
         }
       }
       summary

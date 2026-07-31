@@ -47,6 +47,8 @@ spec:
               value: '{{ include "sciserver.url" . }}compute/'
             - name: NEXT_PUBLIC_FILE_SERVICE_URL
               value: '{{ include "sciserver.url" . }}fileservice/api/'
+            - name: NEXT_PUBLIC_GLOBUS_CALLBACK_URL
+              value: '{{ include "sciserver.url" . }}web/login'
             - name: NEXT_PUBLIC_G_TAG
               value: {{ .Values.web.gTag }}
             - name: NEXT_PUBLIC_BASE_PATH
@@ -67,6 +69,10 @@ spec:
               value: '{{ .Values.web.helpdeskEmail }}'
             - name: NEXT_PUBLIC_JOB_WORKSPACE_PATH
               value: '{{ .Values.web.jobWorkspacePath }}'
+            - name: NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT
+              value: '{{ .Values.web.newJobDefaults.domainName }}'
+            - name: NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT
+              value: '{{ .Values.web.newJobDefaults.imageName }}'
           ports:
             - containerPort: 3000
               protocol: TCP

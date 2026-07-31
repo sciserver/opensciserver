@@ -1,10 +1,14 @@
 import { FC, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useMutation } from '@apollo/client';
 import styled from 'styled-components';
 import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
-  Cancel as CancelIcon
+  Cancel as CancelIcon,
+  Replay as ReplayIcon
 } from '@mui/icons-material';
+import Swal from 'sweetalert2';
 
 import {
   Chip,
@@ -15,17 +19,28 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@mui/material';
 
 import { Job, JobStatus } from 'src/graphql/typings';
+import { CREATE_JOB } from 'src/graphql/jobs';
+
 import { JobShortDetail } from 'components/content/jobs/detail/jobShortDetail';
+import { jobStatusAllowCancel, jobStatusAllowRerun, ReRunJobModalWording } from 'components/content/jobs/list/jobsList';
 
 const Styled = styled.div`
   margin-top: 2rem;
 
   .grid {
     width: inherit;
+
+    .job-row {
+      &:hover {
+        background-color: ${({ theme }) => theme.palette.action.hover};
+        cursor: pointer;
+      }
+    }
   
     .column-header {
       font-style: normal;
@@ -63,10 +78,31 @@ type Props = {
   cancelJob: (jobId: { variables: { jobId: string; }; }) => void;
 }
 
-const jobStatusAllowCancel = new Set([JobStatus.Pending, JobStatus.Accepted, JobStatus.Queued, JobStatus.Started]);
 export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
+
+  const router = useRouter();
+
   // State to track which job rows are expanded by their ID
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
+
+  const [createJob] = useMutation(CREATE_JOB, {
+    onError: () => Swal.fire({
+      title: 'Unable to add job',
+      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
+      icon: 'error',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      return;
+    }).catch(Error),
+    onCompleted: () => Swal.fire({
+      title: 'Job created successfully',
+      text: 'Your job has been created and is now queued.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      router.reload();
+    })
+  });
 
   // Toggle a specific row's open state
   const toggleRow = (jobId: string) => {
@@ -85,6 +121,42 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
   // Check if a specific row is open
   const isRowOpen = (jobId: string) => openRows.has(jobId);
 
+  const rerunJob = async (job: Job) => {
+    await Swal.fire(ReRunJobModalWording as any).then((result) => {
+      if (result.isConfirmed) {
+        const resultsFolderURI = job.resultsFolderURI
+          .split('/')
+          // compm adds subdirs to the results folder, this indicates last non-dynamic index
+          .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
+          .join('/');
+
+        createJob({
+          variables: {
+            createJobParams: {
+              dockerComputeEndpoint: job.dockerComputeEndpoint,
+              dockerImageName: job.dockerImageName,
+              resultsFolderURI,
+              submitterDID: job.submitterDID,
+              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
+              userVolumes: job.userVolumes.map(uv => uv.id),
+              command: job.command,
+              scriptURI: job.scriptURI || ''
+            }
+          }
+        });
+        return;
+      }
+      if (result.isDenied) {
+        router.push({
+          pathname: '/jobs/new',
+          query: { rerunFromJobId: job.id }
+        });
+      }
+    }).then(() => {
+      return;
+    });
+  };
+
   return <Styled>
     <Paper sx={{ width: '95%' }}>
       <TableContainer sx={{ maxHeight: 440, minWidth: '100%' }}>
@@ -95,13 +167,15 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
               <TableCell className="column-header">Submitted At</TableCell>
               <TableCell className="column-header">Name</TableCell>
               <TableCell className="column-header">Status</TableCell>
-              <TableCell className="column-header"></TableCell>
+              <TableCell className="column-header" id="actions-header">
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {jobsList.map((job) => (
               <>
-                <TableRow key={job.id}>
+                <TableRow className="job-row" onClick={() => toggleRow(job.id)} key={job.id}>
                   <TableCell>
                     <IconButton
                       aria-label="expand row"
@@ -118,11 +192,26 @@ export const JobsDataGrid: FC<Props> = ({ jobsList, cancelJob }) => {
                   <TableCell className="cell">
                     <Chip label={job.status} color={getStatus(job)} />
                   </TableCell>
-                  <TableCell className="cell">
+                  <TableCell className="cell" id="actions-cell">
+                    {job.resultsFolderURI.length > 0 && jobStatusAllowRerun.has(job.status) &&
+                      <Tooltip title="Re-run Job">
+                        <IconButton onClick={(e) => {
+                          e.stopPropagation();
+                          rerunJob(job);
+                        }} size="small">
+                          <ReplayIcon className="replay-icon" />
+                        </IconButton>
+                      </Tooltip>
+                    }
                     {jobStatusAllowCancel.has(job.status) &&
-                      <IconButton onClick={() => cancelJob({ variables: { jobId: job.id } })} size="small">
-                        <CancelIcon className="delete-icon" />
-                      </IconButton>
+                      <Tooltip title="Cancel Job">
+                        <IconButton onClick={(e) => {
+                          e.stopPropagation();
+                          cancelJob({ variables: { jobId: job.id } });
+                        }} size="medium">
+                          <CancelIcon className="delete-icon" />
+                        </IconButton>
+                      </Tooltip>
                     }
                   </TableCell>
                 </TableRow>

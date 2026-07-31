@@ -490,5 +490,6 @@ public class UiController {
         model.addAttribute("skyQueryUrl", appConfig.getAppSettings().getSkyQueryUrl());
         model.addAttribute("racmUrl", appConfig.getAppSettings().getRacmUrl());
         model.addAttribute("helpUrl", appConfig.getAppSettings().getHelpUrl());
+        model.addAttribute("jobsMigrationUrl", appConfig.getAppSettings().getJobsMigrationUrl());
     }
 }

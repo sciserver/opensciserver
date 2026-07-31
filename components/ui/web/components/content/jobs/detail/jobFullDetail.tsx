@@ -1,3 +1,5 @@
+/* eslint-disable eslint-comments/disable-enable-pair */
+/* eslint-disable promise/no-promise-in-callback */
 import { FC, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client';
@@ -17,13 +19,14 @@ import { sanitize } from 'dompurify';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { filesize } from 'filesize';
+import Swal from 'sweetalert2';
 
 import { File, Job, JobDetails } from 'src/graphql/typings';
 import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import Swal from 'sweetalert2';
+import { jobStatusAllowRerun, ReRunJobModalWording } from 'components/content/jobs/list/jobsList';
 
 const Styled = styled.div`
   .header {
@@ -102,17 +105,23 @@ export const JobFullDetail: FC = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const [error, setError] = useState<boolean>(false);
   const [tabValue, setTabValue] = useState<number>(0);
   const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
   const { loading, data } = useQuery(JOB_DETAIL_VIEW,
     {
-      onError: () => setError(true),
-      onCompleted: () => setError(false),
+      onError: (error) => Swal.fire({
+        title: 'There was an error loading the job details',
+        text: error.message,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        router.push('/jobs');
+      }).catch(Error),
       variables: { jobId: id }
     }
   );
+
   const [createJob] = useMutation(CREATE_JOB, {
     onError: () => Swal.fire({
       title: 'Unable to add job',
@@ -143,22 +152,39 @@ export const JobFullDetail: FC = () => {
     return `${process.env.NEXT_PUBLIC_FILE_SERVICE_URL}file/${jobDetail.job.resultsFolderURI.replace(process.env.NEXT_PUBLIC_JOB_WORKSPACE_PATH || '', '')}/${encodeURIComponent(row.name)}`;
   };
 
-  const rerunJob = (job: Job) => {
-    const resultsFolderURI = job.resultsFolderURI.split('/').slice(0, -2).join('/');
+  const rerunJob = async (job: Job) => {
+    await Swal.fire(ReRunJobModalWording as any).then((result) => {
+      if (result.isConfirmed) {
+        const resultsFolderURI = job.resultsFolderURI
+          .split('/')
+          // compm adds subdirs to the results folder, this indicates last non-dynamic index
+          .slice(0, Number.parseInt(process.env.NEXT_PUBLIC_JOB_URI_CONSTANT_TERMINUS || '0'))
+          .join('/');
 
-    createJob({
-      variables: {
-        createJobParams: {
-          dockerComputeEndpoint: job.dockerComputeEndpoint,
-          dockerImageName: job.dockerImageName,
-          resultsFolderURI,
-          submitterDID: job.submitterDID,
-          volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-          userVolumes: job.userVolumes.map(uv => uv.id),
-          command: job.command,
-          scriptURI: job.scriptURI || ''
-        }
+        createJob({
+          variables: {
+            createJobParams: {
+              dockerComputeEndpoint: job.dockerComputeEndpoint,
+              dockerImageName: job.dockerImageName,
+              resultsFolderURI,
+              submitterDID: job.submitterDID,
+              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
+              userVolumes: job.userVolumes.map(uv => uv.id),
+              command: job.command,
+              scriptURI: job.scriptURI || ''
+            }
+          }
+        });
+        return;
       }
+      if (result.isDenied) {
+        router.push({
+          pathname: '/jobs/new',
+          query: { rerunFromJobId: job.id }
+        });
+      }
+    }).then(() => {
+      return;
     });
   };
 
@@ -243,7 +269,7 @@ export const JobFullDetail: FC = () => {
               </p>
             </div>
           </div>
-          {jobDetail.job.resultsFolderURI.length > 0 &&
+          {jobDetail.job.resultsFolderURI.length > 0 && jobStatusAllowRerun.has(jobDetail.job.status) &&
             <Tooltip title="Re-run Job">
               <IconButton color="primary" aria-label="Re-run job" onClick={() => rerunJob(jobDetail.job)}>
                 <ReplayIcon />
@@ -309,12 +335,6 @@ export const JobFullDetail: FC = () => {
     }
     {loading &&
       <LoadingAnimation backDropIsOpen={loading} />
-    }
-    {error &&
-      <>
-        <h2>There was an error loading the details for this Job.</h2>
-        <p>{error}</p>
-      </>
     }
   </Styled>;
 };

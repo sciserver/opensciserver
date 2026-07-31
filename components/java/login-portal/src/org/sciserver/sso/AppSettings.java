@@ -52,6 +52,8 @@ public class AppSettings {
 	
 	private final boolean keycloakEnabled;
 
+	private final String alertMessage;
+	private final boolean isAlertMessage;
 	private final String disclaimerInfo;
 	private final boolean displaySciserverLogin;
 	private final String keycloakLoginButtonText;
@@ -121,6 +123,8 @@ public class AppSettings {
 
 		sciserverVersion = properties.getProperty("sciserver.version");
 
+		alertMessage = properties.getProperty("alertMessage", "");
+		isAlertMessage = alertMessage != null && alertMessage.length() > 0;
 		disclaimerInfo =  properties.getProperty("disclaimerInfo");
 		isDisclaimerInfo = disclaimerInfo.length() > 0 ? true : false;
 		displaySciserverLogin = Boolean.parseBoolean(properties.getProperty("displaySciserverLogin"));
@@ -284,6 +288,14 @@ public class AppSettings {
 
 	public boolean isKeycloakEnabled() {
 		return keycloakEnabled;
+	}
+
+	public String getAlertMessage() {
+		return alertMessage;
+	}
+
+	public boolean showAlertMessage() {
+		return isAlertMessage;
 	}
 
 	public String getDisclaimerInfo() {

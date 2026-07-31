@@ -63,6 +63,7 @@ import org.sciserver.authentication.client.UnauthenticatedException;
 import org.sciserver.authentication.client.User;
 import org.sciserver.clientutils.SciServerClientException;
 import org.sciserver.racm.client.RACMClient;
+import org.sciserver.racm.storem.model.DataVolumeModel;
 import org.sciserver.racm.storem.model.FileServiceModel;
 import org.sciserver.racm.storem.model.RegisterNewServiceVolumeModel;
 import org.sciserver.racm.storem.model.RegisterNewUserVolumeModel;
@@ -70,8 +71,10 @@ import org.sciserver.racm.storem.model.RegisteredDataVolumeModel;
 import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.racm.storem.model.RegisteredRootVolumeModel;
 import org.sciserver.racm.storem.model.RegisteredServiceVolumeModel;
+import org.sciserver.racm.storem.model.RootVolumeModel;
 import org.sciserver.racm.storem.model.UpdateSharedWithEntry;
 import org.sciserver.racm.storem.model.UpdatedUserVolumeInfo;
+import org.sciserver.racm.storem.model.UserVolumeModel;
 import org.sciserver.springapp.auth.Auth;
 import org.sciserver.springapp.fileservice.Config;
 import org.sciserver.springapp.fileservice.Quartet;
@@ -646,6 +649,9 @@ public class ApiController {
                     HttpStatus.BAD_REQUEST);
         }
 
+        // Fetch all volume info in a single RACM call instead of per-file
+        FileServiceModel volumes = racmClient.getDetailsOfFileService(user.getToken(), fileServiceIdentifier);
+
         String topVolume = null;
         String ownerName = null;
         String userVolume = null;
@@ -664,10 +670,8 @@ public class ApiController {
                 userVolume = quartet.x3;
                 path = quartet.x4;
 
-                ArrayList<String> permissions = new ArrayList<>(Collections.singletonList("read"));
-                Quintet<Boolean, String, String, String, String> info = generalCheck(user, topVolume, permissions,
-                        userVolume,
-                        ownerName, path);
+                Quintet<Boolean, String, String, String, String> info = checkPermissionFromVolumes(
+                        "read", volumes, topVolume, ownerName, userVolume, path);
                 Boolean isTopVolumeADataVolume = info.x1;
 
                 // this is the relative path, in case of user volume, and base path in case of
@@ -695,6 +699,10 @@ public class ApiController {
                     files.add(new FileDataResponse(filePath, base64String));
                 }
 
+            } catch (VolumeNotFoundException e) {
+                files.add(new FileDataResponse(filePath, HttpStatus.NOT_FOUND, e.getMessage()));
+            } catch (VolumeAccessDeniedException e) {
+                files.add(new FileDataResponse(filePath, HttpStatus.FORBIDDEN, e.getMessage()));
             } catch (Exception e) {
                 files.add(new FileDataResponse(filePath, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
             }
@@ -2482,6 +2490,66 @@ public class ApiController {
     }
 
     /**
+     * Check permissions for a volume using a pre-fetched FileServiceModel,
+     * avoiding per-file RACM calls.
+     */
+    private Quintet<Boolean, String, String, String, String> checkPermissionFromVolumes(
+            String requiredAction, FileServiceModel volumes, String topVolume,
+            String ownerName, String userVolume, String path) throws Exception {
+
+        // Check if topVolume is a root volume
+        RootVolumeModel matchedRootVolume = null;
+        for (RootVolumeModel rv : volumes.getRootVolumes()) {
+            if (rv.getName().equals(topVolume)) {
+                matchedRootVolume = rv;
+                break;
+            }
+        }
+
+        boolean isTopVolumeADataVolume = (matchedRootVolume == null);
+        String topVolumeBasePath = null;
+
+        if (!isTopVolumeADataVolume) {
+            if (ownerName == null || ownerName.equals("")) {
+                throw new Exception("owner name is not present");
+            } else if (userVolume == null || userVolume.equals("")) {
+                throw new Exception("user volume is not present");
+            }
+            UserVolumeModel matchedUserVolume = null;
+            for (UserVolumeModel uv : matchedRootVolume.getUserVolumes()) {
+                if (uv.getName().equals(userVolume) && ownerName.equals(uv.getOwner())) {
+                    matchedUserVolume = uv;
+                    break;
+                }
+            }
+            if (matchedUserVolume == null) {
+                throw new VolumeNotFoundException("Volume does not exist");
+            }
+            if (!matchedUserVolume.getAllowedActions().contains(requiredAction)) {
+                throw new VolumeAccessDeniedException("Missing required permissions on volume");
+            }
+            topVolumeBasePath = matchedUserVolume.getRelativePath();
+        } else {
+            DataVolumeModel matchedDataVolume = null;
+            for (DataVolumeModel dv : volumes.getDataVolumes()) {
+                if (dv.getName().equals(topVolume)) {
+                    matchedDataVolume = dv;
+                    break;
+                }
+            }
+            if (matchedDataVolume == null) {
+                throw new VolumeNotFoundException("Volume does not exist");
+            }
+            if (!matchedDataVolume.getAllowedActions().contains(requiredAction)) {
+                throw new VolumeAccessDeniedException("Missing required permissions on volume");
+            }
+            topVolumeBasePath = "";
+        }
+
+        return new Quintet<>(isTopVolumeADataVolume, topVolumeBasePath, ownerName, userVolume, path);
+    }
+
+    /**
      * Get path for log message.
      */
     String getPathForLogMessage(String rootVolume, String ownerName, String userVolume, String path,
@@ -2718,6 +2786,18 @@ public class ApiController {
     protected ResponseEntity<JsonNode> jsonExceptionEntity(Exception e, HttpStatus http) {
         JsonNode json = jsonException(e);
         return new ResponseEntity<>(json, http);
+    }
+
+    private static class VolumeNotFoundException extends Exception {
+        VolumeNotFoundException(String message) {
+            super(message);
+        }
+    }
+
+    private static class VolumeAccessDeniedException extends Exception {
+        VolumeAccessDeniedException(String message) {
+            super(message);
+        }
     }
 
 }

@@ -13,6 +13,7 @@ type Container {
   domainName: String!
   id: ID!
   imageName: String!
+  json: JSONObject
   maxSecs: Int!
   name: String!
   nodeName: String!

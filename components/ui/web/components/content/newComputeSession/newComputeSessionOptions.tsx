@@ -58,6 +58,7 @@ type Props = {
   setCommandError?: (error: boolean) => void;
   resultsFolderURI?: string;
   setResultsFolderURI?: (uri: string) => void;
+  isEditJob?: boolean;
 };
 
 export const NewComputeSessionOptions: FC<Props> = ({
@@ -79,16 +80,17 @@ export const NewComputeSessionOptions: FC<Props> = ({
   setCommandError,
   resultsFolderURI,
   setResultsFolderURI,
-  tabs
+  tabs,
+  isEditJob
 }) => {
 
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
-    if (commandError) {
+    if (commandError || isEditJob) {
       setTabValue(4);
     }
-  }, [commandError]);
+  }, [commandError, isEditJob]);
 
   return <Styled>
     <CustomizedTabs tabs={tabs} value={tabValue} setValue={setTabValue} />

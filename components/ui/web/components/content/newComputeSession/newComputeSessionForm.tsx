@@ -10,7 +10,7 @@ import {
   ListSubheader,
   TextField
 } from '@mui/material';
-import { MoreHoriz as MoreHorizIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
+import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 
 import { DataVolume, Domain, Image, UserVolume } from 'src/graphql/typings';
 
@@ -78,9 +78,6 @@ export const NewComputeSessionForm: FC<Props> = ({
           <ListItem
             secondaryAction={
               <>
-                <IconButton aria-label="star">
-                  <StarBorderIcon />
-                </IconButton>
                 <IconButton aria-label="more options">
                   <MoreHorizIcon />
                 </IconButton>
@@ -106,9 +103,6 @@ export const NewComputeSessionForm: FC<Props> = ({
           <ListItem
             secondaryAction={
               <>
-                <IconButton aria-label="star">
-                  <StarBorderIcon />
-                </IconButton>
                 <IconButton aria-label="more options">
                   <MoreHorizIcon />
                 </IconButton>
@@ -137,9 +131,6 @@ export const NewComputeSessionForm: FC<Props> = ({
             <ListItem
               secondaryAction={
                 <>
-                  <IconButton aria-label="star">
-                    <StarBorderIcon />
-                  </IconButton>
                   <IconButton aria-label="more options">
                     <MoreHorizIcon />
                   </IconButton>
@@ -163,21 +154,16 @@ export const NewComputeSessionForm: FC<Props> = ({
           {userVolumesChoice.map(uv =>
             <ListItem
               secondaryAction={
-                <>
-                  <IconButton aria-label="star">
-                    <StarBorderIcon />
-                  </IconButton>
-                  <IconButton aria-label="more options">
-                    <MoreHorizIcon />
-                  </IconButton>
-                </>
+                <IconButton aria-label="more options">
+                  <MoreHorizIcon />
+                </IconButton>
               }
             >
               <ListItemAvatar>
                 <Avatar alt="Sciserver Logo" src={logo.src} />
               </ListItemAvatar>
               <ListItemText
-                primary={uv.name}
+                primary={`${uv.name} (${uv.owner})`}
                 secondary={uv.description || ''}
               />
             </ListItem>

@@ -28,6 +28,9 @@
 	<c:if test="${info_message != null}">
 		<div class="alert alert-info" role="alert">${info_message}</div>
 	</c:if>
+	<c:if test="<%= appSettings.showAlertMessage() %>">
+		<div class="alert alert-warning" role="alert"><%= appSettings.getAlertMessage() %></div>
+	</c:if>
 	<div class="row" style="justify-content: center; display: flex;">	
 
 		<!-- Disclaimer -->

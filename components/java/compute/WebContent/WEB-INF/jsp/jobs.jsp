@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
 <link rel="stylesheet" href="<spring:url value="/static/css/jobs.css"/>"/>
 <spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().getApplicationName()" var="applicationName"/>
+<spring:eval expression="T(org.sciserver.compute.AppConfig).getInstance().getAppSettings().isUiNewAppBannerEnabled()" var="uiNewAppBannerEnabled"/>
 <title>${applicationName} Compute - Jobs</title>
 </head>
 <body
@@ -36,6 +37,16 @@
 		<div class="alert alert-warning" style="margin-bottom: 0">
 			${alert}</div>
 	</c:if>
+
+	  <c:if test="${uiNewAppBannerEnabled}">
+	  <div id="new-app-banner" class="alert alert-primary" role="alert">
+	    <strong>Try the new Jobs experience.</strong>
+	    <span>
+	      We are migrating to a new app with the same core workflow plus new features.
+	      You can opt in now and switch back any time. Click <a href="${fn:escapeXml(jobsMigrationUrl)}"> here </a> to try it out.
+	    </span>
+	  </div>
+	  </c:if>
 
 	<div class="container">
 		<div class="panel panel-primary">
