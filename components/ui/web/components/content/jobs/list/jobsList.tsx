@@ -200,7 +200,7 @@ export const JobsList: FC = () => {
       return;
     }
 
-    const nextCursor = allJobs.getJobs.jobs[allJobs.getJobs.jobs.length - 1]?.endTime || '';
+    const nextCursor = allJobs.getJobs.jobs[allJobs.getJobs.jobs.length - 1]?.submissionTime || '';
 
     setPageCursors(prevCursors => {
       if (prevCursors[paginationModel.page + 1] === nextCursor) {
