@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /web/compute/
+Disallow: /web/datasets/
+Disallow: /web/jobs/
+
+Sitemap: https://apps.sciserver.org/web/sitemap.xml
