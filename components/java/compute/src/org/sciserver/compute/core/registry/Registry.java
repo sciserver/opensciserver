@@ -14,6 +14,7 @@ import java.util.List;
 import org.sciserver.compute.core.client.docker.DockerClient;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClient;
 import org.sciserver.compute.model.admin.DomainInfo;
+import org.sciserver.compute.model.admin.GenericVolumeInfo;
 import org.sciserver.compute.model.admin.ImageInfo;
 import org.sciserver.compute.model.admin.K8sClusterInfo;
 import org.sciserver.compute.model.admin.NodeInfo;
@@ -167,4 +168,6 @@ public interface Registry {
     GenericVolume getGenericVolume(long id) throws Exception;
 
     void linkDaskCluster(ExecutableContainer var1, DaskCluster var2) throws Exception;
+
+    long adminCreateGenericVolume(GenericVolumeInfo genericVolumeInfo) throws Exception;
 }

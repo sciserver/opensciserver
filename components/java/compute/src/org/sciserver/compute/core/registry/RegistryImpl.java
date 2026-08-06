@@ -33,11 +33,14 @@ import org.sciserver.compute.core.client.docker.DockerClientImpl;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClient;
 import org.sciserver.compute.core.client.httpproxy.HttpProxyClientImpl;
 import org.sciserver.compute.model.admin.DomainInfo;
+import org.sciserver.compute.model.admin.GenericVolumeInfo;
 import org.sciserver.compute.model.admin.ImageInfo;
 import org.sciserver.compute.model.admin.K8sClusterInfo;
 import org.sciserver.compute.model.admin.NodeInfo;
 import org.sciserver.compute.model.admin.PublicVolumeInfo;
 import org.sciserver.compute.model.admin.SlotsInfo;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class RegistryImpl implements Registry {
@@ -1769,5 +1772,48 @@ public class RegistryImpl implements Registry {
             conn.close();
         }
         container.setDaskClusterId(daskCluster.getId());
+    }
+
+    @Override
+    public long adminCreateGenericVolume(GenericVolumeInfo volumeInfo) throws Exception {
+        Connection conn = getConnection();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "INSERT INTO generic_volume("
+                            + "`name`, "
+                            + "`description`, "
+                            + "`source`, "
+                            + "`mount_path`, "
+                            + "`volume_manager_class`, "
+                            + "`domain_id`) "
+                    + "VALUES(?, ?, ?, ?, ?, ?)");
+            try {
+                pstmt.setString(1, volumeInfo.getName());
+                pstmt.setString(2, volumeInfo.getDescription());
+                pstmt.setString(3, mapper.writeValueAsString(volumeInfo.getSource()));
+                pstmt.setString(4, mapper.writeValueAsString(volumeInfo.getMountPath()));
+                pstmt.setString(5, volumeInfo.getVolumeManagerClass());
+                pstmt.setLong(6, volumeInfo.getDomainId());
+                pstmt.executeUpdate();
+            } finally {
+                pstmt.close();
+            }
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `generic_volume` WHERE `id` = LAST_INSERT_ID()");
+            try {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                } else {
+                    throw new Exception("Unexpected error: result set is empty");
+                }
+            } finally {
+                rs.close();
+                stmt.close();
+            }
+        } finally {
+            conn.close();
+        }
     }
 }
