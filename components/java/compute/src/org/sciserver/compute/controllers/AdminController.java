@@ -20,6 +20,7 @@ import org.sciserver.compute.core.registry.ExecutableContainer;
 import org.sciserver.compute.model.ContainerInfo;
 import org.sciserver.compute.model.ErrorContent;
 import org.sciserver.compute.model.admin.DomainInfo;
+import org.sciserver.compute.model.admin.GenericVolumeInfo;
 import org.sciserver.compute.model.admin.ImageInfo;
 import org.sciserver.compute.model.admin.K8sClusterInfo;
 import org.sciserver.compute.model.admin.NodeInfo;
@@ -113,6 +114,13 @@ public class AdminController {
             HttpServletRequest request, HttpServletResponse response) throws Exception {
         checkAdminToken(request, response);
         return appConfig.getRegistry().adminCreatePublicVolume(publicVolumeInfo);
+    }
+
+    @RequestMapping(value = "/admin/generic_volume", method = RequestMethod.POST)
+    public long createGenericVolume(@RequestBody GenericVolumeInfo volumeInfo,
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
+        checkAdminToken(request, response);
+        return appConfig.getRegistry().adminCreateGenericVolume(volumeInfo);
     }
 
     @RequestMapping(value = "/admin/k8s_cluster", method = RequestMethod.GET)
