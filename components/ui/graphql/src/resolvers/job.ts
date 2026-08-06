@@ -3,8 +3,8 @@ import { MutationResolvers, QueryResolvers } from '../generated/typings';
 
 export const queryResolvers: QueryResolvers = {
   // eslint-disable-next-line no-empty-pattern
-  getJobs: async (_, { filters, top }, { dataSources }) => {
-    return dataSources.jobsAPI.getJobs(filters, top || undefined);
+  getJobs: async (_, { filters, top, end }, { dataSources }) => {
+    return dataSources.jobsAPI.getJobs(filters, top || undefined, end);
   },
   getJobDetails: async (_, { jobId }, { dataSources }) => {
     return dataSources.jobsAPI.getJobDetails(jobId);
