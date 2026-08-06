@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   sciserver:
   - apiVersion: v1
+    appVersion: v3.1.6
+    created: "2026-08-06T19:13:21.462964155Z"
+    description: A Helm chart for SciServer
+    digest: 26da9a4a403c4cfe07866d8a6e165379dbe8604429c75b9be9a032889f5b88a5
+    name: sciserver
+    urls:
+    - sciserver-3.1.6.tgz
+    version: 3.1.6
+  - apiVersion: v1
     appVersion: v3.1.5
     created: "2026-05-29T17:36:45.703166563Z"
     description: A Helm chart for SciServer
@@ -91,4 +100,4 @@ entries:
     urls:
     - sciserver-0.0.0-pr-40.tgz
     version: 0.0.0-pr-40
-generated: "2026-05-29T17:36:45.703211446Z"
+generated: "2026-08-06T19:13:21.463012255Z"
