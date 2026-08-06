@@ -408,10 +408,17 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                 }
                 running = true;
             } else if (phase.equals("Running") || phase.equals("Pending")) {
-                state.put("Status", "running");
-                state.put("ExitCode", 0);
-                state.put("Error", "");
-                running = true;
+                if (podInfo.getMetadata().getDeletionTimestamp() != null) {
+                    state.put("Status", "terminating");
+                    state.put("ExitCode", 0);
+                    state.put("Error", "");
+                    running = false;
+                } else {
+                    state.put("Status", "running");
+                    state.put("ExitCode", 0);
+                    state.put("Error", "");
+                    running = true;
+                }
             } else {
                 state.put("Status", "exited");
                 state.put("ExitCode", containerStatuses.get(0).getState().getTerminated().getExitCode());
@@ -431,21 +438,6 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
 
         oj.set("State", state);
         return oj;
-    }
-
-    public String getPodPhase(Container container) {
-        try {
-            V1Pod podInfo = getPodFromRef(container.getDockerRef());
-            String phase = podInfo.getStatus().getPhase();
-            
-            if (("Running".equals(phase) || "Pending".equals(phase))
-                    && podInfo.getMetadata().getDeletionTimestamp() != null) {
-                return "Terminating";
-            }
-            return phase;
-        } catch (Exception e) {
-            return "Unknown";
-        }
     }
 
     public void startContainer(ExecutableContainer container) throws Exception {
