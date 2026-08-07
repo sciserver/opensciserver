@@ -408,10 +408,17 @@ public class KubernetesExecutableManager2 extends ContainerManager implements Ex
                 }
                 running = true;
             } else if (phase.equals("Running") || phase.equals("Pending")) {
-                state.put("Status", "running");
-                state.put("ExitCode", 0);
-                state.put("Error", "");
-                running = true;
+                if (podInfo.getMetadata().getDeletionTimestamp() != null) {
+                    state.put("Status", "terminating");
+                    state.put("ExitCode", 0);
+                    state.put("Error", "");
+                    running = false;
+                } else {
+                    state.put("Status", "running");
+                    state.put("ExitCode", 0);
+                    state.put("Error", "");
+                    running = true;
+                }
             } else {
                 state.put("Status", "exited");
                 state.put("ExitCode", containerStatuses.get(0).getState().getTerminated().getExitCode());
