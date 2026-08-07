@@ -37,7 +37,8 @@ export class JobsAPI extends RESTDataSource {
 
   // QUERIES //
   async getJobs(filters: JobFilters[] | undefined | null, top = 10, end?: string): Promise<JobsResponse> {
-    const totalJobs = await this.get(`${this.baseURL!}jobs/count`);
+    const totalJobsRes = await this.get(`${this.baseURL!}jobs/count`);
+    const totalJobs = totalJobsRes.count || 0;
 
     let jobsQueryUrl = `${this.baseURL!}jobs?top=${top}`;
     if (end) {
