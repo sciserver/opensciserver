@@ -73,6 +73,7 @@ import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
 import org.sciserver.springapp.racm.utils.logging.LogUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -96,6 +97,7 @@ import edu.jhu.user.UserGroup;
  */
 @Component
 class FileServiceRepository {
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(FileServiceRepository.class);
     private static final String UNKNOWN_USER_VOLUME_MESSAGE = "Could not locate user volume";
     private static final String QUERY_PATH_FS_RESOURCE_CONTEXT = "f.resourceContext";
 
@@ -237,8 +239,8 @@ class FileServiceRepository {
                 if(rv != null)   
                     rv.addUserVolume(uv);
                 else
-                    // TODO do real logging iso system.out.print
-                    System.out.printf("UserVolume [%s,%s,%s,%s] cannot find RootVolume [%d]\n",uv.getResourceUUID(), uv.getName(), uv.getRelativePath(), uv.getOwner(), rootVolumeId);
+                    LOG.warn("UserVolume [{},{},{},{}] cannot find RootVolume [{}]",
+                            uv.getResourceUUID(), uv.getName(), uv.getRelativePath(), uv.getOwner(), rootVolumeId);
             }
             if(r != null) {
                 if(owningResourceId != null)
@@ -282,8 +284,7 @@ class FileServiceRepository {
                 }
                 s.addAllowedAction(action);
             } else { // this would be a server error. log here iso returning anything to user
-                // TODO do real logging iso system.out.print
-                System.out.printf("currentResource == null for currentResourceId=%d: can happen e.g. if a __rootcontext__ has a privilege\n",
+                LOG.warn("currentResource == null for currentResourceId={}: can happen e.g. if a __rootcontext__ has a privilege",
                         currentResourceId);
             }
         } 
