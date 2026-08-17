@@ -138,7 +138,52 @@ public class DockerComputeDomainManager {
 
     private void validateNewRootVolume(DockerComputeDomain dcd,
             RootVolumeOnComputeDomainModel rvm) throws VOURPException {
-        // Filled in by the next task.
+        // id is assigned by RACM; supplying one is a client error, not something to ignore
+        if (rvm.getId() != null)
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
+                    "id must not be supplied when creating a root volume on a compute domain; "
+                            + "it is assigned by RACM");
+
+        if (rvm.getRootVolumeId() == null)
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "rootVolumeId is required");
+        if (isBlank(rvm.getPathOnCD()))
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "pathOnCD is required");
+        if (isBlank(rvm.getDisplayName()))
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "displayName is required");
+
+        // publisherDID is deliberately NOT validated. It belongs to the publisher, nothing in RACM
+        // looks this entity up by it, and duplicates may be intentional.
+
+        // getRootVolume() returns null, not an empty list, when nothing was ever attached
+        if (dcd.getRootVolume() == null)
+            return;
+
+        String path = rvm.getPathOnCD().trim();
+        String displayName = rvm.getDisplayName().trim();
+
+        for (RootVolumeOnComputeDomain existing : dcd.getRootVolume()) {
+            if (existing.getRootVolume() != null
+                    && rvm.getRootVolumeId().equals(existing.getRootVolume().getId()))
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
+                        "Root volume %d is already mounted on this compute domain at '%s'",
+                        rvm.getRootVolumeId(), existing.getPath()));
+
+            if (path.equals(trimOrNull(existing.getPath())))
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
+                        "Path '%s' is already in use on this compute domain", path));
+
+            if (displayName.equalsIgnoreCase(trimOrNull(existing.getDisplayName())))
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
+                        "Display name '%s' is already in use on this compute domain", displayName));
+        }
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String trimOrNull(String s) {
+        return s == null ? null : s.trim();
     }
 
     private DockerComputeDomain queryDockerComputeDomainForEndpoint(String endpoint,

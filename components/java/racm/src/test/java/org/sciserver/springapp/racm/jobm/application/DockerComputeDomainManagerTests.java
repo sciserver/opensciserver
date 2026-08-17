@@ -1,6 +1,7 @@
 package org.sciserver.springapp.racm.jobm.application;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,6 +10,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Query;
 
@@ -20,6 +24,7 @@ import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
 
+import edu.jhu.file.RootVolume;
 import edu.jhu.job.DockerComputeDomain;
 import edu.jhu.job.RootVolumeOnComputeDomain;
 
@@ -107,5 +112,142 @@ public class DockerComputeDomainManagerTests {
         // The transaction belongs to the controller. RACM uses no @Transactional; managers mutate
         // and the controller calls tom.persist(). Persisting here would break that contract.
         verify(tom, never()).persist();
+    }
+
+    /** Builds a mock existing entry on the domain. Any argument may be null. */
+    private RootVolumeOnComputeDomain existingEntry(Long rootVolumeId, String path, String displayName) {
+        RootVolumeOnComputeDomain rv = mock(RootVolumeOnComputeDomain.class);
+        if (rootVolumeId != null) {
+            RootVolume target = mock(RootVolume.class);
+            when(target.getId()).thenReturn(rootVolumeId);
+            when(rv.getRootVolume()).thenReturn(target);
+        }
+        when(rv.getPath()).thenReturn(path);
+        when(rv.getDisplayName()).thenReturn(displayName);
+        return rv;
+    }
+
+    private void withExistingEntries(DockerComputeDomain dcd, RootVolumeOnComputeDomain... entries) {
+        List<RootVolumeOnComputeDomain> list = Arrays.asList(entries);
+        when(dcd.getRootVolume()).thenReturn(list);
+    }
+
+    /** Asserts that the call fails with ILLEGAL_ARGUMENT and that nothing was created. */
+    private void assertRejected(RootVolumeOnComputeDomainModel model) throws Exception {
+        try {
+            manager.addRootVolume(RACM_UUID, model, up);
+            fail("expected VOURPException(ILLEGAL_ARGUMENT)");
+        } catch (VOURPException expected) {
+            assertEquals(VOURPException.ILLEGAL_ARGUMENT, expected.getErrorCode());
+        }
+        verify(modelFactory, never()).newRootVolumeOnComputeDomain(any(), any());
+    }
+
+    @Test
+    public void suppliedIdIsRejected() throws Exception {
+        authorizedDomain();
+        RootVolumeOnComputeDomainModel model = validModel();
+        model.setId(99L);
+
+        assertRejected(model);
+    }
+
+    @Test
+    public void missingRootVolumeIdIsRejected() throws Exception {
+        authorizedDomain();
+        RootVolumeOnComputeDomainModel model = validModel();
+        model.setRootVolumeId(null);
+
+        assertRejected(model);
+    }
+
+    @Test
+    public void blankPathIsRejected() throws Exception {
+        authorizedDomain();
+        RootVolumeOnComputeDomainModel model = validModel();
+        model.setPathOnCD("   ");
+
+        assertRejected(model);
+    }
+
+    @Test
+    public void missingDisplayNameIsRejected() throws Exception {
+        authorizedDomain();
+        RootVolumeOnComputeDomainModel model = validModel();
+        model.setDisplayName(null);
+
+        assertRejected(model);
+    }
+
+    @Test
+    public void mountingTheSameRootVolumeTwiceIsRejected() throws Exception {
+        DockerComputeDomain dcd = authorizedDomain();
+        withExistingEntries(dcd, existingEntry(ROOT_VOLUME_ID, "/somewhere/else", "Other"));
+
+        assertRejected(validModel());
+    }
+
+    @Test
+    public void duplicatePathIsRejected() throws Exception {
+        DockerComputeDomain dcd = authorizedDomain();
+        withExistingEntries(dcd,
+                existingEntry(999L, "/home/idies/workspace/Storage", "Other"));
+
+        assertRejected(validModel());
+    }
+
+    @Test
+    public void duplicateDisplayNameDifferingOnlyInCaseIsRejected() throws Exception {
+        DockerComputeDomain dcd = authorizedDomain();
+        withExistingEntries(dcd, existingEntry(999L, "/somewhere/else", "sTORAGE"));
+
+        assertRejected(validModel());
+    }
+
+    /**
+     * Deliberate absence of validation. publisherDID belongs to the publisher: nothing in RACM
+     * looks this entity up by it, and duplicates may be intentional. If you are here because you
+     * "fixed" a missing uniqueness check, read design v5 D12 first -- this test failing means the
+     * decision was reversed, not that a bug was found.
+     */
+    @Test
+    public void duplicatePublisherDIDIsAllowed() throws Exception {
+        DockerComputeDomain dcd = authorizedDomain();
+        RootVolumeOnComputeDomain existing = existingEntry(999L, "/somewhere/else", "Other");
+        when(existing.getPublisherDID()).thenReturn("ivo://example.org/thing");
+        withExistingEntries(dcd, existing);
+
+        RootVolumeOnComputeDomainModel model = validModel();
+        model.setPublisherDID("ivo://example.org/thing");
+        RootVolumeOnComputeDomain created = mock(RootVolumeOnComputeDomain.class);
+        when(modelFactory.newRootVolumeOnComputeDomain(model, dcd)).thenReturn(created);
+
+        assertNotNull(manager.addRootVolume(RACM_UUID, model, up));
+    }
+
+    /** getRootVolume() returns null, not an empty list, until something has been attached. */
+    @Test
+    public void domainWithNoRootVolumesIsAccepted() throws Exception {
+        DockerComputeDomain dcd = authorizedDomain();
+        when(dcd.getRootVolume()).thenReturn(null);
+
+        RootVolumeOnComputeDomainModel model = validModel();
+        RootVolumeOnComputeDomain created = mock(RootVolumeOnComputeDomain.class);
+        when(modelFactory.newRootVolumeOnComputeDomain(model, dcd)).thenReturn(created);
+
+        assertNotNull(manager.addRootVolume(RACM_UUID, model, up));
+    }
+
+    /** The new invariants do not hold retroactively: legacy rows may have null fields. */
+    @Test
+    public void existingEntryWithNullDisplayNameDoesNotBreakValidation() throws Exception {
+        DockerComputeDomain dcd = authorizedDomain();
+        withExistingEntries(dcd, existingEntry(999L, null, null));
+
+        RootVolumeOnComputeDomainModel model = validModel();
+        RootVolumeOnComputeDomain created = mock(RootVolumeOnComputeDomain.class);
+        when(modelFactory.newRootVolumeOnComputeDomain(model, dcd)).thenReturn(created);
+
+        assertNotNull(manager.addRootVolume(RACM_UUID, model, up));
     }
 }
