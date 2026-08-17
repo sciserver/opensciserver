@@ -18,6 +18,7 @@ import org.sciserver.racm.jobm.model.COMPMJobModel;
 import org.sciserver.racm.jobm.model.COMPMModel;
 import org.sciserver.racm.jobm.model.DockerComputeDomainModel;
 import org.sciserver.racm.jobm.model.JobQuery;
+import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
 import org.sciserver.racm.jobm.model.UserDockerComputeDomainModel;
 import org.sciserver.racm.utils.model.NativeQueryResult;
 import org.sciserver.springapp.racm.jobm.application.COMPMManager;
@@ -29,6 +30,7 @@ import org.sciserver.springapp.racm.ugm.application.UsersAndGroupsManager;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.controller.JsonAPIHelper;
+import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
 import org.sciserver.springapp.racm.utils.http.HttpRequest;
 import org.sciserver.springapp.racm.utils.http.HttpResponseResult;
 import org.sciserver.springapp.racm.utils.logging.LogUtils;
@@ -51,6 +53,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.jhu.job.DockerComputeDomain;
 import edu.jhu.job.DockerJob;
+import edu.jhu.job.RootVolumeOnComputeDomain;
 import edu.jhu.user.UserGroup;
 
 @CrossOrigin
@@ -384,6 +387,57 @@ public class JOBMRESTController {
         } catch (Exception e) {
             return jsonAPIHelper.logAndReturnJsonExceptionEntity(
                     "Error register a docker compute domain", Optional.of(up), e, true);
+        }
+    }
+
+    /**
+     * Attach a single root volume to an existing docker compute domain.
+     *
+     * <p>Unlike POST /computedomains/docker, this does not require resending the whole domain
+     * document and will not remove images, volume containers or other root volumes that are
+     * omitted from the request.
+     *
+     * @param racmUUID uuid of the compute domain's resource context
+     * @param rvm the root volume to attach
+     * @param up the calling user
+     * @return the created entry, including the id assigned by RACM
+     */
+    @PostMapping("/computedomains/docker/{racmUUID}/rootvolumes")
+    public ResponseEntity<JsonNode> addRootVolumeToDockerComputeDomain(
+            @PathVariable String racmUUID,
+            @RequestBody RootVolumeOnComputeDomainModel rvm,
+            @AuthenticationPrincipal UserProfile up) {
+        try {
+            RootVolumeOnComputeDomain rv =
+                    dockerComputeDomainManager.addRootVolume(racmUUID, rvm, up);
+            up.getTom().persist();
+
+            RootVolumeOnComputeDomainModel created =
+                    jobmModelFactory.newRootVolumeOnComputeDomainModel(rv);
+
+            LogUtils.buildLog()
+                .forJOBM()
+                .user(up)
+                .showInUserHistory()
+                .sentence()
+                    .subject(up.getUsername())
+                    .verb("mounted")
+                    .predicate("root volume %d at '%s' on docker compute domain '%s'",
+                            created.getRootVolumeId(), created.getPathOnCD(), racmUUID)
+                .extraField("dockerComputeDomain", racmUUID)
+                .extraField("rootVolume", created.getRootVolumeId())
+                .extraField("rootVolumeOnComputeDomain", created.getId())
+                .log();
+
+            return jsonAPIHelper.success(created);
+        } catch (ResourceNotFoundException e) {
+            return jsonAPIHelper.logAndReturnJsonExceptionEntity(
+                    "No docker compute domain with racmUUID " + racmUUID,
+                    Optional.of(up), e, HttpStatus.NOT_FOUND, true);
+        } catch (Exception e) {
+            return jsonAPIHelper.logAndReturnJsonExceptionEntity(
+                    "Error adding root volume to docker compute domain " + racmUUID,
+                    Optional.of(up), e, true);
         }
     }
 
