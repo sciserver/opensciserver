@@ -53,8 +53,12 @@ input CreateJobParams {
   resultsFolderURI: String!
   scriptURI: String!
   submitterDID: String!
-  userVolumes: [ID!]!
-  volumeContainers: [ID!]!
+  userVolumes: [UserVolInput!]!
+  volumeContainers: [DataVolInput!]!
+}
+
+input DataVolInput {
+  name: String!
 }
 
 type DataVolume {
@@ -276,6 +280,11 @@ type User {
   id: ID!
   userName: String!
   visibility: String!
+}
+
+input UserVolInput {
+  needsWriteAccess: Boolean!
+  userVolumeId: ID!
 }
 
 type UserVolume {

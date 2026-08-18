@@ -160,8 +160,12 @@ export const JobFullDetail: FC = () => {
               dockerImageName: job.dockerImageName,
               resultsFolderURI,
               submitterDID: job.submitterDID,
-              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-              userVolumes: job.userVolumes.map(uv => uv.id),
+              volumeContainers: job.dataVolumes.map(dv => {
+                return { name: dv.name };
+              }),
+              userVolumes: job.userVolumes.map(uv => {
+                return { userVolumeId: uv.id, needsWriteAccess: uv.needsWriteAccess };
+              }),
               command: job.command,
               scriptURI: job.scriptURI || ''
             }
