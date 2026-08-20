@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.sciserver.springapp.loginterceptor.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -62,6 +62,7 @@ import edu.jhu.rac.ResourceContext;
 import edu.jhu.user.ServiceAccount;
 import edu.jhu.user.User;
 import edu.jhu.user.UserGroup;
+import sciserver.logging.ServiceLogTimer;
 
 @RestController
 @CrossOrigin
@@ -530,7 +531,9 @@ public class UserManagementRESTController extends RACMController {
 	public ResponseEntity<JsonNode> queryVisibleUsersAndGroups(@AuthenticationPrincipal UserProfile up,
 			@RequestParam(name="users",required=false) String usersFilter) throws VOURPException {
 		try {
-			List<User> users = usersAndGroupsManager.queryPublicUsers(up, usersFilter);
+		    ServiceLogTimer timer = Log.get().startTimer("queryPublicUsers [ms]");
+		    List<User> users = usersAndGroupsManager.queryPublicUsers(up, usersFilter);
+		    timer.stop();
 			List<UserInfo> uis = new ArrayList<>();
 			for (User u : users)
 				uis.add(UGMModelsMapper.map(u));
@@ -538,15 +541,20 @@ public class UserManagementRESTController extends RACMController {
 			SciServerEntities ents = new SciServerEntities();
 			ents.setUsers(uis);
 			if(usersFilter == null) { // also query for groups is users not explicitly requested
+			    timer = Log.get().startTimer("queryAllGroups [ms]");
 				ents.setGroups(usersAndGroupsManager.queryAllGroups(up.getTom())
 					.stream()
 					.filter(ug -> up.isAdmin() || !ug.getName().equals(RACMNames.USERGROUP_PUBLIC))
 					.map(ug -> UGMModelsMapper.map(ug, false))
 					.collect(toList()));
+                timer.stop();
 			}
 
-			if(up.isAdmin())
+			if(up.isAdmin()) {
+                timer = Log.get().startTimer("queryAllServiceAccounts [ms]");
 			    ents.setServices(usersAndGroupsManager.queryAllServiceAccounts(up.getTom()).stream().map(sa -> UGMModelsMapper.map(sa)).collect(toList()));
+                timer.stop();
+			}
 			
 			JsonNode json = om.valueToTree(ents);
 			return new ResponseEntity<>(json, HttpStatus.OK);
