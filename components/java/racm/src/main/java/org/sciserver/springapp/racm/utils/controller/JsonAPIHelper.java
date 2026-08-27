@@ -36,21 +36,32 @@ public class JsonAPIHelper {
 
 	public ResponseEntity<JsonNode> logAndReturnJsonExceptionEntity(
 			String text, Optional<UserProfile> up, Exception e, boolean isJOBM) {
-		HttpStatus http;
+		return logAndReturnJsonExceptionEntity(text, up, e, statusFor(e), isJOBM);
+	}
+
+	/**
+	 * Maps an exception to the HTTP status it should be reported as.
+	 *
+	 * <p>Note VOURPException.ILLEGAL_STATE deliberately maps to 500: those sites signal a violated
+	 * server-side invariant, which is what a 500 is for.
+	 *
+	 * @param e the exception to map
+	 * @return the HTTP status to report
+	 */
+	static HttpStatus statusFor(Exception e) {
 		if (e instanceof RACMException)
-			http = HttpStatus.UNAUTHORIZED;
-		else if (e instanceof InsufficientPermissionsException) {
-			http = HttpStatus.FORBIDDEN;
-		} else if (e instanceof VOURPException) {
+			return HttpStatus.UNAUTHORIZED;
+		if (e instanceof InsufficientPermissionsException)
+			return HttpStatus.FORBIDDEN;
+		if (e instanceof VOURPException) {
 			int error = ((VOURPException) e).getErrorCode();
 			if (error == VOURPException.ILLEGAL_ARGUMENT)
-				http = HttpStatus.BAD_REQUEST;
-			else
-				http = HttpStatus.INTERNAL_SERVER_ERROR;
-		} else {
-			http = HttpStatus.INTERNAL_SERVER_ERROR;
+				return HttpStatus.BAD_REQUEST;
+			if (error == VOURPException.UNAUTHORIZED)
+				return HttpStatus.FORBIDDEN;
+			return HttpStatus.INTERNAL_SERVER_ERROR;
 		}
-		return logAndReturnJsonExceptionEntity(text, up, e, http, isJOBM);
+		return HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 
 	public ResponseEntity<JsonNode> logAndReturnJsonExceptionEntity(
