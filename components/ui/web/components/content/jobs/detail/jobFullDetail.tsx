@@ -44,26 +44,32 @@ const Styled = styled.div`
 
   .command {
     width: 80%;
-    
+
     pre {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       background: #000;
       border: 1px solid #ddd;
       border-radius: 5px;
       color: #ddd;
       font-family: monospace;
       font-size: 12px;
-      text-wrap: wrap;
-      
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-height: 40vh;
+      overflow: auto;
+
       line-height: 1.6;
       padding: 1em 1.5em;
     }
   }
-    
+
   .copy-icon {
     padding-left: 5rem;
+    position: sticky;
+    top: 0;
   }
 
   .html-description{
