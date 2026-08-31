@@ -1,17 +1,15 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import styled from 'styled-components';
 import {
   Button,
   IconButton,
-  Snackbar,
   Drawer
 } from '@mui/material';
-import {
-  ContentCopy as ContentCopyIcon,
-  Close as CloseIcon
-} from '@mui/icons-material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { Job } from 'src/graphql/typings';
 import { useRouter } from 'next/router';
+
+import { CommandBox } from 'components/common/commandBox';
 
 const StyledDrawer = styled(Drawer)`
   .MuiDrawer-paper {
@@ -31,7 +29,7 @@ const StyledDrawer = styled(Drawer)`
   .job-details {
     display: flex;
     gap: 3rem;
-    
+
     .job-field {
       display : flex;
       flex-direction: column;
@@ -43,42 +41,12 @@ const StyledDrawer = styled(Drawer)`
       }
     }
   }
-  
+
   .actions {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
   }
-
-
-  .command {
-    pre {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      background: #000;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      color: #ddd;
-      font-family: monospace;
-      font-size: 12px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      max-height: 30vh;
-      overflow: auto;
-
-      line-height: 1.6;
-      padding: 1em 1.5em;
-    }
-  }
-
-  .copy-icon {
-    padding-left: 5rem;
-    position: sticky;
-    top: 0;
-  }
-  
 `;
 
 type Props = {
@@ -90,7 +58,6 @@ type Props = {
 export const JobShortDetail: FC<Props> = ({ job, isOpen, setOpenRow }) => {
 
   const router = useRouter();
-  const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
   return <StyledDrawer
     anchor="bottom"
@@ -148,40 +115,7 @@ export const JobShortDetail: FC<Props> = ({ job, isOpen, setOpenRow }) => {
       </div>
     </div>
     {job.command &&
-      <div className="command">
-        <pre>
-          {job.command}
-          <IconButton
-            className="copy-icon"
-            size="small"
-            aria-label="copy"
-            color="inherit"
-            onClick={() => {
-              navigator.clipboard.writeText(job.command);
-              setCopiedSnackbarOpen(true);
-            }}
-          >
-            <ContentCopyIcon fontSize="medium" />
-          </IconButton>
-        </pre>
-        <Snackbar
-          open={copiedSnackbarOpen}
-          autoHideDuration={5000}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          onClose={() => setCopiedSnackbarOpen(false)}
-          message="Copied to clipboard!"
-          action={<>
-            <IconButton
-              size="small"
-              aria-label="close"
-              color="inherit"
-              onClick={() => setCopiedSnackbarOpen(false)}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </>}
-        />
-      </div>
+      <CommandBox command={job.command} maxHeight="30vh" />
     }
   </StyledDrawer>;
 };
