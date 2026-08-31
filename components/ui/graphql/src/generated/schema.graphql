@@ -53,8 +53,12 @@ input CreateJobParams {
   resultsFolderURI: String!
   scriptURI: String!
   submitterDID: String!
-  userVolumes: [ID!]!
-  volumeContainers: [ID!]!
+  userVolumes: [UserVolInput!]!
+  volumeContainers: [DataVolInput!]!
+}
+
+input DataVolInput {
+  name: String!
 }
 
 type DataVolume {
@@ -205,6 +209,11 @@ type JobUserVolume {
   userVolumeId: ID!
 }
 
+type JobsResponse {
+  jobs: [Job!]!
+  totalJobs: Int!
+}
+
 type Mutation {
   cancelJob(jobId: ID!): Boolean!
   createJob(createJobParams: CreateJobParams!): Job!
@@ -222,7 +231,7 @@ type Query {
   getDomainByID(id: ID!): Domain
   getDomains(jobs: Boolean): [Domain!]!
   getJobDetails(jobId: ID!): JobDetails!
-  getJobs(filters: [JobFilters!], top: Int): [Job!]!
+  getJobs(end: DateTime, filters: [JobFilters!], top: Int): JobsResponse!
   getJsonTree(volumeName: String!): JSONTree!
   getUser: User!
   getVolumes: FileService
@@ -271,6 +280,11 @@ type User {
   id: ID!
   userName: String!
   visibility: String!
+}
+
+input UserVolInput {
+  needsWriteAccess: Boolean!
+  userVolumeId: ID!
 }
 
 type UserVolume {

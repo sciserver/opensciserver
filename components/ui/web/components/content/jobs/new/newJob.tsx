@@ -9,6 +9,7 @@ import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { NewComputeSession } from 'components/content/newComputeSession/newComputeSession';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
+import { JobCreatedModalWording, UnableToAddJobModalWording } from 'src/utils/swalWording';
 
 
 export const NewJob: FC = () => {
@@ -26,21 +27,11 @@ export const NewJob: FC = () => {
   const [resultsFolderURI, setResultsFolderURI] = useState<string>('');
 
   const [createJob] = useMutation(CREATE_JOB, {
-    onError: () => Swal.fire({
-      title: 'Unable to add job',
-      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
-      icon: 'error',
-      confirmButtonText: 'OK'
-    }).then(() => {
+    onError: () => Swal.fire(UnableToAddJobModalWording as any).then(() => {
       setLoadingSubmit(false);
       return;
     }).catch(Error),
-    onCompleted: () => Swal.fire({
-      title: 'Job created successfully',
-      text: 'Your job has been created and is now queued.',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => {
+    onCompleted: () => Swal.fire(JobCreatedModalWording as any).then(() => {
       setLoadingSubmit(false);
       router.push('/jobs');
     })
@@ -74,8 +65,12 @@ export const NewJob: FC = () => {
           resultsFolderURI,
           submitterDID: sessionName,
           scriptURI: '',
-          volumeContainers: dataVolumesChoice.map(dv => dv.publisherDID),
-          userVolumes: userVolumesChoice.map(uv => uv.id),
+          volumeContainers: dataVolumesChoice.map(dv => {
+            return { name: dv.name };
+          }),
+          userVolumes: userVolumesChoice.map(uv => {
+            return { userVolumeId: uv.id, needsWriteAccess: uv.allowedActions.includes('write') };
+          }),
           command
         }
       }

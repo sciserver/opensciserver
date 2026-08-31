@@ -5,8 +5,18 @@ import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
-import { CreateJobParams, File, Job, JobDetails, JobFilters, JobMessage, JobStatus } from '../generated/typings';
 import { VolumesAPI } from './volumes';
+import { formatDate } from '../utils/date';
+import {
+  CreateJobParams,
+  File,
+  Job,
+  JobDetails,
+  JobFilters,
+  JobMessage,
+  JobsResponse,
+  JobStatus
+} from '../generated/typings';
 
 export class JobsAPI extends RESTDataSource {
   override baseURL = `${environment.racm.jobsUrl}`;
@@ -26,8 +36,17 @@ export class JobsAPI extends RESTDataSource {
   }
 
   // QUERIES //
-  async getJobs(filters: JobFilters[] | undefined | null, top = 10): Promise<Job[]> {
-    const jobsres = await this.get(`${this.baseURL!}jobs?top=${top}`) || [];
+  async getJobs(filters: JobFilters[] | undefined | null, top = 10, end?: string): Promise<JobsResponse> {
+    const totalJobsRes = await this.get(`${this.baseURL!}jobs/count`);
+    const totalJobs = totalJobsRes.count || 0;
+
+    let jobsQueryUrl = `${this.baseURL!}jobs?top=${top}`;
+    if (end) {
+      const dEnd = formatDate(new Date(end));
+      jobsQueryUrl += `&end=${dEnd}`;
+    }
+
+    const jobsres = await this.get(jobsQueryUrl) || [];
 
     let jobs: Job[] = jobsres.map((r: any) => this.jobReducer(r));
 
@@ -36,7 +55,10 @@ export class JobsAPI extends RESTDataSource {
         jobs = jobs.filter((j: Job) => j[f.field as keyof Job] === f.value);
       }
     }
-    return jobs;
+    return {
+      jobs,
+      totalJobs
+    };
   }
 
   async getJobDetails(jobId: string): Promise<JobDetails> {

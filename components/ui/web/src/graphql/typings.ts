@@ -80,8 +80,12 @@ export type CreateJobParams = {
   resultsFolderURI: Scalars['String'];
   scriptURI: Scalars['String'];
   submitterDID: Scalars['String'];
-  userVolumes: Array<Scalars['ID']>;
-  volumeContainers: Array<Scalars['ID']>;
+  userVolumes: Array<UserVolInput>;
+  volumeContainers: Array<DataVolInput>;
+};
+
+export type DataVolInput = {
+  name: Scalars['String'];
 };
 
 export type DataVolume = {
@@ -240,6 +244,12 @@ export type JobUserVolume = {
   userVolumeId: Scalars['ID'];
 };
 
+export type JobsResponse = {
+  __typename?: 'JobsResponse';
+  jobs: Array<Job>;
+  totalJobs: Scalars['Int'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   cancelJob: Scalars['Boolean'];
@@ -281,7 +291,7 @@ export type Query = {
   getDomainByID?: Maybe<Domain>;
   getDomains: Array<Domain>;
   getJobDetails: JobDetails;
-  getJobs: Array<Job>;
+  getJobs: JobsResponse;
   getJsonTree: JsonTree;
   getUser: User;
   getVolumes?: Maybe<FileService>;
@@ -326,6 +336,7 @@ export type QueryGetJobDetailsArgs = {
 
 
 export type QueryGetJobsArgs = {
+  end?: InputMaybe<Scalars['DateTime']>;
   filters?: InputMaybe<Array<JobFilters>>;
   top?: InputMaybe<Scalars['Int']>;
 };
@@ -382,6 +393,11 @@ export type User = {
   id: Scalars['ID'];
   userName: Scalars['String'];
   visibility: Scalars['String'];
+};
+
+export type UserVolInput = {
+  needsWriteAccess: Scalars['Boolean'];
+  userVolumeId: Scalars['ID'];
 };
 
 export type UserVolume = {
@@ -480,6 +496,7 @@ export type ResolversTypes = {
   ContainerParams: ContainerParams;
   ContainerStatus: ContainerStatus;
   CreateJobParams: CreateJobParams;
+  DataVolInput: DataVolInput;
   DataVolume: ResolverTypeWrapper<DataVolume>;
   Dataset: ResolverTypeWrapper<Dataset>;
   DatasetDetailInput: DatasetDetailInput;
@@ -500,6 +517,7 @@ export type ResolversTypes = {
   JobMessage: ResolverTypeWrapper<JobMessage>;
   JobStatus: JobStatus;
   JobUserVolume: ResolverTypeWrapper<JobUserVolume>;
+  JobsResponse: ResolverTypeWrapper<JobsResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   Resource: ResolverTypeWrapper<Resource>;
@@ -510,6 +528,7 @@ export type ResolversTypes = {
   URL: ResolverTypeWrapper<Scalars['URL']>;
   UUID: ResolverTypeWrapper<Scalars['UUID']>;
   User: ResolverTypeWrapper<User>;
+  UserVolInput: UserVolInput;
   UserVolume: ResolverTypeWrapper<UserVolume>;
   VolumeType: VolumeType;
 };
@@ -523,6 +542,7 @@ export type ResolversParentTypes = {
   ContainerDetailParams: ContainerDetailParams;
   ContainerParams: ContainerParams;
   CreateJobParams: CreateJobParams;
+  DataVolInput: DataVolInput;
   DataVolume: DataVolume;
   Dataset: Dataset;
   DatasetDetailInput: DatasetDetailInput;
@@ -542,6 +562,7 @@ export type ResolversParentTypes = {
   JobFilters: JobFilters;
   JobMessage: JobMessage;
   JobUserVolume: JobUserVolume;
+  JobsResponse: JobsResponse;
   Mutation: {};
   Query: {};
   Resource: Resource;
@@ -552,6 +573,7 @@ export type ResolversParentTypes = {
   URL: Scalars['URL'];
   UUID: Scalars['UUID'];
   User: User;
+  UserVolInput: UserVolInput;
   UserVolume: UserVolume;
 };
 
@@ -728,6 +750,12 @@ export type JobUserVolumeResolvers<ContextType = Context, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type JobsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['JobsResponse'] = ResolversParentTypes['JobsResponse']> = {
+  jobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType>;
+  totalJobs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   cancelJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCancelJobArgs, 'jobId'>>;
   createJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationCreateJobArgs, 'createJobParams'>>;
@@ -745,7 +773,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
   getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType, Partial<QueryGetDomainsArgs>>;
   getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobId'>>;
-  getJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryGetJobsArgs>>;
+  getJobs?: Resolver<ResolversTypes['JobsResponse'], ParentType, ContextType, Partial<QueryGetJobsArgs>>;
   getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   getVolumes?: Resolver<Maybe<ResolversTypes['FileService']>, ParentType, ContextType>;
@@ -836,6 +864,7 @@ export type Resolvers<ContextType = Context> = {
   JobDetails?: JobDetailsResolvers<ContextType>;
   JobMessage?: JobMessageResolvers<ContextType>;
   JobUserVolume?: JobUserVolumeResolvers<ContextType>;
+  JobsResponse?: JobsResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Resource?: ResourceResolvers<ContextType>;

@@ -157,7 +157,7 @@ export const NewComputeSession: FC<Props> = ({
   const dataVolumeList = useMemo<DataVolume[]>(() => {
     if (domainChoice) {
       if (editJob) {
-        setDataVolumesChoice(editJob.dataVolumes.map(dv => domainChoice.dataVolumes.find(dvl => dvl.id === dv.id)!));
+        setDataVolumesChoice(editJob.dataVolumes.map(dv => domainChoice.dataVolumes.find(dvl => dvl.publisherDID === dv.publisherDID)!));
       }
       return domainChoice.dataVolumes;
     }

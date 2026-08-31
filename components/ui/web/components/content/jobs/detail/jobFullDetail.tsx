@@ -26,7 +26,9 @@ import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { jobStatusAllowRerun, ReRunJobModalWording } from 'components/content/jobs/list/jobsList';
+import { jobStatusAllowRerun } from 'components/content/jobs/list/RerunJobAction';
+
+import { JobCreatedModalWording, ReRunJobModalWording, UnableToAddJobModalWording } from 'src/utils/swalWording';
 
 const Styled = styled.div`
   .header {
@@ -123,20 +125,10 @@ export const JobFullDetail: FC = () => {
   );
 
   const [createJob] = useMutation(CREATE_JOB, {
-    onError: () => Swal.fire({
-      title: 'Unable to add job',
-      text: `Please try again. If the problem persists, contact us at <a href=\"mailto:${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}\">${process.env.NEXT_PUBLIC_HELPDESK_EMAIL}</a> for more assistance.`,
-      icon: 'error',
-      confirmButtonText: 'OK'
-    }).then(() => {
+    onError: () => Swal.fire(UnableToAddJobModalWording as any).then(() => {
       return;
     }).catch(Error),
-    onCompleted: () => Swal.fire({
-      title: 'Job created successfully',
-      text: 'Your job has been created and is now queued.',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => {
+    onCompleted: () => Swal.fire(JobCreatedModalWording as any).then(() => {
       router.push('/jobs');
     })
   });
@@ -168,8 +160,12 @@ export const JobFullDetail: FC = () => {
               dockerImageName: job.dockerImageName,
               resultsFolderURI,
               submitterDID: job.submitterDID,
-              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-              userVolumes: job.userVolumes.map(uv => uv.id),
+              volumeContainers: job.dataVolumes.map(dv => {
+                return { name: dv.name };
+              }),
+              userVolumes: job.userVolumes.map(uv => {
+                return { userVolumeId: uv.id, needsWriteAccess: uv.needsWriteAccess };
+              }),
               command: job.command,
               scriptURI: job.scriptURI || ''
             }

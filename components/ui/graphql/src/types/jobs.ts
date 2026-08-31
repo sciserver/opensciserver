@@ -44,6 +44,11 @@ export const typeDefs = gql`
     scriptURI: String
   }
   
+  type JobsResponse {
+    jobs: [Job!]!
+    totalJobs: Int!
+  }
+  
   type JobDetails {
     job: Job!
     summary: String!
@@ -55,9 +60,18 @@ export const typeDefs = gql`
     value: String!
   }
 
+  input DataVolInput {
+    name: String!
+  }
+  
+  input UserVolInput {
+    userVolumeId: ID!
+    needsWriteAccess: Boolean!
+  }
+
   input CreateJobParams {
-    volumeContainers: [ID!]!
-    userVolumes: [ID!]!
+    volumeContainers: [DataVolInput!]!
+    userVolumes: [UserVolInput!]!
     command: String!
     resultsFolderURI: String!
     dockerComputeEndpoint: String!
@@ -68,7 +82,7 @@ export const typeDefs = gql`
   }
 
   type Query {
-    getJobs(filters: [JobFilters!], top: Int): [Job!]!
+    getJobs(filters: [JobFilters!], top: Int, end: DateTime): JobsResponse!
     getJobDetails(jobId: ID!): JobDetails!
   }
 
