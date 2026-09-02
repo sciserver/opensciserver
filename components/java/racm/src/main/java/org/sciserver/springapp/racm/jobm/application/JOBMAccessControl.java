@@ -50,4 +50,7 @@ public class JOBMAccessControl {
 	boolean canEditComputeDomain(User u, ComputeDomain cd) {
 		return racm.doesUserHaveRoleOnResource(u.getUsername(), cd.getResourceContext().getUuid(), RACMNames.CONTEXT_ROOTRESOURCE_PUBDID, RACMNames.R_COMPUTE_DOMAIN_ROOT_ADMIN);
 	}
+	boolean canRegisterDatabaseContext(User u, ComputeDomain cd) {
+		return racm.canUserDoActionOnRootContext(u.getUsername(), cd.getResourceContext().getUuid(), RACMNames.A_REGISTER_DATABASE_CONTEXT);
+	}
 }
