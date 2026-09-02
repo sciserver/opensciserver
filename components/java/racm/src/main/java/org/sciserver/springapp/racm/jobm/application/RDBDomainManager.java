@@ -115,10 +115,10 @@ public class RDBDomainManager {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("No RDB compute domain with id=%s exists", domainId.toString()));
         }
-        // Check if user is allowed to update the computedomain, must have admin role on it
-        if (!jobmAccessControl.canEditComputeDomain(up.getUser(), rdbcd)) {
+        // Check if user has the right to register a database context on the computedomain
+        if (!jobmAccessControl.canRegisterDatabaseContext(up.getUser(), rdbcd)) {
             throw new VOURPException(VOURPException.UNAUTHORIZED, String.format(
-                    "User %s is not authorized to update the RDBComputeDomain with apiEndpoint '%s'",
+                    "User %s is not authorized to register a DatabaseContext on the RDBComputeDomain with apiEndpoint '%s'",
                     up.getUsername(), rdbcd.getApiEndpoint()));
         }
 
