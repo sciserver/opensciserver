@@ -18,6 +18,7 @@ export const GET_DOMAINS = gql`
         owner
         description
         rootVolumeName
+        allowedActions
       }
       dataVolumes {
         name

@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
-import org.sciserver.springapp.racm.config.LoggingConfig;
+import org.sciserver.springapp.loginterceptor.Log;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.ControllerMethodLogger;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -16,69 +16,46 @@ import sciserver.logging.Logger;
 import sciserver.logging.Message;
 
 public class LogUtils {
-	private static final LogUtils instance = new LogUtils();
-	private Logger logger;
-	private String jobmApplicationNameForLogger;
-
-	private LogUtils() {}
-
-	public static void setupLogger(LoggingConfig loggingConfig) {
-		if (!loggingConfig.isEnabled()) return;
-		instance.logger = new Logger(loggingConfig.getApplicationHost(),
-				loggingConfig.getApplicationName(),
-				loggingConfig.getMessagingHost(),
-				loggingConfig.getDatabaseQueueName(),
-				loggingConfig.getExchangeName(),
-				loggingConfig.isEnabled());
-		instance.jobmApplicationNameForLogger = loggingConfig.getJobmApplicationNameForLogger();
-	}
+	private static String jobmApplicationName = "JOBM";
 
 	private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
+	public static void setJobmApplicationName(String name) {
+		jobmApplicationName = name;
+	}
+
+	private static Logger getLogger() {
+		return Log.getLogger();
+	}
+
 	private static void wrapSendingMessage(Message message) {
 		try {
-			instance.logger.SendMessage(message);
+			getLogger().SendMessage(message);
 		} catch (Exception ex) {
 			LOG.error("Failed to send message to sciserver logger", ex);
 		}
 	}
 
-	private static boolean isLogInfoEnabled() {
-		return instance.logger != null && instance.logger.enabled;
-	}
-
-	private static boolean isLogErrorEnabled() {
-		return instance.logger != null && instance.logger.enabled;
-	}
-
 	static void logError(String text, Optional<UserProfile> up, Exception exc, boolean isJOBM) {
-		if (isLogErrorEnabled()) {
-			Message message = instance.logger.createErrorMessage(exc, text);
-			fillMessageWithUserInfo(message, up);
-			if (isJOBM) {
-				message.Application = instance.jobmApplicationNameForLogger;
-			}
-			wrapSendingMessage(message);
+		Message message = getLogger().createErrorMessage(exc, text);
+		fillMessageWithUserInfo(message, up);
+		if (isJOBM) {
+			message.Application = jobmApplicationName;
 		}
+		wrapSendingMessage(message);
 	}
 
 	static void logJobm(JSONObject content, boolean doShowInUserHistory, Optional<UserProfile> up) {
-		if(!isLogInfoEnabled()) {
-			return;
-		}
-		Message message = instance.logger.createJOBMMessage(
+		Message message = getLogger().createJOBMMessage(
 				content.toString(), doShowInUserHistory);
 
 		fillMessageWithUserInfo(message, up);
-		message.Application = instance.jobmApplicationNameForLogger;
+		message.Application = jobmApplicationName;
 		wrapSendingMessage(message);
 	}
 
 	static void logRACM(JSONObject content, boolean doShowInUserHistory, Optional<UserProfile> up) {
-		if(!isLogInfoEnabled()) {
-			return;
-		}
-		Message message = instance.logger.createRACMMessage(content.toString(), doShowInUserHistory);
+		Message message = getLogger().createRACMMessage(content.toString(), doShowInUserHistory);
 
 		fillMessageWithUserInfo(message, up);
 		wrapSendingMessage(message);
@@ -89,10 +66,7 @@ public class LogUtils {
 	}
 
 	static void logFileService(JSONObject content, boolean doShowInUserHistory, Optional<UserProfile> up) {
-		if(!isLogInfoEnabled()) {
-			return;
-		}
-		Message message = instance.logger.createFileServiceMessage(
+		Message message = getLogger().createFileServiceMessage(
 				content.toString(), doShowInUserHistory);
 
 		fillMessageWithUserInfo(message, up);
@@ -105,7 +79,7 @@ public class LogUtils {
 			message.UserName = userProfile.getUsername();
 			message.UserToken = userProfile.getToken();
 		});
-		HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes())
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
 				.getRequest();
 
 		String clientIp = request.getHeader("X-FORWARDED-FOR");

@@ -19,34 +19,38 @@ public class PingContainerAction {
     private static final int CONNECTION_TIMEOUT_MS = 3000;
     
     public static void execute(ExecutableContainer container) throws Exception {
-        String containerUrl = container.getNode().getProxyBaseUrl() + container.getExternalRef().toLowerCase();
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        try {
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
-                    .setConnectTimeout(CONNECTION_TIMEOUT_MS)
-                    .setSocketTimeout(CONNECTION_TIMEOUT_MS)
-                    .build();
-            
-            HttpHead httpHead = new HttpHead(containerUrl + "/");
-            httpHead.setConfig(requestConfig);
-
-            CloseableHttpResponse res = httpClient.execute(httpHead);
-
+        if (!container.isRunning()) {
+            throw new Exception("Container is not running.");
+        } else {
+            String containerUrl = container.getNode().getProxyBaseUrl() + container.getExternalRef().toLowerCase();
+            CloseableHttpClient httpClient = HttpClients.createDefault();
             try {
-                int statusCode = res.getStatusLine().getStatusCode();
-                if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                    container.setProxy();
-                }
-                if (statusCode != HttpStatus.METHOD_NOT_ALLOWED.value()
-                        && statusCode != HttpStatus.UNAUTHORIZED.value()) {
-                    Utilities.ensureSuccessStatusCode(res);
+                RequestConfig requestConfig = RequestConfig.custom()
+                        .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
+                        .setConnectTimeout(CONNECTION_TIMEOUT_MS)
+                        .setSocketTimeout(CONNECTION_TIMEOUT_MS)
+                        .build();
+                
+                HttpHead httpHead = new HttpHead(containerUrl + "/");
+                httpHead.setConfig(requestConfig);
+                
+                CloseableHttpResponse res = httpClient.execute(httpHead);
+                
+                try {
+                    int statusCode = res.getStatusLine().getStatusCode();
+                    if (statusCode == HttpStatus.NOT_FOUND.value()) {
+                        container.setProxy();
+                    }
+                    if (statusCode != HttpStatus.METHOD_NOT_ALLOWED.value()
+                            && statusCode != HttpStatus.UNAUTHORIZED.value()) {
+                        Utilities.ensureSuccessStatusCode(res);
+                    }
+                } finally {
+                    res.close();
                 }
             } finally {
-                res.close();
+                httpClient.close();
             }
-        } finally {
-            httpClient.close();
         }
     }
 }

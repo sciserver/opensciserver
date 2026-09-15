@@ -14,8 +14,7 @@ import {
   JobDetails,
   JobFilters,
   JobMessage,
-  JobsResponse,
-  JobStatus
+  JobsResponse
 } from '../generated/typings';
 
 export class JobsAPI extends RESTDataSource {
@@ -37,7 +36,8 @@ export class JobsAPI extends RESTDataSource {
 
   // QUERIES //
   async getJobs(filters: JobFilters[] | undefined | null, top = 10, end?: string): Promise<JobsResponse> {
-    const totalJobs = await this.get(`${this.baseURL!}jobs/count`);
+    const totalJobsRes = await this.get(`${this.baseURL!}jobs/count`);
+    const totalJobs = totalJobsRes.count || 0;
 
     let jobsQueryUrl = `${this.baseURL!}jobs?top=${top}`;
     if (end) {
@@ -66,14 +66,14 @@ export class JobsAPI extends RESTDataSource {
 
     let files: File[] = [];
     let summary = 'No summary available';
-    // only attempt to get files and summary if job is successful or failed,
-    // otherwise the results folder may not exist and we will get an error
-    if (job.resultsFolderURI.length && (job.status === JobStatus.Success || job.status === JobStatus.Error)) {
+    // Load files and summary whenever the job has a results folder. Not gated on
+    // job.status - RACM does not reliably report a bare 'SUCCESS'/'ERROR' string
+    // here, which was silently emptying this view.
+    if (job.resultsFolderURI.length) {
       const sanitizedURI = job.resultsFolderURI.replace('/home/idies/workspace/', '');
-      const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI) || {};
-      files = jobJsontree.root.files || [];
-      const readMeFile = await this.get(`${this.filesURL}file/${sanitizedURI}/README.md`) || {};
-      summary = readMeFile;
+      const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI);
+      files = jobJsontree?.root?.files || [];
+      summary = await this.get(`${this.filesURL}file/${sanitizedURI}/README.md`) || summary;
     }
 
     return {

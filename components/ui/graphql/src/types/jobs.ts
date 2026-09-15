@@ -60,9 +60,18 @@ export const typeDefs = gql`
     value: String!
   }
 
+  input DataVolInput {
+    name: String!
+  }
+  
+  input UserVolInput {
+    userVolumeId: ID!
+    needsWriteAccess: Boolean!
+  }
+
   input CreateJobParams {
-    volumeContainers: [ID!]!
-    userVolumes: [ID!]!
+    volumeContainers: [DataVolInput!]!
+    userVolumes: [UserVolInput!]!
     command: String!
     resultsFolderURI: String!
     dockerComputeEndpoint: String!

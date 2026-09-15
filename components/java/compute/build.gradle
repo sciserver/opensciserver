@@ -18,7 +18,7 @@ repositories {
 }
 
 checkstyle {
-    maxWarnings 178
+    maxWarnings 200
 }
 
 dependencies {

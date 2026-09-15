@@ -80,8 +80,12 @@ export type CreateJobParams = {
   resultsFolderURI: Scalars['String'];
   scriptURI: Scalars['String'];
   submitterDID: Scalars['String'];
-  userVolumes: Array<Scalars['ID']>;
-  volumeContainers: Array<Scalars['ID']>;
+  userVolumes: Array<UserVolInput>;
+  volumeContainers: Array<DataVolInput>;
+};
+
+export type DataVolInput = {
+  name: Scalars['String'];
 };
 
 export type DataVolume = {
@@ -391,6 +395,11 @@ export type User = {
   visibility: Scalars['String'];
 };
 
+export type UserVolInput = {
+  needsWriteAccess: Scalars['Boolean'];
+  userVolumeId: Scalars['ID'];
+};
+
 export type UserVolume = {
   __typename?: 'UserVolume';
   allowedActions: Array<Maybe<Scalars['String']>>;
@@ -487,6 +496,7 @@ export type ResolversTypes = {
   ContainerParams: ContainerParams;
   ContainerStatus: ContainerStatus;
   CreateJobParams: CreateJobParams;
+  DataVolInput: DataVolInput;
   DataVolume: ResolverTypeWrapper<DataVolume>;
   Dataset: ResolverTypeWrapper<Dataset>;
   DatasetDetailInput: DatasetDetailInput;
@@ -518,6 +528,7 @@ export type ResolversTypes = {
   URL: ResolverTypeWrapper<Scalars['URL']>;
   UUID: ResolverTypeWrapper<Scalars['UUID']>;
   User: ResolverTypeWrapper<User>;
+  UserVolInput: UserVolInput;
   UserVolume: ResolverTypeWrapper<UserVolume>;
   VolumeType: VolumeType;
 };
@@ -531,6 +542,7 @@ export type ResolversParentTypes = {
   ContainerDetailParams: ContainerDetailParams;
   ContainerParams: ContainerParams;
   CreateJobParams: CreateJobParams;
+  DataVolInput: DataVolInput;
   DataVolume: DataVolume;
   Dataset: Dataset;
   DatasetDetailInput: DatasetDetailInput;
@@ -561,6 +573,7 @@ export type ResolversParentTypes = {
   URL: Scalars['URL'];
   UUID: Scalars['UUID'];
   User: User;
+  UserVolInput: UserVolInput;
   UserVolume: UserVolume;
 };
 
