@@ -156,7 +156,11 @@ export const ContainerRun: FC = ({ }) => {
         icon: 'error',
         title: 'Error creating container',
         text: errorContainerID.message
-      });
+      }).then(() => {
+        if (errorContainerID.message.includes('401: Unauthorized')) {
+          router.push(`/login?callbackURL=${encodeURIComponent(router.asPath)}`);
+        }
+      }).catch(Error);
     }
   }, [errorContainerID]);
 
