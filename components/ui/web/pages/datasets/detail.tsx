@@ -7,6 +7,7 @@ export default function DatasetDetailPage() {
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <title>Dataset Detail - SciServer</title>
       </Head>
       <Layout>
         <DatasetDetail />
