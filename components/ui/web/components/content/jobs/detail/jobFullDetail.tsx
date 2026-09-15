@@ -81,11 +81,17 @@ export const JobFullDetail: FC = () => {
 
   const router = useRouter();
   const { id } = router.query;
+  const jobId = Array.isArray(id) ? id[0] : id;
 
   const [tabValue, setTabValue] = useState<number>(0);
 
   const { loading, data } = useQuery(JOB_DETAIL_VIEW,
     {
+      // On a hard page reload of /jobs/[id], router.query is empty until the
+      // router is ready. Skip the query until we actually have a job id,
+      // otherwise it fires with jobId: undefined and the server rejects it
+      // ("Variable \"$jobId\" of required type \"ID!\" was not provided").
+      skip: !router.isReady || !jobId,
       onError: (error) => Swal.fire({
         title: 'There was an error loading the job details',
         text: error.message,
@@ -94,7 +100,7 @@ export const JobFullDetail: FC = () => {
       }).then(() => {
         router.push('/jobs');
       }).catch(Error),
-      variables: { jobId: id }
+      variables: { jobId }
     }
   );
 
@@ -270,8 +276,8 @@ export const JobFullDetail: FC = () => {
         </div>
       </div>
     }
-    {loading &&
-      <LoadingAnimation backDropIsOpen={loading} />
+    {(loading || !router.isReady) &&
+      <LoadingAnimation backDropIsOpen />
     }
   </Styled>;
 };
