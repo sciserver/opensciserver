@@ -7,6 +7,7 @@ export default function Datasets() {
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <title>Datasets - SciServer</title>
       </Head>
       <Layout>
         <DatasetList />

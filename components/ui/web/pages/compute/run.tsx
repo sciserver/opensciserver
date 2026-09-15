@@ -7,6 +7,7 @@ export default function ComputePage() {
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <title>Run Compute Session - SciServer</title>
       </Head>
       <Layout>
         <ContainerRun />
