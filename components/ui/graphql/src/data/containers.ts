@@ -101,14 +101,32 @@ export class ContainersAPI extends RESTDataSource {
 
   // Additional Methods
   async getContainer(containerParams: ContainerParams): Promise<Container | undefined> {
+    // const domain = await this.domainsAPI.getDomainByName(containerParams.domainName);
+    // const resUser = await this.accountsAPI.getUser();
+    // const defaultUserVolumeIds = this.getDefaultUserVolumeIds(domain, resUser.userName);
+
     const containers = await this.getContainers();
     const container = containers.find(
       c => c.imageName === containerParams.imageName && c.domainName === containerParams.domainName
         && containerParams.dataVolumeIds.every(dvReq => (c.dataVolumes.map(dv => dv.publisherDID) as string[]).includes(dvReq))
-        && containerParams.userVolumeIds.every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq))
+        && containerParams.userVolumeIds
+          // .filter(uvReq => !defaultUserVolumeIds.includes(uvReq))
+          .every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq))
     );
 
     return container;
+  }
+
+  // The scratch and persistent User Volumes are auto-injected into every container
+  // regardless of whether they were explicitly requested, so they must be excluded
+  // when matching an existing container against requested User Volumes.
+  getDefaultUserVolumeIds(domain: Domain, userName: string): string[] {
+    return domain.userVolumes
+      .filter(r => (
+        (r.name === 'persistent' && r.rootVolumeName === 'Storage') ||
+        (r.name === 'scratch' && r.rootVolumeName === 'Temporary'))
+        && r.owner === userName)
+      .map(r => r.id.toString());
   }
 
   async getVolumeReqs(containerParams: ContainerParams, domain: Domain) {
@@ -120,18 +138,14 @@ export class ContainersAPI extends RESTDataSource {
     }
 
     const resUser = await this.accountsAPI.getUser();
+    const defaultUserVolumeIds = this.getDefaultUserVolumeIds(domain, resUser.userName);
 
     const userVolumes = [];
     const dataVolumes = [];
 
     for (const r of domain.userVolumes) {
       const reqUV = containerParams.userVolumeIds.find(uv => uv === r.id.toString());
-      if (reqUV ||
-        ((
-          (r.name === 'persistent' && r.rootVolumeName === 'Storage') ||
-          (r.name === 'scratch' && r.rootVolumeName === 'Temporary'))
-          && r.owner === resUser.userName)
-      ) {
+      if (reqUV || defaultUserVolumeIds.includes(r.id.toString())) {
         userVolumes.push({ userVolumeId: r.id.toString() });
       }
     }
