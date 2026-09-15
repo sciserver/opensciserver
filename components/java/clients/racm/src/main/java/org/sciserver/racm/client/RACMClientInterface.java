@@ -154,7 +154,8 @@ public interface RACMClientInterface {
     @POST("jobm/rest/computedomains/rdb/{domainId}")
     Call<DatabaseContextModel> registerRDBComputeDbContextCall(@Path("domainId") Long domainId,
             @Body DatabaseContextModel databaseContextModel, @Query("admins") String admins,
-            @Header(Client.AUTH_TOKEN_HEADER) String userToken);
+            @Header(Client.AUTH_TOKEN_HEADER) String userToken,
+            @Header(Client.SERVICE_TOKEN_HEADER) String serviceToken);
 
     @GET("jobm/rest/computedomains")
     Call<List<UserDockerComputeDomainModel>> getUserComputeDomainsCall(
