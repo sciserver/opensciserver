@@ -42,9 +42,8 @@ public class AccessControlController {
 			@PathVariable("resourceContextUUID") String resourceContextUUID,
 			@PathVariable("resourceUUID") String resourceUUID,
 			@RequestBody List<PrivilegeModel> newPrivileges) throws InvalidTOMException {
-		resourceContextAuthentication.verifyCorrectToken(resourceContextUUID, serviceToken);
+		Resource resource = resourceContextAuthentication.verifyCorrectTokenForResource(resourceContextUUID, resourceUUID, serviceToken);
 
-		Resource resource = getResource(resourceUUID);
 		newPrivileges.forEach(newPrivilege -> {
 			Privilege newDatabasePrivilege = new Privilege(resource);
 			newDatabasePrivilege.setAction(racmUtil.findAction(resource, newPrivilege.getActionName()));

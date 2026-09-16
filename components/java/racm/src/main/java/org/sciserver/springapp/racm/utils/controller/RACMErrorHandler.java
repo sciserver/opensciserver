@@ -38,6 +38,13 @@ public class RACMErrorHandler extends ResponseEntityExceptionHandler {
 				"Unknown error", Optional.ofNullable(up), exception, status);
 	}
 
+	@ExceptionHandler(ResourceContextNotFoundException.class)
+	public ResponseEntity<JsonNode> handleResourceContextNotFound(ResourceContextNotFoundException ex) {
+		return jsonAPIHelper.logAndReturnJsonExceptionEntity(
+				"ResourceContext not found or not readable by this user",
+				Optional.empty(), ex, HttpStatus.NOT_FOUND);
+	}
+
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<JsonNode> handleResourceNotFound(ResourceNotFoundException ex) {
 		return jsonAPIHelper.logAndReturnJsonExceptionEntity(

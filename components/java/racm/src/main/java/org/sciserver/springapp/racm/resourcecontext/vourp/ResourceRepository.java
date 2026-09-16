@@ -25,6 +25,8 @@ import org.sciserver.springapp.racm.resourcecontext.domain.Resource;
 import org.sciserver.springapp.racm.storem.application.RegistrationInvalidException;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
+import org.sciserver.springapp.racm.utils.controller.ResourceContextNotFoundException;
+import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 
@@ -44,20 +46,117 @@ public class ResourceRepository {
         this.vourpContext = vourpContext;
     }
 
-    public Resource add(Resource resource, String serviceToken) throws NotAuthorizedException {
+    // # BEHAVIOR CHANGE NOTES
+    // ## `ResourceRepository.add`
+    //
+    // ```
+    // previous behavior:
+    //   case 1: resource == null -> NullPointerException
+    //   case 2: resource != null AND resource is transient -> add to database and return
+    //   case 3: resource != null AND resource is not transient -> update in database and return
+    // 
+    //   also note that in the case of existing resource:
+    //   1. it did not enforce that resource was actually contained in the resource context specified by
+    //   resource.resourceContextUUID()
+    //   2. it allowed the resource type to be changed, which resulted in undefined behavior
+    // new behavior:
+    //   case 1 -> ResourceNotFoundException
+    //   case 2 -> IllegalArgumentException
+    //   case 3 -> add to database and return
+    //
+    //   also now in the case of existing resource:
+    //   1. it enforces that resource is contained in the resource context specified by resource.resourceContextUUID()
+    //   2. it does not allow the resource type to be changed, which results in RegistrationInvalidException
+    //
+    // why:
+    // explicit distinction between add and update is clearer and easier to reason about
+    // ```
+    //
+    // ## `ResourceRepository.update`
+    //
+    // added to support decoupling of add and update
+    //
+    // ## `ResourceRepository.copyAndPersist`
+    //
+    // added to support decoupling of add and update
+    //
+    // ## `ResourceRepository.delete`
+    //
+    // ```
+    // prior behavior:
+    // delete previously did not guarantee that the retrieved edu.jhu.rac.Resource
+    // was indeed contained by the retrieved edu.jhu.rac.ResourceContext.
+    //
+    // it:
+    // - fetched rc by resource.resourceContextUUID()
+    // - fetched r by resource.uuid()
+    //
+    // it did not:
+    // - ensure that r.getContainer().getUuid() == resource.resourceContextUUID()
+    //
+    // new behavior:
+    // it now:
+    // - fetches r by resource.uuid() and rc by resource.resourceContextUUID()
+    // - ensures that r.container.uuid == rc.uuid
+    // - checks serviceToken against rc's serviceToken in the query
+    // ```
+    //
+    // ## `ResourceRepository.queryResourceContextCheckToken`
+    //
+    // ```
+    // previous behavior:
+    //   case 1: rc == null -> NullPointerException
+    //   case 2: rc != null AND account == null -> return rc
+    //   case 3: rc != null AND account != null AND account matches token -> return rc
+    //   case 4: rc != null AND account != null AND account does not match token -> NotAuthorizedException
+    //
+    // new behavior:
+    //   case 1 -> ResourceContextNotFoundException
+    //   case 2 -> NotAuthorizedException
+    //   case 3 -> return rc
+    //   case 4 -> NotAuthorizedException
+    // ```
+    //
+    // ## `ResourceRepository.queryResourceCheckToken`
+    // 
+    // added to ensure that the resource is contained in the resource context specified by resource.resourceContextUUID()
+
+
+    public Resource add(Resource resource, String serviceToken) throws NotAuthorizedException, ResourceContextNotFoundException {
+        if (resource == null)
+            throw new ResourceNotFoundException("Resource (null) not found.");
+    
+        if (!resource.isTransient())
+            throw new IllegalArgumentException("Resource is not transient, cannot add to database.");
+
         edu.jhu.rac.ResourceContext rc = queryResourceContextCheckToken(resource.resourceContextUUID(), serviceToken);
         
         edu.jhu.rac.ResourceType selectedType = rc.getContextClass().getResourceType().stream()
                 .filter(rt -> rt.getName().equals(resource.resourceTypeName())).findAny()
                 .orElseThrow(() -> new RegistrationInvalidException("Could not find resource type"));
 
-        edu.jhu.rac.Resource newResource = resource.isTransient() ? RACMUtil.newResource(rc)
-                : getFromDatabase(resource.uuid());
+        edu.jhu.rac.Resource newResource = RACMUtil.newResource(rc);
+        newResource.setResourceType(selectedType);
+    
+        return copyAndPersist(resource, newResource, serviceToken);
+    }
+
+    public Resource update(Resource resource, String serviceToken) throws NotAuthorizedException, ResourceContextNotFoundException {
+        edu.jhu.rac.Resource newResource = queryResourceCheckToken(resource, serviceToken);
+
+        if (!newResource.getResourceType().getName().equals(resource.resourceTypeName()))
+            throw new RegistrationInvalidException("Resource type cannot be changed.");
+
+        return copyAndPersist(resource, newResource, serviceToken);
+    }
+
+    private Resource copyAndPersist(Resource resource, edu.jhu.rac.Resource newResource, String serviceToken) throws NotAuthorizedException, ResourceNotFoundException, ResourceContextNotFoundException {
+        if (newResource == null)
+            throw new ResourceNotFoundException("Resource (null) not found.");
 
         newResource.setName(resource.name());
         newResource.setDescription(resource.description());
         newResource.setPublisherDID(resource.publisherDID());
-        newResource.setResourceType(selectedType);
         newResource.setAssociatedResource(resource.associatedResources().stream().map(ar -> {
             edu.jhu.rac.AssociatedResource databaseAr = new edu.jhu.rac.AssociatedResource(newResource);
             databaseAr.setResource(getFromDatabase(ar.resourceUUID()));
@@ -72,7 +171,7 @@ public class ResourceRepository {
             databaseAe.setSciEntity(getSciserverEntityFromDatabase(ae.entityId()));
             return databaseAe;
         }).collect(toList()));
-        persistUncheckingException(rc.getTom());
+        persistUncheckingException(newResource.getContainer().getTom());
         return convertFromDatabase(newResource);
     }
 
@@ -89,11 +188,11 @@ public class ResourceRepository {
      * @param resource
      * @param serviceToken
      */
-
-    public void delete(Resource resource, String serviceToken) throws NotAuthorizedException {
-        edu.jhu.rac.ResourceContext rc = queryResourceContextCheckToken(resource.resourceContextUUID(), serviceToken);
+    public void delete(Resource resource, String serviceToken) throws NotAuthorizedException, ResourceContextNotFoundException, ResourceNotFoundException {
+        edu.jhu.rac.Resource r = queryResourceCheckToken(resource, serviceToken);
+        edu.jhu.rac.ResourceContext rc = r.getContainer();
         TransientObjectManager tom = rc.getTom();
-        edu.jhu.rac.Resource r = getFromDatabase(resource.uuid());
+
         for (AssociatedSciEntity e : r.getAssociatedGroup()) {
             if (e.getOwnership() == OwnershipCategory.OWNED) {
                 if (e.getSciEntity() instanceof UserGroup) {
@@ -130,8 +229,11 @@ public class ResourceRepository {
                 ResourceContext.class);
     }
 
-    public ServiceResourceFromUserPerspectiveModel convertServiceResourceFromDatabase(
-            edu.jhu.rac.Resource databaseResource, String username, Set<ActionModel> allowedActions) {
+    private ServiceResourceFromUserPerspectiveModel convertServiceResourceFromDatabase(
+        edu.jhu.rac.Resource databaseResource, String username, Set<ActionModel> allowedActions) {
+        if(databaseResource == null)
+            return null;
+
         ServiceResourceFromUserPerspectiveModel model = new ServiceResourceFromUserPerspectiveModel(
                 databaseResource.getId().longValue(), databaseResource.getPublisherDID(), databaseResource.getUuid(),
                 databaseResource.getName(), databaseResource.getDescription(),
@@ -170,6 +272,9 @@ public class ResourceRepository {
     }
 
     private Resource convertFromDatabase(edu.jhu.rac.Resource databaseResource) {
+        if (databaseResource == null)
+            return null;
+
         return Resource.createFromExisting(databaseResource.getId(), databaseResource.getUuid(),
                 databaseResource.getContainer().getUuid(), databaseResource.getPublisherDID(),
                 databaseResource.getName(), databaseResource.getDescription(),
@@ -254,20 +359,12 @@ public class ResourceRepository {
     }
 
     public Resource get(String resourceUUID) {
-        edu.jhu.rac.Resource databaseResource = getFromDatabase(resourceUUID);
-        if(databaseResource == null)
-            return null;
-        return convertFromDatabase(databaseResource);
+        return convertFromDatabase(getFromDatabase(resourceUUID));
     }
 
     public ServiceResourceFromUserPerspectiveModel toServiceResourceFromUserPerspectiveModel(String resourceUUID,
             String username, Set<ActionModel> actions) {
-        edu.jhu.rac.Resource databaseResource = getFromDatabase(resourceUUID);
-        if(databaseResource == null)
-            return null;
-        ServiceResourceFromUserPerspectiveModel model = convertServiceResourceFromDatabase(databaseResource, username,
-                actions);
-        return model;
+        return convertServiceResourceFromDatabase(getFromDatabase(resourceUUID), username, actions);
     }
 
     private edu.jhu.rac.Resource getFromDatabase(String resourceUUID) {
@@ -284,10 +381,43 @@ public class ResourceRepository {
 
     private ResourceContext queryResourceContextCheckToken(String resourceContextUUID, String serviceToken) {
         edu.jhu.rac.ResourceContext rc = getResourceContext(resourceContextUUID);
-        if (rc.getAccount() != null && !rc.getAccount().getServiceToken().equals(serviceToken))
-            throw new NotAuthorizedException();
-        return rc;
 
+        if(rc == null)
+            throw new ResourceContextNotFoundException(resourceContextUUID);
+
+        if(rc.getAccount() == null || !rc.getAccount().getServiceToken().equals(serviceToken))
+            throw new NotAuthorizedException();
+
+        return rc;
     }
 
+    private edu.jhu.rac.Resource queryResourceCheckToken(Resource resource, String serviceToken) {
+        if (resource == null)
+            throw new ResourceNotFoundException("Resource (null) not found.");
+
+        TransientObjectManager tom = vourpContext.newTOM();
+        edu.jhu.rac.Resource databaseResource = tom.queryOne(
+            tom.createQuery(
+                "SELECT r FROM Resource r "
+                + "JOIN FETCH r.container "
+                + "WHERE r.uuid = :uuid "
+                + "AND r.container.uuid = :rcuuid "
+                + "AND r.container.account.serviceToken = :token"
+            ).setParameter("uuid", resource.uuid())
+            .setParameter("rcuuid", resource.resourceContextUUID())
+            .setParameter("token", serviceToken),
+            edu.jhu.rac.Resource.class
+        );
+
+        if (databaseResource != null)
+            return databaseResource;
+
+        queryResourceContextCheckToken(resource.resourceContextUUID(), serviceToken);
+
+        throw new ResourceNotFoundException(
+            "Resource with UUID = '" + resource.uuid()
+            + "' not found in ResourceContext with UUID = '"
+            + resource.resourceContextUUID() + "'."
+        );
+    }
 }

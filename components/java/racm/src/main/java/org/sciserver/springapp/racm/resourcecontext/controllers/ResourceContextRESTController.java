@@ -70,7 +70,7 @@ public class ResourceContextRESTController {
 			@PathVariable("resourceUUID") String resourceUUID,
 			@RequestParam(name = "name", required=false) String name,
 			@RequestParam(name = "description", required=false) String description) {
-		resourceContextAuthentication.verifyCorrectToken(resourceContextUUID, serviceToken);
+		resourceContextAuthentication.verifyCorrectTokenForResource(resourceContextUUID, resourceUUID, serviceToken);
 
 		try {
 			resourceManager.editResourceMetadata(resourceUUID, name, description, up.getTom());
@@ -121,11 +121,12 @@ public class ResourceContextRESTController {
 			@PathVariable("resourceContextUUID") String resourceContextUUID,
 			@PathVariable("resourceUUID") String resourceUUID,
 			@RequestBody AssociatedResourceModel associatedResourceModel) {
+		resourceContextAuthentication.verifyCorrectTokenForResource(resourceContextUUID, resourceUUID, serviceToken);
 		Resource resource = repo.get(resourceUUID);
 
 		resource.addAssociationWithResource(
 				mapper.toDomainModel(associatedResourceModel));
-		repo.add(resource, serviceToken);
+		repo.update(resource, serviceToken);
 	}
 
 	@PostMapping("resource/{resourceUUID}/associatedSciserverEntity")
@@ -135,11 +136,12 @@ public class ResourceContextRESTController {
 			@PathVariable("resourceContextUUID") String resourceContextUUID,
 			@PathVariable("resourceUUID") String resourceUUID,
 			@RequestBody AssociatedSciserverEntityModel associatedSciserverEntityModel) {
+		resourceContextAuthentication.verifyCorrectTokenForResource(resourceContextUUID, resourceUUID, serviceToken);
 		Resource resource = repo.get(resourceUUID);
 
 		resource.addAssociationWithSciserverEntity(
 				mapper.toDomainModel(associatedSciserverEntityModel));
-		repo.add(resource, serviceToken);
+		repo.update(resource, serviceToken);
 	}
 
 	@DeleteMapping("resource/{resourceUUID}")
@@ -148,6 +150,7 @@ public class ResourceContextRESTController {
 			@RequestHeader(SERVICE_TOKEN_HEADER) String serviceToken,
 			@PathVariable("resourceContextUUID") String resourceContextUUID,
 			@PathVariable("resourceUUID") String resourceUUID) {
+		resourceContextAuthentication.verifyCorrectTokenForResource(resourceContextUUID, resourceUUID, serviceToken);
 		Resource resource = repo.get(resourceUUID);
 		repo.delete(resource, serviceToken);
 	}

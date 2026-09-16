@@ -10,6 +10,29 @@ cd components/java
 ./gradlew :racm:modelJar && ./gradlew :racm:build
 ```
 
+## Repository Integration Tests
+
+From `components/java`, using JDK 17:
+
+```sh
+./gradlew :racm:test --tests '*ResourceRepositoryIntegrationTests'
+```
+
+These tests also run as part of `:racm:test` and `:racm:build`. They use the
+production EclipseLink entity mappings, JPQL queries and TransientObjectManager
+against an isolated in-memory H2 database. No Kubernetes cluster, credentials,
+SQL Server installation or Docker daemon is required.
+
+Coverage includes creation, updates, both association kinds, deletion, context
+isolation, service-token checks, resource-type immutability and missing inputs.
+Stored-state assertions commit and reload through a fresh EntityManager.
+
+The fixture uses production's COMMIT flush mode but manages transactions
+explicitly, without AspectJ transaction weaving. It does not verify production
+transaction timing (including numeric IDs returned before commit), HTTP/security
+filters, SQL Server collation, or Flyway migrations. Those require separate
+deployment-level tests.
+
 ## Running Locally
 
 RACM can be run locally via the Spring Boot main class
