@@ -1,10 +1,13 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
+import { useLazyQuery } from '@apollo/client';
+import Swal from 'sweetalert2';
 import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams } from '@mui/x-data-grid';
 import { Delete as DeleteIcon, PlayArrow as PlayArrowIcon } from '@mui/icons-material';
 
-import { Container } from 'src/graphql/typings';
+import { Container, UserVolume } from 'src/graphql/typings';
+import { VOLUMES_CONTAINER_DETAIL_VIEW } from 'src/graphql/containers';
 import { Tooltip } from '@mui/material';
 
 const Styled = styled.div`
@@ -47,6 +50,9 @@ type Props = {
 export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer }) => {
   const router = useRouter();
 
+  const [getContainerDetail] = useLazyQuery(VOLUMES_CONTAINER_DETAIL_VIEW);
+  const [pendingContainerId, setPendingContainerId] = useState<GridRowId | null>(null);
+
   // TODO: implement delete container mutation and logic
   const deleteContainer = useCallback(
     (id: GridRowId) => () => {
@@ -55,20 +61,50 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
     []);
 
   const runContainer = useCallback(
-    (params: GridRowParams<Container>) => () => {
-      const domainName = params.row.domainName;
+    (params: GridRowParams<Container>) => async () => {
       const imageName = params.row.imageName;
       const dataVolumes = params.row.dataVolumes;
       const userVolumes = params.row.userVolumes;
-      let url = `/compute/run?dom=${domainName}&img=${imageName}`;
-      if (dataVolumes.length) {
-        url += `&dvs=${dataVolumes.map(dv => dv.publisherDID)}`;
+
+      setPendingContainerId(params.id);
+      try {
+        const { data } = await getContainerDetail({
+          variables: {
+            containerDetailParams: {
+              domainId: params.row.domainID,
+              dataVolumeIds: dataVolumes.map(dv => dv.publisherDID),
+              userVolumeIds: userVolumes
+            }
+          }
+        });
+
+        let url = `/compute/run?dom=${params.row.domainID}&img=${imageName}`;
+        if (dataVolumes.length) {
+          url += `&dvs=${dataVolumes.map(dv => dv.publisherDID)}`;
+        }
+        if (userVolumes.length) {
+          // The scratch and persistent User Volumes are auto-injected into every
+          // container, so they're excluded here to match the graphql-side behavior.
+          const nonDefaultUVs = ((data?.getContainerDetail?.userVolumes ?? []) as UserVolume[])
+            .filter(uv => uv.name !== 'persistent' && uv.name !== 'scratch')
+            .map(uv => uv.id);
+          if (nonDefaultUVs.length) {
+            url += `&uvs=${nonDefaultUVs}`;
+          }
+        }
+        router.push(url);
       }
-      if (userVolumes.length) {
-        url += `&uvs=${userVolumes.map(uv => uv)}`;
+      catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error running container',
+          text: error instanceof Error ? error.message : 'Something went wrong while preparing this session.'
+        });
       }
-      router.push(url);
-    }, [router]);
+      finally {
+        setPendingContainerId(null);
+      }
+    }, [router, getContainerDetail]);
 
   const columns: GridColDef<Container>[] = [
     {
@@ -124,6 +160,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
             </Tooltip>
           }
           label="Run"
+          disabled={pendingContainerId === params.id}
           onClick={runContainer(params)}
         />,
         // NOTE: Delete action is currently hidden until the delete container 
