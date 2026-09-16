@@ -108,17 +108,12 @@ export class ContainersAPI extends RESTDataSource {
 
   // Additional Methods
   async getContainer(containerParams: ContainerParams): Promise<Container | undefined> {
-    const domain = await this.domainsAPI.getDomainByPublisherDID(containerParams.domainId);
-    const resUser = await this.accountsAPI.getUser();
-    const defaultUserVolumeIds = this.getDefaultUserVolumeIds(domain, resUser.userName);
-
     const containers = await this.getContainers();
     const container = containers.find(c => {
       const imageNameMatch = c.imageName === containerParams.imageName;
       const domainMatch = c.domainID.toString() === containerParams.domainId;
       const dataVolumesMatch = containerParams.dataVolumeIds.every(dvReq => (c.dataVolumes.map(dv => dv.publisherDID) as string[]).includes(dvReq));
-      const requestedUserVolumeIds = containerParams.userVolumeIds.filter(uvReq => !defaultUserVolumeIds.includes(uvReq));
-      const userVolumesMatch = requestedUserVolumeIds.every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq));
+      const userVolumesMatch = containerParams.userVolumeIds.every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq));
 
       return imageNameMatch && domainMatch && dataVolumesMatch && userVolumesMatch;
     });
