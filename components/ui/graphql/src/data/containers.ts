@@ -61,7 +61,7 @@ export class ContainersAPI extends RESTDataSource {
     const container = await this.getContainer(containerParams);
 
     if (!container) {
-      const resDomain = await this.domainsAPI.getDomainByID(containerParams.domainId);
+      const resDomain = await this.domainsAPI.getDomainByPublisherDID(containerParams.domainId);
       const volumes = await this.getVolumeReqs(containerParams, resDomain);
 
       try {
@@ -88,7 +88,7 @@ export class ContainersAPI extends RESTDataSource {
   }
 
   async getContainerDetail({ domainId, dataVolumeIds, userVolumeIds }: ContainerDetailParams): Promise<ContainerDetail> {
-    const resDomain = await this.domainsAPI.getDomainByID(domainId);
+    const resDomain = await this.domainsAPI.getDomainByPublisherDID(domainId);
 
     return this.containerDetailReducer(resDomain, dataVolumeIds, userVolumeIds);
   }
@@ -108,7 +108,7 @@ export class ContainersAPI extends RESTDataSource {
 
   // Additional Methods
   async getContainer(containerParams: ContainerParams): Promise<Container | undefined> {
-    const domain = await this.domainsAPI.getDomainByID(containerParams.domainId);
+    const domain = await this.domainsAPI.getDomainByPublisherDID(containerParams.domainId);
     const resUser = await this.accountsAPI.getUser();
     const defaultUserVolumeIds = this.getDefaultUserVolumeIds(domain, resUser.userName);
 
