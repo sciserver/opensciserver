@@ -144,7 +144,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
     {
       field: 'createdAt',
       headerName: 'Created',
-      type: 'date',
+      type: 'dateTime',
       flex: 0.6,
       valueGetter: (value) => new Date(value)
     },
