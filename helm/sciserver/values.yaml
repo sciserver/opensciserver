@@ -467,6 +467,7 @@ web:
   newJobDefaults:
     domainName: "Small Jobs Domain"
     imageName: "SciServer Essentials 4.0"
+  globusEnabled: true
   resources:
     limits:
       cpu: 500m
