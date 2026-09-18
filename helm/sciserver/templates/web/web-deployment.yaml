@@ -54,9 +54,13 @@ spec:
             - name: NEXT_PUBLIC_BASE_PATH
               value: '/{{ include "sciserver.prefix" . }}web'
             - name: NEXT_PUBLIC_COMPUTE_USER_INACTIVITY_TIMEOUT
-              value: '2400000'
+              {{- /* 90% of the compute-side reaper timeout, in milliseconds, so
+                     the UI warns before the container is actually removed. The
+                     remaining 10% must leave room for at least one ping
+                     interval of lateness. */}}
+              value: '{{ mul 900 .Values.compute.sessionInactiveTimeoutSecs }}'
             - name: NEXT_PUBLIC_COMPUTE_PING_INTERVAL
-              value: '300000'
+              value: '{{ mul 1000 .Values.compute.sessionPingIntervalSecs }}'
             - name: NEXT_PUBLIC_LANDING_ROUTE
               value: '/datasets'
             - name: NEXT_PUBLIC_NEW_SESSION_DOMAIN_NAME_DEFAULT

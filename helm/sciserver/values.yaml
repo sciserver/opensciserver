@@ -327,6 +327,17 @@ compute:
     requests:
       cpu: 100m
       memory: 128Mi
+  # For session based compute, clean up running containers after this many
+  # seconds of inactivity (based on pings).
+  # Warning: Given the ping and cleanup task timings, and that this relates to
+  # real user activity, values below 600 seconds do not make much sense. Values
+  # are also imprecise, as the cleanup occurs at a fixed interval.
+  sessionInactiveTimeoutSecs: 3600
+  # How often the web UI checks for user activity and, if the user is active,
+  # pings the session container to keep it alive. This is the granularity of
+  # activity tracking, so it should stay well below
+  # sessionInactiveTimeoutSecs.
+  sessionPingIntervalSecs: 300
 
 computeDb:
   image:
