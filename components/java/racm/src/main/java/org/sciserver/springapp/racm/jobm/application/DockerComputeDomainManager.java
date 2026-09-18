@@ -24,11 +24,13 @@ import org.sciserver.springapp.racm.resources.application.ContextClassManager;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.RACMNames;
 import org.sciserver.springapp.racm.utils.RACMUtil;
+import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import edu.jhu.job.ComputeResource;
 import edu.jhu.job.DockerComputeDomain;
 import edu.jhu.job.DockerImage;
+import edu.jhu.job.RootVolumeOnComputeDomain;
 import edu.jhu.job.VolumeContainer;
 import edu.jhu.rac.ContextClass;
 import edu.jhu.rac.Resource;
@@ -104,6 +106,86 @@ public class DockerComputeDomainManager {
             return createDockerComputeDomain(model, up, admins);
     }
 
+    /**
+     * Attach one root volume to the identified docker compute domain.
+     *
+     * <p>Transaction outside the method, i.e. this method does not persist the TOM.
+     *
+     * @param racmUUID uuid of the compute domain's resource context
+     * @param rvm the root volume to attach
+     * @param up the calling user
+     * @return the newly created RootVolumeOnComputeDomain, already attached to the domain
+     * @throws VOURPException if the user is not authorized or the request is invalid
+     */
+    public RootVolumeOnComputeDomain addRootVolume(String racmUUID,
+            RootVolumeOnComputeDomainModel rvm, UserProfile up) throws VOURPException {
+        TransientObjectManager tom = up.getTom();
+
+        DockerComputeDomain dcd = queryDockerComputeDomainForUUID(racmUUID, tom);
+        if (dcd == null)
+            throw new ResourceNotFoundException(
+                    String.format("No docker compute domain with racmUUID %s", racmUUID));
+
+        if (!jobmAccessControl.canAddRootVolume(up, dcd))
+            throw new VOURPException(VOURPException.UNAUTHORIZED, String.format(
+                    "User %s is not authorized to add a root volume to the compute domain with apiEndpoint '%s'",
+                    up.getUsername(), dcd.getApiEndpoint()));
+
+        validateNewRootVolume(dcd, rvm);
+
+        return jobmModelFactory.newRootVolumeOnComputeDomain(rvm, dcd);
+    }
+
+    private void validateNewRootVolume(DockerComputeDomain dcd,
+            RootVolumeOnComputeDomainModel rvm) throws VOURPException {
+        // id is assigned by RACM; supplying one is a client error, not something to ignore
+        if (rvm.getId() != null)
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
+                    "id must not be supplied when creating a root volume on a compute domain; "
+                            + "it is assigned by RACM");
+
+        if (rvm.getRootVolumeId() == null)
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "rootVolumeId is required");
+        if (isBlank(rvm.getPathOnCD()))
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "pathOnCD is required");
+        if (isBlank(rvm.getDisplayName()))
+            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "displayName is required");
+
+        // publisherDID is deliberately NOT validated. It belongs to the publisher, nothing in RACM
+        // looks this entity up by it, and duplicates may be intentional.
+
+        // getRootVolume() returns null, not an empty list, when nothing was ever attached
+        if (dcd.getRootVolume() == null)
+            return;
+
+        String path = rvm.getPathOnCD().trim();
+        String displayName = rvm.getDisplayName().trim();
+
+        for (RootVolumeOnComputeDomain existing : dcd.getRootVolume()) {
+            if (existing.getRootVolume() != null
+                    && rvm.getRootVolumeId().equals(existing.getRootVolume().getId()))
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
+                        "Root volume %d is already mounted on this compute domain at '%s'",
+                        rvm.getRootVolumeId(), existing.getPath()));
+
+            if (path.equals(trimOrNull(existing.getPath())))
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
+                        "Path '%s' is already in use on this compute domain", path));
+
+            if (displayName.equalsIgnoreCase(trimOrNull(existing.getDisplayName())))
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
+                        "Display name '%s' is already in use on this compute domain", displayName));
+        }
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String trimOrNull(String s) {
+        return s == null ? null : s.trim();
+    }
+
     private DockerComputeDomain queryDockerComputeDomainForEndpoint(String endpoint,
             TransientObjectManager tom) {
         Query q = tom
@@ -121,7 +203,7 @@ public class DockerComputeDomainManager {
         return tom.queryOne(q, DockerComputeDomain.class);
     }
 
-    private DockerComputeDomain queryDockerComputeDomainForUUID(String uuid,
+    DockerComputeDomain queryDockerComputeDomainForUUID(String uuid,
             TransientObjectManager tom) {
         // TODO should we check that user is allowed to see the compute domain? or
         // can everyone see it?
