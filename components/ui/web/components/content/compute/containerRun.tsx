@@ -157,12 +157,12 @@ export const ContainerRun: FC = ({ }) => {
 
   // Listening for errors in the getContainerID query
   useEffect(() => {
-    if (errorContainerID) {
+    if (errorContainerID && !errorContainerID.message.toLowerCase().includes('401: unauthorized')) {
       Swal.fire({
         icon: 'error',
         title: 'Error creating container',
         text: errorContainerID.message
-      }).catch(Error);
+      }).then(() => {}).catch(Error);
     }
   }, [errorContainerID]);
 
