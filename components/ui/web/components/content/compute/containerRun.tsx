@@ -63,7 +63,13 @@ export const ContainerRun: FC = ({ }) => {
 
   // Graphql calls and data
   const [getContainerID, { loading: loadingContainerID, data: dataContainerID, error: errorContainerID }] =
-    useLazyQuery(GET_CONTAINER_ID);
+    useLazyQuery(GET_CONTAINER_ID, {
+      onError: (error) => {
+        if (error.message.toLowerCase().includes('401: unauthorized')) {
+          router.push(`/login?callbackURL=${encodeURIComponent(router.asPath)}`);
+        }
+      }
+    });
   const [pingContainer] = useLazyQuery(PING_CONTAINER, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' });
 
   // Context Management
@@ -151,12 +157,12 @@ export const ContainerRun: FC = ({ }) => {
 
   // Listening for errors in the getContainerID query
   useEffect(() => {
-    if (errorContainerID) {
+    if (errorContainerID && !errorContainerID.message.toLowerCase().includes('401: unauthorized')) {
       Swal.fire({
         icon: 'error',
         title: 'Error creating container',
         text: errorContainerID.message
-      });
+      }).then(() => {}).catch(Error);
     }
   }, [errorContainerID]);
 
