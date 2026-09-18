@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -6,6 +6,7 @@ import Link from 'next/link';
 import styled from 'styled-components';
 import { Box, Button, CircularProgress, Divider, TextField } from '@mui/material';
 
+import { UserContext } from 'context';
 import { LOGIN } from 'src/graphql/accounts';
 import { AuthService } from 'src/services/AuthService';
 
@@ -86,6 +87,8 @@ export const Login: FC = () => {
 
   const router = useRouter();
 
+  const { setToken, setIsAuthenticated } = useContext(UserContext);
+
   const [callback, setCallback] = useState<string>('');
 
   const [height, setHeight] = useState<number>(0);
@@ -136,6 +139,8 @@ export const Login: FC = () => {
 
     const handleLogin = async () => {
       await AuthService.login(data.login);
+      setToken(data.login);
+      setIsAuthenticated(true);
 
       if (callback.length) {
         router.push(callback);

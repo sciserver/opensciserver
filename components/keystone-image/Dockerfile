@@ -1,9 +1,9 @@
-FROM python:3.9-bullseye
+FROM python:3.11-trixie
 
 ENV SERVER_VERSION=26.0.0
 
 RUN apt-get -y update \
-    && apt-get install -y libev-dev libffi-dev python-dev libssl-dev default-mysql-client memcached \
+    && apt-get install -y libev-dev libffi-dev libssl-dev default-mysql-client memcached \
     && apt-get -y clean
 
 COPY requirements.txt /opt/keystone-requirements.txt
@@ -18,6 +18,9 @@ RUN git clone -b ${SERVER_VERSION} https://github.com/openstack/keystone.git /op
     && pip install python-memcached \
     && pip install uwsgi \
     && rm -rf /opt/keystone
+
+RUN python -c 'import ssl; print(ssl.OPENSSL_VERSION); import keystone' \
+    && keystone-manage --help >/dev/null
 
 COPY keystone.conf /etc/keystone/keystone.conf
 COPY logging.conf /etc/keystone/logging.conf
