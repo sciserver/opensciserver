@@ -63,7 +63,13 @@ export const ContainerRun: FC = ({ }) => {
 
   // Graphql calls and data
   const [getContainerID, { loading: loadingContainerID, data: dataContainerID, error: errorContainerID }] =
-    useLazyQuery(GET_CONTAINER_ID);
+    useLazyQuery(GET_CONTAINER_ID, {
+      onError: (error) => {
+        if (error.message.toLowerCase().includes('401: unauthorized')) {
+          router.push(`/login?callbackURL=${encodeURIComponent(router.asPath)}`);
+        }
+      }
+    });
   const [pingContainer] = useLazyQuery(PING_CONTAINER, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' });
 
   // Context Management
@@ -156,10 +162,6 @@ export const ContainerRun: FC = ({ }) => {
         icon: 'error',
         title: 'Error creating container',
         text: errorContainerID.message
-      }).then(() => {
-        if (errorContainerID.message.includes('401: Unauthorized')) {
-          router.push(`/login?callbackURL=${encodeURIComponent(router.asPath)}`);
-        }
       }).catch(Error);
     }
   }, [errorContainerID]);
