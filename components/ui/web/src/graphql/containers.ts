@@ -48,6 +48,7 @@ export const VOLUMES_CONTAINER_DETAIL_VIEW = gql`
         id
         name
         owner
+        rootVolumeName
       }
     }
   }

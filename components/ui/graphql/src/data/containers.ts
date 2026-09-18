@@ -5,6 +5,7 @@ import { GraphQLError } from 'graphql';
 
 import { environment } from '../environment';
 import { Container, ContainerDetail, ContainerDetailParams, ContainerParams, ContainerStatus, Domain } from '../generated/typings';
+import { getDefaultUserVolumeIds } from '../utils/userVolumes';
 import { DomainsAPI } from './domains';
 import { VolumesAPI } from './volumes';
 import { AccountsAPI } from './accounts';
@@ -121,18 +122,6 @@ export class ContainersAPI extends RESTDataSource {
     return container;
   }
 
-  // The scratch and persistent User Volumes are auto-injected into every container
-  // regardless of whether they were explicitly requested, so they must be excluded
-  // when matching an existing container against requested User Volumes.
-  getDefaultUserVolumeIds(domain: Domain, userName: string): string[] {
-    return domain.userVolumes
-      .filter(r => (
-        (r.name === 'persistent' && r.rootVolumeName === 'Storage') ||
-        (r.name === 'scratch' && r.rootVolumeName === 'Temporary'))
-        && r.owner === userName)
-      .map(r => r.id.toString());
-  }
-
   async getVolumeReqs(containerParams: ContainerParams, domain: Domain) {
     // Check if User has access to requested User and Data Volumes
     // If not throw Error
@@ -142,7 +131,7 @@ export class ContainersAPI extends RESTDataSource {
     }
 
     const resUser = await this.accountsAPI.getUser();
-    const defaultUserVolumeIds = this.getDefaultUserVolumeIds(domain, resUser.userName);
+    const defaultUserVolumeIds = getDefaultUserVolumeIds(domain, resUser.userName);
 
     const userVolumes = [];
     const dataVolumes = [];

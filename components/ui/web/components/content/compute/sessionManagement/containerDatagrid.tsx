@@ -8,6 +8,8 @@ import { Delete as DeleteIcon, PlayArrow as PlayArrowIcon } from '@mui/icons-mat
 
 import { Container, UserVolume } from 'src/graphql/typings';
 import { VOLUMES_CONTAINER_DETAIL_VIEW } from 'src/graphql/containers';
+import { GET_USER } from 'src/graphql/accounts';
+import { getDefaultUserVolumeIds } from 'src/utils/userVolumes';
 import { Tooltip } from '@mui/material';
 
 const Styled = styled.div`
@@ -51,6 +53,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
   const router = useRouter();
 
   const [getContainerDetail] = useLazyQuery(VOLUMES_CONTAINER_DETAIL_VIEW);
+  const [getUser] = useLazyQuery(GET_USER);
   const [pendingContainerId, setPendingContainerId] = useState<GridRowId | null>(null);
 
   // TODO: implement delete container mutation and logic
@@ -68,25 +71,28 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
 
       setPendingContainerId(params.id);
       try {
-        const { data } = await getContainerDetail({
-          variables: {
-            containerDetailParams: {
-              domainId: params.row.domainID,
-              dataVolumeIds: dataVolumes.map(dv => dv.publisherDID),
-              userVolumeIds: userVolumes
+        const [{ data }, { data: userData }] = await Promise.all([
+          getContainerDetail({
+            variables: {
+              containerDetailParams: {
+                domainId: params.row.domainID,
+                dataVolumeIds: dataVolumes.map(dv => dv.publisherDID),
+                userVolumeIds: userVolumes
+              }
             }
-          }
-        });
+          }),
+          getUser()
+        ]);
 
         let url = `/compute/run?dom=${params.row.domainID}&img=${imageName}`;
         if (dataVolumes.length) {
           url += `&dvs=${dataVolumes.map(dv => dv.publisherDID)}`;
         }
         if (userVolumes.length) {
-          // The scratch and persistent User Volumes are auto-injected into every
-          // container, so they're excluded here to match the graphql-side behavior.
-          const nonDefaultUVs = ((data?.getContainerDetail?.userVolumes ?? []) as UserVolume[])
-            .filter(uv => uv.name !== 'persistent' && uv.name !== 'scratch')
+          const detailUVs = (data?.getContainerDetail?.userVolumes ?? []) as UserVolume[];
+          const defaultUVIds = getDefaultUserVolumeIds(detailUVs, userData?.getUser?.userName ?? '');
+          const nonDefaultUVs = detailUVs
+            .filter(uv => !defaultUVIds.includes(uv.id.toString()))
             .map(uv => uv.id);
           if (nonDefaultUVs.length) {
             url += `&uvs=${nonDefaultUVs}`;
@@ -104,7 +110,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
       finally {
         setPendingContainerId(null);
       }
-    }, [router, getContainerDetail]);
+    }, [router, getContainerDetail, getUser]);
 
   const columns: GridColDef<Container>[] = [
     {
