@@ -40,11 +40,15 @@ export const VOLUMES_CONTAINER_DETAIL_VIEW = gql`
         name
         publisherDID
       }
+      domain {
+        name
+      }
       id
       userVolumes {
         id
         name
         owner
+        rootVolumeName
       }
     }
   }

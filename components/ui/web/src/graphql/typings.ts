@@ -50,6 +50,7 @@ export type Container = {
 export type ContainerDetail = {
   __typename?: 'ContainerDetail';
   dataVolumes: Array<DataVolume>;
+  domain: Domain;
   id: Scalars['ID'];
   userVolumes: Array<UserVolume>;
 };
@@ -62,7 +63,7 @@ export type ContainerDetailParams = {
 
 export type ContainerParams = {
   dataVolumeIds: Array<Scalars['ID']>;
-  domainName: Scalars['String'];
+  domainId: Scalars['ID'];
   imageName: Scalars['String'];
   userVolumeIds: Array<Scalars['ID']>;
 };
@@ -604,6 +605,7 @@ export type ContainerResolvers<ContextType = Context, ParentType extends Resolve
 
 export type ContainerDetailResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ContainerDetail'] = ResolversParentTypes['ContainerDetail']> = {
   dataVolumes?: Resolver<Array<ResolversTypes['DataVolume']>, ParentType, ContextType>;
+  domain?: Resolver<ResolversTypes['Domain'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   userVolumes?: Resolver<Array<ResolversTypes['UserVolume']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

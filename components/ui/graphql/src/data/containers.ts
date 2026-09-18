@@ -1,9 +1,11 @@
 /* eslint-disable import/no-cycle */
 import { AugmentedRequest, RESTDataSource } from '@apollo/datasource-rest';
 import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
+import { GraphQLError } from 'graphql';
 
 import { environment } from '../environment';
 import { Container, ContainerDetail, ContainerDetailParams, ContainerParams, ContainerStatus, Domain } from '../generated/typings';
+import { getDefaultUserVolumeIds } from '../utils/userVolumes';
 import { DomainsAPI } from './domains';
 import { VolumesAPI } from './volumes';
 import { AccountsAPI } from './accounts';
@@ -60,28 +62,34 @@ export class ContainersAPI extends RESTDataSource {
     const container = await this.getContainer(containerParams);
 
     if (!container) {
-      const resDomain = await this.domainsAPI.getDomainByName(containerParams.domainName);
+      const resDomain = await this.domainsAPI.getDomainByPublisherDID(containerParams.domainId);
       const volumes = await this.getVolumeReqs(containerParams, resDomain);
 
-      const newContainerIDRes = await this.post(`${this.baseURL}domains/${resDomain.publisherDID}/containers`,
-        {
-          body: {
-            domain: resDomain.publisherDID,
-            dockerImageName: containerParams.imageName,
-            volumeContainers: volumes.dataVolumes,
-            userVolumes: volumes.userVolumes
+      try {
+        const newContainerIDRes = await this.post(`${this.baseURL}domains/${resDomain.publisherDID}/containers`,
+          {
+            body: {
+              domain: resDomain.publisherDID,
+              dockerImageName: containerParams.imageName,
+              volumeContainers: volumes.dataVolumes,
+              userVolumes: volumes.userVolumes
+            }
           }
-        }
-      );
+        );
 
-      return newContainerIDRes;
+        return newContainerIDRes;
+      }
+      catch (error) {
+        console.log('Error creating container', (error as GraphQLError)?.extensions?.response ?? error);
+        throw error;
+      }
     }
 
     return container.id;
   }
 
   async getContainerDetail({ domainId, dataVolumeIds, userVolumeIds }: ContainerDetailParams): Promise<ContainerDetail> {
-    const resDomain = await this.domainsAPI.getDomainByID(domainId);
+    const resDomain = await this.domainsAPI.getDomainByPublisherDID(domainId);
 
     return this.containerDetailReducer(resDomain, dataVolumeIds, userVolumeIds);
   }
@@ -102,11 +110,14 @@ export class ContainersAPI extends RESTDataSource {
   // Additional Methods
   async getContainer(containerParams: ContainerParams): Promise<Container | undefined> {
     const containers = await this.getContainers();
-    const container = containers.find(
-      c => c.imageName === containerParams.imageName && c.domainName === containerParams.domainName
-        && containerParams.dataVolumeIds.every(dvReq => (c.dataVolumes.map(dv => dv.publisherDID) as string[]).includes(dvReq))
-        && containerParams.userVolumeIds.every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq))
-    );
+    const container = containers.find(c => {
+      const imageNameMatch = c.imageName === containerParams.imageName;
+      const domainMatch = c.domainID.toString() === containerParams.domainId;
+      const dataVolumesMatch = containerParams.dataVolumeIds.every(dvReq => (c.dataVolumes.map(dv => dv.publisherDID) as string[]).includes(dvReq));
+      const userVolumesMatch = containerParams.userVolumeIds.every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq));
+
+      return imageNameMatch && domainMatch && dataVolumesMatch && userVolumesMatch;
+    });
 
     return container;
   }
@@ -120,18 +131,14 @@ export class ContainersAPI extends RESTDataSource {
     }
 
     const resUser = await this.accountsAPI.getUser();
+    const defaultUserVolumeIds = getDefaultUserVolumeIds(domain, resUser.userName);
 
     const userVolumes = [];
     const dataVolumes = [];
 
     for (const r of domain.userVolumes) {
       const reqUV = containerParams.userVolumeIds.find(uv => uv === r.id.toString());
-      if (reqUV ||
-        ((
-          (r.name === 'persistent' && r.rootVolumeName === 'Storage') ||
-          (r.name === 'scratch' && r.rootVolumeName === 'Temporary'))
-          && r.owner === resUser.userName)
-      ) {
+      if (reqUV || defaultUserVolumeIds.includes(r.id.toString())) {
         userVolumes.push({ userVolumeId: r.id.toString() });
       }
     }
@@ -178,6 +185,7 @@ export class ContainersAPI extends RESTDataSource {
   containerDetailReducer(domain: Domain, dataVolumeIds: string[], userVolumeIds: string[]): ContainerDetail {
     return {
       id: domain.id,
+      domain,
       dataVolumes: domain.dataVolumes.filter(dv => dataVolumeIds.includes(dv.publisherDID)),
       userVolumes: domain.userVolumes.filter(uv => userVolumeIds.includes(uv.id.toString()))
     };

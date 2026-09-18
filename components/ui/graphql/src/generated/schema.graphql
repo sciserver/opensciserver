@@ -23,6 +23,7 @@ type Container {
 
 type ContainerDetail {
   dataVolumes: [DataVolume!]!
+  domain: Domain!
   id: ID!
   userVolumes: [UserVolume!]!
 }
@@ -35,7 +36,7 @@ input ContainerDetailParams {
 
 input ContainerParams {
   dataVolumeIds: [ID!]!
-  domainName: String!
+  domainId: ID!
   imageName: String!
   userVolumeIds: [ID!]!
 }
