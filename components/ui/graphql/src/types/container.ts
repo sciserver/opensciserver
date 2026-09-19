@@ -21,6 +21,7 @@ export const typeDefs = gql`
 
   type ContainerDetail {
     id: ID!
+    domain: Domain!
     dataVolumes: [DataVolume!]!
     userVolumes: [UserVolume!]!
   }
@@ -32,7 +33,7 @@ export const typeDefs = gql`
 
   input ContainerParams {
     imageName: String!
-    domainName: String!
+    domainId: ID!
     dataVolumeIds: [ID!]!
     userVolumeIds: [ID!]!
   }

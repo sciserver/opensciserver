@@ -7,6 +7,6 @@ export const queryResolvers: QueryResolvers = {
     return dataSources.domainsAPI.getDomains(jobs ?? undefined);
   },
   getDomainByID: async (_, { id }, { dataSources }) => {
-    return dataSources.domainsAPI.getDomainByID(id);
+    return dataSources.domainsAPI.getDomainByPublisherDID(id);
   }
 };

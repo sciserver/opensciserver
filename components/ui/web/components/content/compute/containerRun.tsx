@@ -133,7 +133,7 @@ export const ContainerRun: FC = ({ }) => {
         containerParams:
         {
           imageName: img,
-          domainName: dom,
+          domainId: dom,
           dataVolumeIds: dvs,
           userVolumeIds: uvs
         }
