@@ -1,5 +1,12 @@
 Integration tests for sciserver.
 
+## Provenance
+
+Imported from [sciserver/sciserver-integ-tests](https://github.com/sciserver/sciserver-integ-tests)
+at commit [`5c4a039a379a6e06ee752bcac04698599880b4e5`](https://github.com/sciserver/sciserver-integ-tests/commit/5c4a039a379a6e06ee752bcac04698599880b4e5).
+The import into `tests/integration/` preserves the original Git history and
+authorship through a non-squashed Git subtree merge.
+
 ## About
 
 These are meant to run via Jenkins and be triggered by automatic
