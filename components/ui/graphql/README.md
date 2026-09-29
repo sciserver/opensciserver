@@ -29,3 +29,16 @@ yarn generate
 ```
 
 for the server to recognize the changes.
+
+
+## Tests
+
+Tests use [Vitest](https://vitest.dev) and live next to the code as `*.test.ts`.
+
+```bash
+yarn test          # run once
+yarn test:watch    # re-run on change
+yarn test:types    # type-check the tests (they are excluded from the app build)
+```
+
+The fileservice and RACM are never called: each test injects a fake `fetch` (see `src/test/mockFetch.ts`) into the data source and asserts on the exact requests sent upstream. `vitest.config.mts` sets fake service URLs, so a local `.env` pointing at real services is safe to have.

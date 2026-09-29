@@ -11,7 +11,10 @@
     "prestart": "yarn build",
     "start": "node dist/main.js",
     "predev": "yarn generate",
-    "dev": "webpack --config webpack.development.js"
+    "dev": "webpack --config webpack.development.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:types": "tsc -p tsconfig.test.json"
   },
   "keywords": [],
   "author": "",
@@ -67,6 +70,8 @@
     "prettier": "^2.4.1",
     "ts-loader": "^8.0.17",
     "typescript": "^4.1.5",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2",
     "webpack": "^5.23.0",
     "webpack-cli": "^4.5.0",
     "webpack-merge": "^5.7.3",
