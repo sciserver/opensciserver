@@ -144,12 +144,21 @@ public class DockerComputeDomainManager {
                     "id must not be supplied when creating a root volume on a compute domain; "
                             + "it is assigned by RACM");
 
-        if (rvm.getRootVolumeId() == null)
-            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "rootVolumeId is required");
-        if (isBlank(rvm.getPathOnCD()))
-            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "pathOnCD is required");
-        if (isBlank(rvm.getDisplayName()))
-            throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "displayName is required");
+        // check whether required attributes are set.
+        // collect those that are not before possibly throwing an exception
+        ArrayList<String> missingRequiredProperties = new ArrayList<String>();
+        if (rvm.getRootVolumeId() == null) {
+          missingRequiredProperties.add("rootVolumeId");
+        }
+        if (isBlank(rvm.getPathOnCD())) {
+          missingRequiredProperties.add("pathOnCD");         
+        }
+        if (isBlank(rvm.getDisplayName())) {
+          missingRequiredProperties.add("displayName");         
+        }
+        if (missingRequiredProperties.size() > 0) {
+          throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format("missing required properties: %s",String.join(",", missingRequiredProperties)));
+        }
 
         // publisherDID is deliberately NOT validated. It belongs to the publisher, nothing in RACM
         // looks this entity up by it, and duplicates may be intentional.

@@ -59,7 +59,6 @@ public class JsonAPIHelper {
 				return HttpStatus.BAD_REQUEST;
 			if (error == VOURPException.UNAUTHORIZED)
 				return HttpStatus.FORBIDDEN;
-			return HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 		return HttpStatus.INTERNAL_SERVER_ERROR;
 	}

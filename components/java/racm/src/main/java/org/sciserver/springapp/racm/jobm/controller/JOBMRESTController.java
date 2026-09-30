@@ -421,7 +421,7 @@ public class JOBMRESTController {
                 .showInUserHistory()
                 .sentence()
                     .subject(up.getUsername())
-                    .verb("mounted")
+                    .verb("registered")
                     .predicate("root volume %d at '%s' on docker compute domain '%s'",
                             created.getRootVolumeId(), created.getPathOnCD(), racmUUID)
                 .extraField("dockerComputeDomain", racmUUID)
