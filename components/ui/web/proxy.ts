@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Check if user is authenticated, continue as normal
   const portalCookie = request.cookies.get('portalCookie');
   if (portalCookie) {
