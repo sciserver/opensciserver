@@ -3,8 +3,8 @@ package org.sciserver.springapp.racm.storem.application;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_ROOTVOLUME_CREATE;
@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sciserver.racm.storem.model.FileServiceModel;
 import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.racm.storem.model.RootVolumeModel;
@@ -333,7 +333,7 @@ public class MapperListingTests {
 				is(equalTo(objectMapper.readValue(filename, RegisteredFileServiceModel.class))));
 	}
 
-	@Before
+	@BeforeEach
 	public void setupObjectMapper() {
 		objectMapper.registerModule(new Jdk8Module());
 	}

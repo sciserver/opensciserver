@@ -1,9 +1,9 @@
 package org.sciserver.springapp.racm.jobm.application;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -18,8 +18,8 @@ import javax.persistence.Query;
 
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
@@ -42,7 +42,7 @@ public class DockerComputeDomainManagerTests {
     private final TransientObjectManager tom = mock(TransientObjectManager.class);
     private final Query query = mock(Query.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(up.getTom()).thenReturn(tom);
         when(up.getUsername()).thenReturn("someuser");
