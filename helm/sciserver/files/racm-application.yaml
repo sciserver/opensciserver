@@ -12,12 +12,6 @@ org.sciserver.racm:
         admin-keystone-id: will_be_reset_after_initializing
         admin-password: {{ required "password required!" .Values.racm.jobmAdmin.password }}
         admin-email: {{ .Values.racm.jobmAdmin.email }}
-    logging:
-        enabled: true
-        application-name: RACM
-        application-host: Kubernetes
-        messaging-host: {{ include "sciserver.rabbitmq_host" . }}
-        exchange-name: {{ .Values.logging.rabbitmq.exchange }}
 
     # keep this line for back compatibility
     login-portal-url: {{ include "sciserver.url" (dict "Values" .Values "svc" "login-portal") }}/
@@ -79,6 +73,7 @@ logging.console: true
 logging.application: RACM
 logging.rabbitmq.host: {{ include "sciserver.rabbitmq_host" . }}
 logging.rabbitmq.exchange: {{ .Values.logging.rabbitmq.exchange }}
+logging.rabbitmq.queuename: {{ .Values.logging.rabbitmq.queuename }}
 
 # Auth interceptor is not currently used by RACM, so do not do the prefetch (to
 # save on a redundant network call)

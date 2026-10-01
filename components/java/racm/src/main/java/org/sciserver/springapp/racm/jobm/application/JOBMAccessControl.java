@@ -50,4 +50,18 @@ public class JOBMAccessControl {
 	boolean canEditComputeDomain(User u, ComputeDomain cd) {
 		return racm.doesUserHaveRoleOnResource(u.getUsername(), cd.getResourceContext().getUuid(), RACMNames.CONTEXT_ROOTRESOURCE_PUBDID, RACMNames.R_COMPUTE_DOMAIN_ROOT_ADMIN);
 	}
+	/**
+	 * Return whether the user may mount a root volume on the specified compute domain.<br/>
+	 *
+	 * Unlike canEditComputeDomain, which asks for the whole root-admin role, this checks a single
+	 * action and can therefore be granted to a narrower role without code changes.
+	 *
+	 * @param up the user
+	 * @param cd the compute domain
+	 * @return true if the user holds the addRootVolume action on the domain's root context
+	 */
+	boolean canAddRootVolume(UserProfile up, ComputeDomain cd) {
+		return racm.canUserDoActionOnRootContext(up.getUsername(),
+				cd.getResourceContext().getUuid(), RACMNames.A_ADD_ROOT_VOLUME);
+	}
 }

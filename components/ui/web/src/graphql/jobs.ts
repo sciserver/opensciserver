@@ -16,9 +16,12 @@ export const GET_JOBS = gql`
         submissionTime
         dataVolumes {
           publisherDID
+          name
         }
         userVolumes {
           id
+          userVolumeId
+          needsWriteAccess
         }
       }
       totalJobs
@@ -42,10 +45,12 @@ export const JOB_DETAIL_VIEW = gql`
         dockerComputeEndpoint
         dataVolumes {
           publisherDID
+          name
         }
         userVolumes {
           id
           userVolumeId
+          needsWriteAccess
         }
       }
       summary
