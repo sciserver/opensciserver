@@ -68,6 +68,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'edit' | 'delete'; row: VolumeRow } | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const uploadId = useRef(0);
+  const activeUploads = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
   const [transfer, setTransfer] = useState<{ kind: 'copy' | 'move'; names: string[] } | null>(null);
   const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
@@ -136,6 +137,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
     const where = path.split('/').filter(Boolean).pop() || volume.volumeName;
     for (const file of files) {
       uploadId.current += 1;
+      activeUploads.current += 1;
       const id = uploadId.current;
       const handle = uploadFile(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, file.name), file, token, (progress) => patchUpload(id, { progress }));
       setUploads((current) => [...current, { id, name: file.name, where, progress: 0, status: 'uploading', abort: handle.abort }]);
@@ -145,7 +147,13 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           // A finished upload clears itself; failures stay until dismissed.
           setTimeout(() => setUploads((current) => current.filter((item) => item.id !== id)), DONE_UPLOAD_MS);
         })
-        .finally(() => setRefreshSignal((value) => value + 1))
+        .finally(() => {
+          // One reload once the whole batch is done, not one per file.
+          activeUploads.current -= 1;
+          if (activeUploads.current === 0) {
+            setRefreshSignal((value) => value + 1);
+          }
+        })
         .catch((error_: Error) => patchUpload(id, { status: 'error', error: error_.message }));
     }
   };

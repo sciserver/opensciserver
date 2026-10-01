@@ -38,8 +38,6 @@ export const FILE_VOLUMES = gql`
         name
         displayName
         description
-        writable
-        allowedActions
       }
       rootVolumes {
         name
@@ -54,9 +52,6 @@ export const FILE_VOLUMES = gql`
           allowedActions
           sharedWith {
             id
-            name
-            type
-            allowedActions
           }
         }
       }

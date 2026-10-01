@@ -158,7 +158,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     return () => {
       current = false;
     };
-  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick, refreshSignal]);
+  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick]);
 
   const download = (entry: FileEntry) => startDownload(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, entry.name), entry.name);
 
