@@ -1,7 +1,7 @@
 import { DragEvent, FC, KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useMutation, useQuery } from '@apollo/client';
-import { Alert, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem } from '@mui/material';
+import { Alert, LinearProgress, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem } from '@mui/material';
 
 import { UserContext } from 'context';
 import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/files';
@@ -285,6 +285,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
       onDragOver={onDragOver}
       sx={{ position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', opacity: busy ? 0.7 : 1, pointerEvents: busy ? 'none' : 'auto' }}
     >
+      {(busy || (loading && !!data)) && <LinearProgress aria-label="Working" sx={{ flex: 'none' }} />}
       {selected.length > 0 && !pick && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, pl: 0.75, pr: 1.5, minHeight: 52, bgcolor: '#e8f1f8', flex: 'none' }}>
           <ButtonBase aria-label="Clear selection" onClick={() => setChecked(new Set())} sx={{ width: 36, height: 36, borderRadius: '50%', color: 'primary.main' }}>

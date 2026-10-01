@@ -1,6 +1,6 @@
 import { CSSProperties, FC, useContext, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { Alert, Box, Button, ButtonBase, Snackbar } from '@mui/material';
+import { Alert, Box, Button, ButtonBase, LinearProgress, Snackbar } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
@@ -50,7 +50,10 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const pick = mode === 'pick';
   const mustBeWritable = writableOnly ?? pick;
   const { user, token } = useContext(UserContext);
-  const { data, loading, error, refetch } = useQuery<{ getVolumes?: FileService | null }>(FILE_VOLUMES);
+  const { data, loading, error, refetch } = useQuery<{ getVolumes?: FileService | null }>(FILE_VOLUMES, { notifyOnNetworkStatusChange: true });
+  // First load shows the backdrop; later reloads (after a change) keep the list and show a progress bar.
+  const initialLoading = loading && !data;
+  const reloading = loading && !!data;
 
   const [internal, setInternal] = useState<FilesRoute>(initialLocation);
   const route = location ?? internal;
@@ -222,9 +225,10 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           </Box>
         )}
       </Box>
+      {reloading && <LinearProgress aria-label="Reloading volumes" sx={{ flex: 'none' }} />}
       {error && <Alert severity="error" sx={{ m: 2 }}>Could not load volumes: {error.message}</Alert>}
-      <LoadingAnimation backDropIsOpen={loading} />
-      {!loading && !error && !route.volume && (
+      <LoadingAnimation backDropIsOpen={initialLoading} />
+      {!initialLoading && !error && !route.volume && (
         <VolumeList
           volumeType={route.volumeType}
           rows={rows}

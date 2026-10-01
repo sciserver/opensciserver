@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, MenuItem, TextField } from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, MenuItem, TextField } from '@mui/material';
 
 import { CREATE_USER_VOLUME, DELETE_USER_VOLUME, UPDATE_USER_VOLUME } from 'src/graphql/volumes';
 import { validateVolumeName, VolumeRow } from 'src/utils/fileVolumes';
@@ -43,6 +43,7 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
   return (
     <Dialog open fullWidth maxWidth="xs" onClose={saving ? undefined : onClose}>
       <DialogTitle>Create user volume</DialogTitle>
+      {saving && <LinearProgress />}
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
         <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} error={!!error} helperText={error} fullWidth size="small" />
         <TextField label="Description" value={description} onChange={(event) => setDescription(event.target.value)} multiline minRows={2} fullWidth size="small" />
@@ -62,7 +63,7 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>Cancel</Button>
-        <Button variant="contained" onClick={save} disabled={!canSave}>Create volume</Button>
+        <Button variant="contained" onClick={save} disabled={!canSave} startIcon={saving ? <CircularProgress size={16} color="inherit" /> : undefined}>{saving ? 'Creating…' : 'Create volume'}</Button>
       </DialogActions>
     </Dialog>
   );
@@ -99,13 +100,14 @@ export const EditVolumeDialog: FC<EditProps> = ({ volume, siblings, onClose, onD
   return (
     <Dialog open fullWidth maxWidth="xs" onClose={saving ? undefined : onClose}>
       <DialogTitle>Edit user volume</DialogTitle>
+      {saving && <LinearProgress />}
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
         <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} error={!!error} helperText={error} fullWidth size="small" />
         <TextField label="Description" value={description} onChange={(event) => setDescription(event.target.value)} multiline minRows={2} fullWidth size="small" />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>Cancel</Button>
-        <Button variant="contained" onClick={save} disabled={!!error || unchanged || saving}>Save changes</Button>
+        <Button variant="contained" onClick={save} disabled={!!error || unchanged || saving} startIcon={saving ? <CircularProgress size={16} color="inherit" /> : undefined}>{saving ? 'Saving…' : 'Save changes'}</Button>
       </DialogActions>
     </Dialog>
   );
@@ -135,6 +137,7 @@ export const DeleteVolumeDialog: FC<DeleteProps> = ({ volume, onClose, onDone })
   return (
     <Dialog open onClose={deleting ? undefined : onClose}>
       <DialogTitle>Delete user volume?</DialogTitle>
+      {deleting && <LinearProgress />}
       <DialogContent>
         <DialogContentText>
           “{volume.name}” and every file in it will be permanently deleted. Anyone it is shared with loses access. This can’t be undone.
@@ -142,7 +145,7 @@ export const DeleteVolumeDialog: FC<DeleteProps> = ({ volume, onClose, onDone })
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={deleting}>Cancel</Button>
-        <Button color="error" variant="contained" onClick={remove} disabled={deleting}>Delete volume</Button>
+        <Button color="error" variant="contained" onClick={remove} disabled={deleting} startIcon={deleting ? <CircularProgress size={16} color="inherit" /> : undefined}>{deleting ? 'Deleting…' : 'Delete volume'}</Button>
       </DialogActions>
     </Dialog>
   );
