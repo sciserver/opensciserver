@@ -1,6 +1,6 @@
 import { CSSProperties, FC, useContext, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { Alert, Box, Button, ButtonBase } from '@mui/material';
+import { Alert, Box, Button, ButtonBase, Snackbar } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
@@ -55,6 +55,8 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [picked, setPicked] = useState<VolumeRow | null>(null);
   const [pickedFolder, setPickedFolder] = useState<string | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
+  const [creating, setCreating] = useState(false);
+  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
 
   const userRows = useMemo(() => userVolumeRows(data?.getVolumes?.rootVolumes || [], user?.userName), [data, user]);
   const dataRows = useMemo(() => dataVolumeRows(data?.getVolumes?.dataVolumes || []), [data]);
@@ -68,6 +70,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
     setFilter('');
     setPicked(null);
     setPickedFolder(null);
+    setCreating(false);
     if (!location) {
       setInternal(next);
     }
@@ -102,6 +105,17 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
         onChange={(type) => go({ volumeType: type, path: '' })}
       />
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 52, flex: 'none' }}>
+        {route.volume && currentRow?.writable && (
+          <Button variant={pick ? 'outlined' : 'contained'} startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>create_new_folder</span>} onClick={() => setCreating(true)}>
+            New folder
+          </Button>
+        )}
+        {route.volume && currentRow && !currentRow.writable && !pick && (
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lock</span>
+            {isData ? 'Data volumes are read-only' : 'Read-only: shared with you'}
+          </Box>
+        )}
         {pick && <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>Click to select · double-click to open</Box>}
         <Box sx={{ flex: 1 }} />
         {(
@@ -153,10 +167,22 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           route={{ ...route, volume: route.volume }}
           filter={filter}
           refreshSignal={refreshSignal}
+          writable={!!currentRow?.writable}
+          creating={creating}
+          onCreatingDone={(created) => {
+            setCreating(false);
+            if (created && pick) {
+              setPickedFolder(created);
+            }
+          }}
+          notify={(message, severity = 'success') => setToast({ message, severity })}
           onOpenFolder={(path) => go({ ...route, path })}
           pick={pick ? { selectedName: pickedFolder, onSelect: setPickedFolder } : undefined}
         />
       )}
+      <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert severity={toast?.severity ?? 'success'} variant="filled" onClose={() => setToast(null)}>{toast?.message}</Alert>
+      </Snackbar>
       {pick && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1.25, pl: 2, pr: 1.5, borderTop: '1px solid #e6e9ed', bgcolor: '#f7f9fb', flex: 'none' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>folder_open</span>
