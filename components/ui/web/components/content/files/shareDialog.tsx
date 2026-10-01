@@ -81,7 +81,9 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
     }
   };
 
-  const loadingVolume = !original && !sharingError;
+  const loadingVolume = !sharing && !sharingError;
+  // Loaded fine, but the volume is not in the answer: it was renamed or deleted since the list was loaded.
+  const notFound = !!sharing && !original;
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={saving ? undefined : onClose}>
@@ -89,6 +91,11 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
       {(loadingVolume || saving) && <LinearProgress />}
       <DialogContent sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, minHeight: 360 }}>
         {sharingError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>Could not load sharing: {sharingError.message}</Alert>}
+        {notFound && (
+          <Alert severity="warning" sx={{ gridColumn: '1 / -1' }}>
+            This volume can no longer be found. It may have been renamed or deleted. Close this dialog and reload the list.
+          </Alert>
+        )}
         {failure && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{failure}</Alert>}
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Box sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Add users and groups</Box>

@@ -1,9 +1,14 @@
 import { VolumeType } from '../graphql/typings';
 import { FileVolumeRoute, normalizePath } from './files';
 
-/** Base URL of the fileservice API, with a trailing slash, e.g. https://host/fileservice/api/. */
+export const FILE_SERVICE_NOT_CONFIGURED = 'The file service address is not configured (NEXT_PUBLIC_FILE_SERVICE_URL).';
+
+/** Base URL of the fileservice API with a trailing slash, e.g. https://host/fileservice/api/. '' when it is not configured. */
 export const fileServiceUrl = (): string => {
   const base = process.env.NEXT_PUBLIC_FILE_SERVICE_URL || '';
+  if (!base) {
+    return '';
+  }
   return base.endsWith('/') ? base : `${base}/`;
 };
 
