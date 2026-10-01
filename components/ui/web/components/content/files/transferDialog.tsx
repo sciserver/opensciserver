@@ -1,5 +1,6 @@
 import { ComponentType, FC, useState } from 'react';
 import { useApolloClient, useMutation } from '@apollo/client';
+import styled from 'styled-components';
 import { Alert, Dialog, DialogContent, DialogTitle } from '@mui/material';
 
 import { COPY_FILE, JSON_TREE, MOVE_FILE } from 'src/graphql/files';
@@ -23,6 +24,32 @@ type Props = {
   /** Called once the transfer ran, whatever its outcome, so the caller can reload. */
   onDone: (message: string, severity: 'success' | 'error') => void;
 };
+
+const Title = styled(DialogTitle)`
+  && {
+    padding-bottom: 4px;
+  }
+`;
+
+const Content = styled(DialogContent)`
+  && {
+    padding-top: 8px;
+  }
+
+  .error {
+    margin-bottom: 8px;
+  }
+
+  .picker {
+    height: 460px;
+    margin-top: 8px;
+  }
+
+  .picker.running {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+`;
 
 const toLocation = (route: Located) => ({ volume: toVolumeRef({ volumeType: route.volumeType, ...route.volume }), path: route.path });
 
@@ -91,17 +118,13 @@ export const TransferDialog: FC<Props> = ({ kind, names, source, Picker, onClose
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={running ? undefined : onClose}>
-      <DialogTitle sx={{ pb: 0.5 }}>{titleFor(kind, names)} to…</DialogTitle>
-      <DialogContent sx={{ pt: 1 }}>
-        {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
-        <Picker
-          mode="pick"
-          initialLocation={source}
-          pickLabel={kind === 'copy' ? 'Copy here' : 'Move here'}
-          onSelect={run}
-          style={{ height: 460, marginTop: 8, opacity: running ? 0.6 : 1, pointerEvents: running ? 'none' : 'auto' }}
-        />
-      </DialogContent>
+      <Title>{titleFor(kind, names)} to…</Title>
+      <Content>
+        {error && <Alert className="error" severity="error">{error}</Alert>}
+        <div className={`picker${running ? ' running' : ''}`}>
+          <Picker mode="pick" initialLocation={source} pickLabel={kind === 'copy' ? 'Copy here' : 'Move here'} onSelect={run} />
+        </div>
+      </Content>
     </Dialog>
   );
 };
