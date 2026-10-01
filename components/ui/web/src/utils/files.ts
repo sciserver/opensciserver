@@ -13,7 +13,7 @@ export const toVolumeRef = (volume: FileVolumeRoute): VolumeRefInput => ({
   volumeName: volume.volumeName,
   ...(volume.volumeType === VolumeType.Uservolume
     ? { rootVolumeName: volume.rootVolumeName, owner: volume.owner }
-    : {}),
+    : {})
 });
 
 /** Normalises a folder path to '' (volume root) or '/a/b'. */

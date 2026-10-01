@@ -15,9 +15,11 @@ type Props = {
   /** Increment to reload the current folder. */
   refreshSignal: number;
   onOpenFolder: (path: string) => void;
+  /** Pick mode: files are greyed out, a click selects a folder and a double click opens it. */
+  pick?: { selectedName: string | null; onSelect: (name: string) => void };
 };
 
-const COLUMNS = '36px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)';
+const COLUMNS = '36px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 36px';
 const ROW_HEIGHT = 38;
 
 const CheckIcon: FC<{ name: string; active?: boolean }> = ({ name, active }) => (
@@ -32,7 +34,7 @@ const Message: FC<{ icon: string; title: string; hint?: string }> = ({ icon, tit
   </Box>
 );
 
-export const FolderBrowser: FC<Props> = ({ route, filter, refreshSignal, onOpenFolder }) => {
+export const FolderBrowser: FC<Props> = ({ route, filter, refreshSignal, onOpenFolder, pick }) => {
   const { volume, volumeType, path } = route;
   const { data, loading, error, refetch } = useQuery<{ getJsonTree: JsonTree }>(JSON_TREE, {
     variables: { volume: toVolumeRef({ volumeType, ...volume }), path },
@@ -84,11 +86,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, refreshSignal, onOpenF
     setDirection(1);
   };
 
-  const openEntry = (entry: FileEntry) => {
-    if (entry.isFolder) {
-      onOpenFolder(joinPath(path, entry.name));
-    }
-  };
+  const open = (entry: FileEntry) => onOpenFolder(joinPath(path, entry.name));
 
   const headers: { key: EntrySortKey; label: string }[] = [
     { key: 'name', label: 'Name' },
@@ -111,13 +109,13 @@ export const FolderBrowser: FC<Props> = ({ route, filter, refreshSignal, onOpenF
         </Box>
       )}
       <Box role="row" sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, height: 34, borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
-        <ButtonBase
+        {pick ? <span /> : <ButtonBase
           aria-label={allSelected ? 'Deselect all' : 'Select all'}
           disabled={entries.length === 0}
           onClick={() => setChecked(allSelected ? new Set() : new Set(entries.map((entry) => entry.name)))}
         >
           <CheckIcon name={allSelected ? 'check_box' : selected.length ? 'indeterminate_check_box' : 'check_box_outline_blank'} active={selected.length > 0} />
-        </ButtonBase>
+        </ButtonBase>}
         {headers.map(({ key, label }) => (
           <ButtonBase
             key={key}
@@ -131,6 +129,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, refreshSignal, onOpenF
             </span>
           </ButtonBase>
         ))}
+        <span />
       </Box>
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         <LoadingAnimation backDropIsOpen={showLoading} />
@@ -141,29 +140,57 @@ export const FolderBrowser: FC<Props> = ({ route, filter, refreshSignal, onOpenF
         )}
         {entries.map((entry) => {
           const isChecked = checked.has(entry.name);
+          const disabled = !!pick && !entry.isFolder;
+          const picked = !!pick && pick.selectedName === entry.name;
+          const dim = disabled ? 0.42 : 1;
+          const onClick = () => {
+            if (pick) {
+              if (!disabled) {
+                pick.onSelect(entry.name);
+              }
+            }
+            else if (entry.isFolder) {
+              open(entry);
+            }
+          };
           return (
             <Box
               key={entry.name}
-              onClick={() => openEntry(entry)}
-              sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, minHeight: ROW_HEIGHT, borderBottom: '1px solid #f0f2f4', cursor: entry.isFolder ? 'pointer' : 'default', bgcolor: isChecked ? 'rgba(57,140,191,0.07)' : 'transparent', '&:hover': { bgcolor: 'rgba(57,140,191,0.08)' } }}
+              role="row"
+              onClick={onClick}
+              onDoubleClick={() => pick && !disabled && open(entry)}
+              sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, minHeight: ROW_HEIGHT, borderBottom: '1px solid #f0f2f4', cursor: !disabled && (pick || entry.isFolder) ? 'pointer' : 'default', userSelect: 'none', bgcolor: picked ? 'rgba(57,140,191,0.16)' : isChecked ? 'rgba(57,140,191,0.07)' : 'transparent', '&:hover': { bgcolor: disabled ? undefined : 'rgba(57,140,191,0.08)' } }}
             >
-              <ButtonBase
-                aria-label={`Select ${entry.name}`}
-                aria-pressed={isChecked}
-                onClick={(event) => {
-                  event.stopPropagation(); toggle(entry.name); 
-                }}
-              >
-                <CheckIcon name={isChecked ? 'check_box' : 'check_box_outline_blank'} active={isChecked} />
-              </ButtonBase>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0, fontSize: 14, fontWeight: entry.isFolder ? 500 : 400 }}>
+              {pick ? (
+                <span className="material-symbols-outlined" style={{ fontSize: 20, opacity: dim, color: picked ? '#398CBF' : 'rgba(0,0,0,0.5)' }}>
+                  {disabled ? '' : picked ? 'radio_button_checked' : 'radio_button_unchecked'}
+                </span>
+              ) : (
+                <ButtonBase
+                  aria-label={`Select ${entry.name}`}
+                  aria-pressed={isChecked}
+                  onClick={(event) => {
+                    event.stopPropagation(); toggle(entry.name); 
+                  }}
+                >
+                  <CheckIcon name={isChecked ? 'check_box' : 'check_box_outline_blank'} active={isChecked} />
+                </ButtonBase>
+              )}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0, fontSize: 14, fontWeight: entry.isFolder ? 500 : 400, opacity: dim }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 22, flex: 'none', color: entry.isFolder ? '#398CBF' : 'rgba(0,0,0,0.55)', fontVariationSettings: `'FILL' ${entry.isFolder ? 1 : 0}` }}>
                   {entry.isFolder ? 'folder' : 'description'}
                 </span>
                 <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</Box>
               </Box>
-              <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', whiteSpace: 'nowrap' }}>{formatModified(entry.modified)}</Box>
-              <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', whiteSpace: 'nowrap' }}>{entry.isFolder ? '—' : formatBytes(entry.size)}</Box>
+              <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', whiteSpace: 'nowrap', opacity: dim }}>{formatModified(entry.modified)}</Box>
+              <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', whiteSpace: 'nowrap', opacity: dim }}>{entry.isFolder ? '—' : formatBytes(entry.size)}</Box>
+              {pick && !disabled ? (
+                <ButtonBase aria-label={`Open ${entry.name}`} onClick={(event) => {
+                  event.stopPropagation(); open(entry); 
+                }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_right</span>
+                </ButtonBase>
+              ) : <span />}
             </Box>
           );
         })}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType, PrincipalType } from '../graphql/typings';
-import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, userVolumeRows } from './fileVolumes';
+import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath } from './fileVolumes';
 
 const userVolume = (name: string, owner: string, rootVolumeName: string, allowedActions: string[], shared = false) => ({
   id: name, name, owner, rootVolumeName, allowedActions, resourceUUID: name,
@@ -58,5 +58,18 @@ describe('volume rows', () => {
   it('filters by name and sorts', () => {
     expect(filterAndSortRows(rows, 'PERS', 'name', 1).map((r) => r.name)).toEqual(['persistent']);
     expect(filterAndSortRows(rows, '', 'name', -1).map((r) => r.name)).toEqual(['theirs', 'persistent']);
+  });
+});
+
+describe('workspacePath', () => {
+  it('maps user and data volumes to their container mount', () => {
+    const user = parseFilesRoute({ type: 'user', volume: 'persistent', root: 'Storage', owner: 'me', path: '/a/b' });
+    expect(workspacePath(user)).toBe('/home/idies/workspace/Storage/me/persistent/a/b');
+    expect(workspacePath(parseFilesRoute({ type: 'data', volume: 'sdss' }))).toBe('/home/idies/workspace/sdss');
+    expect(workspacePath(parseFilesRoute({}))).toBe('');
+  });
+
+  it('compares volumes by name, root and owner', () => {
+    expect(sameVolume({ volumeName: 'v', owner: 'a', rootVolumeName: 'Storage' }, { volumeName: 'v', owner: 'b', rootVolumeName: 'Storage' })).toBe(false);
   });
 });
