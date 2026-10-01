@@ -150,7 +150,8 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   useEffect(() => {
     let current = true;
     setReadme('');
-    if (hasReadme && !pick) {
+    // The token fills in after the first render (see ContextWrapper); without one the request would just be refused.
+    if (hasReadme && !pick && token) {
       fetchText(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, 'README.md'), token)
         .then((text) => current && setReadme(text))
         .catch(() => undefined);
@@ -158,7 +159,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     return () => {
       current = false;
     };
-  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick, refreshSignal]);
+  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick, refreshSignal, token]);
 
   const download = (entry: FileEntry) => startDownload(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, entry.name), entry.name);
 
