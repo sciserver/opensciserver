@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { Box, ButtonBase } from '@mui/material';
+import { FC, useState } from 'react';
+import { Box, ButtonBase, Menu, MenuItem } from '@mui/material';
 import { VolumeType } from 'src/graphql/typings';
 import { SortKey, VolumeRow } from 'src/utils/fileVolumes';
 
@@ -11,6 +11,8 @@ type Props = {
   onSort: (key: SortKey) => void;
   onOpen: (row: VolumeRow) => void;
   /** Pick mode: single click selects, double click or the arrow opens. */
+  /** Row menu (manage mode). Rows with no items get no menu button. */
+  menuItems?: (row: VolumeRow) => { label: string; icon: string; color?: string; run: () => void }[];
   pick?: { selectedKey: string | null; isDisabled: (row: VolumeRow) => boolean; onSelect: (row: VolumeRow) => void };
 };
 
@@ -21,7 +23,8 @@ const Tag: FC<{ label: string }> = ({ label }) => (
   <Box component="span" sx={{ flex: 'none', fontSize: 11, px: 0.75, py: '1px', borderRadius: '3px', bgcolor: '#eef1f4', color: 'rgba(0,0,0,0.62)' }}>{label}</Box>
 );
 
-export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, onSort, onOpen, pick }) => {
+export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, onSort, onOpen, menuItems, pick }) => {
+  const [menu, setMenu] = useState<{ anchor: HTMLElement; row: VolumeRow } | null>(null);
   const isData = volumeType === VolumeType.Datavolume;
   const headers: { key: SortKey; label: string }[] = [
     { key: 'name', label: 'Name' },
@@ -90,7 +93,14 @@ export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, on
                 }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_right</span>
                 </ButtonBase>
-              ) : <span />}
+              ) : null}
+              {!pick && menuItems && menuItems(row).length > 0 && (
+                <ButtonBase aria-label={`More actions for ${row.name}`} onClick={(event) => {
+                  event.stopPropagation(); setMenu({ anchor: event.currentTarget, row }); 
+                }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>more_vert</span>
+                </ButtonBase>
+              )}
             </Box>
           );
         })}
@@ -102,6 +112,16 @@ export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, on
           </Box>
         )}
       </Box>
+      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={() => setMenu(null)}>
+        {(menu && menuItems ? menuItems(menu.row) : []).map((item) => (
+          <MenuItem key={item.label} onClick={() => {
+            setMenu(null); item.run(); 
+          }} sx={{ gap: 1.5, fontSize: 14, color: item.color }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{item.icon}</span>
+            {item.label}
+          </MenuItem>
+        ))}
+      </Menu>
     </Box>
   );
 };

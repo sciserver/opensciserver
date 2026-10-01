@@ -5,7 +5,7 @@ import { Alert, Box, Button, ButtonBase, Snackbar } from '@mui/material';
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
 import { FileService, VolumeType } from 'src/graphql/typings';
-import { DEFAULT_FILES_ROUTE, dataVolumeRows, FilesRoute, filterAndSortRows, sameVolume, SortKey, userVolumeRows, VolumeRow, workspacePath } from 'src/utils/fileVolumes';
+import { creatableRootVolumes, DEFAULT_FILES_ROUTE, dataVolumeRows, FilesRoute, filterAndSortRows, sameVolume, SortKey, userVolumeRows, VolumeRow, workspacePath } from 'src/utils/fileVolumes';
 import { fileServiceUrl, fileUrl, toArray, uploadFile } from 'src/utils/fileTransfer';
 import { joinPath } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
@@ -13,6 +13,7 @@ import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { Breadcrumb } from './breadcrumb';
 import { FolderBrowser } from './folderBrowser';
 import { TransferDialog } from './transferDialog';
+import { CreateVolumeDialog, DeleteVolumeDialog, EditVolumeDialog } from './volumeDialogs';
 import { UploadItem, UploadsPanel } from './uploadsPanel';
 import { VolumeList } from './volumeList';
 import { VolumeTabs } from './volumeTabs';
@@ -49,7 +50,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const pick = mode === 'pick';
   const mustBeWritable = writableOnly ?? pick;
   const { user, token } = useContext(UserContext);
-  const { data, loading, error } = useQuery<{ getVolumes?: FileService | null }>(FILE_VOLUMES);
+  const { data, loading, error, refetch } = useQuery<{ getVolumes?: FileService | null }>(FILE_VOLUMES);
 
   const [internal, setInternal] = useState<FilesRoute>(initialLocation);
   const route = location ?? internal;
@@ -61,6 +62,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [pickedFolder, setPickedFolder] = useState<string | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [creating, setCreating] = useState(false);
+  const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'edit' | 'delete'; row: VolumeRow } | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const uploadId = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -106,6 +108,20 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const canConfirm = !!target && (!mustBeWritable || targetWritable);
   const targetPath = target ? workspacePath(target) : '';
 
+  const creatableRoots = useMemo(() => creatableRootVolumes(data?.getVolumes?.rootVolumes || []), [data]);
+  const canCreateVolume = !pick && !route.volume && route.volumeType === VolumeType.Uservolume && !!user && creatableRoots.length > 0;
+
+  const volumeMenu = (row: VolumeRow) => [
+    ...(row.owned ? [{ label: 'Edit', icon: 'edit', run: () => setVolumeDialog({ kind: 'edit', row }) }] : []),
+    ...(row.canDelete ? [{ label: 'Delete', icon: 'delete', color: '#C62828', run: () => setVolumeDialog({ kind: 'delete', row }) }] : [])
+  ];
+
+  const onVolumeDone = (message: string, severity: 'success' | 'error') => {
+    setVolumeDialog(null);
+    setToast({ message, severity });
+    refetch().catch(() => undefined);
+  };
+
   const patchUpload = (id: number, patch: Partial<UploadItem>) => setUploads((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
 
   const upload = (files: File[]) => {
@@ -139,6 +155,11 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
         onChange={(type) => go({ volumeType: type, path: '' })}
       />
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 52, flex: 'none' }}>
+        {canCreateVolume && (
+          <Button variant="contained" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>} onClick={() => setVolumeDialog({ kind: 'create' })}>
+            Create user volume
+          </Button>
+        )}
         {route.volume && currentRow?.writable && !pick && (
           <>
             <Button variant="contained" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>upload</span>} onClick={() => fileInput.current?.click()}>
@@ -211,6 +232,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           direction={direction}
           onSort={onSort}
           onOpen={openVolume}
+          menuItems={pick ? undefined : volumeMenu}
           pick={pick ? { selectedKey: picked?.key ?? null, isDisabled: (row) => mustBeWritable && !row.writable, onSelect: setPicked } : undefined}
         />
       )}
@@ -248,6 +270,24 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           }}
         />
       )}
+      {volumeDialog?.kind === 'create' && user && (
+        <CreateVolumeDialog
+          owner={user.userName}
+          roots={creatableRoots}
+          existing={userRows.filter((row) => row.owned).map((row) => `${row.rootVolume}/${row.name}`)}
+          onClose={() => setVolumeDialog(null)}
+          onDone={onVolumeDone}
+        />
+      )}
+      {volumeDialog?.kind === 'edit' && (
+        <EditVolumeDialog
+          volume={volumeDialog.row}
+          siblings={userRows.filter((row) => row.owned && row.rootVolume === volumeDialog.row.rootVolume).map((row) => row.name)}
+          onClose={() => setVolumeDialog(null)}
+          onDone={onVolumeDone}
+        />
+      )}
+      {volumeDialog?.kind === 'delete' && <DeleteVolumeDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
       <UploadsPanel uploads={uploads} onDismiss={(id) => setUploads((current) => current.filter((item) => item.id !== id))} />
       <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert severity={toast?.severity ?? 'success'} variant="filled" onClose={() => setToast(null)}>{toast?.message}</Alert>

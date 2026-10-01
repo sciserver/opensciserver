@@ -43,10 +43,13 @@ export const FILE_VOLUMES = gql`
       }
       rootVolumes {
         name
+        description
+        allowedActions
         userVolumes {
           id
           name
           owner
+          description
           rootVolumeName
           allowedActions
           sharedWith {
@@ -58,5 +61,23 @@ export const FILE_VOLUMES = gql`
         }
       }
     }
+  }
+`;
+
+export const CREATE_USER_VOLUME = gql`
+  mutation createUserVolume($rootVolumeName: String!, $owner: String!, $name: String!, $description: String) {
+    createUserVolume(rootVolumeName: $rootVolumeName, owner: $owner, name: $name, description: $description)
+  }
+`;
+
+export const UPDATE_USER_VOLUME = gql`
+  mutation updateUserVolume($rootVolumeName: String!, $owner: String!, $name: String!, $newName: String!, $description: String) {
+    updateUserVolume(rootVolumeName: $rootVolumeName, owner: $owner, name: $name, newName: $newName, description: $description)
+  }
+`;
+
+export const DELETE_USER_VOLUME = gql`
+  mutation deleteUserVolume($rootVolumeName: String!, $owner: String!, $name: String!) {
+    deleteUserVolume(rootVolumeName: $rootVolumeName, owner: $owner, name: $name)
   }
 `;
