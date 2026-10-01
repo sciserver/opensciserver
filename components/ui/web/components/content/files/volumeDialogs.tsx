@@ -1,13 +1,14 @@
 import { FC, useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, MenuItem, TextField } from '@mui/material';
+import { Alert, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, MenuItem, TextField } from '@mui/material';
 
 import { CREATE_USER_VOLUME, DELETE_USER_VOLUME, UPDATE_USER_VOLUME } from 'src/graphql/volumes';
 import { validateVolumeName, VolumeRow } from 'src/utils/fileVolumes';
 
 type RootOption = { name?: string | null; description?: string | null };
 
-type Done = (message: string, severity: 'success' | 'error') => void;
+/** Called once the change went through. A failure stays inside the dialog so nothing typed is lost. */
+type Done = (message: string) => void;
 
 type CreateProps = {
   owner: string;
@@ -24,6 +25,7 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
   const [description, setDescription] = useState('');
   const [root, setRoot] = useState(roots.length === 1 ? roots[0].name || '' : '');
   const [saving, setSaving] = useState(false);
+  const [failure, setFailure] = useState('');
 
   const taken = existing.filter((key) => key.startsWith(`${root}/`)).map((key) => key.slice(root.length + 1));
   const error = name ? validateVolumeName(name, taken) : '';
@@ -31,12 +33,14 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
 
   const save = async () => {
     setSaving(true);
+    setFailure('');
     try {
       await createUserVolume({ variables: { rootVolumeName: root, owner, name: name.trim(), description: description.trim() || null } });
-      onDone(`Created volume “${name.trim()}”`, 'success');
+      onDone(`Created volume “${name.trim()}”`);
     }
     catch (error_) {
-      onDone(`Could not create the volume: ${(error_ as Error).message}`, 'error');
+      setFailure(`Could not create the volume: ${(error_ as Error).message}`);
+      setSaving(false);
     }
   };
 
@@ -45,6 +49,7 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
       <DialogTitle>Create user volume</DialogTitle>
       {saving && <LinearProgress />}
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+        {failure && <Alert severity="error">{failure}</Alert>}
         <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} error={!!error} helperText={error} fullWidth size="small" />
         <TextField label="Description" value={description} onChange={(event) => setDescription(event.target.value)} multiline minRows={2} fullWidth size="small" />
         <TextField
@@ -82,18 +87,21 @@ export const EditVolumeDialog: FC<EditProps> = ({ volume, siblings, onClose, onD
   const [name, setName] = useState(volume.name);
   const [description, setDescription] = useState(volume.description);
   const [saving, setSaving] = useState(false);
+  const [failure, setFailure] = useState('');
 
   const error = validateVolumeName(name, siblings, volume.name);
   const unchanged = name.trim() === volume.name && description === volume.description;
 
   const save = async () => {
     setSaving(true);
+    setFailure('');
     try {
       await updateUserVolume({ variables: { rootVolumeName: volume.route.rootVolumeName, owner: volume.route.owner, name: volume.name, newName: name.trim(), description } });
-      onDone(`Updated volume “${name.trim()}”`, 'success');
+      onDone(`Updated volume “${name.trim()}”`);
     }
     catch (error_) {
-      onDone(`Could not update “${volume.name}”: ${(error_ as Error).message}`, 'error');
+      setFailure(`Could not update “${volume.name}”: ${(error_ as Error).message}`);
+      setSaving(false);
     }
   };
 
@@ -102,6 +110,7 @@ export const EditVolumeDialog: FC<EditProps> = ({ volume, siblings, onClose, onD
       <DialogTitle>Edit user volume</DialogTitle>
       {saving && <LinearProgress />}
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+        {failure && <Alert severity="error">{failure}</Alert>}
         <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} error={!!error} helperText={error} fullWidth size="small" />
         <TextField label="Description" value={description} onChange={(event) => setDescription(event.target.value)} multiline minRows={2} fullWidth size="small" />
       </DialogContent>
@@ -122,15 +131,18 @@ type DeleteProps = {
 export const DeleteVolumeDialog: FC<DeleteProps> = ({ volume, onClose, onDone }) => {
   const [deleteUserVolume] = useMutation(DELETE_USER_VOLUME);
   const [deleting, setDeleting] = useState(false);
+  const [failure, setFailure] = useState('');
 
   const remove = async () => {
     setDeleting(true);
+    setFailure('');
     try {
       await deleteUserVolume({ variables: { rootVolumeName: volume.route.rootVolumeName, owner: volume.route.owner, name: volume.name } });
-      onDone(`Deleted volume “${volume.name}”`, 'success');
+      onDone(`Deleted volume “${volume.name}”`);
     }
     catch (error) {
-      onDone(`Could not delete “${volume.name}”: ${(error as Error).message}`, 'error');
+      setFailure(`Could not delete “${volume.name}”: ${(error as Error).message}`);
+      setDeleting(false);
     }
   };
 
@@ -139,6 +151,7 @@ export const DeleteVolumeDialog: FC<DeleteProps> = ({ volume, onClose, onDone })
       <DialogTitle>Delete user volume?</DialogTitle>
       {deleting && <LinearProgress />}
       <DialogContent>
+        {failure && <Alert severity="error" sx={{ mb: 1 }}>{failure}</Alert>}
         <DialogContentText>
           “{volume.name}” and every file in it will be permanently deleted. Anyone it is shared with loses access. This can’t be undone.
         </DialogContentText>

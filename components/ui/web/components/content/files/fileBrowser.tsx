@@ -122,9 +122,10 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
     ...(row.canDelete ? [{ label: 'Delete', icon: 'delete', color: '#C62828', run: () => setVolumeDialog({ kind: 'delete', row }) }] : [])
   ];
 
-  const onVolumeDone = (message: string, severity: 'success' | 'error') => {
+  // Dialogs report success only; a failure stays inside the dialog.
+  const onVolumeDone = (message: string) => {
     setVolumeDialog(null);
-    setToast({ message, severity });
+    setToast({ message, severity: 'success' });
     refetch().catch(() => undefined);
   };
 

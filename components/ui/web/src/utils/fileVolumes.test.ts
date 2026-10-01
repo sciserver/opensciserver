@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType, PrincipalType } from '../graphql/typings';
-import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath, creatableRootVolumes, validateVolumeName } from './fileVolumes';
+import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath, creatableRootVolumes, validateVolumeName, transferBlocker } from './fileVolumes';
 
 const userVolume = (name: string, owner: string, rootVolumeName: string, allowedActions: string[], shared = false) => ({
   id: name, name, owner, rootVolumeName, allowedActions, resourceUUID: name,
@@ -109,5 +109,24 @@ describe('canShare', () => {
       ] 
     }], 'me');
     expect(rows.map((r) => r.canShare)).toEqual([true, true, false]);
+  });
+});
+
+const at = (path: string, volumeName = 'persistent') => ({ volumeType: VolumeType.Uservolume, volume: { volumeName, rootVolumeName: 'Storage', owner: 'me' }, path });
+
+describe('transferBlocker', () => {
+  it('blocks moving into the folder the items are already in, but not copying', () => {
+    expect(transferBlocker('move', at('/a'), at('/a'), ['x'])).toMatch(/already/);
+    expect(transferBlocker('copy', at('/a'), at('/a'), ['x'])).toBe('');
+  });
+
+  it('blocks a folder going into itself or below itself, for copy and move', () => {
+    expect(transferBlocker('copy', at('/a'), at('/a/b/c'), ['b'])).toMatch(/copied into itself/);
+    expect(transferBlocker('move', at('/a'), at('/a/b'), ['b'])).toMatch(/moved into itself/);
+  });
+
+  it('allows the same path on a different volume and unrelated folders', () => {
+    expect(transferBlocker('move', at('/a'), at('/a', 'scratch'), ['b'])).toBe('');
+    expect(transferBlocker('move', at('/a'), at('/a/bc'), ['b'])).toBe('');
   });
 });
