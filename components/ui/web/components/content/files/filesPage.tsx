@@ -1,7 +1,7 @@
 import { FC, useContext, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
-import { Alert, Box } from '@mui/material';
+import { Alert, Box, ButtonBase } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
@@ -11,6 +11,7 @@ import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { Breadcrumb } from './breadcrumb';
 import { VolumeList } from './volumeList';
+import { FolderBrowser } from './folderBrowser';
 import { VolumeTabs } from './volumeTabs';
 
 export const FilesPage: FC = () => {
@@ -19,6 +20,7 @@ export const FilesPage: FC = () => {
   const { data, loading, error } = useQuery<{ getVolumes?: FileService | null }>(FILE_VOLUMES);
 
   const [filter, setFilter] = useState('');
+  const [refreshSignal, setRefreshSignal] = useState(0);
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [direction, setDirection] = useState<1 | -1>(1);
 
@@ -62,17 +64,20 @@ export const FilesPage: FC = () => {
         />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 52, flex: 'none' }}>
           <Box sx={{ flex: 1 }} />
-          {!route.volume && (
-            <Box component="label" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 32, px: 1.25, border: '1px solid #d5dae0', borderRadius: 1, width: 200, bgcolor: '#fff' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'rgba(0,0,0,0.5)' }}>search</span>
-              <input
-                value={filter}
-                onChange={(event) => setFilter(event.target.value)}
-                placeholder="Filter volumes"
-                aria-label="Filter volumes"
-                style={{ border: 0, outline: 'none', font: '13px \'Noto Sans\', sans-serif', minWidth: 0, flex: 1, background: 'transparent' }}
-              />
-            </Box>
+          <Box component="label" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 32, px: 1.25, border: '1px solid #d5dae0', borderRadius: 1, width: 200, bgcolor: '#fff' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'rgba(0,0,0,0.5)' }}>search</span>
+            <input
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+              placeholder={route.volume ? 'Filter this folder' : 'Filter volumes'}
+              aria-label={route.volume ? 'Filter this folder' : 'Filter volumes'}
+              style={{ border: 0, outline: 'none', font: '13px \'Noto Sans\', sans-serif', minWidth: 0, flex: 1, background: 'transparent' }}
+            />
+          </Box>
+          {route.volume && (
+            <ButtonBase aria-label="Refresh" title="Refresh" onClick={() => setRefreshSignal((value) => value + 1)} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>refresh</span>
+            </ButtonBase>
           )}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 0.75, minHeight: 42, bgcolor: '#f4f6f8', borderTop: '1px solid #e6e9ed', borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
@@ -88,15 +93,18 @@ export const FilesPage: FC = () => {
             </Box>
           )}
         </Box>
-        {error && <Alert severity="error" sx={{ m: 2 }}>Could not load volumes: {error.message}</Alert>}
-        <LoadingAnimation backDropIsOpen={loading} />
-        {!loading && !error && !route.volume && (
+        {!route.volume && error && <Alert severity="error" sx={{ m: 2 }}>Could not load volumes: {error.message}</Alert>}
+        {!route.volume && <LoadingAnimation backDropIsOpen={loading} />}
+        {!route.volume && !loading && !error && (
           <VolumeList volumeType={route.volumeType} rows={rows} sortKey={sortKey} direction={direction} onSort={onSort} onOpen={openVolume} />
         )}
-        {!loading && !error && route.volume && (
-          <Box sx={{ flex: 1, display: 'grid', placeItems: 'center', color: 'rgba(0,0,0,0.6)', fontSize: 14 }}>
-            Folder contents are not available yet.
-          </Box>
+        {route.volume && (
+          <FolderBrowser
+            route={{ ...route, volume: route.volume }}
+            filter={filter}
+            refreshSignal={refreshSignal}
+            onOpenFolder={(path) => go({ ...route, path })}
+          />
         )}
       </Box>
     </Box>
