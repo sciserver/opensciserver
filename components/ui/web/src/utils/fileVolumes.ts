@@ -16,12 +16,16 @@ const first = (value: string | string[] | undefined): string | undefined => (Arr
 export const parseFilesRoute = (query: Query): FilesRoute => {
   const volumeType = first(query.type) === 'data' ? VolumeType.Datavolume : VolumeType.Uservolume;
   const name = first(query.volume);
-  if (!name) return { volumeType, path: '' };
+  if (!name) {
+    return { volumeType, path: '' };
+  }
 
   const owner = first(query.owner);
   const rootVolumeName = first(query.root);
   // A user volume is only addressable with its root volume and owner.
-  if (volumeType === VolumeType.Uservolume && (!owner || !rootVolumeName)) return { volumeType, path: '' };
+  if (volumeType === VolumeType.Uservolume && (!owner || !rootVolumeName)) {
+    return { volumeType, path: '' };
+  }
 
   return {
     volumeType,

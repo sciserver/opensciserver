@@ -39,7 +39,7 @@ export const Breadcrumb: FC<Props> = ({ route, onRoot, onPath }) => {
         disabled={!route.volume}
         sx={{ gap: 0.75, px: 0.75, py: '3px', ml: -0.75, borderRadius: 1, fontSize: 13, fontWeight: route.volume ? 400 : 600, color: route.volume ? 'secondary.main' : 'text.primary', '&:hover': { bgcolor: 'rgba(57,140,191,0.1)' } }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: 17, color: '#398CBF', fontVariationSettings: "'FILL' 1" }}>{typeIcon}</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 17, color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>{typeIcon}</span>
         {typeLabel}
       </ButtonBase>
       {crumbs.map((crumb, index) => {

@@ -52,7 +52,7 @@ export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, on
             onClick={() => onOpen(row)}
             sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', width: '100%', textAlign: 'left', px: 1, minHeight: ROW_HEIGHT, borderBottom: '1px solid #f0f2f4', '&:hover': { bgcolor: 'rgba(57,140,191,0.08)' } }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#398CBF', fontVariationSettings: "'FILL' 1" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>
               {isData ? 'database' : row.shared ? 'folder_shared' : 'folder'}
             </span>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0, fontSize: 14, fontWeight: 500 }}>

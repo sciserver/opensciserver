@@ -25,9 +25,7 @@ describe('parseFilesRoute', () => {
   });
 
   it('reads a data volume by name only', () => {
-    expect(parseFilesRoute({ type: 'data', volume: 'SDSS' })).toEqual({
-      volumeType: VolumeType.Datavolume, volume: { volumeName: 'SDSS' }, path: ''
-    });
+    expect(parseFilesRoute({ type: 'data', volume: 'SDSS' })).toEqual({ volumeType: VolumeType.Datavolume, volume: { volumeName: 'SDSS' }, path: '' });
   });
 
   it('round-trips through filesRouteQuery', () => {
@@ -37,10 +35,12 @@ describe('parseFilesRoute', () => {
 });
 
 describe('volume rows', () => {
-  const rows = userVolumeRows([{ userVolumes: [
-    userVolume('persistent', 'me', 'Storage', ['read', 'write'], true),
-    userVolume('theirs', 'other', 'Storage', ['read'], true)
-  ] }], 'me');
+  const rows = userVolumeRows([{
+    userVolumes: [
+      userVolume('persistent', 'me', 'Storage', ['read', 'write'], true),
+      userVolume('theirs', 'other', 'Storage', ['read'], true)
+    ] 
+  }], 'me');
 
   it('flags writable and shared-by-me volumes', () => {
     expect(rows.map((r) => [r.name, r.writable, r.shared])).toEqual([['persistent', true, true], ['theirs', false, false]]);

@@ -6,9 +6,7 @@ import { Alert, Box } from '@mui/material';
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
 import { FileService, VolumeType } from 'src/graphql/typings';
-import {
-  dataVolumeRows, filesRouteQuery, filterAndSortRows, parseFilesRoute, SortKey, userVolumeRows, VolumeRow
-} from 'src/utils/fileVolumes';
+import { dataVolumeRows, filesRouteQuery, filterAndSortRows, parseFilesRoute, SortKey, userVolumeRows, VolumeRow } from 'src/utils/fileVolumes';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { Breadcrumb } from './breadcrumb';
@@ -40,8 +38,12 @@ export const FilesPage: FC = () => {
   };
 
   const onSort = (key: SortKey) => {
-    if (key === sortKey) setDirection((current) => (current === 1 ? -1 : 1));
-    else { setSortKey(key); setDirection(1); }
+    if (key === sortKey) {
+      setDirection((current) => (current === 1 ? -1 : 1));
+    }
+    else {
+      setSortKey(key); setDirection(1); 
+    }
   };
 
   const openVolume = (row: VolumeRow) => {
@@ -68,7 +70,7 @@ export const FilesPage: FC = () => {
                 onChange={(event) => setFilter(event.target.value)}
                 placeholder="Filter volumes"
                 aria-label="Filter volumes"
-                style={{ border: 0, outline: 'none', font: "13px 'Noto Sans', sans-serif", minWidth: 0, flex: 1, background: 'transparent' }}
+                style={{ border: 0, outline: 'none', font: '13px \'Noto Sans\', sans-serif', minWidth: 0, flex: 1, background: 'transparent' }}
               />
             </Box>
           )}
