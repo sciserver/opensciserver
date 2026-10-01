@@ -49,5 +49,6 @@ describe('searchPrincipals', () => {
     expect(searchPrincipals(all, [member(user, ['read'])], '', 10).shown.map((p) => p.name)).toEqual(['astro', 'bob']);
     expect(searchPrincipals(all, [], 'BO', 10).shown.map((p) => p.name)).toEqual(['bob']);
     expect(searchPrincipals(all, [], '', 1)).toMatchObject({ total: 3 });
+    expect(searchPrincipals(all, [], '', 10, PrincipalType.Group).shown.map((p) => p.name)).toEqual(['astro']);
   });
 });

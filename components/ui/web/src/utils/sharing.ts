@@ -52,10 +52,11 @@ export const searchPrincipals = (
   principals: SharePrincipal[],
   members: Member[],
   needle: string,
-  limit: number
+  limit: number,
+  type?: PrincipalType
 ): { shown: SharePrincipal[]; total: number } => {
   const query = needle.trim().toLowerCase();
   const memberKeys = new Set(members.map((member) => principalKey(member)));
-  const matches = principals.filter((principal) => !memberKeys.has(principalKey(principal)) && (!query || principal.name.toLowerCase().includes(query)));
+  const matches = principals.filter((principal) => !memberKeys.has(principalKey(principal)) && (!type || principal.type === type) && (!query || principal.name.toLowerCase().includes(query)));
   return { shown: matches.slice(0, limit), total: matches.length };
 };

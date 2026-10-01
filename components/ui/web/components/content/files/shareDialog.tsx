@@ -1,6 +1,6 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { Alert, Box, Button, ButtonBase, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, LinearProgress, TextField } from '@mui/material';
+import { Alert, Box, Button, ButtonBase, Checkbox, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, LinearProgress, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
 
 import { PUBLIC_USERS_AND_GROUPS } from 'src/graphql/accounts';
 import { SHARE_USER_VOLUME, SHARING_DETAILS } from 'src/graphql/volumes';
@@ -17,6 +17,16 @@ type Props = {
 const DIRECTORY_LIMIT = 50;
 
 const ICON = { [PrincipalType.User]: 'person', [PrincipalType.Group]: 'group' };
+const LABEL = { [PrincipalType.User]: 'User', [PrincipalType.Group]: 'Group' };
+
+/** Users and groups look alike in a list, so each name carries a colored label as well as its icon. */
+const TypeChip: FC<{ type: PrincipalType }> = ({ type }) => (
+  <Chip
+    size="small"
+    label={LABEL[type]}
+    sx={{ height: 20, fontSize: 11, fontWeight: 600, flex: 'none', bgcolor: type === PrincipalType.Group ? 'rgba(32,161,131,0.14)' : 'rgba(57,140,191,0.14)', color: type === PrincipalType.Group ? '#157A63' : '#1F6A96' }}
+  />
+);
 
 /**
  * Share a user volume with users and groups. Nothing is fetched until this opens: the volume's current
@@ -36,6 +46,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
 
   const [members, setMembers] = useState<SharedWith[]>([]);
   const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<PrincipalType | 'ALL'>('ALL');
   const [saving, setSaving] = useState(false);
 
   // The directory is the big one, so it starts loading only once we know the volume's own sharing.
@@ -47,8 +58,8 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
   }, [original]);
 
   const { shown, total } = useMemo(
-    () => searchPrincipals(directory?.getPublicUsersAndGroups || [], members, search, DIRECTORY_LIMIT),
-    [directory, members, search]
+    () => searchPrincipals(directory?.getPublicUsersAndGroups || [], members, search, DIRECTORY_LIMIT, typeFilter === 'ALL' ? undefined : typeFilter),
+    [directory, members, search, typeFilter]
   );
   const changed = !!original && sharingChanged(original, members);
 
@@ -77,6 +88,18 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Box sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Add users and groups</Box>
           <TextField size="small" placeholder="Search by name" value={search} onChange={(event) => setSearch(event.target.value)} disabled={!original} inputProps={{ 'aria-label': 'Search users and groups' }} />
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={typeFilter}
+            onChange={(_, value) => value && setTypeFilter(value)}
+            aria-label="Show users, groups or both"
+            sx={{ mt: 1 }}
+          >
+            <ToggleButton value="ALL" sx={{ px: 1.5, textTransform: 'none' }}>All</ToggleButton>
+            <ToggleButton value={PrincipalType.User} sx={{ px: 1.5, textTransform: 'none' }}>Users</ToggleButton>
+            <ToggleButton value={PrincipalType.Group} sx={{ px: 1.5, textTransform: 'none' }}>Groups</ToggleButton>
+          </ToggleButtonGroup>
           <Box sx={{ flex: 1, minHeight: 0, maxHeight: 320, overflow: 'auto', mt: 1, border: '1px solid #e6e9ed', borderRadius: 1 }}>
             {directoryLoading && <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1, fontSize: 13 }}><CircularProgress size={16} /> Loading users and groups…</Box>}
             {directoryError && <Alert severity="error">Could not load users and groups: {directoryError.message}</Alert>}
@@ -88,6 +111,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#398CBF' }}>{ICON[principal.type]}</span>
                 <Box component="span" sx={{ flex: 1, fontSize: 14 }}>{principal.name}</Box>
+                <TypeChip type={principal.type} />
                 <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'rgba(0,0,0,0.5)' }}>add</span>
               </ButtonBase>
             ))}
@@ -104,6 +128,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#398CBF' }}>{ICON[member.type]}</span>
                   <Box component="span" sx={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{member.name}</Box>
+                  <TypeChip type={member.type} />
                   <ButtonBase aria-label={`Remove ${member.name}`} onClick={() => setMembers((current) => removeMember(current, member))} sx={{ width: 28, height: 28, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
                   </ButtonBase>
