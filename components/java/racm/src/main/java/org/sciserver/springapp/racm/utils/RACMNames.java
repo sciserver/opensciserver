@@ -42,6 +42,7 @@ public class RACMNames {
 	public static final String A_CREATE_DOCKER_CONTAINER = "createDockerContainer";
 	public static final String A_REGISTER_VOLUME_CONTAINER = "registerVolumeContainer";
 	public static final String A_REGISTER_DOCKER_IMAGE = "registerDockerImage";
+	public static final String A_ADD_ROOT_VOLUME = "addRootVolume";
 
 	// PublicVolume ResourceType
 	public static final String RT_VOLUME_CONTAINER = "VolumeContainer";
