@@ -22,6 +22,17 @@ Files in the `pages/` directory are treated as [Routes](https://nextjs.org/docs/
 
 In Next.js, a page is a React Component exported from a `.tsx` file in the `/components/content` directory. Each page is associated with a route based on its file name
 
+## Tests
+
+```bash
+yarn test       # unit tests (Vitest)
+yarn test:e2e   # end-to-end tests (Playwright)
+```
+
+The e2e tests start their own Next dev server on port 3200 (own build folder, so it can run next to `yarn dev`) and
+answer every GraphQL and file service request with the in-memory stubs in `e2e/support/api.ts`. They need no login,
+backend or network. The first time, install the browser with `npx playwright install chromium`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

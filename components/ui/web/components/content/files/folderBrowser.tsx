@@ -337,7 +337,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
         <span />
       </Box>
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-        <LoadingAnimation backDropIsOpen={showLoading} />
+        {showLoading && <LoadingAnimation backDropIsOpen />}
         {showError && (
           <Alert severity="error" sx={{ m: 2 }} action={<Button color="inherit" size="small" onClick={reload}>Retry</Button>}>
             Could not load this folder: {error?.message}

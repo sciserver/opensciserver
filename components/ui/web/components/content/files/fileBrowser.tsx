@@ -241,7 +241,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       </Box>
       {reloading && <LinearProgress aria-label="Reloading volumes" sx={{ flex: 'none' }} />}
       {error && <Alert severity="error" sx={{ m: 2 }}>Could not load volumes: {error.message}</Alert>}
-      <LoadingAnimation backDropIsOpen={initialLoading} />
+      {initialLoading && <LoadingAnimation backDropIsOpen />}
       {!initialLoading && !error && !route.volume && (
         <VolumeList
           volumeType={route.volumeType}

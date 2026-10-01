@@ -34,7 +34,7 @@ const TypeChip: FC<{ type: PrincipalType }> = ({ type }) => (
  */
 export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
   const { route } = volume;
-  const { data: sharing, error: sharingError } = useQuery<{ getVolumes?: FileService | null }>(SHARING_DETAILS, { fetchPolicy: 'network-only' });
+  const { data: sharing, error: sharingError } = useQuery<{ getVolumes?: FileService | null }>(SHARING_DETAILS, { fetchPolicy: 'no-cache' });
   const [loadDirectory, { data: directory, loading: directoryLoading, error: directoryError }] = useLazyQuery<{ getPublicUsersAndGroups: SharePrincipal[] }>(PUBLIC_USERS_AND_GROUPS);
   const [shareUserVolume] = useMutation(SHARE_USER_VOLUME);
 
