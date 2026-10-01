@@ -6,7 +6,7 @@ import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
 import { FileService, VolumeType } from 'src/graphql/typings';
 import { creatableRootVolumes, DEFAULT_FILES_ROUTE, dataVolumeRows, FilesRoute, filterAndSortRows, sameVolume, SortKey, userVolumeRows, VolumeRow, workspacePath } from 'src/utils/fileVolumes';
-import { FILE_SERVICE_NOT_CONFIGURED, fileServiceUrl, fileUrl, toArray, uploadFile } from 'src/utils/fileTransfer';
+import { toArray } from 'src/utils/fileTransfer';
 import { joinPath } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
@@ -16,7 +16,8 @@ import { TransferDialog } from './transferDialog';
 import { QuotasDialog } from './quotasDialog';
 import { ShareDialog } from './shareDialog';
 import { CreateVolumeDialog, DeleteVolumeDialog, EditVolumeDialog } from './volumeDialogs';
-import { UploadItem, UploadsPanel } from './uploadsPanel';
+import { UploadsPanel } from './uploadsPanel';
+import { useUploads } from './useUploads';
 import { VolumeList } from './volumeList';
 import { VolumeTabs } from './volumeTabs';
 
@@ -40,8 +41,6 @@ export type FileBrowserProps = {
   onSelect?: (selection: FileBrowserSelection) => void;
   style?: CSSProperties;
 };
-
-const DONE_UPLOAD_MS = 4000;
 
 const rowRoute = (row: VolumeRow): FilesRoute => {
   const { volumeType, ...volume } = row.route;
@@ -68,9 +67,6 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [creating, setCreating] = useState(false);
   const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'quotas' } | { kind: 'edit' | 'delete' | 'share'; row: VolumeRow } | null>(null);
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
-  const uploadId = useRef(0);
-  const activeUploads = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
   const [transfer, setTransfer] = useState<{ kind: 'copy' | 'move'; names: string[] } | null>(null);
   const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
@@ -130,42 +126,12 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
     refetch().catch(() => undefined);
   };
 
-  const patchUpload = (id: number, patch: Partial<UploadItem>) => setUploads((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
-
-  const upload = (files: File[]) => {
-    if (!route.volume || !currentRow?.writable) {
-      setToast({ message: 'Open a writable folder to upload', severity: 'error' });
-      return;
-    }
-    const base = fileServiceUrl();
-    if (!base) {
-      setToast({ message: FILE_SERVICE_NOT_CONFIGURED, severity: 'error' });
-      return;
-    }
-    const { volume, volumeType, path } = route;
-    const where = path.split('/').filter(Boolean).pop() || volume.volumeName;
-    for (const file of files) {
-      uploadId.current += 1;
-      activeUploads.current += 1;
-      const id = uploadId.current;
-      const handle = uploadFile(fileUrl(base, { volumeType, ...volume }, path, file.name), file, token, (progress) => patchUpload(id, { progress }));
-      setUploads((current) => [...current, { id, name: file.name, where, progress: 0, status: 'uploading', abort: handle.abort }]);
-      handle.promise
-        .then(() => {
-          patchUpload(id, { status: 'done', progress: 1 });
-          // A finished upload clears itself; failures stay until dismissed.
-          setTimeout(() => setUploads((current) => current.filter((item) => item.id !== id)), DONE_UPLOAD_MS);
-        })
-        .finally(() => {
-          // One reload once the whole batch is done, not one per file.
-          activeUploads.current -= 1;
-          if (activeUploads.current === 0) {
-            setRefreshSignal((value) => value + 1);
-          }
-        })
-        .catch((error_: Error) => patchUpload(id, { status: 'error', error: error_.message }));
-    }
-  };
+  const { uploads, upload, dismiss: dismissUpload } = useUploads({
+    token,
+    target: route.volume && currentRow?.writable ? { volume: { volumeType: route.volumeType, ...route.volume }, path: route.path } : undefined,
+    notifyError: (message) => setToast({ message, severity: 'error' }),
+    onBatchDone: () => setRefreshSignal((value) => value + 1)
+  });
 
   return (
     <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', minHeight: 320, bgcolor: 'background.paper', border: '1px solid #dde2e7', borderRadius: '6px', overflow: 'hidden', ...style }}>
@@ -314,7 +280,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       {volumeDialog?.kind === 'quotas' && <QuotasDialog onClose={() => setVolumeDialog(null)} />}
       {volumeDialog?.kind === 'share' && <ShareDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
       {volumeDialog?.kind === 'delete' && <DeleteVolumeDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
-      <UploadsPanel uploads={uploads} onDismiss={(id) => setUploads((current) => current.filter((item) => item.id !== id))} />
+      <UploadsPanel uploads={uploads} onDismiss={dismissUpload} />
       <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert severity={toast?.severity ?? 'success'} variant="filled" onClose={() => setToast(null)}>{toast?.message}</Alert>
       </Snackbar>

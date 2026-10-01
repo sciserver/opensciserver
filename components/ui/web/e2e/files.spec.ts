@@ -53,6 +53,14 @@ test.describe('browsing', () => {
     expect(backend.called('jsonTree').length).toBeGreaterThanOrEqual(2);
   });
 
+  test('a deep link opens the folder directly, without flashing the volume list', async ({ page, backend }) => {
+    await open(page, PERSISTENT);
+    await expect(page.getByRole('row', { name: /results\.csv/ })).toBeVisible();
+    // Only the one volumes request, and no volume row was ever listed for another volume.
+    expect(backend.called('fileVolumes')).toHaveLength(1);
+    await expect(page.getByRole('row', { name: /NotebookExamples/ })).toHaveCount(0);
+  });
+
   test('renders the README and filters the folder', async ({ page }) => {
     await open(page, PERSISTENT);
     await expect(page.getByText('Hello from the README.')).toBeVisible();

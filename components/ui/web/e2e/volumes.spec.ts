@@ -120,3 +120,13 @@ test('a failed sharing save keeps the dialog and the edits', async ({ page, back
   await dialog.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByText('Updated sharing for “FESS”')).toBeVisible();
 });
+
+test('says so when the volume to share has disappeared since the list loaded', async ({ page, backend }) => {
+  backend.volumes = backend.volumes.filter((volume) => volume.name !== 'FESS');
+  await page.getByRole('button', { name: 'More actions for FESS' }).click();
+  await page.getByRole('menuitem', { name: /Sharing/ }).click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('can no longer be found');
+  await expect(dialog.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+});

@@ -1,7 +1,9 @@
 import { FC, useState } from 'react';
-import { Box, ButtonBase, Menu, MenuItem } from '@mui/material';
+import { Box, ButtonBase } from '@mui/material';
 import { VolumeType } from 'src/graphql/typings';
 import { SortKey, VolumeRow } from 'src/utils/fileVolumes';
+
+import { EmptyMessage, MenuAction, RowMenu, SortHeader } from './listParts';
 
 type Props = {
   volumeType: VolumeType;
@@ -12,7 +14,7 @@ type Props = {
   onOpen: (row: VolumeRow) => void;
   /** Pick mode: single click selects, double click or the arrow opens. */
   /** Row menu (manage mode). Rows with no items get no menu button. */
-  menuItems?: (row: VolumeRow) => { label: string; icon: string; color?: string; run: () => void }[];
+  menuItems?: (row: VolumeRow) => MenuAction[];
   pick?: { selectedKey: string | null; isDisabled: (row: VolumeRow) => boolean; onSelect: (row: VolumeRow) => void };
 };
 
@@ -37,17 +39,7 @@ export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, on
       <Box role="row" sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, height: 34, borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
         <span />
         {headers.map(({ key, label }) => (
-          <ButtonBase
-            key={key}
-            onClick={() => onSort(key)}
-            aria-sort={sortKey === key ? (direction === 1 ? 'ascending' : 'descending') : 'none'}
-            sx={{ justifySelf: 'start', gap: 0.5, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}
-          >
-            {label}
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
-              {sortKey === key ? (direction === 1 ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-            </span>
-          </ButtonBase>
+          <SortHeader key={key} label={label} active={sortKey === key} direction={direction} onClick={() => onSort(key)} />
         ))}
         <span />
       </Box>
@@ -105,23 +97,10 @@ export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, on
           );
         })}
         {rows.length === 0 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.75, py: 6, px: 2, color: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 36, color: '#B0C1D9' }}>folder_open</span>
-            <Box sx={{ fontWeight: 600, color: 'text.primary' }}>No volumes found</Box>
-            <Box sx={{ fontSize: 13 }}>Try a different filter.</Box>
-          </Box>
+          <EmptyMessage icon="folder_open" title="No volumes found" hint="Try a different filter." />
         )}
       </Box>
-      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={() => setMenu(null)}>
-        {(menu && menuItems ? menuItems(menu.row) : []).map((item) => (
-          <MenuItem key={item.label} onClick={() => {
-            setMenu(null); item.run(); 
-          }} sx={{ gap: 1.5, fontSize: 14, color: item.color }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{item.icon}</span>
-            {item.label}
-          </MenuItem>
-        ))}
-      </Menu>
+      <RowMenu anchor={menu?.anchor ?? null} items={menu && menuItems ? menuItems(menu.row) : []} onClose={() => setMenu(null)} />
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 import { DragEvent, FC, KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useMutation, useQuery } from '@apollo/client';
-import { Alert, LinearProgress, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem } from '@mui/material';
+import { Alert, LinearProgress, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 import { UserContext } from 'context';
 import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/files';
@@ -11,6 +11,8 @@ import { FilesRoute } from 'src/utils/fileVolumes';
 import { FILE_SERVICE_NOT_CONFIGURED, fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
 import { joinPath, toVolumeRef } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
+
+import { EmptyMessage, MenuAction, RowMenu, SortHeader } from './listParts';
 
 type Props = {
   route: FilesRoute & { volume: NonNullable<FilesRoute['volume']> };
@@ -37,14 +39,6 @@ const ROW_HEIGHT = 38;
 
 const CheckIcon: FC<{ name: string; active?: boolean }> = ({ name, active }) => (
   <span className="material-symbols-outlined" style={{ fontSize: 20, color: active ? '#398CBF' : 'rgba(0,0,0,0.5)' }}>{name}</span>
-);
-
-const Message: FC<{ icon: string; title: string; hint?: string }> = ({ icon, title, hint }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.75, py: 6, px: 2, color: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
-    <span className="material-symbols-outlined" style={{ fontSize: 36, color: '#B0C1D9' }}>{icon}</span>
-    <Box sx={{ fontWeight: 600, color: 'text.primary' }}>{title}</Box>
-    {hint && <Box sx={{ fontSize: 13 }}>{hint}</Box>}
-  </Box>
 );
 
 type NameInputProps = {
@@ -268,7 +262,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   const showLoading = loading && !data;
   const showError = !!error && !data;
 
-  const menuItems = (entry: FileEntry) => [
+  const menuItems = (entry: FileEntry): MenuAction[] => [
     ...(entry.isFolder ? [{ label: 'Open', icon: 'folder_open', color: 'text.primary', run: () => open(entry) }] : []),
     ...(entry.isFolder ? [] : [{ label: 'Download', icon: 'download', color: 'text.primary', run: () => download(entry) }]),
     { label: 'Copy to…', icon: 'content_copy', color: 'text.primary', run: () => onTransfer('copy', [entry.name]) },
@@ -332,17 +326,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           </ButtonBase>
         )}
         {headers.map(({ key, label }) => (
-          <ButtonBase
-            key={key}
-            onClick={() => onSort(key)}
-            aria-sort={sortKey === key ? (direction === 1 ? 'ascending' : 'descending') : 'none'}
-            sx={{ justifySelf: 'start', gap: 0.5, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}
-          >
-            {label}
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
-              {sortKey === key ? (direction === 1 ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-            </span>
-          </ButtonBase>
+          <SortHeader key={key} label={label} active={sortKey === key} direction={direction} onClick={() => onSort(key)} />
         ))}
         <span />
       </Box>
@@ -445,7 +429,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
             </Box>
           );
         })}
-        {!showLoading && !showError && all.length === 0 && !creating && <Message icon="folder_open" title="This folder is empty" hint={emptyHint} />}
+        {!showLoading && !showError && all.length === 0 && !creating && <EmptyMessage icon="folder_open" title="This folder is empty" hint={emptyHint} />}
         {readme && (
           <Box sx={{ m: 2, p: 2, border: '1px solid #e6e9ed', borderRadius: 1, bgcolor: '#fbfcfd', fontSize: 14 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}>
@@ -456,7 +440,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           </Box>
         )}
         {!showLoading && !showError && all.length > 0 && entries.length === 0 && (
-          <Message icon="search_off" title={`No matches for “${filter.trim()}”`} hint="Try a different name." />
+          <EmptyMessage icon="search_off" title={`No matches for “${filter.trim()}”`} hint="Try a different name." />
         )}
       </Box>
       {dragging && (
@@ -476,16 +460,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           </Box>
         </Box>
       )}
-      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={() => setMenu(null)}>
-        {(menu ? menuItems(menu.entry) : []).map((item) => (
-          <MenuItem key={item.label} onClick={() => {
-            setMenu(null); item.run(); 
-          }} sx={{ gap: 1.5, fontSize: 14, color: item.color }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{item.icon}</span>
-            {item.label}
-          </MenuItem>
-        ))}
-      </Menu>
+      <RowMenu anchor={menu?.anchor ?? null} items={menu ? menuItems(menu.entry) : []} onClose={() => setMenu(null)} />
       <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
         <DialogTitle>{confirmDelete && confirmDelete.length > 1 ? `Delete ${confirmDelete.length} items?` : 'Delete item?'}</DialogTitle>
         <DialogContent>

@@ -118,7 +118,11 @@ export const sameVolume = (a: Omit<FileVolumeRoute, 'volumeType'>, b: Omit<FileV
   a.volumeName === b.volumeName && (a.owner || '') === (b.owner || '') && (a.rootVolumeName || '') === (b.rootVolumeName || '')
 );
 
-/** Where the route is mounted inside a compute container, e.g. /home/idies/workspace/Storage/me/persistent/a. '' at the top level. */
+/**
+ * Where the route is mounted inside a compute container, e.g. /home/idies/workspace/Storage/me/persistent/a.
+ * '' at the top level. This is the same convention the old dashboard used for its copy-path buttons
+ * (dashboard NotebookTab.vue): user volumes as root/owner/name, data volumes by name.
+ */
 export const workspacePath = (route: FilesRoute): string => {
   if (!route.volume) {
     return '';
