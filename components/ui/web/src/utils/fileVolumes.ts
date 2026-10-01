@@ -99,3 +99,21 @@ export const filterAndSortRows = (rows: VolumeRow[], filter: string, sortKey: So
   const compare = (a: VolumeRow, b: VolumeRow) => a[sortKey].toLowerCase().localeCompare(b[sortKey].toLowerCase()) * direction;
   return rows.filter((row) => !needle || row.name.toLowerCase().includes(needle)).sort(compare);
 };
+
+export const DEFAULT_FILES_ROUTE: FilesRoute = { volumeType: VolumeType.Uservolume, path: '' };
+
+export const sameVolume = (a: Omit<FileVolumeRoute, 'volumeType'>, b: Omit<FileVolumeRoute, 'volumeType'>): boolean => (
+  a.volumeName === b.volumeName && (a.owner || '') === (b.owner || '') && (a.rootVolumeName || '') === (b.rootVolumeName || '')
+);
+
+/** Where the route is mounted inside a compute container, e.g. /home/idies/workspace/Storage/me/persistent/a. '' at the top level. */
+export const workspacePath = (route: FilesRoute): string => {
+  if (!route.volume) {
+    return '';
+  }
+  const { volumeName, rootVolumeName, owner } = route.volume;
+  const base = route.volumeType === VolumeType.Uservolume
+    ? `/home/idies/workspace/${rootVolumeName}/${owner}/${volumeName}`
+    : `/home/idies/workspace/${volumeName}`;
+  return `${base}${route.path}`;
+};
