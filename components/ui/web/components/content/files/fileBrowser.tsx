@@ -38,6 +38,8 @@ export type FileBrowserProps = {
   style?: CSSProperties;
 };
 
+const DONE_UPLOAD_MS = 4000;
+
 const rowRoute = (row: VolumeRow): FilesRoute => {
   const { volumeType, ...volume } = row.route;
   return { volumeType, volume, path: '' };
@@ -119,7 +121,11 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       const handle = uploadFile(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, file.name), file, token, (progress) => patchUpload(id, { progress }));
       setUploads((current) => [...current, { id, name: file.name, where, progress: 0, status: 'uploading', abort: handle.abort }]);
       handle.promise
-        .then(() => patchUpload(id, { status: 'done', progress: 1 }))
+        .then(() => {
+          patchUpload(id, { status: 'done', progress: 1 });
+          // A finished upload clears itself; failures stay until dismissed.
+          setTimeout(() => setUploads((current) => current.filter((item) => item.id !== id)), DONE_UPLOAD_MS);
+        })
         .finally(() => setRefreshSignal((value) => value + 1))
         .catch((error_: Error) => patchUpload(id, { status: 'error', error: error_.message }));
     }
