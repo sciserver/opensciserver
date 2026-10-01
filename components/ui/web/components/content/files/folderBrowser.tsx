@@ -20,6 +20,8 @@ type Props = {
   creating: boolean;
   onCreatingDone: (createdName?: string) => void;
   onOpenFolder: (path: string) => void;
+  /** Ask the parent to pick a destination for these names and copy or move them. */
+  onTransfer: (kind: 'copy' | 'move', names: string[]) => void;
   notify: (message: string, severity?: 'success' | 'error') => void;
   /** Pick mode: files are greyed out, a click selects a folder and a double click opens it. */
   pick?: { selectedName: string | null; onSelect: (name: string) => void };
@@ -94,7 +96,7 @@ const NameInput: FC<NameInputProps> = ({ initial, existingNames, own, icon, hint
   );
 };
 
-export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSignal, creating, onCreatingDone, onOpenFolder, notify, pick }) => {
+export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSignal, creating, onCreatingDone, onOpenFolder, onTransfer, notify, pick }) => {
   const { volume, volumeType, path } = route;
   const volumeRef = useMemo(() => toVolumeRef({ volumeType, ...volume }), [volumeType, volume.volumeName, volume.owner, volume.rootVolumeName]);
   const { data, loading, error, refetch } = useQuery<{ getJsonTree: JsonTree }>(JSON_TREE, {
@@ -223,7 +225,9 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
 
   const menuItems = (entry: FileEntry) => [
     ...(entry.isFolder ? [{ label: 'Open', icon: 'folder_open', color: 'text.primary', run: () => open(entry) }] : []),
+    { label: 'Copy to…', icon: 'content_copy', color: 'text.primary', run: () => onTransfer('copy', [entry.name]) },
     ...(writable ? [
+      { label: 'Move to…', icon: 'drive_file_move', color: 'text.primary', run: () => onTransfer('move', [entry.name]) },
       { label: 'Rename', icon: 'edit', color: 'text.primary', run: () => setRenaming(entry.name) },
       { label: 'Delete', icon: 'delete', color: '#C62828', run: () => setConfirmDelete([entry.name]) }
     ] : [])
@@ -240,6 +244,14 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           </ButtonBase>
           <Box component="span" sx={{ fontWeight: 600, color: 'primary.main' }}>{selected.length} selected</Box>
           <Box sx={{ flex: 1 }} />
+          <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>content_copy</span>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
+            Copy
+          </Button>
+          {writable && (
+            <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>drive_file_move</span>} onClick={() => onTransfer('move', selected.map((entry) => entry.name))}>
+              Move
+            </Button>
+          )}
           {writable && (
             <Button color="error" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>} onClick={() => setConfirmDelete(selected.map((entry) => entry.name))}>
               Delete
