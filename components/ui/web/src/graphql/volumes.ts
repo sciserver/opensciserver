@@ -29,3 +29,34 @@ export const VOLUMES = gql`
     }
   }
 `;
+
+export const FILE_VOLUMES = gql`
+  query fileVolumes {
+    getVolumes {
+      dataVolumes {
+        id
+        name
+        displayName
+        description
+        writable
+        allowedActions
+      }
+      rootVolumes {
+        name
+        userVolumes {
+          id
+          name
+          owner
+          rootVolumeName
+          allowedActions
+          sharedWith {
+            id
+            name
+            type
+            allowedActions
+          }
+        }
+      }
+    }
+  }
+`;
