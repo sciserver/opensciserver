@@ -9,6 +9,12 @@ plugins {
 
 apply plugin: 'io.spring.dependency-management'
 
+// Spring Boot 2.7 manages JUnit at 5.8.2 / platform 1.8.2. Eclipse supplies its own, newer
+// junit-platform-launcher, and a newer launcher calling into older junit-platform-commons fails
+// with NoSuchMethodError. Pinning a current JUnit keeps the platform consistent in both the IDE
+// and Gradle.
+ext['junit-jupiter.version'] = '5.11.4'
+
 group 'org.sciserver'
 
 
@@ -81,6 +87,8 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-core:4.4.0'
+    // Supplied explicitly so the IDE uses this launcher rather than injecting its own.
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
 }
 
 configurations {
