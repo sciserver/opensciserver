@@ -50,8 +50,8 @@ describe('volume rows', () => {
     expect(isSharedByOwner(userVolume('v', 'other', 'Storage', [], true), 'me')).toBe(false);
   });
 
-  it('labels data volumes read-only unless writable', () => {
-    const [row] = dataVolumeRows([{ id: '1', name: 'sdss', displayName: 'SDSS', description: 'd', writable: false, allowedActions: ['read'], publisherDID: '', racmUUID: '', sharedWith: [] }]);
+  it('treats data volumes as read-only even when the server says writable', () => {
+    const [row] = dataVolumeRows([{ id: '1', name: 'sdss', displayName: 'SDSS', description: 'd', writable: true, allowedActions: ['read', 'write'], publisherDID: '', racmUUID: '', sharedWith: [] }]);
     expect(row).toMatchObject({ name: 'SDSS', rootVolume: 'Read-only', writable: false });
   });
 
