@@ -49,10 +49,6 @@ export const hasAction = (allowedActions: (string | null)[] | undefined, action:
 
 export const isUserVolumeWritable = (volume: Pick<UserVolume, 'allowedActions'>): boolean => hasAction(volume.allowedActions, 'write');
 
-export const isDataVolumeWritable = (volume: Pick<DataVolume, 'writable' | 'allowedActions'>): boolean => (
-  volume.writable || hasAction(volume.allowedActions, 'write')
-);
-
 /** A user volume the signed-in user owns and has shared with others. */
 export const isSharedByOwner = (volume: Pick<UserVolume, 'owner' | 'sharedWith'>, userName?: string): boolean => (
   !!userName && volume.owner === userName && volume.sharedWith.length > 0
@@ -88,9 +84,10 @@ export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVo
   key: volume.name,
   route: { volumeType: VolumeType.Datavolume, volumeName: volume.name },
   name: volume.displayName || volume.name,
-  rootVolume: isDataVolumeWritable(volume) ? 'Writable' : 'Read-only',
+  // Data volumes are read-only in the UI, whatever allowedActions says.
+  rootVolume: 'Read-only',
   detail: volume.description,
-  writable: isDataVolumeWritable(volume),
+  writable: false,
   shared: false
 }));
 
