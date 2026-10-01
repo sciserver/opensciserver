@@ -103,3 +103,55 @@ test('uploads files and reloads once', async ({ page, backend }) => {
   // finished uploads clear themselves
   await expect(page.getByRole('status', { name: 'Uploads' })).toHaveCount(0, { timeout: 8000 });
 });
+
+test('says why a delete failed and keeps the item selected', async ({ page, backend }) => {
+  backend.failNext('deleteFile', 'Missing required permissions');
+  await page.getByRole('button', { name: 'Select a.txt' }).click();
+  await page.getByRole('button', { name: /^delete\s*Delete$/ }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+
+  await expect(page.getByText(/Could not delete “a\.txt”: Missing required permissions/)).toBeVisible();
+  await expect(page.getByText('1 selected')).toBeVisible();
+});
+
+test.describe('copy and move dialog', () => {
+  test('moving into the same folder keeps the dialog open with a message', async ({ page, backend }) => {
+    await page.getByRole('button', { name: 'More actions for a.txt' }).click();
+    await page.getByRole('menuitem', { name: /Move to/ }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', { name: 'Move here' }).click();
+
+    await expect(dialog).toContainText('already in this folder');
+    expect(backend.called('moveFile')).toHaveLength(0);
+
+    // pick another folder in the same dialog and carry on
+    await dialog.getByRole('row', { name: /notebooks/ }).dblclick();
+    await dialog.getByRole('button', { name: 'Move here' }).click();
+    await expect(page.getByText('Moved “a.txt”')).toBeVisible();
+  });
+
+  test('a folder cannot be copied or moved into itself', async ({ page, backend }) => {
+    await page.getByRole('button', { name: 'More actions for data' }).click();
+    await page.getByRole('menuitem', { name: /Copy to/ }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('row', { name: /data/ }).dblclick();
+    await dialog.getByRole('button', { name: 'Copy here' }).click();
+
+    await expect(dialog).toContainText('can’t be copied into itself');
+    expect(backend.called('copyFile')).toHaveLength(0);
+  });
+
+  test('shows the server reason and stays open when nothing could be copied', async ({ page, backend }) => {
+    backend.failNext('copyFile', 'Missing required permissions on volume');
+    await page.getByRole('button', { name: 'More actions for a.txt' }).click();
+    await page.getByRole('menuitem', { name: /Copy to/ }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('row', { name: /notebooks/ }).dblclick();
+    await dialog.getByRole('button', { name: 'Copy here' }).click();
+
+    await expect(dialog).toContainText('Could not copy “a.txt”: Missing required permissions on volume');
+    // the dialog is still usable: trying again works
+    await dialog.getByRole('button', { name: 'Copy here' }).click();
+    await expect(page.getByText('Copied “a.txt”')).toBeVisible();
+  });
+});

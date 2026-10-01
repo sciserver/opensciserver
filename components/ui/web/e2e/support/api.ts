@@ -21,6 +21,9 @@ export class FakeBackend {
 
   uploads: string[] = [];
 
+  /** The X-Auth-Token header of every README request, in order. */
+  readmeTokens: string[] = [];
+
   private failures = new Map<string, string>();
 
   readonly user = { id: '1', userName: 'ana', email: 'ana@example.org', visibility: 'public' };
@@ -98,6 +101,7 @@ export class FakeBackend {
       await route.fulfill({ status: 200, body: '' });
       return;
     }
+    this.readmeTokens.push(request.headers()['x-auth-token'] ?? '');
     await route.fulfill({ status: 200, contentType: 'text/plain', body: '# Project notes\n\nHello from the README.' });
   }
 

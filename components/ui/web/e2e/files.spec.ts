@@ -62,6 +62,13 @@ test.describe('browsing', () => {
     await expect(page.getByRole('row', { name: /a\.txt/ })).toHaveCount(0);
   });
 
+  test('only asks for the README once the auth token is known', async ({ page, backend }) => {
+    await open(page, PERSISTENT);
+    await expect(page.getByText('Hello from the README.')).toBeVisible();
+    expect(backend.readmeTokens.length).toBeGreaterThan(0);
+    expect(backend.readmeTokens.every((token) => token === 'e2e-token')).toBe(true);
+  });
+
   test('shows an error with a retry when a folder fails to load', async ({ page, backend }) => {
     backend.failNext('jsonTree', 'Missing required permissions on volume');
     await open(page, PERSISTENT);

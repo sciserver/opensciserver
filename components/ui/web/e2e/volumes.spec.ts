@@ -87,3 +87,36 @@ test('shows quotas, red when full', async ({ page }) => {
   await expect(dialog).toContainText('scratch');
   await expect(dialog).toContainText('2.0 GB used out of 2.0 GB');
 });
+
+test('a failed create keeps the dialog open with what was typed', async ({ page, backend }) => {
+  backend.failNext('createUserVolume', 'A volume with that name exists');
+  await page.getByRole('button', { name: /Create user volume/ }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Name').fill('survey');
+  await dialog.getByLabel('Description').fill('Survey data');
+  await dialog.getByLabel('Root volume').click();
+  await page.getByRole('option', { name: /Storage/ }).click();
+  await dialog.getByRole('button', { name: 'Create volume' }).click();
+
+  await expect(dialog).toContainText('Could not create the volume: A volume with that name exists');
+  await expect(dialog.getByLabel('Name')).toHaveValue('survey');
+  await expect(dialog.getByLabel('Description')).toHaveValue('Survey data');
+
+  await dialog.getByRole('button', { name: 'Create volume' }).click();
+  await expect(page.getByRole('row', { name: /survey/ })).toBeVisible();
+});
+
+test('a failed sharing save keeps the dialog and the edits', async ({ page, backend }) => {
+  backend.failNext('shareUserVolume', 'Not allowed');
+  await page.getByRole('button', { name: 'More actions for FESS' }).click();
+  await page.getByRole('menuitem', { name: /Sharing/ }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText('bob')).toBeVisible();
+  await dialog.getByRole('checkbox', { name: 'Write' }).first().check();
+  await dialog.getByRole('button', { name: 'Save changes' }).click();
+
+  await expect(dialog).toContainText('Could not update sharing for “FESS”: Not allowed');
+  await expect(dialog.getByRole('checkbox', { name: 'Write' }).first()).toBeChecked();
+  await dialog.getByRole('button', { name: 'Save changes' }).click();
+  await expect(page.getByText('Updated sharing for “FESS”')).toBeVisible();
+});
