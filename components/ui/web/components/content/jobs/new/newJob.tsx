@@ -65,8 +65,12 @@ export const NewJob: FC = () => {
           resultsFolderURI,
           submitterDID: sessionName,
           scriptURI: '',
-          volumeContainers: dataVolumesChoice.map(dv => dv.publisherDID),
-          userVolumes: userVolumesChoice.map(uv => uv.id),
+          volumeContainers: dataVolumesChoice.map(dv => {
+            return { name: dv.name };
+          }),
+          userVolumes: userVolumesChoice.map(uv => {
+            return { userVolumeId: uv.id, needsWriteAccess: uv.allowedActions.includes('write') };
+          }),
           command
         }
       }

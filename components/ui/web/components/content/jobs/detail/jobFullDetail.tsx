@@ -5,11 +5,9 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client';
 import styled from 'styled-components';
 
-import { IconButton, Snackbar, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import {
   ArrowBackIos as ArrowBackIcon,
-  ContentCopy as ContentCopyIcon,
-  Close as CloseIcon,
   Download as DownloadIcon,
   Replay as ReplayIcon
 } from '@mui/icons-material';
@@ -25,6 +23,7 @@ import { File, Job, JobDetails } from 'src/graphql/typings';
 import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { CustomizedTabs } from 'components/common/tabs';
+import { CommandBox } from 'components/common/commandBox';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { jobStatusAllowRerun } from 'components/content/jobs/list/RerunJobAction';
 
@@ -40,30 +39,6 @@ const Styled = styled.div`
       gap: 1rem;
       align-items: center;
     }
-  }
-
-  .command {
-    width: 80%;
-    
-    pre {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #000;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      color: #ddd;
-      font-family: monospace;
-      font-size: 12px;
-      text-wrap: wrap;
-      
-      line-height: 1.6;
-      padding: 1em 1.5em;
-    }
-  }
-    
-  .copy-icon {
-    padding-left: 5rem;
   }
 
   .html-description{
@@ -106,12 +81,17 @@ export const JobFullDetail: FC = () => {
 
   const router = useRouter();
   const { id } = router.query;
+  const jobId = Array.isArray(id) ? id[0] : id;
 
   const [tabValue, setTabValue] = useState<number>(0);
-  const [copiedSnackbarOpen, setCopiedSnackbarOpen] = useState(false);
 
   const { loading, data } = useQuery(JOB_DETAIL_VIEW,
     {
+      // On a hard page reload of /jobs/[id], router.query is empty until the
+      // router is ready. Skip the query until we actually have a job id,
+      // otherwise it fires with jobId: undefined and the server rejects it
+      // ("Variable \"$jobId\" of required type \"ID!\" was not provided").
+      skip: !router.isReady || !jobId,
       onError: (error) => Swal.fire({
         title: 'There was an error loading the job details',
         text: error.message,
@@ -120,7 +100,7 @@ export const JobFullDetail: FC = () => {
       }).then(() => {
         router.push('/jobs');
       }).catch(Error),
-      variables: { jobId: id }
+      variables: { jobId }
     }
   );
 
@@ -160,8 +140,12 @@ export const JobFullDetail: FC = () => {
               dockerImageName: job.dockerImageName,
               resultsFolderURI,
               submitterDID: job.submitterDID,
-              volumeContainers: job.dataVolumes.map(dv => dv.publisherDID),
-              userVolumes: job.userVolumes.map(uv => uv.id),
+              volumeContainers: job.dataVolumes.map(dv => {
+                return { name: dv.name };
+              }),
+              userVolumes: job.userVolumes.map(uv => {
+                return { userVolumeId: uv.id, needsWriteAccess: uv.needsWriteAccess };
+              }),
               command: job.command,
               scriptURI: job.scriptURI || ''
             }
@@ -270,40 +254,7 @@ export const JobFullDetail: FC = () => {
           }
         </div>
         {jobDetail.job.command &&
-          <div className="command">
-            <pre>
-              {jobDetail.job.command}
-              <IconButton
-                className="copy-icon"
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={() => {
-                  navigator.clipboard.writeText(jobDetail.job.command);
-                  setCopiedSnackbarOpen(true);
-                }}
-              >
-                <ContentCopyIcon fontSize="medium" />
-              </IconButton>
-            </pre>
-            <Snackbar
-              open={copiedSnackbarOpen}
-              autoHideDuration={5000}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              onClose={() => setCopiedSnackbarOpen(false)}
-              message="Copied to clipboard!"
-              action={<>
-                <IconButton
-                  size="small"
-                  aria-label="close"
-                  color="inherit"
-                  onClick={() => setCopiedSnackbarOpen(false)}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </>}
-            />
-          </div>
+          <CommandBox command={jobDetail.job.command} width="80%" />
         }
         <CustomizedTabs tabs={tabOptions} value={tabValue} setValue={setTabValue} />
         <div>
@@ -325,8 +276,8 @@ export const JobFullDetail: FC = () => {
         </div>
       </div>
     }
-    {loading &&
-      <LoadingAnimation backDropIsOpen={loading} />
+    {(loading || !router.isReady) &&
+      <LoadingAnimation backDropIsOpen />
     }
   </Styled>;
 };

@@ -32,14 +32,14 @@ export class DomainsAPI extends RESTDataSource {
     return domains;
   }
 
-  async getDomainByID(id: string): Promise<Domain> {
+  async getDomainByPublisherDID(publisherDID: string): Promise<Domain> {
     const resDomains = await this.getDomains();
 
-    // Look for requested domain. If Domain doesn't exist or user 
+    // Look for requested domain. If Domain doesn't exist or user
     // doesn't have access to it, throw an Error.
-    const resDomain = resDomains.find(rd => rd.publisherDID === id);
+    const resDomain = resDomains.find(rd => rd.publisherDID === publisherDID);
     if (!resDomain) {
-      throw new Error(`Domain ${id} doesn't exist or user doesn't have access to it.`);
+      throw new Error(`Domain ${publisherDID} doesn't exist or user doesn't have access to it.`);
     }
 
     return resDomain;

@@ -22,7 +22,7 @@ export const NewSession: FC = () => {
     }
 
     setLoadingSubmit(true);
-    let url = `/compute/run?dom=${domainChoice.name}&img=${imageChoice.name}`;
+    let url = `/compute/run?dom=${domainChoice.publisherDID}&img=${imageChoice.name}`;
     if (dataVolumesChoice.length) {
       url += `&dvs=${dataVolumesChoice.map(dv => dv.publisherDID)}`;
     }

@@ -7,6 +7,7 @@ export default function ComputePage() {
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <title>Jobs - SciServer</title>
       </Head>
       <Layout>
         <JobsList />
