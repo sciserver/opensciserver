@@ -6,7 +6,7 @@ import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
 import { FileService, VolumeType } from 'src/graphql/typings';
 import { creatableRootVolumes, DEFAULT_FILES_ROUTE, dataVolumeRows, FilesRoute, filterAndSortRows, sameVolume, SortKey, userVolumeRows, VolumeRow, workspacePath } from 'src/utils/fileVolumes';
-import { fileServiceUrl, fileUrl, toArray, uploadFile } from 'src/utils/fileTransfer';
+import { FILE_SERVICE_NOT_CONFIGURED, fileServiceUrl, fileUrl, toArray, uploadFile } from 'src/utils/fileTransfer';
 import { joinPath } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
@@ -134,13 +134,18 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       setToast({ message: 'Open a writable folder to upload', severity: 'error' });
       return;
     }
+    const base = fileServiceUrl();
+    if (!base) {
+      setToast({ message: FILE_SERVICE_NOT_CONFIGURED, severity: 'error' });
+      return;
+    }
     const { volume, volumeType, path } = route;
     const where = path.split('/').filter(Boolean).pop() || volume.volumeName;
     for (const file of files) {
       uploadId.current += 1;
       activeUploads.current += 1;
       const id = uploadId.current;
-      const handle = uploadFile(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, file.name), file, token, (progress) => patchUpload(id, { progress }));
+      const handle = uploadFile(fileUrl(base, { volumeType, ...volume }, path, file.name), file, token, (progress) => patchUpload(id, { progress }));
       setUploads((current) => [...current, { id, name: file.name, where, progress: 0, status: 'uploading', abort: handle.abort }]);
       handle.promise
         .then(() => {
