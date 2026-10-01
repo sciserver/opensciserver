@@ -69,6 +69,8 @@ export type VolumeRow = {
   owned: boolean;
   /** The server lets the user delete this volume. */
   canDelete: boolean;
+  /** The user may change who the volume is shared with. */
+  canShare: boolean;
 };
 
 export type SortKey = 'name' | 'rootVolume' | 'detail';
@@ -84,7 +86,8 @@ export const userVolumeRows = (rootVolumes: { userVolumes: UserVolume[] }[], use
     shared: isSharedByOwner(volume, userName),
     description: volume.description || '',
     owned: !!userName && volume.owner === userName,
-    canDelete: hasAction(volume.allowedActions, 'delete')
+    canDelete: hasAction(volume.allowedActions, 'delete'),
+    canShare: hasAction(volume.allowedActions, 'grant') || (!!userName && volume.owner === userName)
   }))
 );
 
@@ -99,7 +102,8 @@ export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVo
   shared: false,
   description: volume.description,
   owned: false,
-  canDelete: false
+  canDelete: false,
+  canShare: false
 }));
 
 export const filterAndSortRows = (rows: VolumeRow[], filter: string, sortKey: SortKey, direction: 1 | -1): VolumeRow[] => {

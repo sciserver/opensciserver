@@ -76,3 +76,31 @@ export const DELETE_USER_VOLUME = gql`
     deleteUserVolume(rootVolumeName: $rootVolumeName, owner: $owner, name: $name)
   }
 `;
+
+/** Loaded when the sharing dialog opens: the full sharing list is too big to fetch for every volume up front. */
+export const SHARING_DETAILS = gql`
+  query sharingDetails {
+    getVolumes {
+      rootVolumes {
+        userVolumes {
+          id
+          name
+          owner
+          rootVolumeName
+          sharedWith {
+            id
+            name
+            type
+            allowedActions
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const SHARE_USER_VOLUME = gql`
+  mutation shareUserVolume($rootVolumeName: String!, $owner: String!, $name: String!, $sharedWith: [SharedWithInput!]!) {
+    shareUserVolume(rootVolumeName: $rootVolumeName, owner: $owner, name: $name, sharedWith: $sharedWith)
+  }
+`;

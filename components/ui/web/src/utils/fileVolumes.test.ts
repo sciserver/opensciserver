@@ -98,3 +98,16 @@ describe('volume management helpers', () => {
     expect(validateVolumeName('x', ['x'], 'x')).toBe('');
   });
 });
+
+describe('canShare', () => {
+  it('is true for the owner or anyone with the grant action', () => {
+    const rows = userVolumeRows([{
+      userVolumes: [
+        userVolume('mine', 'me', 'Storage', ['read']),
+        userVolume('granted', 'other', 'Storage', ['read', 'grant']),
+        userVolume('plain', 'other', 'Storage', ['read'])
+      ] 
+    }], 'me');
+    expect(rows.map((r) => r.canShare)).toEqual([true, true, false]);
+  });
+});
