@@ -8,7 +8,7 @@ import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/
 import { JsonTree } from 'src/graphql/typings';
 import { buildEntries, defaultFolderName, EntrySortKey, FileEntry, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from 'src/utils/fileEntries';
 import { FilesRoute } from 'src/utils/fileVolumes';
-import { fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
+import { FILE_SERVICE_NOT_CONFIGURED, fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
 import { joinPath, toVolumeRef } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
@@ -151,7 +151,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     let current = true;
     setReadme('');
     // The token fills in after the first render (see ContextWrapper); without one the request would just be refused.
-    if (hasReadme && !pick && token) {
+    if (hasReadme && !pick && token && fileServiceUrl()) {
       fetchText(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, 'README.md'), token)
         .then((text) => current && setReadme(text))
         .catch(() => undefined);
@@ -161,7 +161,14 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     };
   }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick, refreshSignal, token]);
 
-  const download = (entry: FileEntry) => startDownload(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, entry.name), entry.name);
+  const download = (entry: FileEntry) => {
+    const base = fileServiceUrl();
+    if (!base) {
+      notify(FILE_SERVICE_NOT_CONFIGURED, 'error');
+      return;
+    }
+    startDownload(fileUrl(base, { volumeType, ...volume }, path, entry.name), entry.name);
+  };
 
   // Several downloads in a row are spaced out so browsers don't drop them.
   const downloadMany = (targets: FileEntry[]) => {
