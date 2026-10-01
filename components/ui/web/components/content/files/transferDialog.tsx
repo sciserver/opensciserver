@@ -1,12 +1,12 @@
 import { ComponentType, FC, useState } from 'react';
 import { useApolloClient, useMutation } from '@apollo/client';
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { Alert, Dialog, DialogContent, DialogTitle } from '@mui/material';
 
 import { COPY_FILE, JSON_TREE, MOVE_FILE } from 'src/graphql/files';
 import { JsonTree } from 'src/graphql/typings';
 import { buildEntries } from 'src/utils/fileEntries';
-import { FilesRoute, sameVolume } from 'src/utils/fileVolumes';
-import { isMoveIntoItself, planTransferNames, toVolumeRef } from 'src/utils/files';
+import { FilesRoute, transferBlocker } from 'src/utils/fileVolumes';
+import { planTransferNames, toVolumeRef } from 'src/utils/files';
 
 import type { FileBrowserProps, FileBrowserSelection } from './fileBrowser';
 
@@ -26,6 +26,8 @@ type Props = {
 
 const toLocation = (route: Located) => ({ volume: toVolumeRef({ volumeType: route.volumeType, ...route.volume }), path: route.path });
 
+const what = (list: string[]) => (list.length > 1 ? `${list.length} items` : `“${list[0]}”`);
+
 const titleFor = (kind: Props['kind'], names: string[]) => `${kind === 'copy' ? 'Copy' : 'Move'} ${names.length > 1 ? `${names.length} items` : `“${names[0]}”`}`;
 
 /** Pick a destination folder, then copy or move. A taken name becomes "name (N)" and is sent as newName. */
@@ -34,23 +36,22 @@ export const TransferDialog: FC<Props> = ({ kind, names, source, Picker, onClose
   const [copyFile] = useMutation(COPY_FILE);
   const [moveFile] = useMutation(MOVE_FILE);
   const [running, setRunning] = useState(false);
+  const [error, setError] = useState('');
 
   const run = async ({ route }: FileBrowserSelection) => {
     const destination = route as Located;
-    const sameFolder = sameVolume(source.volume, destination.volume) && source.volumeType === destination.volumeType && source.path === destination.path;
-    const sameVol = source.volumeType === destination.volumeType && sameVolume(source.volume, destination.volume);
+    setError('');
 
-    if (kind === 'move' && sameFolder) {
-      onDone('Those items are already in that folder', 'error');
-      return;
-    }
-    if (kind === 'move' && sameVol && names.some((name) => isMoveIntoItself(source.path, name, destination.path))) {
-      onDone('A folder can’t be moved into itself', 'error');
+    // A target that can never work keeps the dialog open so another one can be chosen.
+    const blocker = transferBlocker(kind, source, destination, names);
+    if (blocker) {
+      setError(blocker);
       return;
     }
 
     setRunning(true);
-    let failed: string[] = [];
+    const failures: { name: string; message: string }[] = [];
+    let copiedAny = false;
     try {
       // Name conflicts are resolved here against the destination listing; a file added in between still surfaces as an error.
       const { data } = await client.query<{ getJsonTree: JsonTree }>({ query: JSON_TREE, variables: toLocation(destination), fetchPolicy: 'network-only' });
@@ -60,30 +61,39 @@ export const TransferDialog: FC<Props> = ({ kind, names, source, Picker, onClose
         try {
           // eslint-disable-next-line no-await-in-loop
           await mutate({ variables: { source: toLocation(source), name, destination: toLocation(destination), newName } });
+          copiedAny = true;
         }
-        catch {
-          failed = [...failed, name];
+        catch (error_) {
+          failures.push({ name, message: (error_ as Error).message });
         }
       }
     }
-    catch (error) {
-      onDone(`Could not read the destination folder: ${(error as Error).message}`, 'error');
+    catch (error_) {
+      setRunning(false);
+      setError(`Could not read the destination folder: ${(error_ as Error).message}`);
       return;
     }
 
     const verb = kind === 'copy' ? 'Copied' : 'Moved';
-    if (failed.length === 0) {
-      onDone(`${verb} ${names.length > 1 ? `${names.length} items` : `“${names[0]}”`}`, 'success');
+    if (failures.length === 0) {
+      onDone(`${verb} ${what(names)}`, 'success');
+      return;
     }
-    else {
-      onDone(`Could not ${kind} ${failed.length > 1 ? `${failed.length} items` : `“${failed[0]}”`}`, 'error');
+    const reason = `Could not ${kind} ${what(failures.map((failure) => failure.name))}: ${failures[0].message}`;
+    if (!copiedAny) {
+      // Nothing changed, so stay open and let the user try another destination.
+      setRunning(false);
+      setError(reason);
+      return;
     }
+    onDone(reason, 'error');
   };
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={running ? undefined : onClose}>
       <DialogTitle sx={{ pb: 0.5 }}>{titleFor(kind, names)} to…</DialogTitle>
       <DialogContent sx={{ pt: 1 }}>
+        {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
         <Picker
           mode="pick"
           initialLocation={source}

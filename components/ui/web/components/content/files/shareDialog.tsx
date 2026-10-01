@@ -11,7 +11,8 @@ import { addMember, buildSharePayload, principalKey, removeMember, SHARE_ACTIONS
 type Props = {
   volume: VolumeRow;
   onClose: () => void;
-  onDone: (message: string, severity: 'success' | 'error') => void;
+  /** Called once the sharing change went through. A failure stays in the dialog so the edits are not lost. */
+  onDone: (message: string) => void;
 };
 
 const DIRECTORY_LIMIT = 50;
@@ -48,6 +49,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<PrincipalType | 'ALL'>('ALL');
   const [saving, setSaving] = useState(false);
+  const [failure, setFailure] = useState('');
 
   // The directory is the big one, so it starts loading only once we know the volume's own sharing.
   useEffect(() => {
@@ -68,12 +70,14 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
       return;
     }
     setSaving(true);
+    setFailure('');
     try {
       await shareUserVolume({ variables: { rootVolumeName: route.rootVolumeName, owner: route.owner, name: route.volumeName, sharedWith: buildSharePayload(original, members) } });
-      onDone(`Updated sharing for “${volume.name}”`, 'success');
+      onDone(`Updated sharing for “${volume.name}”`);
     }
     catch (error) {
-      onDone(`Could not update sharing for “${volume.name}”: ${(error as Error).message}`, 'error');
+      setFailure(`Could not update sharing for “${volume.name}”: ${(error as Error).message}`);
+      setSaving(false);
     }
   };
 
@@ -85,6 +89,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
       {(loadingVolume || saving) && <LinearProgress />}
       <DialogContent sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, minHeight: 360 }}>
         {sharingError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>Could not load sharing: {sharingError.message}</Alert>}
+        {failure && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{failure}</Alert>}
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Box sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Add users and groups</Box>
           <TextField size="small" placeholder="Search by name" value={search} onChange={(event) => setSearch(event.target.value)} disabled={!original} inputProps={{ 'aria-label': 'Search users and groups' }} />

@@ -1,5 +1,5 @@
 import { DataVolume, UserVolume, VolumeType } from './../graphql/typings';
-import { FileVolumeRoute, normalizePath } from './files';
+import { FileVolumeRoute, isMoveIntoItself, normalizePath } from './files';
 
 export type FilesRoute = {
   volumeType: VolumeType;
@@ -146,6 +146,26 @@ export const validateVolumeName = (name: string, existingNames: Iterable<string>
   }
   if (trimmed !== own && new Set(existingNames).has(trimmed)) {
     return 'You already have a volume with this name in that root volume';
+  }
+  return '';
+};
+
+/**
+ * Why `names` (in the `source` folder) can't be copied or moved into `destination`, or '' when they can.
+ * Copying into the same folder is fine (the copy gets a "(1)" name); moving there is a no-op.
+ */
+export const transferBlocker = (
+  kind: 'copy' | 'move',
+  source: Required<Pick<FilesRoute, 'volume'>> & FilesRoute,
+  destination: Required<Pick<FilesRoute, 'volume'>> & FilesRoute,
+  names: string[]
+): string => {
+  const sameVol = source.volumeType === destination.volumeType && sameVolume(source.volume, destination.volume);
+  if (kind === 'move' && sameVol && source.path === destination.path) {
+    return 'Those items are already in this folder. Choose a different destination.';
+  }
+  if (sameVol && names.some((name) => isMoveIntoItself(source.path, name, destination.path))) {
+    return `A folder can’t be ${kind === 'copy' ? 'copied' : 'moved'} into itself. Choose a different destination.`;
   }
   return '';
 };

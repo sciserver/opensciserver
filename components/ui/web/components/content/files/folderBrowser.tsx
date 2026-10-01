@@ -150,7 +150,8 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   useEffect(() => {
     let current = true;
     setReadme('');
-    if (hasReadme && !pick) {
+    // The token fills in after the first render (see ContextWrapper); without one the request would just be refused.
+    if (hasReadme && !pick && token) {
       fetchText(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, 'README.md'), token)
         .then((text) => current && setReadme(text))
         .catch(() => undefined);
@@ -158,7 +159,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     return () => {
       current = false;
     };
-  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick]);
+  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick, token]);
 
   const download = (entry: FileEntry) => startDownload(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, entry.name), entry.name);
 
@@ -237,11 +238,13 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     setBusy(true);
     const results = await Promise.allSettled(targets.map((name) => deleteFile({ variables: { volume: volumeRef, path, name } })));
     const failed = targets.filter((_, index) => results[index].status === 'rejected');
+    const firstFailure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
     if (failed.length === 0) {
       notify(targets.length > 1 ? `Deleted ${targets.length} items` : `Deleted “${targets[0]}”`, 'success');
     }
     else {
-      notify(`Could not delete ${failed.length > 1 ? `${failed.length} items` : `“${failed[0]}”`}`, 'error');
+      // The first reason is enough to act on (permissions, missing item, ...).
+      notify(`Could not delete ${failed.length > 1 ? `${failed.length} items` : `“${failed[0]}”`}: ${(firstFailure?.reason as Error).message}`, 'error');
     }
     setChecked(new Set(failed));
     setBusy(false);
