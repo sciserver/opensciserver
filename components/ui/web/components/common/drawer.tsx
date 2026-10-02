@@ -144,7 +144,7 @@ export const DrawerNav: FC = (props: ComponentProps) => {
     {
       name: 'Files',
       value: 'files',
-      onClick: () => handleOptionChange('files'),
+      onClick: () => window.location.href = process.env.NEXT_PUBLIC_FILES_URL || '',
       icon: <FolderIcon />
     },
     {
