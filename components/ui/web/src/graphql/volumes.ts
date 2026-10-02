@@ -105,3 +105,27 @@ export const SHARE_USER_VOLUME = gql`
     shareUserVolume(rootVolumeName: $rootVolumeName, owner: $owner, name: $name, sharedWith: $sharedWith)
   }
 `;
+
+/** Loaded when the quotas dialog opens. The volume ids are only there to name each quota. */
+export const FILE_QUOTAS = gql`
+  query fileQuotas {
+    getFileUsage {
+      rootVolumeId
+      userVolumeId
+      username
+      type
+      numberOfBytesUsed
+      numberOfBytesQuota
+    }
+    getVolumes {
+      rootVolumes {
+        id
+        name
+        userVolumes {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
