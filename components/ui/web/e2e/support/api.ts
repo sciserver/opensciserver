@@ -36,8 +36,11 @@ export class FakeBackend {
   ];
 
   dataVolumes = [
-    { id: '10', name: 'sdss_das', displayName: 'SDSS DAS', description: 'Sloan Digital Sky Survey data' },
-    { id: '11', name: 'gaia_dr3', displayName: 'Gaia DR3', description: 'Gaia data release 3' }
+    { id: '10', name: 'sdss_das', displayName: 'SDSS DAS', description: 'Sloan Digital Sky Survey data', allowedActions: ['read'] },
+    { id: '11', name: 'gaia_dr3', displayName: 'Gaia DR3', description: 'Gaia data release 3', allowedActions: ['read', 'write'] },
+    // Two volumes can share a name (the real list has two "droid-workspace"); only the id tells them apart.
+    { id: '12', name: 'droid-workspace', displayName: 'droid-workspace', description: 'Droid workspace', allowedActions: ['read'] },
+    { id: '13', name: 'droid-workspace', displayName: 'droid-workspace', description: 'Droid workspace (copy)', allowedActions: ['read'] }
   ];
 
   directory = [
@@ -57,7 +60,8 @@ export class FakeBackend {
     'USERVOLUME:Storage/arik/NotebookExamples': { folders: ['examples'], files: [{ name: 'intro.ipynb', size: 900 }] },
     'USERVOLUME:Temporary/ana/scratch': { folders: [], files: [] },
     'DATAVOLUME:sdss_das': { folders: ['dr17'], files: [{ name: 'README.txt', size: 100 }] },
-    'DATAVOLUME:gaia_dr3': { folders: [], files: [] }
+    'DATAVOLUME:gaia_dr3': { folders: [], files: [] },
+    'DATAVOLUME:droid-workspace': { folders: [], files: [] }
   };
 
   /** The next call of this operation answers with a GraphQL error. */

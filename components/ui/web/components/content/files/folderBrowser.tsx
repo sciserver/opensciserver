@@ -120,6 +120,18 @@ const Styled = styled.div<{ $busy: boolean }>`
     color: ${DANGER};
   }
 
+  .readme-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    min-height: 36px;
+    font-size: 13px;
+    background: rgba(57, 140, 191, 0.08);
+    border-bottom: 1px solid ${BORDER};
+    flex: none;
+  }
+
   .readme {
     margin: 16px;
     padding: 16px;
@@ -257,6 +269,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [readme, setReadme] = useState('');
+  const readmeRef = useRef<HTMLDivElement>(null);
   const { token } = useContext(UserContext);
 
   // A different folder or volume starts with nothing selected or being edited.
@@ -306,11 +319,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   };
 
   // Several downloads in a row are spaced out so browsers don't drop them.
-  const downloadMany = (targets: FileEntry[]) => {
-    const files = targets.filter((entry) => !entry.isFolder);
-    if (files.length < targets.length) {
-      notify('Folders can’t be downloaded yet', 'error');
-    }
+  const downloadMany = (files: FileEntry[]) => {
     for (const [index, entry] of toArray(files.entries())) {
       setTimeout(() => download(entry), index * 1000);
     }
@@ -427,15 +436,27 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   return (
     <Styled $busy={busy} onDragEnter={onDragOver} onDragOver={onDragOver}>
       {(busy || (loading && !!data)) && <LinearProgress className="progress" aria-label="Working" />}
+      {readme && (
+        <div className="readme-hint">
+          <Icon $size={18} $color="#398CBF">article</Icon>
+          <span>This folder has a README. It is shown at the bottom of the list.</span>
+          <Button size="small" endIcon={<Icon $size={18}>arrow_downward</Icon>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+            Jump to README
+          </Button>
+        </div>
+      )}
       {selected.length > 0 && !pick && (
         <div className="selection-bar">
           <CircleButton $size={36} aria-label="Clear selection" onClick={() => setChecked(new Set())}>
             <Icon>close</Icon>
           </CircleButton>
           <span className="selection-count">{selected.length} selected</span>
-          <Button startIcon={<Icon $size={18}>download</Icon>} onClick={() => downloadMany(selected)}>
-            Download
-          </Button>
+          {/* Folders can't be downloaded, so Download is only offered when every selected item is a file. */}
+          {selected.every((entry) => !entry.isFolder) && (
+            <Button startIcon={<Icon $size={18}>download</Icon>} onClick={() => downloadMany(selected)}>
+              Download
+            </Button>
+          )}
           <Button startIcon={<Icon $size={18}>content_copy</Icon>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
             Copy
           </Button>
@@ -575,7 +596,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
         })}
         {!showLoading && !showError && all.length === 0 && !creating && <EmptyMessage icon="folder_open" title="This folder is empty" hint={emptyHint} />}
         {readme && (
-          <div className="readme">
+          <div className="readme" ref={readmeRef}>
             <div className="readme-title">
               <Icon $size={16}>article</Icon>
               README.md

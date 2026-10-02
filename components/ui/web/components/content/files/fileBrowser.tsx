@@ -300,7 +300,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
         {route.volume && currentRow && !currentRow.writable && !pick && (
           <span className="note">
             <Icon $size={18}>lock</Icon>
-            {isData ? 'Data volumes are read-only' : 'Read-only: shared with you'}
+            {isData ? 'Read-only: you can only read this data volume' : 'Read-only: shared with you'}
           </span>
         )}
         {pick && <span className="note">Click to select · double-click to open</span>}
