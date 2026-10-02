@@ -1,0 +1,86 @@
+import { describe, expect, it } from 'vitest';
+import { VolumeType, PrincipalType } from '../graphql/typings';
+import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath } from './fileVolumes';
+
+const userVolume = (name: string, owner: string, rootVolumeName: string, allowedActions: string[], shared = false) => ({
+  id: name, name, owner, rootVolumeName, allowedActions, resourceUUID: name,
+  sharedWith: shared ? [{ id: '1', name: 'x', type: PrincipalType.User, allowedActions: ['read'] }] : []
+});
+
+describe('parseFilesRoute', () => {
+  it('defaults to the user volume list', () => {
+    expect(parseFilesRoute({})).toEqual({ volumeType: VolumeType.Uservolume, path: '' });
+  });
+
+  it('reads a user volume with a path', () => {
+    expect(parseFilesRoute({ type: 'user', volume: 'persistent', root: 'Storage', owner: 'me', path: 'a//b' })).toEqual({
+      volumeType: VolumeType.Uservolume,
+      volume: { volumeName: 'persistent', rootVolumeName: 'Storage', owner: 'me' },
+      path: '/a/b'
+    });
+  });
+
+  it('ignores a user volume missing its root or owner', () => {
+    expect(parseFilesRoute({ volume: 'persistent', owner: 'me' }).volume).toBeUndefined();
+  });
+
+  it('reads a data volume by name only', () => {
+    expect(parseFilesRoute({ type: 'data', volume: 'SDSS' })).toEqual({ volumeType: VolumeType.Datavolume, volume: { volumeName: 'SDSS' }, path: '' });
+  });
+
+  it('round-trips through filesRouteQuery', () => {
+    const route = parseFilesRoute({ type: 'user', volume: 'v', root: 'Storage', owner: 'me', path: '/a' });
+    expect(parseFilesRoute(filesRouteQuery(route))).toEqual(route);
+  });
+});
+
+describe('volume rows', () => {
+  const rows = userVolumeRows([{
+    userVolumes: [
+      userVolume('persistent', 'me', 'Storage', ['read', 'write'], true),
+      userVolume('theirs', 'other', 'Storage', ['read'], true)
+    ] 
+  }], 'me');
+
+  it('flags writable and shared-by-me volumes', () => {
+    expect(rows.map((r) => [r.name, r.writable, r.shared])).toEqual([['persistent', true, true], ['theirs', false, false]]);
+  });
+
+  it('only counts sharing for the owner', () => {
+    expect(isSharedByOwner(userVolume('v', 'other', 'Storage', [], true), 'me')).toBe(false);
+  });
+
+  it('reads data volume access from allowedActions', () => {
+    const base = { description: 'd', publisherDID: '', racmUUID: '', sharedWith: [], writable: false };
+    const [readOnly, readWrite] = dataVolumeRows([
+      { ...base, id: '1', name: 'sdss', displayName: 'SDSS', allowedActions: ['read'] },
+      { ...base, id: '2', name: 'gaia', displayName: 'Gaia', allowedActions: ['read', 'write'] }
+    ]);
+    expect(readOnly).toMatchObject({ name: 'SDSS', rootVolume: 'Read-only', writable: false });
+    expect(readWrite).toMatchObject({ name: 'Gaia', rootVolume: 'Read/write', writable: true });
+  });
+
+  it('gives data volumes that share a name different keys', () => {
+    const base = { name: 'droid-workspace', displayName: 'droid-workspace', description: '', publisherDID: '', racmUUID: '', sharedWith: [], writable: false, allowedActions: ['read'] };
+    const sameName = dataVolumeRows([{ ...base, id: '1' }, { ...base, id: '2' }]);
+    expect(new Set(sameName.map((r) => r.key)).size).toBe(2);
+  });
+
+  it('filters by name and sorts', () => {
+    expect(filterAndSortRows(rows, 'PERS', 'name', 1).map((r) => r.name)).toEqual(['persistent']);
+    expect(filterAndSortRows(rows, '', 'name', -1).map((r) => r.name)).toEqual(['theirs', 'persistent']);
+  });
+});
+
+describe('workspacePath', () => {
+  it('maps user and data volumes to their container mount', () => {
+    const user = parseFilesRoute({ type: 'user', volume: 'persistent', root: 'Storage', owner: 'me', path: '/a/b' });
+    expect(workspacePath(user)).toBe('/home/idies/workspace/Storage/me/persistent/a/b');
+    expect(workspacePath(parseFilesRoute({ type: 'data', volume: 'sdss' }))).toBe('/home/idies/workspace/sdss');
+    expect(workspacePath(parseFilesRoute({}))).toBe('');
+  });
+
+  it('compares volumes by name, root and owner', () => {
+    expect(sameVolume({ volumeName: 'v', owner: 'a', rootVolumeName: 'Storage' }, { volumeName: 'v', owner: 'b', rootVolumeName: 'Storage' })).toBe(false);
+  });
+});
