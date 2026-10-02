@@ -50,9 +50,20 @@ describe('volume rows', () => {
     expect(isSharedByOwner(userVolume('v', 'other', 'Storage', [], true), 'me')).toBe(false);
   });
 
-  it('treats data volumes as read-only even when the server says writable', () => {
-    const [row] = dataVolumeRows([{ id: '1', name: 'sdss', displayName: 'SDSS', description: 'd', writable: true, allowedActions: ['read', 'write'], publisherDID: '', racmUUID: '', sharedWith: [] }]);
-    expect(row).toMatchObject({ name: 'SDSS', rootVolume: 'Read-only', writable: false });
+  it('reads data volume access from allowedActions', () => {
+    const base = { description: 'd', publisherDID: '', racmUUID: '', sharedWith: [], writable: false };
+    const [readOnly, readWrite] = dataVolumeRows([
+      { ...base, id: '1', name: 'sdss', displayName: 'SDSS', allowedActions: ['read'] },
+      { ...base, id: '2', name: 'gaia', displayName: 'Gaia', allowedActions: ['read', 'write'] }
+    ]);
+    expect(readOnly).toMatchObject({ name: 'SDSS', rootVolume: 'Read-only', writable: false });
+    expect(readWrite).toMatchObject({ name: 'Gaia', rootVolume: 'Read/write', writable: true });
+  });
+
+  it('gives data volumes that share a name different keys', () => {
+    const base = { name: 'droid-workspace', displayName: 'droid-workspace', description: '', publisherDID: '', racmUUID: '', sharedWith: [], writable: false, allowedActions: ['read'] };
+    const rows = dataVolumeRows([{ ...base, id: '1' }, { ...base, id: '2' }]);
+    expect(new Set(rows.map((r) => r.key)).size).toBe(2);
   });
 
   it('filters by name and sorts', () => {
