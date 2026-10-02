@@ -110,6 +110,19 @@ describe('volume management helpers', () => {
   });
 });
 
+describe('canShare', () => {
+  it('is true for the owner or anyone with the grant action', () => {
+    const rows = userVolumeRows([{
+      userVolumes: [
+        userVolume('mine', 'me', 'Storage', ['read']),
+        userVolume('granted', 'other', 'Storage', ['read', 'grant']),
+        userVolume('plain', 'other', 'Storage', ['read'])
+      ] 
+    }], 'me');
+    expect(rows.map((r) => r.canShare)).toEqual([true, true, false]);
+  });
+});
+
 const at = (path: string, volumeName = 'persistent') => ({ volumeType: VolumeType.Uservolume, volume: { volumeName, rootVolumeName: 'Storage', owner: 'me' }, path });
 
 describe('transferBlocker', () => {

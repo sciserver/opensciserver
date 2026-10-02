@@ -13,6 +13,7 @@ import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { Breadcrumb } from './breadcrumb';
 import { FolderBrowser } from './folderBrowser';
 import { TransferDialog } from './transferDialog';
+import { ShareDialog } from './shareDialog';
 import { CreateVolumeDialog, DeleteVolumeDialog, EditVolumeDialog } from './volumeDialogs';
 import { UploadItem, UploadsPanel } from './uploadsPanel';
 import { VolumeList } from './volumeList';
@@ -65,7 +66,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [pickedFolder, setPickedFolder] = useState<string | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [creating, setCreating] = useState(false);
-  const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'edit' | 'delete'; row: VolumeRow } | null>(null);
+  const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'edit' | 'delete' | 'share'; row: VolumeRow } | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const uploadId = useRef(0);
   const activeUploads = useRef(0);
@@ -116,6 +117,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const canCreateVolume = !pick && !route.volume && route.volumeType === VolumeType.Uservolume && !!user && creatableRoots.length > 0;
 
   const volumeMenu = (row: VolumeRow) => [
+    ...(row.canShare ? [{ label: 'Sharing', icon: 'group', run: () => setVolumeDialog({ kind: 'share', row }) }] : []),
     ...(row.owned ? [{ label: 'Edit', icon: 'edit', run: () => setVolumeDialog({ kind: 'edit', row }) }] : []),
     ...(row.canDelete ? [{ label: 'Delete', icon: 'delete', color: '#C62828', run: () => setVolumeDialog({ kind: 'delete', row }) }] : [])
   ];
@@ -305,6 +307,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           onDone={onVolumeDone}
         />
       )}
+      {volumeDialog?.kind === 'share' && <ShareDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
       {volumeDialog?.kind === 'delete' && <DeleteVolumeDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
       <UploadsPanel uploads={uploads} onDismiss={(id) => setUploads((current) => current.filter((item) => item.id !== id))} />
       <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
