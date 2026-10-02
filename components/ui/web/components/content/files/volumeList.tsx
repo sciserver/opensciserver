@@ -1,7 +1,10 @@
 import { FC, useState } from 'react';
-import { Box, ButtonBase, Menu, MenuItem } from '@mui/material';
+import styled from 'styled-components';
 import { VolumeType } from 'src/graphql/typings';
 import { SortKey, VolumeRow } from 'src/utils/fileVolumes';
+
+import { CircleButton, Icon, listStyles, Tag } from './filesStyles';
+import { EmptyMessage, MenuAction, RowMenu, SortHeader } from './listParts';
 
 type Props = {
   volumeType: VolumeType;
@@ -10,18 +13,41 @@ type Props = {
   direction: 1 | -1;
   onSort: (key: SortKey) => void;
   onOpen: (row: VolumeRow) => void;
-  /** Pick mode: single click selects, double click or the arrow opens. */
   /** Row menu (manage mode). Rows with no items get no menu button. */
-  menuItems?: (row: VolumeRow) => { label: string; icon: string; color?: string; run: () => void }[];
+  menuItems?: (row: VolumeRow) => MenuAction[];
+  /** Pick mode: single click selects, double click or the arrow opens. */
   pick?: { selectedKey: string | null; isDisabled: (row: VolumeRow) => boolean; onSelect: (row: VolumeRow) => void };
 };
 
-const COLUMNS = '36px minmax(0,2fr) minmax(0,1fr) minmax(0,1.5fr) 36px';
-const ROW_HEIGHT = 38;
+const Styled = styled.div`
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 
-const Tag: FC<{ label: string }> = ({ label }) => (
-  <Box component="span" sx={{ flex: 'none', fontSize: 11, px: 0.75, py: '1px', borderRadius: '3px', bgcolor: '#eef1f4', color: 'rgba(0,0,0,0.62)' }}>{label}</Box>
-);
+  ${listStyles('36px minmax(0,2fr) minmax(0,1fr) minmax(0,1.5fr) 36px')}
+
+  .list-row.disabled {
+    cursor: default;
+  }
+
+  .icon-cell {
+    display: flex;
+  }
+
+  .name-cell {
+    font-weight: 500;
+    gap: 10px;
+  }
+`;
+
+const VolumeIcon = styled(Icon)`
+  color: ${({ theme }) => theme.palette.secondary.main};
+`;
+
+const PickIcon = styled(Icon)<{ $selected: boolean }>`
+  color: ${({ theme, $selected }) => ($selected ? theme.palette.secondary.main : 'rgba(0,0,0,0.5)')};
+`;
 
 export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, onSort, onOpen, menuItems, pick }) => {
   const [menu, setMenu] = useState<{ anchor: HTMLElement; row: VolumeRow } | null>(null);
@@ -33,95 +59,71 @@ export const VolumeList: FC<Props> = ({ volumeType, rows, sortKey, direction, on
   ];
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-      <Box role="row" sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, height: 34, borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
+    <Styled>
+      <div className="list-header" role="row">
         <span />
         {headers.map(({ key, label }) => (
-          <ButtonBase
-            key={key}
-            onClick={() => onSort(key)}
-            aria-sort={sortKey === key ? (direction === 1 ? 'ascending' : 'descending') : 'none'}
-            sx={{ justifySelf: 'start', gap: 0.5, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}
-          >
-            {label}
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
-              {sortKey === key ? (direction === 1 ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-            </span>
-          </ButtonBase>
+          <SortHeader key={key} label={label} active={sortKey === key} direction={direction} onClick={() => onSort(key)} />
         ))}
         <span />
-      </Box>
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      </div>
+      <div className="list-body">
         {rows.map((row) => {
           const disabled = !!pick?.isDisabled(row);
           const selected = pick?.selectedKey === row.key;
+          const dim = disabled ? ' dim' : '';
+          const activate = () => (pick ? !disabled && pick.onSelect(row) : onOpen(row));
+          const volumeIcon = <VolumeIcon $size={22} $filled>{isData ? 'database' : row.shared ? 'folder_shared' : 'folder'}</VolumeIcon>;
           return (
-            <Box
+            <div
               key={row.key}
               role="row"
+              className={`list-row${disabled ? ' disabled' : ' clickable'}${selected ? ' selected' : ''}`}
               title={disabled ? 'Read-only: not available here' : undefined}
-              onClick={() => (pick ? !disabled && pick.onSelect(row) : onOpen(row))}
+              tabIndex={disabled ? -1 : 0}
+              onClick={activate}
+              onKeyDown={(event) => event.key === 'Enter' && event.target === event.currentTarget && activate()}
               onDoubleClick={() => pick && !disabled && onOpen(row)}
-              sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, minHeight: ROW_HEIGHT, borderBottom: '1px solid #f0f2f4', cursor: disabled ? 'default' : 'pointer', userSelect: 'none', bgcolor: selected ? 'rgba(57,140,191,0.16)' : 'transparent', '&:hover': { bgcolor: disabled ? undefined : 'rgba(57,140,191,0.08)' } }}
             >
-              <Box sx={{ opacity: disabled ? 0.42 : 1, display: 'flex' }}>
-                {pick ? (
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: selected ? '#398CBF' : 'rgba(0,0,0,0.5)' }}>
-                    {disabled ? '' : selected ? 'radio_button_checked' : 'radio_button_unchecked'}
-                  </span>
-                ) : (
-                  <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>
-                    {isData ? 'database' : row.shared ? 'folder_shared' : 'folder'}
-                  </span>
-                )}
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0, fontSize: 14, fontWeight: 500, opacity: disabled ? 0.42 : 1 }}>
-                {pick && (
-                  <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>
-                    {isData ? 'database' : row.shared ? 'folder_shared' : 'folder'}
-                  </span>
-                )}
-                <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.name}</Box>
-                {!row.writable && !isData && <Tag label="Read-only" />}
-                {row.shared && <Tag label="Shared" />}
-              </Box>
-              <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', opacity: disabled ? 0.42 : 1 }}>{row.rootVolume}</Box>
-              <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', opacity: disabled ? 0.42 : 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.detail}</Box>
+              <div className={`icon-cell${dim}`}>
+                {pick ? <PickIcon $selected={!!selected}>{disabled ? '' : selected ? 'radio_button_checked' : 'radio_button_unchecked'}</PickIcon> : volumeIcon}
+              </div>
+              <div className={`name-cell${dim}`}>
+                {pick && volumeIcon}
+                <span className="name-text">{row.name}</span>
+                {!row.writable && !isData && <Tag>Read-only</Tag>}
+                {row.shared && <Tag>Shared</Tag>}
+              </div>
+              <span className={`text-cell${dim}`}>{row.rootVolume}</span>
+              <span className={`text-cell${dim}`}>{row.detail}</span>
               {pick && !disabled ? (
-                <ButtonBase aria-label={`Open ${row.name}`} onClick={(event) => {
-                  event.stopPropagation(); onOpen(row); 
-                }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_right</span>
-                </ButtonBase>
+                <CircleButton
+                  aria-label={`Open ${row.name}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onOpen(row);
+                  }}
+                >
+                  <Icon>chevron_right</Icon>
+                </CircleButton>
               ) : null}
               {!pick && menuItems && menuItems(row).length > 0 && (
-                <ButtonBase aria-label={`More actions for ${row.name}`} onClick={(event) => {
-                  event.stopPropagation(); setMenu({ anchor: event.currentTarget, row }); 
-                }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>more_vert</span>
-                </ButtonBase>
+                <CircleButton
+                  aria-label={`More actions for ${row.name}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setMenu({ anchor: event.currentTarget, row });
+                  }}
+                >
+                  <Icon>more_vert</Icon>
+                </CircleButton>
               )}
-            </Box>
+            </div>
           );
         })}
-        {rows.length === 0 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.75, py: 6, px: 2, color: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 36, color: '#B0C1D9' }}>folder_open</span>
-            <Box sx={{ fontWeight: 600, color: 'text.primary' }}>No volumes found</Box>
-            <Box sx={{ fontSize: 13 }}>Try a different filter.</Box>
-          </Box>
-        )}
-      </Box>
-      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={() => setMenu(null)}>
-        {(menu && menuItems ? menuItems(menu.row) : []).map((item) => (
-          <MenuItem key={item.label} onClick={() => {
-            setMenu(null); item.run(); 
-          }} sx={{ gap: 1.5, fontSize: 14, color: item.color }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{item.icon}</span>
-            {item.label}
-          </MenuItem>
-        ))}
-      </Menu>
-    </Box>
+        {rows.length === 0 && <EmptyMessage icon="folder_open" title="No volumes found" hint="Try a different filter." />}
+      </div>
+      <RowMenu anchor={menu?.anchor ?? null} items={menu && menuItems ? menuItems(menu.row) : []} onClose={() => setMenu(null)} />
+    </Styled>
   );
 };

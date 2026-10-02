@@ -1,7 +1,8 @@
 import { DragEvent, FC, KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import styled from 'styled-components';
 import { useMutation, useQuery } from '@apollo/client';
-import { Alert, LinearProgress, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem } from '@mui/material';
+import { Alert, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress } from '@mui/material';
 
 import { UserContext } from 'context';
 import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/files';
@@ -11,6 +12,9 @@ import { FilesRoute } from 'src/utils/fileVolumes';
 import { FILE_SERVICE_NOT_CONFIGURED, fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
 import { joinPath, toVolumeRef } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
+
+import { BORDER, CircleButton, DANGER, Icon, listStyles, MUTED } from './filesStyles';
+import { EmptyMessage, MenuAction, RowMenu, SortHeader } from './listParts';
 
 type Props = {
   route: FilesRoute & { volume: NonNullable<FilesRoute['volume']> };
@@ -33,19 +37,162 @@ type Props = {
 };
 
 const COLUMNS = '36px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 36px';
-const ROW_HEIGHT = 38;
 
-const CheckIcon: FC<{ name: string; active?: boolean }> = ({ name, active }) => (
-  <span className="material-symbols-outlined" style={{ fontSize: 20, color: active ? '#398CBF' : 'rgba(0,0,0,0.5)' }}>{name}</span>
-);
+const Styled = styled.div<{ $busy: boolean }>`
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: ${({ $busy }) => ($busy ? 0.7 : 1)};
+  pointer-events: ${({ $busy }) => ($busy ? 'none' : 'auto')};
 
-const Message: FC<{ icon: string; title: string; hint?: string }> = ({ icon, title, hint }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.75, py: 6, px: 2, color: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
-    <span className="material-symbols-outlined" style={{ fontSize: 36, color: '#B0C1D9' }}>{icon}</span>
-    <Box sx={{ fontWeight: 600, color: 'text.primary' }}>{title}</Box>
-    {hint && <Box sx={{ fontSize: 13 }}>{hint}</Box>}
-  </Box>
-);
+  ${listStyles(COLUMNS)}
+
+  .list-row.disabled {
+    cursor: default;
+  }
+
+  .progress {
+    flex: none;
+  }
+
+  .selection-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px 0 6px;
+    min-height: 52px;
+    background: #e8f1f8;
+    flex: none;
+    color: ${({ theme }) => theme.palette.primary.main};
+  }
+
+  .selection-count {
+    font-weight: 600;
+    margin-right: auto;
+  }
+
+  .list-row.creating {
+    background: rgba(57, 140, 191, 0.1);
+  }
+
+  .name-cell {
+    font-weight: 400;
+    gap: 10px;
+  }
+
+  .name-cell.folder {
+    font-weight: 500;
+  }
+
+  .name-editor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .name-editor input {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid ${({ theme }) => theme.palette.secondary.main};
+    border-radius: 4px;
+    outline: none;
+    font: 500 14px 'Noto Sans', sans-serif;
+    box-shadow: 0 0 0 2px rgba(57, 140, 191, 0.18);
+  }
+
+  .name-editor input[aria-invalid='true'] {
+    border-color: ${DANGER};
+  }
+
+  .name-hint {
+    grid-column: 3 / 6;
+    font-size: 12px;
+    padding-left: 12px;
+    color: ${MUTED};
+  }
+
+  .name-hint.invalid {
+    color: ${DANGER};
+  }
+
+  .readme-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    min-height: 36px;
+    font-size: 13px;
+    background: rgba(57, 140, 191, 0.08);
+    border-bottom: 1px solid ${BORDER};
+    flex: none;
+  }
+
+  .readme {
+    margin: 16px;
+    padding: 16px;
+    border: 1px solid ${BORDER};
+    border-radius: 4px;
+    background: #fbfcfd;
+    font-size: 14px;
+  }
+
+  .readme-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: ${MUTED};
+  }
+
+  .drop-overlay {
+    position: absolute;
+    inset: 6px;
+    z-index: 35;
+    border: 2px dashed ${({ theme }) => theme.palette.secondary.main};
+    border-radius: 6px;
+    background: rgba(232, 241, 248, 0.94);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    padding: 16px;
+  }
+
+  .drop-overlay > * {
+    pointer-events: none;
+  }
+
+  .drop-message {
+    font-weight: 600;
+    font-size: 16px;
+    color: ${({ theme }) => theme.palette.primary.main};
+  }
+`;
+
+const CheckIcon = styled(Icon)<{ $active?: boolean; $dim?: boolean }>`
+  color: ${({ theme, $active }) => ($active ? theme.palette.secondary.main : 'rgba(0,0,0,0.5)')};
+  ${({ $dim }) => $dim && 'opacity: 0.42;'}
+`;
+
+const EntryIcon = styled(Icon)<{ $folder: boolean }>`
+  flex: none;
+  color: ${({ theme, $folder }) => ($folder ? theme.palette.secondary.main : 'rgba(0,0,0,0.55)')};
+`;
+
+const ConfirmButton = styled(CircleButton)<{ $invalid: boolean }>`
+  && {
+    color: ${({ theme, $invalid }) => ($invalid ? 'rgba(0,0,0,0.26)' : theme.palette.contrast2.main)};
+  }
+`;
 
 type NameInputProps = {
   initial: string;
@@ -77,8 +224,9 @@ const NameInput: FC<NameInputProps> = ({ initial, existingNames, own, icon, hint
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }} onClick={(event) => event.stopPropagation()} onDoubleClick={(event) => event.stopPropagation()}>
-        <span className="material-symbols-outlined" style={{ fontSize: 22, flex: 'none', color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>{icon}</span>
+      {/* The editor sits inside a clickable row, so its clicks must not reach the row. */}
+      <div className="name-editor" role="presentation" onClick={(event) => event.stopPropagation()} onDoubleClick={(event) => event.stopPropagation()}>
+        <EntryIcon $size={22} $folder $filled>{icon}</EntryIcon>
         <input
           ref={inputRef}
           value={value}
@@ -87,16 +235,15 @@ const NameInput: FC<NameInputProps> = ({ initial, existingNames, own, icon, hint
           onChange={(event) => setValue(event.target.value)}
           onFocus={(event) => event.target.select()}
           onKeyDown={onKeyDown}
-          style={{ flex: 1, minWidth: 0, height: 28, padding: '0 8px', border: `1px solid ${error ? '#C62828' : '#398CBF'}`, borderRadius: 4, outline: 'none', font: '500 14px \'Noto Sans\', sans-serif', boxShadow: '0 0 0 2px rgba(57,140,191,0.18)' }}
         />
-        <ButtonBase aria-label="Confirm" disabled={!!error} onClick={() => onCommit(value.trim())} sx={{ width: 32, height: 32, borderRadius: '50%', color: error ? 'rgba(0,0,0,0.26)' : '#20A183' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>check</span>
-        </ButtonBase>
-        <ButtonBase aria-label="Cancel" onClick={onCancel} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
-        </ButtonBase>
-      </Box>
-      <Box sx={{ gridColumn: '3 / 6', fontSize: 12, pl: 1.5, color: error ? '#C62828' : 'rgba(0,0,0,0.6)' }}>{error || hint}</Box>
+        <ConfirmButton aria-label="Confirm" disabled={!!error} $invalid={!!error} onClick={() => onCommit(value.trim())}>
+          <Icon>check</Icon>
+        </ConfirmButton>
+        <CircleButton aria-label="Cancel" onClick={onCancel}>
+          <Icon>close</Icon>
+        </CircleButton>
+      </div>
+      <div className={`name-hint${error ? ' invalid' : ''}`}>{error || hint}</div>
     </>
   );
 };
@@ -265,7 +412,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   const showLoading = loading && !data;
   const showError = !!error && !data;
 
-  const menuItems = (entry: FileEntry) => [
+  const menuItems = (entry: FileEntry): MenuAction[] => [
     ...(entry.isFolder ? [{ label: 'Open', icon: 'folder_open', color: 'text.primary', run: () => open(entry) }] : []),
     ...(entry.isFolder ? [] : [{ label: 'Download', icon: 'download', color: 'text.primary', run: () => download(entry) }]),
     { label: 'Copy to…', icon: 'content_copy', color: 'text.primary', run: () => onTransfer('copy', [entry.name]) },
@@ -287,83 +434,68 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   }
 
   return (
-    <Box
-      onDragEnter={onDragOver}
-      onDragOver={onDragOver}
-      sx={{ position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', opacity: busy ? 0.7 : 1, pointerEvents: busy ? 'none' : 'auto' }}
-    >
-      {(busy || (loading && !!data)) && <LinearProgress aria-label="Working" sx={{ flex: 'none' }} />}
+    <Styled $busy={busy} onDragEnter={onDragOver} onDragOver={onDragOver}>
+      {(busy || (loading && !!data)) && <LinearProgress className="progress" aria-label="Working" />}
       {readme && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 36, bgcolor: 'rgba(57,140,191,0.08)', borderBottom: '1px solid #e6e9ed', flex: 'none', fontSize: 13 }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#398CBF' }}>article</span>
+        <div className="readme-hint">
+          <Icon $size={18} $color="#398CBF">article</Icon>
           <span>This folder has a README. It is shown at the bottom of the list.</span>
-          <Button size="small" endIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_downward</span>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+          <Button size="small" endIcon={<Icon $size={18}>arrow_downward</Icon>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
             Jump to README
           </Button>
-        </Box>
+        </div>
       )}
       {selected.length > 0 && !pick && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, pl: 0.75, pr: 1.5, minHeight: 52, bgcolor: '#e8f1f8', flex: 'none' }}>
-          <ButtonBase aria-label="Clear selection" onClick={() => setChecked(new Set())} sx={{ width: 36, height: 36, borderRadius: '50%', color: 'primary.main' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
-          </ButtonBase>
-          <Box component="span" sx={{ fontWeight: 600, color: 'primary.main' }}>{selected.length} selected</Box>
-          <Box sx={{ flex: 1 }} />
+        <div className="selection-bar">
+          <CircleButton $size={36} aria-label="Clear selection" onClick={() => setChecked(new Set())}>
+            <Icon>close</Icon>
+          </CircleButton>
+          <span className="selection-count">{selected.length} selected</span>
           {/* Folders can't be downloaded, so Download is only offered when every selected item is a file. */}
           {selected.every((entry) => !entry.isFolder) && (
-            <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span>} onClick={() => downloadMany(selected)}>
+            <Button startIcon={<Icon $size={18}>download</Icon>} onClick={() => downloadMany(selected)}>
               Download
             </Button>
           )}
-          <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>content_copy</span>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
+          <Button startIcon={<Icon $size={18}>content_copy</Icon>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
             Copy
           </Button>
           {writable && (
-            <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>drive_file_move</span>} onClick={() => onTransfer('move', selected.map((entry) => entry.name))}>
+            <Button startIcon={<Icon $size={18}>drive_file_move</Icon>} onClick={() => onTransfer('move', selected.map((entry) => entry.name))}>
               Move
             </Button>
           )}
           {writable && (
-            <Button color="error" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>} onClick={() => setConfirmDelete(selected.map((entry) => entry.name))}>
+            <Button color="error" startIcon={<Icon $size={18}>delete</Icon>} onClick={() => setConfirmDelete(selected.map((entry) => entry.name))}>
               Delete
             </Button>
           )}
-        </Box>
+        </div>
       )}
-      <Box role="row" sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, height: 34, borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
+      <div className="list-header" role="row">
         {pick ? <span /> : (
           <ButtonBase
             aria-label={allSelected ? 'Deselect all' : 'Select all'}
             disabled={entries.length === 0}
             onClick={() => setChecked(allSelected ? new Set() : new Set(entries.map((entry) => entry.name)))}
           >
-            <CheckIcon name={allSelected ? 'check_box' : selected.length ? 'indeterminate_check_box' : 'check_box_outline_blank'} active={selected.length > 0} />
+            <CheckIcon $active={selected.length > 0}>{allSelected ? 'check_box' : selected.length ? 'indeterminate_check_box' : 'check_box_outline_blank'}</CheckIcon>
           </ButtonBase>
         )}
         {headers.map(({ key, label }) => (
-          <ButtonBase
-            key={key}
-            onClick={() => onSort(key)}
-            aria-sort={sortKey === key ? (direction === 1 ? 'ascending' : 'descending') : 'none'}
-            sx={{ justifySelf: 'start', gap: 0.5, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}
-          >
-            {label}
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
-              {sortKey === key ? (direction === 1 ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-            </span>
-          </ButtonBase>
+          <SortHeader key={key} label={label} active={sortKey === key} direction={direction} onClick={() => onSort(key)} />
         ))}
         <span />
-      </Box>
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-        <LoadingAnimation backDropIsOpen={showLoading} />
+      </div>
+      <div className="list-body">
+        {showLoading && <LoadingAnimation backDropIsOpen />}
         {showError && (
-          <Alert severity="error" sx={{ m: 2 }} action={<Button color="inherit" size="small" onClick={reload}>Retry</Button>}>
+          <Alert severity="error" action={<Button color="inherit" size="small" onClick={reload}>Retry</Button>}>
             Could not load this folder: {error?.message}
           </Alert>
         )}
         {creating && writable && (
-          <Box sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, minHeight: ROW_HEIGHT, borderBottom: '1px solid #f0f2f4', bgcolor: 'rgba(57,140,191,0.10)' }}>
+          <div className="list-row creating">
             <span />
             <NameInput
               initial={defaultFolderName(names)}
@@ -373,13 +505,14 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
               onCommit={runCreate}
               onCancel={() => onCreatingDone()}
             />
-          </Box>
+          </div>
         )}
         {entries.map((entry) => {
           const isChecked = checked.has(entry.name);
           const disabled = !!pick && !entry.isFolder;
           const picked = !!pick && pick.selectedName === entry.name;
-          const dim = disabled ? 0.42 : 1;
+          const clickable = !disabled && (!!pick || entry.isFolder);
+          const dim = disabled ? ' dim' : '';
           const items = pick ? [] : menuItems(entry);
           const onClick = () => {
             if (pick) {
@@ -393,26 +526,27 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           };
           const isRenaming = renaming === entry.name;
           return (
-            <Box
+            <div
               key={entry.name}
               role="row"
+              className={`list-row${clickable ? ' clickable' : ''}${disabled ? ' disabled' : ''}${picked ? ' selected' : ''}${isChecked && !picked ? ' checked' : ''}`}
+              tabIndex={clickable ? 0 : -1}
               onClick={onClick}
+              onKeyDown={(event) => event.key === 'Enter' && event.target === event.currentTarget && onClick()}
               onDoubleClick={() => pick && !disabled && open(entry)}
-              sx={{ display: 'grid', gridTemplateColumns: COLUMNS, alignItems: 'center', px: 1, minHeight: ROW_HEIGHT, borderBottom: '1px solid #f0f2f4', cursor: !disabled && (pick || entry.isFolder) ? 'pointer' : 'default', userSelect: 'none', bgcolor: picked ? 'rgba(57,140,191,0.16)' : isChecked ? 'rgba(57,140,191,0.07)' : 'transparent', '&:hover': { bgcolor: disabled ? undefined : 'rgba(57,140,191,0.08)' } }}
             >
               {pick ? (
-                <span className="material-symbols-outlined" style={{ fontSize: 20, opacity: dim, color: picked ? '#398CBF' : 'rgba(0,0,0,0.5)' }}>
-                  {disabled ? '' : picked ? 'radio_button_checked' : 'radio_button_unchecked'}
-                </span>
+                <CheckIcon $dim={disabled} $active={picked}>{disabled ? '' : picked ? 'radio_button_checked' : 'radio_button_unchecked'}</CheckIcon>
               ) : (
                 <ButtonBase
                   aria-label={`Select ${entry.name}`}
                   aria-pressed={isChecked}
                   onClick={(event) => {
-                    event.stopPropagation(); toggle(entry.name); 
+                    event.stopPropagation();
+                    toggle(entry.name);
                   }}
                 >
-                  <CheckIcon name={isChecked ? 'check_box' : 'check_box_outline_blank'} active={isChecked} />
+                  <CheckIcon $active={isChecked}>{isChecked ? 'check_box' : 'check_box_outline_blank'}</CheckIcon>
                 </ButtonBase>
               )}
               {isRenaming ? (
@@ -427,49 +561,57 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
                 />
               ) : (
                 <>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0, fontSize: 14, fontWeight: entry.isFolder ? 500 : 400, opacity: dim }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 22, flex: 'none', color: entry.isFolder ? '#398CBF' : 'rgba(0,0,0,0.55)', fontVariationSettings: `'FILL' ${entry.isFolder ? 1 : 0}` }}>
-                      {entry.isFolder ? 'folder' : 'description'}
-                    </span>
-                    <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</Box>
-                  </Box>
-                  <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', whiteSpace: 'nowrap', opacity: dim }}>{formatModified(entry.modified)}</Box>
-                  <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.62)', whiteSpace: 'nowrap', opacity: dim }}>{entry.isFolder ? '—' : formatBytes(entry.size)}</Box>
+                  <div className={`name-cell${entry.isFolder ? ' folder' : ''}${dim}`}>
+                    <EntryIcon $size={22} $folder={entry.isFolder} $filled={entry.isFolder}>{entry.isFolder ? 'folder' : 'description'}</EntryIcon>
+                    <span className="name-text">{entry.name}</span>
+                  </div>
+                  <span className={`text-cell${dim}`}>{formatModified(entry.modified)}</span>
+                  <span className={`text-cell${dim}`}>{entry.isFolder ? '—' : formatBytes(entry.size)}</span>
                   {pick && !disabled && (
-                    <ButtonBase aria-label={`Open ${entry.name}`} onClick={(event) => {
-                      event.stopPropagation(); open(entry); 
-                    }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_right</span>
-                    </ButtonBase>
+                    <CircleButton
+                      aria-label={`Open ${entry.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        open(entry);
+                      }}
+                    >
+                      <Icon>chevron_right</Icon>
+                    </CircleButton>
                   )}
                   {!pick && items.length > 0 && (
-                    <ButtonBase aria-label={`More actions for ${entry.name}`} onClick={(event) => {
-                      event.stopPropagation(); setMenu({ anchor: event.currentTarget, entry }); 
-                    }} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>more_vert</span>
-                    </ButtonBase>
+                    <CircleButton
+                      aria-label={`More actions for ${entry.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setMenu({ anchor: event.currentTarget, entry });
+                      }}
+                    >
+                      <Icon>more_vert</Icon>
+                    </CircleButton>
                   )}
                 </>
               )}
-            </Box>
+            </div>
           );
         })}
-        {!showLoading && !showError && all.length === 0 && !creating && <Message icon="folder_open" title="This folder is empty" hint={emptyHint} />}
+        {!showLoading && !showError && all.length === 0 && !creating && <EmptyMessage icon="folder_open" title="This folder is empty" hint={emptyHint} />}
         {readme && (
-          <Box ref={readmeRef} sx={{ m: 2, p: 2, border: '1px solid #e6e9ed', borderRadius: 1, bgcolor: '#fbfcfd', fontSize: 14 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>article</span>
+          <div className="readme" ref={readmeRef}>
+            <div className="readme-title">
+              <Icon $size={16}>article</Icon>
               README.md
-            </Box>
+            </div>
             <ReactMarkdown>{readme}</ReactMarkdown>
-          </Box>
+          </div>
         )}
         {!showLoading && !showError && all.length > 0 && entries.length === 0 && (
-          <Message icon="search_off" title={`No matches for “${filter.trim()}”`} hint="Try a different name." />
+          <EmptyMessage icon="search_off" title={`No matches for “${filter.trim()}”`} hint="Try a different name." />
         )}
-      </Box>
+      </div>
       {dragging && (
-        <Box
+        <div
+          className="drop-overlay"
+          role="presentation"
           onDragOver={(event) => event.preventDefault()}
           onDragLeave={(event) => !event.currentTarget.contains(event.relatedTarget as Node) && setDragging(false)}
           onDrop={(event) => {
@@ -477,24 +619,14 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
             setDragging(false);
             onDropFiles(toArray(event.dataTransfer.files));
           }}
-          sx={{ position: 'absolute', inset: 6, zIndex: 35, border: '2px dashed #398CBF', borderRadius: '6px', bgcolor: 'rgba(232,241,248,0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, textAlign: 'center', p: 2 }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 40, color: '#398CBF', pointerEvents: 'none' }}>upload_file</span>
-          <Box sx={{ fontWeight: 600, fontSize: 16, color: 'primary.main', pointerEvents: 'none' }}>
+          <Icon $size={40}>upload_file</Icon>
+          <div className="drop-message">
             {writable ? `Drop to upload to ${path.split('/').filter(Boolean).pop() || volume.volumeName}` : 'Open a writable folder to upload'}
-          </Box>
-        </Box>
+          </div>
+        </div>
       )}
-      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={() => setMenu(null)}>
-        {(menu ? menuItems(menu.entry) : []).map((item) => (
-          <MenuItem key={item.label} onClick={() => {
-            setMenu(null); item.run(); 
-          }} sx={{ gap: 1.5, fontSize: 14, color: item.color }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{item.icon}</span>
-            {item.label}
-          </MenuItem>
-        ))}
-      </Menu>
+      <RowMenu anchor={menu?.anchor ?? null} items={menu ? menuItems(menu.entry) : []} onClose={() => setMenu(null)} />
       <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
         <DialogTitle>{confirmDelete && confirmDelete.length > 1 ? `Delete ${confirmDelete.length} items?` : 'Delete item?'}</DialogTitle>
         <DialogContent>
@@ -508,6 +640,6 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           <Button color="error" variant="contained" onClick={() => confirmDelete && runDelete(confirmDelete)}>Delete</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Styled>
   );
 };
