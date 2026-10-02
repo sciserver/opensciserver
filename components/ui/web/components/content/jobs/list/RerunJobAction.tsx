@@ -63,9 +63,7 @@ export const RerunJobAction: FC<Props> = ({ job, startPolling }) => {
 
   return (
     <Tooltip title="Re-run Job">
-      <IconButton onClick={(e) => {
-        e.stopPropagation(); handleRerun(); 
-      }} size="small">
+      <IconButton onClick={(e) => { e.stopPropagation(); handleRerun(); }} size="small">
         <ReplayIcon color="primary" className="replay-icon" />
       </IconButton>
     </Tooltip>

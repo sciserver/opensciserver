@@ -67,7 +67,9 @@ export const NewComputeSessionForm: FC<Props> = ({
     />
     <List
       className="summary"
-      sx={{ '& ul': { padding: 0 } }}
+      sx={{
+        '& ul': { padding: 0 }
+      }}
       subheader={<li />}
     >
       <li key={`section-domain`}>
