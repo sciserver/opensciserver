@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildEntries, filterAndSortEntries, formatBytes, formatModified } from './fileEntries';
+import { buildEntries, defaultFolderName, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from './fileEntries';
 
 const root = {
   folders: [{ name: 'logs', lastModified: '2026-01-21T15:22:00Z', creationTime: '' }, { name: '.hidden', lastModified: 'bad', creationTime: '' }],
@@ -47,5 +47,29 @@ describe('formatters', () => {
   it('formats dates and unknowns', () => {
     expect(formatModified(0)).toBe('—');
     expect(formatModified(new Date(2026, 0, 21, 15, 2).getTime())).toBe('2026-01-21 15:02');
+  });
+});
+
+describe('validateEntryName', () => {
+  const existing = ['a.txt', 'logs'];
+
+  it('rejects empty, slashes and dot names', () => {
+    expect(validateEntryName('  ', existing)).toMatch(/empty/);
+    expect(validateEntryName('a/b', existing)).toMatch(/contain/);
+    expect(validateEntryName('a\\b', existing)).toMatch(/contain/);
+    expect(validateEntryName('..', existing)).toMatch(/\.\./);
+  });
+
+  it('rejects an existing name unless it is the one being renamed', () => {
+    expect(validateEntryName('logs', existing)).toMatch(/exists/);
+    expect(validateEntryName('logs', existing, 'logs')).toBe('');
+    expect(validateEntryName(' fresh ', existing)).toBe('');
+  });
+});
+
+describe('defaultFolderName', () => {
+  it('numbers from 2', () => {
+    expect(defaultFolderName(['x'])).toBe('New folder');
+    expect(defaultFolderName(['New folder', 'New folder 2'])).toBe('New folder 3');
   });
 });
