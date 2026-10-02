@@ -62,8 +62,8 @@ describe('volume rows', () => {
 
   it('gives data volumes that share a name different keys', () => {
     const base = { name: 'droid-workspace', displayName: 'droid-workspace', description: '', publisherDID: '', racmUUID: '', sharedWith: [], writable: false, allowedActions: ['read'] };
-    const rows = dataVolumeRows([{ ...base, id: '1' }, { ...base, id: '2' }]);
-    expect(new Set(rows.map((r) => r.key)).size).toBe(2);
+    const sameName = dataVolumeRows([{ ...base, id: '1' }, { ...base, id: '2' }]);
+    expect(new Set(sameName.map((r) => r.key)).size).toBe(2);
   });
 
   it('filters by name and sorts', () => {
