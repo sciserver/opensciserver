@@ -64,6 +64,11 @@ export type VolumeRow = {
   detail: string;
   writable: boolean;
   shared: boolean;
+  description: string;
+  /** The signed-in user owns this user volume, so they can edit it. */
+  owned: boolean;
+  /** The server lets the user delete this volume. */
+  canDelete: boolean;
 };
 
 export type SortKey = 'name' | 'rootVolume' | 'detail';
@@ -76,7 +81,10 @@ export const userVolumeRows = (rootVolumes: { userVolumes: UserVolume[] }[], use
     rootVolume: volume.rootVolumeName,
     detail: volume.owner,
     writable: isUserVolumeWritable(volume),
-    shared: isSharedByOwner(volume, userName)
+    shared: isSharedByOwner(volume, userName),
+    description: volume.description || '',
+    owned: !!userName && volume.owner === userName,
+    canDelete: hasAction(volume.allowedActions, 'delete')
   }))
 );
 
@@ -93,7 +101,10 @@ export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVo
     rootVolume: writable ? 'Read/write' : 'Read-only',
     detail: volume.description,
     writable,
-    shared: false
+    shared: false,
+    description: volume.description,
+    owned: false,
+    canDelete: false
   };
 });
 
@@ -119,6 +130,26 @@ export const workspacePath = (route: FilesRoute): string => {
     ? `/home/idies/workspace/${rootVolumeName}/${owner}/${volumeName}`
     : `/home/idies/workspace/${volumeName}`;
   return `${base}${route.path}`;
+};
+
+/** Root volumes the user may create volumes in (the dashboard required the 'create' action), by name. */
+export const creatableRootVolumes = <T extends { name?: string | null; allowedActions: (string | null)[] }>(rootVolumes: T[]): T[] => (
+  rootVolumes.filter((root) => hasAction(root.allowedActions, 'create')).sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+);
+
+/** Why a user volume name can't be used, or '' when it is fine. */
+export const validateVolumeName = (name: string, existingNames: Iterable<string> = [], own?: string): string => {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return 'Name can’t be empty';
+  }
+  if (trimmed.includes('/')) {
+    return 'User volume name can’t contain /';
+  }
+  if (trimmed !== own && new Set(existingNames).has(trimmed)) {
+    return 'You already have a volume with this name in that root volume';
+  }
+  return '';
 };
 
 /**
