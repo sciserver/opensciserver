@@ -129,7 +129,12 @@ export const NewComputeSessionOptions: FC<Props> = ({
         <CommandForm command={command} setCommand={setCommand} commandError={commandError} setCommandError={setCommandError} />
       }
       {tabValue === 5 &&
-        <WorkingDirectoryForm resultsFolderURI={resultsFolderURI!} setResultsFolderURI={setResultsFolderURI!} userVolumesList={userVolumeList} />
+        <WorkingDirectoryForm
+          resultsFolderURI={resultsFolderURI!}
+          setResultsFolderURI={setResultsFolderURI!}
+          userVolumesList={userVolumeList}
+          userVolumesChoice={userVolumesChoice}
+        />
       }
     </div>
   </Styled >;

@@ -32,7 +32,10 @@ export default defineConfig({
       NEXT_PUBLIC_DASHBOARD_URL: 'http://localhost:3100/dashboard',
       NEXT_PUBLIC_FILES_URL: 'http://localhost:3100/dashboard/files',
       NEXT_PUBLIC_NOTEBOOKS_URL: 'http://localhost:3100/compute/',
-      NEXT_PUBLIC_HELPDESK_EMAIL: 'helpdesk@example.org'
+      NEXT_PUBLIC_HELPDESK_EMAIL: 'helpdesk@example.org',
+      NEXT_PUBLIC_JOB_WORKSPACE_PATH: '/home/idies/workspace/',
+      NEXT_PUBLIC_NEW_JOB_DOMAIN_NAME_DEFAULT: 'Small Jobs Domain',
+      NEXT_PUBLIC_NEW_JOB_IMAGE_NAME_DEFAULT: 'SciServer Essentials 4.0'
     }
   }
 });

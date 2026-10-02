@@ -131,6 +131,19 @@ export class FakeBackend {
       case 'GetUser': {
         return { getUser: typed('User', this.user) };
       }
+      case 'GetDomains': {
+        return {
+          getDomains: [typed('Domain', {
+            id: '1',
+            name: 'Small Jobs Domain',
+            apiEndpoint: 'http://localhost:3100/compute',
+            description: 'Shared systems for small jobs',
+            images: [typed('Image', { id: '1', name: 'SciServer Essentials 4.0', description: 'Python, R and Julia' })],
+            userVolumes: this.volumes.map((x) => typed('UserVolume', { id: x.id, name: x.name, owner: x.owner, description: x.description, rootVolumeName: x.rootVolumeName, allowedActions: x.allowedActions })),
+            dataVolumes: []
+          })]
+        };
+      }
       case 'fileVolumes':
       case 'sharingDetails':
       case 'fileQuotas': {

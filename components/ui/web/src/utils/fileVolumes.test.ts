@@ -67,6 +67,8 @@ describe('workspacePath', () => {
     expect(workspacePath(user)).toBe('/home/idies/workspace/Storage/me/persistent/a/b');
     expect(workspacePath(parseFilesRoute({ type: 'data', volume: 'sdss' }))).toBe('/home/idies/workspace/sdss');
     expect(workspacePath(parseFilesRoute({}))).toBe('');
+    expect(workspacePath(user, '/mnt/ws')).toBe('/mnt/ws/Storage/me/persistent/a/b');
+    expect(workspacePath(user, '/mnt/ws/')).toBe('/mnt/ws/Storage/me/persistent/a/b');
   });
 
   it('compares volumes by name, root and owner', () => {
