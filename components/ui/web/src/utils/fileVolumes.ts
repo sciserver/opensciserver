@@ -80,16 +80,22 @@ export const userVolumeRows = (rootVolumes: { userVolumes: UserVolume[] }[], use
   }))
 );
 
-export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVolumes.map((volume) => ({
-  key: volume.name,
-  route: { volumeType: VolumeType.Datavolume, volumeName: volume.name },
-  name: volume.displayName || volume.name,
-  // Data volumes are read-only in the UI, whatever allowedActions says.
-  rootVolume: 'Read-only',
-  detail: volume.description,
-  writable: false,
-  shared: false
-}));
+/** Data volumes use the same allowedActions as user volumes: only some of them can be written to. */
+export const isDataVolumeWritable = (volume: Pick<DataVolume, 'allowedActions'>): boolean => hasAction(volume.allowedActions, 'write');
+
+export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVolumes.map((volume) => {
+  const writable = isDataVolumeWritable(volume);
+  return {
+    // Two data volumes can share a name (the API addresses them by name, but lists both), so the id keeps rows apart.
+    key: `data/${volume.id}`,
+    route: { volumeType: VolumeType.Datavolume, volumeName: volume.name },
+    name: volume.displayName || volume.name,
+    rootVolume: writable ? 'Read/write' : 'Read-only',
+    detail: volume.description,
+    writable,
+    shared: false
+  };
+});
 
 export const filterAndSortRows = (rows: VolumeRow[], filter: string, sortKey: SortKey, direction: 1 | -1): VolumeRow[] => {
   const needle = filter.trim().toLowerCase();
