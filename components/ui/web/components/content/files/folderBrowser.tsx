@@ -122,6 +122,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [readme, setReadme] = useState('');
+  const readmeRef = useRef<HTMLDivElement>(null);
   const { token } = useContext(UserContext);
 
   // A different folder or volume starts with nothing selected or being edited.
@@ -171,11 +172,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   };
 
   // Several downloads in a row are spaced out so browsers don't drop them.
-  const downloadMany = (targets: FileEntry[]) => {
-    const files = targets.filter((entry) => !entry.isFolder);
-    if (files.length < targets.length) {
-      notify('Folders can’t be downloaded yet', 'error');
-    }
+  const downloadMany = (files: FileEntry[]) => {
     for (const [index, entry] of toArray(files.entries())) {
       setTimeout(() => download(entry), index * 1000);
     }
@@ -296,6 +293,15 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
       sx={{ position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', opacity: busy ? 0.7 : 1, pointerEvents: busy ? 'none' : 'auto' }}
     >
       {(busy || (loading && !!data)) && <LinearProgress aria-label="Working" sx={{ flex: 'none' }} />}
+      {readme && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 36, bgcolor: 'rgba(57,140,191,0.08)', borderBottom: '1px solid #e6e9ed', flex: 'none', fontSize: 13 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#398CBF' }}>article</span>
+          <span>This folder has a README. It is shown at the bottom of the list.</span>
+          <Button size="small" endIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_downward</span>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+            Jump to README
+          </Button>
+        </Box>
+      )}
       {selected.length > 0 && !pick && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, pl: 0.75, pr: 1.5, minHeight: 52, bgcolor: '#e8f1f8', flex: 'none' }}>
           <ButtonBase aria-label="Clear selection" onClick={() => setChecked(new Set())} sx={{ width: 36, height: 36, borderRadius: '50%', color: 'primary.main' }}>
@@ -303,9 +309,12 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           </ButtonBase>
           <Box component="span" sx={{ fontWeight: 600, color: 'primary.main' }}>{selected.length} selected</Box>
           <Box sx={{ flex: 1 }} />
-          <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span>} onClick={() => downloadMany(selected)}>
-            Download
-          </Button>
+          {/* Folders can't be downloaded, so Download is only offered when every selected item is a file. */}
+          {selected.every((entry) => !entry.isFolder) && (
+            <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span>} onClick={() => downloadMany(selected)}>
+              Download
+            </Button>
+          )}
           <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>content_copy</span>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
             Copy
           </Button>
@@ -447,7 +456,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
         })}
         {!showLoading && !showError && all.length === 0 && !creating && <Message icon="folder_open" title="This folder is empty" hint={emptyHint} />}
         {readme && (
-          <Box sx={{ m: 2, p: 2, border: '1px solid #e6e9ed', borderRadius: 1, bgcolor: '#fbfcfd', fontSize: 14 }}>
+          <Box ref={readmeRef} sx={{ m: 2, p: 2, border: '1px solid #e6e9ed', borderRadius: 1, bgcolor: '#fbfcfd', fontSize: 14 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>article</span>
               README.md

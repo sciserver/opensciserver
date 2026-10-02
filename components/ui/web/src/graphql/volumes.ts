@@ -38,6 +38,7 @@ export const FILE_VOLUMES = gql`
         name
         displayName
         description
+        allowedActions
       }
       rootVolumes {
         name

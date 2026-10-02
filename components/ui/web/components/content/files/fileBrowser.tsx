@@ -203,7 +203,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
         {route.volume && currentRow && !currentRow.writable && !pick && (
           <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lock</span>
-            {isData ? 'Data volumes are read-only' : 'Read-only: shared with you'}
+            {isData ? 'Read-only: you can only read this data volume' : 'Read-only: shared with you'}
           </Box>
         )}
         {pick && <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>Click to select · double-click to open</Box>}
