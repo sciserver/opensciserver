@@ -348,6 +348,8 @@ public class UiController {
             item.setId(Long.parseLong(domain.getPublisherDID()));
             item.setName(domain.getName());
             item.setDescription(domain.getDescription());
+            item.setSelected(Long.parseLong(domain.getPublisherDID())
+                    == appConfig.getAppSettings().getDefaultDomainId());
             domainList.add(item);
         }
         model.addAttribute("domains", domainList);
