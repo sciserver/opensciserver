@@ -1,7 +1,7 @@
 package org.sciserver.springapp.racm.jobm.application;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -11,8 +11,8 @@ import javax.persistence.Query;
 
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 
@@ -36,7 +36,7 @@ public class JOBMModelFactoryTests {
     private final Query query = mock(Query.class);
     private DockerComputeDomain domain;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(tom.createQuery(anyString())).thenReturn(query);
         when(query.setParameter(anyString(), any())).thenReturn(query);
