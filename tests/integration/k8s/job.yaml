@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: sciserver-integration-
+  labels:
+    app.kubernetes.io/name: sciserver-integration-tests
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sciserver-integration-tests
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: tests
+          image: ${TEST_IMAGE}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SCISERVER_BASE_URL
+              value: "${SCISERVER_BASE_URL}"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
