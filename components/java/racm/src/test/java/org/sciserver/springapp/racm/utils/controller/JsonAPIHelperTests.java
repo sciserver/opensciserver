@@ -1,9 +1,9 @@
 package org.sciserver.springapp.racm.utils.controller;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.ivoa.dm.VOURPException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sciserver.springapp.racm.login.InsufficientPermissionsException;
 import org.sciserver.springapp.racm.utils.RACMException;
 import org.springframework.http.HttpStatus;
