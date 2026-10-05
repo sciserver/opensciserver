@@ -7,14 +7,16 @@ import { environment } from '../environment';
 import {
   DataVolume,
   FileService,
-  Folder,
-  File,
-  JsonTree,
   RootVolume,
   UserVolume,
   ComputeDataVolume,
-  JobUserVolume
+  FileUsage,
+  JobUserVolume,
+  SharedWith,
+  SharedWithInput
 } from '../generated/typings';
+
+const userVolumePath = (rootVolumeName: string, owner: string, name: string) => `${rootVolumeName}/${owner}/${encodeURIComponent(name)}`;
 
 export enum CALLER {
   FILESERVICE,
@@ -41,13 +43,66 @@ export class VolumesAPI extends RESTDataSource {
     return this.fileSystemReducer(res);
   }
 
-  async getFilesByVolume(volumeName: string): Promise<JsonTree> {
-    const results = await this.get(`${this.baseURL!}jsontree/${volumeName}/?level=2`);
+  async getFileUsage(): Promise<FileUsage[]> {
+    const res = await this.get(`${this.baseURL!}usage`);
 
-    return this.jsonTreeReducer(results);
+    return ((res as any[]) || []).map((r: any) => this.fileUsageReducer(r));
+  }
+
+  // MUTATIONS //
+  async createUserVolume(rootVolumeName: string, owner: string, name: string, description?: string | null): Promise<boolean> {
+    await this.put(`${this.baseURL!}volume/${userVolumePath(rootVolumeName, owner, name)}`, {
+      body: { description: description || '' }
+    });
+    return true;
+  }
+
+  async updateUserVolume(
+    rootVolumeName: string,
+    owner: string,
+    name: string,
+    newName: string,
+    description?: string | null
+  ): Promise<boolean> {
+    await this.patch(`${this.baseURL!}volume/${userVolumePath(rootVolumeName, owner, name)}`, {
+      body: { name: newName, description: description || '' }
+    });
+    return true;
+  }
+
+  async deleteUserVolume(rootVolumeName: string, owner: string, name: string): Promise<boolean> {
+    await this.delete(`${this.baseURL!}volume/${userVolumePath(rootVolumeName, owner, name)}/`);
+    return true;
+  }
+
+  async shareUserVolume(rootVolumeName: string, owner: string, name: string, sharedWith: SharedWithInput[]): Promise<boolean> {
+    await this.patch(`${this.baseURL!}share/${userVolumePath(rootVolumeName, owner, name)}/`, {
+      body: sharedWith.map(s => ({ ...s, id: Number(s.id) }))
+    });
+    return true;
   }
 
   // Reducers
+  fileUsageReducer(res: any): FileUsage {
+    return {
+      rootVolumeId: res.rootVolumeId,
+      userVolumeId: res.userVolumeId,
+      username: res.username,
+      type: res.type,
+      numberOfBytesUsed: res.numberOfBytesUsed || 0,
+      numberOfBytesQuota: res.numberOfBytesQuota || 0
+    };
+  }
+
+  sharedWithReducer(res: any): SharedWith {
+    return {
+      id: res.id,
+      name: res.name,
+      type: res.type,
+      allowedActions: res.allowedActions || []
+    };
+  }
+
   fileSystemReducer(res: any): FileService {
     return {
       identifier: res.identifier, name: res.name,
@@ -71,7 +126,7 @@ export class VolumesAPI extends RESTDataSource {
       writable: res.allowedActions ? res.allowedActions.includes('write') : false,
       url: res.url,
       allowedActions: res.allowedActions,
-      sharedWith: res.sharedWith,
+      sharedWith: (res.sharedWith as [any] | undefined)?.map((r: any) => this.sharedWithReducer(r)) || [],
       owningResourceId: res.owningResourceId
     };
   }
@@ -92,7 +147,7 @@ export class VolumesAPI extends RESTDataSource {
       pathOnFileSystem: res.pathOnFileSystem,
       containsSharedVolumes: res.containsSharedVolumes,
       allowedActions: res.allowedActions,
-      sharedWith: res.sharedWith,
+      sharedWith: (res.sharedWith as [any] | undefined)?.map((r: any) => this.sharedWithReducer(r)) || [],
       owningResourceId: res.owningResourceId,
       userVolumes: (res.userVolumes as [any])?.map((r: any) => this.userVolumeReducer(r, CALLER.FILESERVICE, res.name)) || []
     };
@@ -106,7 +161,7 @@ export class VolumesAPI extends RESTDataSource {
       description: res.description,
       relativePath: res.relativePath,
       allowedActions: res.allowedActions,
-      sharedWith: res.sharedWith,
+      sharedWith: (res.sharedWith as [any] | undefined)?.map((r: any) => this.sharedWithReducer(r)) || [],
       owningResourceId: res.owningResourceId,
       owner: res.owner,
       rootVolumeName: caller === CALLER.COMPUTE ? res.rootVolumeName : rootVolumeName
@@ -121,36 +176,4 @@ export class VolumesAPI extends RESTDataSource {
       needsWriteAccess: res.needsWriteAccess
     };
   }
-
-  jsonTreeReducer(res: any): JsonTree {
-    const { root } = res;
-    return {
-      root: {
-        name: root.name,
-        creationTime: root.creationTime,
-        lastModified: root.lastModified,
-        folders: (root.folders as [any])?.map((r: any) => this.folderReducer(r)),
-        files: (root.files as [any])?.map((r: any) => this.fileReducer(r))
-      },
-      queryPath: res.queryPath
-    };
-  }
-
-  folderReducer(res: any): Folder {
-    return {
-      name: res.name,
-      creationTime: res.creationTime,
-      lastModified: res.lastModified
-    };
-  }
-
-  fileReducer(res: any): File {
-    return {
-      name: res.name,
-      size: res.size,
-      creationTime: res.creationTime,
-      lastModified: res.lastModified
-    };
-  }
-
 }

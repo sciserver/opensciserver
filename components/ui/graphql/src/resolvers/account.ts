@@ -5,6 +5,10 @@ export const queryResolvers: QueryResolvers = {
   // eslint-disable-next-line no-empty-pattern
   getUser: async (_, { }, { dataSources }) => {
     return dataSources.accountsAPI.getUser();
+  },
+  // eslint-disable-next-line no-empty-pattern
+  getPublicUsersAndGroups: async (_, { }, { dataSources }) => {
+    return dataSources.accountsAPI.getPublicUsersAndGroups();
   }
 };
 
