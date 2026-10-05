@@ -22,10 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @RequestMapping(value="/storem")
+@Tag(name = "File services", description = "List and register the file services known to RACM.")
 public class StoremController {
 	private final FileServiceManager fsManager;
 

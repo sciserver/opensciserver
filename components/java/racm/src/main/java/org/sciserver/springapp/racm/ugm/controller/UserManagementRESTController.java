@@ -62,10 +62,14 @@ import edu.jhu.rac.ResourceContext;
 import edu.jhu.user.ServiceAccount;
 import edu.jhu.user.User;
 import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/ugm/rest")
+@Tag(name = "Users and groups",
+     description = "Manage the calling user's profile, their groups, and the resources shared "
+                 + "with those groups.")
 public class UserManagementRESTController extends RACMController {
 	private static final String LOGGING_VERB_GROUP_UPDATED = "updated";
 	private static final String LOGGING_VERB_GROUP_CREATED = "created";

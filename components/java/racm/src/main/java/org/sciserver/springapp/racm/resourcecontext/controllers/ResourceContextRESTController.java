@@ -30,9 +30,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("rc/{resourceContextUUID}")
+@Tag(name = "Resource contexts", description = "Register and manage the resources belonging to one resource context.")
 public class ResourceContextRESTController {
 	private final ResourceContextMapper mapper;
 	private final ResourceRepository repo;

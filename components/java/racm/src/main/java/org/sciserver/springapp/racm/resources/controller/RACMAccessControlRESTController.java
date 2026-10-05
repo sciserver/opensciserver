@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.jhu.rac.Resource;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * This REST controller wraps access control requests in REST API calls.<br/>
@@ -40,6 +41,7 @@ import edu.jhu.rac.Resource;
 @RestController
 @CrossOrigin
 @RequestMapping("rest")
+@Tag(name = "Access control", description = "Query the resources a user may act on and the actions permitted on them.")
 public class RACMAccessControlRESTController extends RACMController {
 	private static final String QUERY_RESOURCE_ERROR_MESSAGE = "Error querying resources";
 	private RACMAccessControl rac;

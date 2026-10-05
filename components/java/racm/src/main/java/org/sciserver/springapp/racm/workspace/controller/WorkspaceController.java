@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @RequestMapping("workspace")
+@Tag(name = "Workspaces", description = "Query the calling user's workspaces.")
 public class WorkspaceController {
 	private final GroupResourcesManager workspaceManager;
 	public final JsonAPIHelper jsonAPIHelper;

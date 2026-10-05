@@ -25,11 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @COMPMRequired
 @RequestMapping("jobm/rest")
+@Tag(name = "Database job manager integration",
+     description = "Called by a database COMPM to report on the SQL jobs it runs. Not an "
+                 + "end-user API.")
 public class RDBJobForCOMPMController {
 	private static final Logger LOG = LogManager.getLogger();
 

@@ -23,8 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.jhu.rac.Privilege;
 import edu.jhu.rac.Resource;
 import edu.jhu.user.SciserverEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("rc/{resourceContextUUID}/resource/{resourceUUID}")
+@Tag(name = "Resource permissions", description = "Check whether a user may perform a given action on a given resource.")
 public class AccessControlController {
 	private final VOURPContext vourpContext;
 	private final RACMUtil racmUtil;

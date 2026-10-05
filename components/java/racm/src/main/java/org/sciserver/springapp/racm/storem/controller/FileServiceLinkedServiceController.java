@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Methods in this class require a fileservice serviceToken as well as a serviceToken for a 
@@ -39,6 +40,9 @@ import org.springframework.web.util.UriUtils;
 @RestController
 @FileServiceTokenRequired
 @RequestMapping(value="/storem")
+@Tag(name = "File service linked services",
+     description = "Manage volumes a file service exposes to another registered SciServer "
+                 + "service.")
 public class FileServiceLinkedServiceController {
 
     private final FileServiceManager fsManager;

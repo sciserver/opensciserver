@@ -55,10 +55,14 @@ import edu.jhu.job.DockerComputeDomain;
 import edu.jhu.job.DockerJob;
 import edu.jhu.job.RootVolumeOnComputeDomain;
 import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @RequestMapping("jobm/rest")
+@Tag(name = "Jobs and compute domains",
+     description = "Submit and query jobs, and discover the compute domains and images "
+                 + "available to the caller.")
 public class JOBMRESTController {
     public static final String X_SERVICE_ID = "X-Service-Auth-ID";
 

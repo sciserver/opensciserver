@@ -42,11 +42,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.jhu.job.COMPM;
 import edu.jhu.job.Job;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @COMPMRequired
 @RequestMapping("jobm/rest")
+@Tag(name = "Compute domain manager integration",
+     description = "Called by a COMPM to claim and report on the jobs it runs. Not an end-user "
+                 + "API.")
 public class JOBMForCOMPMController {
 	public static final String X_SERVICE_ID = "X-Service-Auth-ID";
 	private static final Logger LOG = LogManager.getLogger();

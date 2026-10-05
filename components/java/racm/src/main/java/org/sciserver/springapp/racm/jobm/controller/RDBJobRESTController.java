@@ -45,10 +45,12 @@ import edu.jhu.job.DatabaseContext;
 import edu.jhu.job.RDBComputeDomain;
 import edu.jhu.job.RDBJob;
 import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @RequestMapping("jobm/rest")
+@Tag(name = "Relational database jobs", description = "Submit and query SQL jobs against registered database contexts.")
 public class RDBJobRESTController {
 
 	public static final String X_SERVICE_ID = "X-Service-Auth-ID";
