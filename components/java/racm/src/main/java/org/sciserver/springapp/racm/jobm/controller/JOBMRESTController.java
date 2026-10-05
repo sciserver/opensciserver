@@ -55,6 +55,7 @@ import edu.jhu.job.DockerComputeDomain;
 import edu.jhu.job.DockerJob;
 import edu.jhu.job.RootVolumeOnComputeDomain;
 import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -94,6 +95,8 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(summary = "List the caller's jobs, optionally only open ones or those within a time "
+                         + "range.")
     @GetMapping("/jobs")
     public ResponseEntity<JsonNode> queryUserJobs(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top, @RequestParam(required = false) String start,
@@ -113,6 +116,7 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(summary = "Count the caller's docker jobs.")
     @GetMapping("/jobs/count")
     public ResponseEntity<JsonNode> queryDockerJobsCount(@AuthenticationPrincipal UserProfile up) {
         try {
@@ -133,6 +137,7 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(summary = "List the caller's docker jobs, with optional label filtering.")
     @GetMapping("/dockerjobs")
     public ResponseEntity<JsonNode> queryUserDockerJobs(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top,
@@ -153,6 +158,7 @@ public class JOBMRESTController {
      * @param up
      * @return
      */
+    @Operation(summary = "Summarise the caller's job outcomes over a recent period.")
     @GetMapping("/jobsstats")
     public ResponseEntity<JsonNode> queryUserJobsStats(@RequestParam(required=false) Integer since, @AuthenticationPrincipal UserProfile up) {
         try {
@@ -164,6 +170,8 @@ public class JOBMRESTController {
                     "Error querying jobs stats", Optional.of(up), e, true);
         }
     }
+    @Operation(summary = "List the caller's docker jobs. Superseded by /dockerjobs; retained for "
+                         + "compatibility.")
     @GetMapping("/dockerjobsold")
     public ResponseEntity<JsonNode> queryUserDockerJobsOld(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top,
@@ -179,6 +187,7 @@ public class JOBMRESTController {
     }
 
     
+    @Operation(summary = "List the caller's docker jobs using a faster native query.")
     @GetMapping("/dockerjobs/quick")
     public ResponseEntity<JsonNode> queryUserDockerJobsNative(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top,
@@ -198,6 +207,7 @@ public class JOBMRESTController {
      * filtering, e.g. between two times.
      *
      */
+    @Operation(summary = "List the caller's relational database jobs.")
     @GetMapping("/rdbjobs")
     public ResponseEntity<JsonNode> queryUserRdbJobs(
             @RequestParam(required = false) String open,
@@ -215,6 +225,7 @@ public class JOBMRESTController {
         }
     }
 
+    @Operation(summary = "Search jobs using a structured query.")
     @PostMapping("/jobs/query")
     public ResponseEntity<JsonNode> queryJob(
             @RequestBody JobQuery query,
@@ -235,6 +246,8 @@ public class JOBMRESTController {
      * @param up
      * @return
      */
+    @Operation(summary = "Report queue depth per compute domain and where a job submitted now "
+                         + "would land.")
     @GetMapping("/jobs/queues")
     public NativeQueryResult queryJobsQueues(@AuthenticationPrincipal UserProfile up) {
         return jobm.queryJobsQueues(up);
@@ -246,6 +259,7 @@ public class JOBMRESTController {
      * @param jobId
      * @return
      */
+    @Operation(summary = "Get the status of one job, if the caller may view it.")
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<JsonNode> jobStatus(@PathVariable Long jobId, @AuthenticationPrincipal UserProfile up) {
         COMPMJobModel jm = jobm.queryUserJob(jobId, up);
@@ -263,6 +277,7 @@ public class JOBMRESTController {
         return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
+    @Operation(summary = "Cancel one of the caller's jobs.")
     @PostMapping("/jobs/{jobId}/cancel")
     public ResponseEntity<JsonNode> cancelJob(@PathVariable Long jobId, @AuthenticationPrincipal UserProfile up)
             throws VOURPException {
@@ -300,6 +315,8 @@ public class JOBMRESTController {
      * @return
      * @throws VOURPException
      */
+    @Operation(summary = "List the docker compute domains the caller can use, with the images and "
+                         + "volumes available to them.")
     @GetMapping("/computedomains")
     public ResponseEntity<JsonNode> queryComputeDomains(@RequestParam(required = false) String batch,
             @RequestParam(required = false) String interactive, @AuthenticationPrincipal UserProfile up) {
@@ -324,6 +341,7 @@ public class JOBMRESTController {
      * @param up
      * @return
      */
+    @Operation(summary = "List all registered docker compute domains. Requires an administrator.")
     @GetMapping("/dockercomputedomains")
     public ResponseEntity<JsonNode> queryDockerComputeDomains(@AuthenticationPrincipal UserProfile up) {
         try {
@@ -353,6 +371,8 @@ public class JOBMRESTController {
      * @return
      * @throws VOURPException
      */
+    @Operation(summary = "Register a docker compute domain, or replace an existing one. Omitted "
+                         + "images, volumes and root volumes are deleted.")
     @PostMapping("/computedomains/docker")
     public ResponseEntity<JsonNode> registerDockerComputeDomain(@RequestBody String body,
             @RequestParam(required = false) String admins, @AuthenticationPrincipal UserProfile up) {
@@ -406,6 +426,8 @@ public class JOBMRESTController {
      * @param up the calling user
      * @return the created entry, including the id assigned by RACM
      */
+    @Operation(summary = "Attach one root volume to a docker compute domain, leaving its other "
+                         + "contents untouched.")
     @PostMapping("/computedomains/docker/{racmUUID}/rootvolumes")
     public ResponseEntity<JsonNode> addRootVolumeToDockerComputeDomain(
             @PathVariable String racmUUID,
@@ -453,6 +475,7 @@ public class JOBMRESTController {
      * @param response
      * @return
      */
+    @Operation(summary = "Submit a docker job.")
     @PostMapping("/jobs/docker")
     public ResponseEntity<JsonNode> submitJob(@RequestBody String body, @AuthenticationPrincipal UserProfile up) {
         String username = up==null?"null":up.getUsername();
@@ -532,6 +555,8 @@ public class JOBMRESTController {
      * @param request
      * @return
      */
+    @Operation(summary = "Register a compute domain manager and return any jobs still assigned to "
+                         + "it.")
     @PostMapping("/compm/register")
     public ResponseEntity<JsonNode> registerCOMPM(
             @AuthenticationPrincipal UserProfile up,
@@ -562,6 +587,7 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(summary = "List the caller's CasJobs jobs, proxied from SkyServer.")
     @GetMapping("/casjobs")
     public ResponseEntity<JsonNode> queryUserCasJobs(@RequestParam(required = false) String submittedFrom,
             @RequestParam(required = false) String submittedTo, @AuthenticationPrincipal UserProfile up) {
