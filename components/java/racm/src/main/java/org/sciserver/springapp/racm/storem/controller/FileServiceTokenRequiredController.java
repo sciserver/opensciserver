@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @FileServiceTokenRequired
 @RequestMapping(value="/storem")
 @Tag(name = "File service self-registration", description = "Called by a FileService instance to retrieve its own registration.")
+@SecurityRequirement(name = "serviceToken")
 public class FileServiceTokenRequiredController {
 	@GetMapping(value="/fileservice/{fileServiceIdentifer}",
 			headers = "!"+AUTH_HEADER)

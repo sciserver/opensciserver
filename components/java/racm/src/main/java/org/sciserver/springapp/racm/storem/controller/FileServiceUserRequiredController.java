@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -48,6 +49,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "File service contents",
      description = "Inspect and manage the volumes of one file service. Called by a FileService "
                  + "instance on behalf of a user.")
+@SecurityRequirement(name = "serviceToken")
+@SecurityRequirement(name = "userToken")
 public class FileServiceUserRequiredController {
     private final FileServiceManager fsManager;
 

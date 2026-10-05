@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
@@ -43,6 +44,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "File service linked services",
      description = "Manage volumes a file service exposes to another registered SciServer "
                  + "service.")
+@SecurityRequirement(name = "serviceToken")
 public class FileServiceLinkedServiceController {
 
     private final FileServiceManager fsManager;

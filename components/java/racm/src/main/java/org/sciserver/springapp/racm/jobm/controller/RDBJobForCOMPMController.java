@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -34,6 +35,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Database job manager integration",
      description = "Called by a database COMPM to report on the SQL jobs it runs. Not an "
                  + "end-user API.")
+@SecurityRequirement(name = "serviceToken")
 public class RDBJobForCOMPMController {
 	private static final Logger LOG = LogManager.getLogger();
 

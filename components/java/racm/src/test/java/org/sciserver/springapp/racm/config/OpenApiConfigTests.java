@@ -9,6 +9,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.AntPathMatcher;
 
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+
 /**
  * Pins the path filter that keeps the generated API document to REST controllers.
  *
@@ -61,5 +64,19 @@ class OpenApiConfigTests {
         for (String path : mvcPaths) {
             assertFalse(documented(path), "MVC path must not be documented but is: " + path);
         }
+    }
+
+    @Test
+    void declaredSchemeNamesAreExactlyTheOnesControllersReference() {
+        SecuritySchemes schemes = OpenApiConfig.class.getAnnotation(SecuritySchemes.class);
+        List<String> declared = Arrays.stream(schemes.value())
+                .map(SecurityScheme::name)
+                .sorted()
+                .toList();
+
+        // Controllers reference these names verbatim. A typo renders as no requirement at all,
+        // making a service-gated endpoint look public in the documentation.
+        assertTrue(declared.contains("userToken"), "userToken scheme must be declared");
+        assertTrue(declared.contains("serviceToken"), "serviceToken scheme must be declared");
     }
 }
