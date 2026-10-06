@@ -94,7 +94,10 @@ public class FileServiceUserRequiredController {
         description = "Returns the file service with its root volumes, data volumes and user "
                       + "volumes, each carrying the actions the calling user is allowed to "
                       + "perform on it. This is the endpoint a FileService client uses to "
-                      + "discover what to offer the user.",
+                      + "discover what to offer the user. Called without a user token but with a "
+                      + "file service's own service token, the same path returns that file "
+                      + "service's registration instead, for a FileService instance discovering "
+                      + "its own configuration.",
         parameters = {
             @Parameter(name = "fileServiceIdentifer", in = ParameterIn.PATH,
                        description = "Name or UUID of the file service.")

@@ -68,7 +68,7 @@ class OpenApiConfigTests {
 
     @Test
     void declaredSchemeNamesAreExactlyTheOnesControllersReference() {
-        SecuritySchemes schemes = OpenApiConfig.class.getAnnotation(SecuritySchemes.class);
+        SecuritySchemes schemes = OpenApiDefinition.class.getAnnotation(SecuritySchemes.class);
         List<String> declared = Arrays.stream(schemes.value())
                 .map(SecurityScheme::name)
                 .sorted()

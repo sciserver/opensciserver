@@ -14,11 +14,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 
@@ -132,5 +139,83 @@ class DocumentedParameterTests {
 
         assertFalse(restControllers().isEmpty(), "no REST controllers were found to check");
         assertTrue(problems.isEmpty(), String.join("\n", problems));
+    }
+
+    /** Full paths served by a method, from its class-level and method-level mappings. */
+    private static List<String> pathsOf(Class<?> controller, Method method) {
+        RequestMapping base = controller.getAnnotation(RequestMapping.class);
+        List<String> prefixes = new ArrayList<>();
+        if (base == null || base.value().length == 0) {
+            prefixes.add("");
+        } else {
+            prefixes.addAll(List.of(base.value()));
+        }
+
+        String verb = null;
+        String[] suffixes = null;
+        if (method.getAnnotation(GetMapping.class) != null) {
+            verb = "GET";
+            suffixes = method.getAnnotation(GetMapping.class).value();
+        } else if (method.getAnnotation(PostMapping.class) != null) {
+            verb = "POST";
+            suffixes = method.getAnnotation(PostMapping.class).value();
+        } else if (method.getAnnotation(PutMapping.class) != null) {
+            verb = "PUT";
+            suffixes = method.getAnnotation(PutMapping.class).value();
+        } else if (method.getAnnotation(DeleteMapping.class) != null) {
+            verb = "DELETE";
+            suffixes = method.getAnnotation(DeleteMapping.class).value();
+        } else if (method.getAnnotation(PatchMapping.class) != null) {
+            verb = "PATCH";
+            suffixes = method.getAnnotation(PatchMapping.class).value();
+        }
+
+        List<String> paths = new ArrayList<>();
+        if (verb == null) {
+            return paths;
+        }
+        if (suffixes.length == 0) {
+            suffixes = new String[] {""};
+        }
+        for (String prefix : prefixes) {
+            for (String suffix : suffixes) {
+                String full = ("/" + prefix + "/" + suffix).replaceAll("/+", "/");
+                if (full.length() > 1 && full.endsWith("/")) {
+                    full = full.substring(0, full.length() - 1);
+                }
+                paths.add(verb + " " + full);
+            }
+        }
+        return paths;
+    }
+
+    @Test
+    void noTwoDocumentedEndpointsShareAPathAndMethod() {
+        // OpenAPI keys an operation by path and method, so two handlers that share both can only
+        // ever be one entry. springdoc does not degrade that path, it fails the whole document
+        // with a duplicate-key error, taking the reference page down. Spring itself allows the
+        // pair, distinguishing them by a header condition it can express and OpenAPI cannot; the
+        // way out is to hide one and describe its behaviour on the other.
+        Map<String, List<String>> servedBy = new HashMap<>();
+        for (Class<?> controller : restControllers()) {
+            for (Method method : controller.getDeclaredMethods()) {
+                if (method.getAnnotation(Hidden.class) != null
+                        || controller.getAnnotation(Hidden.class) != null) {
+                    continue;
+                }
+                for (String endpoint : pathsOf(controller, method)) {
+                    servedBy.computeIfAbsent(endpoint, key -> new ArrayList<>())
+                            .add(controller.getSimpleName() + "." + method.getName());
+                }
+            }
+        }
+
+        List<String> clashes = new ArrayList<>();
+        servedBy.forEach((endpoint, handlers) -> {
+            if (handlers.size() > 1) {
+                clashes.add(endpoint + " is served by " + handlers);
+            }
+        });
+        assertTrue(clashes.isEmpty(), String.join(System.lineSeparator(), clashes));
     }
 }

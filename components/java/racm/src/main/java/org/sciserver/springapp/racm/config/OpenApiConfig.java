@@ -3,9 +3,9 @@ package org.sciserver.springapp.racm.config;
 import java.util.List;
 
 import org.springdoc.core.GroupedOpenApi;
+import org.springdoc.core.SpringDocUtils;
 import org.springdoc.core.SwaggerUiConfigProperties;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springdoc.core.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,48 +13,15 @@ import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.security.SecuritySchemes;
-
 /**
- * OpenAPI document metadata and authentication schemes for the RACM REST API.
+ * Beans shaping the generated API document and the Swagger UI that serves it.
  *
- * <p>These annotations are documentation only. Authentication is enforced by Spring Security and
- * the request filters (SciServerHeaderAuthenticationFilter, FileServiceAuthenticationInjector,
- * COMPMRequired). If an annotation and the real gate ever disagree, the annotation is wrong and
- * the endpoint is still protected.
+ * <p>The document's own metadata and its security schemes live on {@link OpenApiDefinition}, a
+ * class with no beans in it. They cannot live here: a bean produced by a {@code @Bean} method in
+ * this class is reported as carrying this class's annotations too, so springdoc finds two
+ * {@code @OpenAPIDefinition} beans and warns that it is picking one of them arbitrarily.
  */
 @Configuration
-@OpenAPIDefinition(
-    info = @Info(
-        title = "SciServer RACM API",
-        version = "v1",
-        description = "Resource Access Control Management. Manages users, groups, resources and "
-                + "the rights to act on them, and brokers access to compute domains and file "
-                + "services. Most endpoints require a user token; those marked with the "
-                + "serviceToken requirement are called by other SciServer components rather than "
-                + "by end users."),
-    security = @SecurityRequirement(name = "userToken"))
-@SecuritySchemes({
-    @SecurityScheme(
-        name = "userToken",
-        type = SecuritySchemeType.APIKEY,
-        in = SecuritySchemeIn.HEADER,
-        paramName = "X-Auth-Token",
-        description = "SciServer user token, obtained from the login portal."),
-    @SecurityScheme(
-        name = "serviceToken",
-        type = SecuritySchemeType.APIKEY,
-        in = SecuritySchemeIn.HEADER,
-        paramName = "X-Service-Auth-ID",
-        description = "Service token identifying a registered SciServer component, such as a "
-                + "FileService instance or a COMPM. Not a user credential.")
-})
 public class OpenApiConfig {
 
     static {
