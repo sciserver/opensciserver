@@ -20,7 +20,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @CrossOrigin
 @RestController
 @RequestMapping("/collaborations")
-@Tag(name = "Collaborations", description = "Query the collaborations the calling user belongs to.")
+@Tag(name = "Collaborations",
+     description = "Query the collaborations the calling user belongs to.")
 public class CollaborationController {
 	private final CollaborationManager collaborationManager;
 	private final JsonAPIHelper jsonAPIHelper;

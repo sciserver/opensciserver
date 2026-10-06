@@ -163,17 +163,18 @@ public class UserManagementRESTController extends RACMController {
 	    parameters = {
 	        @Parameter(name = "groupid", in = ParameterIn.PATH,
 	                   description = "Identifier of the group."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user. Omit for an ordinary user request.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user. Omit for an ordinary user "
+                    + "request.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
-	                 description = "The caller neither owns the group nor supplied a service token "
-	                              + "for its owner."),
+	                 description = "The caller neither owns the group nor supplied a service "
+	                              + "token for its owner."),
 	    @ApiResponse(responseCode = "500",
 	                 description = "Unexpected error. The response body carries a message.")
 	})
@@ -200,7 +201,7 @@ public class UserManagementRESTController extends RACMController {
 	    parameters = {
 	        @Parameter(name = "groupid", in = ParameterIn.PATH,
 	                   description = "Identifier of the group."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
 	                   description = "Service token of the resource context owning the group.")
 	    })
 	@ApiResponses({
@@ -233,7 +234,7 @@ public class UserManagementRESTController extends RACMController {
 	    parameters = {
 	        @Parameter(name = "resourceUUID", in = ParameterIn.PATH,
 	                   description = "Identifier of the resource whose groups are returned."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
 	                   description = "Service token of the resource context owning the resource.")
 	    })
 	@ApiResponses({
@@ -271,22 +272,22 @@ public class UserManagementRESTController extends RACMController {
 	@Operation(
 	    summary = "Delete a group the caller owns.",
 	    description = "Removes the group along with its memberships and the shares granted to it. "
-	                  + "The caller must own the group, or supply the service token of the resource "
-	                  + "context that owns it. Also served at /mygroups/{groupid}.",
+	                  + "The caller must own the group, or supply the service token of the "
+	                  + "resource context that owns it. Also served at /mygroups/{groupid}.",
 	    parameters = {
 	        @Parameter(name = "groupid", in = ParameterIn.PATH,
 	                   description = "Identifier of the group to delete."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
-	                 description = "The caller neither owns the group nor supplied a service token "
-	                              + "for its owner."),
+	                 description = "The caller neither owns the group nor supplied a service "
+	                              + "token for its owner."),
 	    @ApiResponse(responseCode = "500",
 	                 description = "Unexpected error. The response body carries a message.")
 	})
@@ -314,8 +315,8 @@ public class UserManagementRESTController extends RACMController {
 
 	@Operation(
 	    summary = "List the groups the caller belongs to.",
-	    description = "Returns every group of which the calling user is a member, whoever owns it, "
-	                  + "together with the caller's membership status in each.")
+	    description = "Returns every group of which the calling user is a member, whoever owns "
+	                  + "it, together with the caller's membership status in each.")
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "401",
@@ -371,17 +372,18 @@ public class UserManagementRESTController extends RACMController {
 	                  + "with the caller as owner. Otherwise its description and invitations are "
 	                  + "updated.",
 	    parameters = {
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context that should own the group, when "
-                    + "creating a group owned by a service rather than a user.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context that should own the "
+                    + "group, when creating a group owned by a service rather than a user.")
 	    },
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "GroupInfo as JSON. Include the id to update an existing group; omit it to "
-                    + "create a new one."))
+	                   description = "GroupInfo as JSON. Include the id to update an existing "
+                    + "group; omit it to create a new one."))
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -445,22 +447,23 @@ public class UserManagementRESTController extends RACMController {
 	 */
 	@Operation(
 	    summary = "Create a group owned by a resource rather than a user.",
-	    description = "Creates a group whose owner is the identified resource, so that the service "
-	                  + "managing that resource controls the membership. Requires the service token "
-	                  + "of the resource context that owns the resource.",
+	    description = "Creates a group whose owner is the identified resource, so that the "
+	                  + "service managing that resource controls the membership. Requires the "
+	                  + "service token of the resource context that owns the resource.",
 	    parameters = {
 	        @Parameter(name = "resourceUUID", in = ParameterIn.PATH,
 	                   description = "Identifier of the resource that will own the group."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
 	                   description = "Service token of the resource context owning the resource.")
 	    },
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "CreateLinkedGroupModel as JSON, naming the group and the resource it "
-                    + "belongs to."))
+	                   description = "CreateLinkedGroupModel as JSON, naming the group and the "
+                    + "resource it belongs to."))
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -525,17 +528,19 @@ public class UserManagementRESTController extends RACMController {
 	    parameters = {
 	        @Parameter(name = "groupid", in = ParameterIn.PATH,
 	                   description = "Identifier of the group to update."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user.")
 	    },
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "UpdateGroupInfo as JSON, carrying only the fields to change."))
+	                   description = "UpdateGroupInfo as JSON, carrying only the fields to "
+	                                 + "change."))
 	@ApiResponses({
 	    @ApiResponse(responseCode = "204",
 	                 description = "The group was updated."),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -571,21 +576,23 @@ public class UserManagementRESTController extends RACMController {
 	        @Parameter(name = "groupid", in = ParameterIn.PATH,
 	                   description = "Identifier of the group being granted the actions."),
 	        @Parameter(name = "actions", in = ParameterIn.QUERY,
-	                   description = "Names of the actions to grant, repeated or comma-separated."),
+	                   description = "Names of the actions to grant, repeated or "
+	                                 + "comma-separated."),
 	        @Parameter(name = "resourceType", in = ParameterIn.QUERY,
-	                   description = "Kind of resource being shared. Accepted values are the names of the "
-                    + "ActionsOnResource TYPE enum."),
+	                   description = "Kind of resource being shared. Accepted values are the "
+                    + "names of the ActionsOnResource TYPE enum."),
 	        @Parameter(name = "entityId", in = ParameterIn.QUERY,
 	                   description = "Identifier of the resource being shared."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the resource, when acting for "
-                    + "a service rather than a user.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the resource, "
+                    + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "204",
 	                 description = "The actions were granted."),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -633,7 +640,8 @@ public class UserManagementRESTController extends RACMController {
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -704,10 +712,11 @@ public class UserManagementRESTController extends RACMController {
 	                  + "group.",
 	    parameters = {
 	        @Parameter(name = "groupId", in = ParameterIn.QUERY,
-	                   description = "Identifier of the group whose invitation is being accepted."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user.")
+	                   description = "Identifier of the group whose invitation is being "
+	                                 + "accepted."),
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
@@ -731,9 +740,9 @@ public class UserManagementRESTController extends RACMController {
 	    parameters = {
 	        @Parameter(name = "groupId", in = ParameterIn.QUERY,
 	                   description = "Identifier of the public group to join."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
@@ -763,9 +772,9 @@ public class UserManagementRESTController extends RACMController {
 	    parameters = {
 	        @Parameter(name = "groupId", in = ParameterIn.QUERY,
 	                   description = "Identifier of the group to leave."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user.")
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
@@ -810,10 +819,11 @@ public class UserManagementRESTController extends RACMController {
 	                  + "group.",
 	    parameters = {
 	        @Parameter(name = "groupId", in = ParameterIn.QUERY,
-	                   description = "Identifier of the group whose invitation is being declined."),
-	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
-	                   description = "Service token of the resource context owning the group, when acting for a "
-                    + "service rather than a user.")
+	                   description = "Identifier of the group whose invitation is being "
+	                                 + "declined."),
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context owning the group, "
+                    + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
@@ -868,8 +878,8 @@ public class UserManagementRESTController extends RACMController {
 	                  + "users only when no filter is given.",
 	    parameters = {
 	        @Parameter(name = "users", in = ParameterIn.QUERY,
-	                   description = "Restrict the result to users matching this filter, and omit groups from "
-                    + "the response. Matching semantics to be confirmed.")
+	                   description = "Restrict the result to users matching this filter, and omit "
+                    + "groups from the response. Matching semantics to be confirmed.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),

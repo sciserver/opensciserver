@@ -30,7 +30,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @CrossOrigin
 @RestController
 @RequestMapping(value="/storem")
-@Tag(name = "File services", description = "List and register the file services known to RACM.")
+@Tag(name = "File services",
+     description = "List and register the file services known to RACM.")
 public class StoremController {
 	private final FileServiceManager fsManager;
 
@@ -64,13 +65,14 @@ public class StoremController {
 	                  + "including the identifier and service token the file service must use "
 	                  + "thereafter.",
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "RegisterNewFileServiceModel as JSON, naming the service and its API "
-                    + "endpoint."))
+	                   description = "RegisterNewFileServiceModel as JSON, naming the service "
+                    + "and its API endpoint."))
 	@ApiResponses({
 	    @ApiResponse(responseCode = "201",
 	                 description = "The file service was registered."),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "409",
@@ -102,9 +104,9 @@ public class StoremController {
 
 	@Operation(
 	    summary = "List the file services known to RACM.",
-	    description = "Returns each registered file service with its identifier, name, description "
-	                  + "and API endpoint. The identifier is the resource context uuid used in the "
-	                  + "per-file-service endpoints.")
+	    description = "Returns each registered file service with its identifier, name, "
+	                  + "description and API endpoint. The identifier is the resource context "
+	                  + "uuid used in the per-file-service endpoints.")
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "401",

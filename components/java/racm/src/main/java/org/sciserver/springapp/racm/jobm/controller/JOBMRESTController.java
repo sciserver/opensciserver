@@ -66,8 +66,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("jobm/rest")
 @Tag(name = "Jobs and compute domains",
-     description = "Submit and query jobs, and discover the compute domains and images "
-                 + "available to the caller.")
+     description = "Submit and query jobs, and discover the compute domains and images available "
+                 + "to the caller.")
 public class JOBMRESTController {
     public static final String X_SERVICE_ID = "X-Service-Auth-ID";
 
@@ -101,22 +101,22 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "List the caller's jobs, optionally only open ones or those within a time "
-                         + "range.",
-        description = "Returns every job the caller has submitted, as COMPMJobModel entries covering both "
-                      + "docker and relational database jobs.",
+                  + "range.",
+        description = "Returns every job the caller has submitted, as COMPMJobModel entries "
+                      + "covering both docker and relational database jobs.",
         parameters = {
             @Parameter(name = "open", in = ParameterIn.QUERY,
-                       description = "Present with any value to return only jobs that have not yet "
-                                     + "finished. Omit to return all."),
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
             @Parameter(name = "top", in = ParameterIn.QUERY,
-                       description = "Maximum number of jobs to return. -1, the default, returns all of "
-                                     + "them."),
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or after this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format to be "
-                                     + "confirmed.")
+                       description = "Only return jobs submitted at or before this time. Format "
+                                     + "to be confirmed.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -146,8 +146,8 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "Count the caller's docker jobs.",
-        description = "Returns a single count field holding the total number of docker jobs the caller has "
-                      + "submitted.")
+        description = "Returns a single count field holding the total number of docker jobs the "
+                      + "caller has submitted.")
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401",
@@ -177,24 +177,24 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "List the caller's docker jobs, with optional label filtering.",
-        description = "Returns the caller's docker jobs as COMPMDockerJobModel entries, which carry "
-                      + "container and image detail that the general job listing omits.",
+        description = "Returns the caller's docker jobs as COMPMDockerJobModel entries, which "
+                      + "carry container and image detail that the general job listing omits.",
         parameters = {
             @Parameter(name = "open", in = ParameterIn.QUERY,
-                       description = "Present with any value to return only jobs that have not yet "
-                                     + "finished. Omit to return all."),
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
             @Parameter(name = "top", in = ParameterIn.QUERY,
-                       description = "Maximum number of jobs to return. -1, the default, returns all of "
-                                     + "them."),
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or after this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or before this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "labelReg", in = ParameterIn.QUERY,
-                       description = "Regular expression matched against job labels; only matching jobs are "
-                                     + "returned.")
+                       description = "Regular expression matched against job labels; only "
+                                     + "matching jobs are returned.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -225,12 +225,13 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "Summarise the caller's job outcomes over a recent period.",
-        description = "Returns a map of job status to the number of the caller's jobs in that status, "
-                      + "covering jobs that finished within the window and any still running.",
+        description = "Returns a map of job status to the number of the caller's jobs in that "
+                      + "status, covering jobs that finished within the window and any still "
+                      + "running.",
         parameters = {
             @Parameter(name = "since", in = ParameterIn.QUERY,
-                       description = "Number of hours before the present to report on. Defaults to 24; a "
-                                     + "negative value is treated as 24.")
+                       description = "Number of hours before the present to report on. Defaults "
+                                     + "to 24; a negative value is treated as 24.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -253,21 +254,21 @@ public class JOBMRESTController {
     @Operation(
         summary = "List the caller's docker jobs. Superseded by /dockerjobs; retained for "
                          + "compatibility.",
-        description = "Retained for compatibility with older clients. Behaves like /dockerjobs but offers "
-                      + "no label filtering. Prefer /dockerjobs.",
+        description = "Retained for compatibility with older clients. Behaves like /dockerjobs "
+                      + "but offers no label filtering. Prefer /dockerjobs.",
         parameters = {
             @Parameter(name = "open", in = ParameterIn.QUERY,
-                       description = "Present with any value to return only jobs that have not yet "
-                                     + "finished. Omit to return all."),
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
             @Parameter(name = "top", in = ParameterIn.QUERY,
-                       description = "Maximum number of jobs to return. -1, the default, returns all of "
-                                     + "them."),
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or after this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format to be "
-                                     + "confirmed.")
+                       description = "Only return jobs submitted at or before this time. Format "
+                                     + "to be confirmed.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -294,24 +295,24 @@ public class JOBMRESTController {
     @Operation(
         summary = "List the caller's docker jobs using a faster native query.",
         description = "Selects the same jobs as /dockerjobs but runs a native query and returns a "
-                      + "NativeQueryResult of columns and rows rather than model objects. Faster for large "
-                      + "result sets.",
+                      + "NativeQueryResult of columns and rows rather than model objects. Faster "
+                      + "for large result sets.",
         parameters = {
             @Parameter(name = "open", in = ParameterIn.QUERY,
-                       description = "Present with any value to return only jobs that have not yet "
-                                     + "finished. Omit to return all."),
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
             @Parameter(name = "top", in = ParameterIn.QUERY,
-                       description = "Maximum number of jobs to return. -1, the default, returns all of "
-                                     + "them."),
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or after this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or before this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "labelReg", in = ParameterIn.QUERY,
-                       description = "Regular expression matched against job labels; only matching jobs are "
-                                     + "returned.")
+                       description = "Regular expression matched against job labels; only "
+                                     + "matching jobs are returned.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -344,17 +345,17 @@ public class JOBMRESTController {
         description = "Returns the caller's relational database jobs.",
         parameters = {
             @Parameter(name = "open", in = ParameterIn.QUERY,
-                       description = "Present with any value to return only jobs that have not yet "
-                                     + "finished. Omit to return all."),
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
             @Parameter(name = "top", in = ParameterIn.QUERY,
-                       description = "Maximum number of jobs to return. -1, the default, returns all of "
-                                     + "them."),
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format to be "
-                                     + "confirmed."),
+                       description = "Only return jobs submitted at or after this time. Format "
+                                     + "to be confirmed."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format to be "
-                                     + "confirmed.")
+                       description = "Only return jobs submitted at or before this time. Format "
+                                     + "to be confirmed.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -381,8 +382,8 @@ public class JOBMRESTController {
 
     @Operation(
         summary = "Search jobs using a structured query.",
-        description = "Returns the jobs matching a structured query. Use this when the query parameters on "
-                      + "the listing endpoints are not expressive enough.",
+        description = "Returns the jobs matching a structured query. Use this when the query "
+                      + "parameters on the listing endpoints are not expressive enough.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                        description = "Criteria selecting which jobs to return."))
     @ApiResponses({
@@ -415,10 +416,11 @@ public class JOBMRESTController {
      * @return
      */
     @Operation(
-        summary = "Report queue depth per compute domain and where a job submitted now "
-                         + "would land.",
-        description = "Returns, for every compute domain, the jobs currently running, the jobs waiting, and "
-                      + "the position a job submitted now by the caller would take in the queue.")
+        summary = "Report queue depth per compute domain and where a job submitted now would "
+                  + "land.",
+        description = "Returns, for every compute domain, the jobs currently running, the jobs "
+                      + "waiting, and the position a job submitted now by the caller would take "
+                      + "in the queue.")
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401",
@@ -439,10 +441,12 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "Get the status of one job, if the caller may view it.",
-        description = "Returns the full status of one job. The caller must be permitted to view it.",
+        description = "Returns the full status of one job. The caller must be permitted to view "
+                      + "it.",
         parameters = {
             @Parameter(name = "jobId", in = ParameterIn.PATH,
-                       description = "Identifier of the job, as returned by the job listing endpoints.")
+                       description = "Identifier of the job, as returned by the job listing "
+                                     + "endpoints.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -470,7 +474,8 @@ public class JOBMRESTController {
 
     @Operation(
         summary = "Cancel one of the caller's jobs.",
-        description = "Requests cancellation of one of the caller's jobs and returns its updated status.",
+        description = "Requests cancellation of one of the caller's jobs and returns its updated "
+                      + "status.",
         parameters = {
             @Parameter(name = "jobId", in = ParameterIn.PATH,
                        description = "Identifier of the job to cancel.")
@@ -525,17 +530,17 @@ public class JOBMRESTController {
     @Operation(
         summary = "List the docker compute domains the caller can use, with the images and "
                          + "volumes available to them.",
-        description = "Returns the docker compute domains the caller may use, each with the images, volume "
-                      + "containers and user volumes available to them. Interactive domains only, unless "
-                      + "batch is requested.",
+        description = "Returns the docker compute domains the caller may use, each with the "
+                      + "images, volume containers and user volumes available to them. "
+                      + "Interactive domains only, unless batch is requested.",
         parameters = {
             @Parameter(name = "batch", in = ParameterIn.QUERY,
-                       description = "Set to true to include batch domains, that is, domains served by a "
-                                     + "registered COMPM."),
+                       description = "Set to true to include batch domains, that is, domains "
+                                     + "served by a registered COMPM."),
             @Parameter(name = "interactive", in = ParameterIn.QUERY,
-                       description = "Only consulted when batch is true. Set to true to include interactive "
-                                     + "domains alongside batch ones; otherwise batch domains are returned on "
-                                     + "their own.")
+                       description = "Only consulted when batch is true. Set to true to include "
+                                     + "interactive domains alongside batch ones; otherwise batch "
+                                     + "domains are returned on their own.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -570,8 +575,9 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "List all registered docker compute domains. Requires an administrator.",
-        description = "Returns every registered docker compute domain with its images, volume containers "
-                      + "and root volumes, regardless of the caller's access to them. Administrators only.")
+        description = "Returns every registered docker compute domain with its images, volume "
+                      + "containers and root volumes, regardless of the caller's access to them. "
+                      + "Administrators only.")
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401",
@@ -611,20 +617,22 @@ public class JOBMRESTController {
      * @throws VOURPException
      */
     @Operation(
-        summary = "Register a docker compute domain, or replace an existing one. Omitted "
-                         + "images, volumes and root volumes are deleted.",
-        description = "Registers a docker compute domain, or replaces an existing one when the body carries "
-                      + "both id and racmUUID. Replacement is destructive: images, volume containers and root "
-                      + "volumes absent from the body are deleted. To add a single root volume without that "
-                      + "risk, use POST /computedomains/docker/{racmUUID}/rootvolumes instead.",
+        summary = "Register a docker compute domain, or replace an existing one. Omitted images, "
+                         + "volumes and root volumes are deleted.",
+        description = "Registers a docker compute domain, or replaces an existing one when the "
+                      + "body carries both id and racmUUID. Replacement is destructive: images, "
+                      + "volume containers and root volumes absent from the body are deleted. To "
+                      + "add a single root volume without that risk, use POST "
+                      + "/computedomains/docker/{racmUUID}/rootvolumes instead.",
         parameters = {
             @Parameter(name = "admins", in = ParameterIn.QUERY,
-                       description = "Comma-separated group names to be granted administrator rights over "
-                                     + "the domain's images and volume containers.")
+                       description = "Comma-separated group names to be granted administrator "
+                                     + "rights over the domain's images and volume containers.")
         },
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                       description = "DockerComputeDomainModel as JSON. Include id and racmUUID to replace "
-                                     + "an existing domain; omit both to register a new one."))
+                       description = "DockerComputeDomainModel as JSON. Include id and racmUUID "
+                                     + "to replace an existing domain; omit both to register a "
+                                     + "new one."))
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400",
@@ -689,21 +697,22 @@ public class JOBMRESTController {
      * @return the created entry, including the id assigned by RACM
      */
     @Operation(
-        summary = "Attach one root volume to a docker compute domain, leaving its other "
-                         + "contents untouched.",
-        description = "Attaches one root volume to the domain without resending the whole registration "
-                      + "document, so its existing images, volume containers and root volumes are left "
-                      + "untouched. The root volume must not already be mounted on the domain, and its path "
-                      + "and display name must each be unused there.",
+        summary = "Attach one root volume to a docker compute domain, leaving its other contents "
+                         + "untouched.",
+        description = "Attaches one root volume to the domain without resending the whole "
+                      + "registration document, so its existing images, volume containers and "
+                      + "root volumes are left untouched. The root volume must not already be "
+                      + "mounted on the domain, and its path and display name must each be unused "
+                      + "there.",
         parameters = {
             @Parameter(name = "racmUUID", in = ParameterIn.PATH,
-                       description = "Identifier of the compute domain's resource context, returned as "
-                                     + "racmUUID by GET /dockercomputedomains.")
+                       description = "Identifier of the compute domain's resource context, "
+                                     + "returned as racmUUID by GET /dockercomputedomains.")
         },
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                       description = "Root volume to attach. rootVolumeId, pathOnCD and displayName are "
-                                     + "required; publisherDID is optional and recorded as given; id must not "
-                                     + "be supplied."))
+                       description = "Root volume to attach. rootVolumeId, pathOnCD and "
+                                     + "displayName are required; publisherDID is optional and "
+                                     + "recorded as given; id must not be supplied."))
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400",
@@ -764,11 +773,12 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "Submit a docker job.",
-        description = "Submits a docker job to a compute domain. The caller must be permitted to create a "
-                      + "container from the requested image and to mount every volume the job asks for.",
+        description = "Submits a docker job to a compute domain. The caller must be permitted to "
+                      + "create a container from the requested image and to mount every volume "
+                      + "the job asks for.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                       description = "COMPMDockerJobModel as JSON, naming the image, compute domain, "
-                                     + "command and volumes to mount."))
+                       description = "COMPMDockerJobModel as JSON, naming the image, compute "
+                                     + "domain, command and volumes to mount."))
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400",
@@ -859,14 +869,13 @@ public class JOBMRESTController {
      * @return
      */
     @Operation(
-        summary = "Register a compute domain manager and return any jobs still assigned to "
-                         + "it.",
-        description = "Registers a compute domain manager. A COMPM that has registered before must send the "
-                      + "uuid it was given; a new one is assigned one. The response lists any jobs still "
-                      + "outstanding for that COMPM.",
+        summary = "Register a compute domain manager and return any jobs still assigned to it.",
+        description = "Registers a compute domain manager. A COMPM that has registered before "
+                      + "must send the uuid it was given; a new one is assigned one. The response "
+                      + "lists any jobs still outstanding for that COMPM.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                       description = "Registration details for the COMPM, including its uuid when "
-                                     + "re-registering."))
+                       description = "Registration details for the COMPM, including its uuid "
+                                     + "when re-registering."))
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400",
@@ -906,15 +915,15 @@ public class JOBMRESTController {
      */
     @Operation(
         summary = "List the caller's CasJobs jobs, proxied from SkyServer.",
-        description = "Proxies a CasJobs job listing for the caller from SkyServer, using the caller's "
-                      + "token. On failure the upstream status code is passed through.",
+        description = "Proxies a CasJobs job listing for the caller from SkyServer, using the "
+                      + "caller's token. On failure the upstream status code is passed through.",
         parameters = {
             @Parameter(name = "submittedFrom", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time, passed to CasJobs "
-                                     + "unchanged. Format to be confirmed."),
+                       description = "Only return jobs submitted at or after this time, passed "
+                                     + "to CasJobs unchanged. Format to be confirmed."),
             @Parameter(name = "submittedTo", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time, passed to CasJobs "
-                                     + "unchanged. Format to be confirmed.")
+                       description = "Only return jobs submitted at or before this time, passed "
+                                     + "to CasJobs unchanged. Format to be confirmed.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),

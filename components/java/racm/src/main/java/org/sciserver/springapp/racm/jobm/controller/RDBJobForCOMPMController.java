@@ -26,6 +26,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -33,8 +38,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @COMPMRequired
 @RequestMapping("jobm/rest")
 @Tag(name = "Database job manager integration",
-     description = "Called by a database COMPM to report on the SQL jobs it runs. Not an "
-                 + "end-user API.")
+     description = "Called by a database COMPM to report on the SQL jobs it runs. Not an end-user "
+                 + "API.")
 @SecurityRequirement(name = "serviceToken")
 public class RDBJobForCOMPMController {
 	private static final Logger LOG = LogManager.getLogger();
@@ -57,6 +62,31 @@ public class RDBJobForCOMPMController {
 	 * @param request
 	 * @return
 	 */
+	@Operation(
+	    summary = "Report the progress of a relational database job.",
+	    description = "Called by the compute domain manager running the SQL job to record its new "
+	                  + "status, and any messages that go with it. Accepted only from the COMPM "
+	                  + "the job was handed to.",
+	    parameters = {
+	        @Parameter(name = "jobId", in = ParameterIn.PATH,
+	                   description = "Identifier of the database job being reported on.")
+	    },
+	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+	                   description = "The new status, and any messages, as JSON. Format to be "
+	                                 + "confirmed."))
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "400",
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No service token was supplied, or it does not identify a "
+	                              + "registered COMPM."),
+	    @ApiResponse(responseCode = "403",
+	                 description = "This COMPM was not given this job."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@PostMapping("/rdbjob/{jobId}")
 	public ResponseEntity<JsonNode> updateRDBJobStatus(@PathVariable Long jobId,
 			@RequestBody String body,

@@ -9,6 +9,7 @@ import org.springdoc.core.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 
@@ -57,7 +58,7 @@ import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 public class OpenApiConfig {
 
     static {
-        // Neither of these is a request parameter, but springdoc cannot tell: it sees an
+        // None of these is a request parameter, but springdoc cannot tell: it sees an
         // unannotated handler argument and documents it as one the caller must supply.
         //
         //   UserProfile  is resolved from the X-Auth-Token header by
@@ -65,13 +66,17 @@ public class OpenApiConfig {
         //                @AuthenticationPrincipal.
         //   COMPMInfo    is injected by COMPMRequiredInjector, a @ControllerAdvice that
         //                resolves it from the X-Service-Auth-ID header.
+        //   RegisteredFileServiceModel
+        //                is injected by FileServiceAuthenticationInjector, which resolves it
+        //                from the file service's own token.
         //
         // Registering them here removes a bogus "up" query parameter from 87 operations and a
         // bogus "compm" one from 8, without annotating every handler individually. The tokens
         // themselves stay documented, as the userToken and serviceToken security schemes.
         SpringDocUtils.getConfig()
                 .addRequestWrapperToIgnore(UserProfile.class)
-                .addRequestWrapperToIgnore(COMPMRequiredInjector.COMPMInfo.class);
+                .addRequestWrapperToIgnore(COMPMRequiredInjector.COMPMInfo.class)
+                .addRequestWrapperToIgnore(RegisteredFileServiceModel.class);
     }
 
     /**

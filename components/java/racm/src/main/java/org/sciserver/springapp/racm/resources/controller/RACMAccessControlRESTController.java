@@ -46,7 +46,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @CrossOrigin
 @RequestMapping("rest")
-@Tag(name = "Access control", description = "Query the resources a user may act on and the actions permitted on them.")
+@Tag(name = "Access control",
+     description = "Query the resources a user may act on and the actions permitted on them.")
 public class RACMAccessControlRESTController extends RACMController {
 	private static final String QUERY_RESOURCE_ERROR_MESSAGE = "Error querying resources";
 	private RACMAccessControl rac;
@@ -70,8 +71,8 @@ public class RACMAccessControlRESTController extends RACMController {
 	    summary = "List every resource the caller may act on.",
 	    description = "Returns all resources the calling user has any rights over, across every "
 	                  + "resource context, with the resource type, context class and context of "
-	                  + "each, and the actions permitted on it. Returned as a NativeQueryResult of "
-	                  + "columns and rows.")
+	                  + "each, and the actions permitted on it. Returned as a NativeQueryResult "
+	                  + "of columns and rows.")
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "401",
@@ -90,9 +91,9 @@ public class RACMAccessControlRESTController extends RACMController {
 
 	@Operation(
 	    summary = "List every resource the caller may act on, as model objects.",
-	    description = "Same selection as /resources, returned as ResourceModel objects rather than "
-	                  + "a column-and-row result. Prefer this when consuming the result as typed "
-	                  + "JSON.")
+	    description = "Same selection as /resources, returned as ResourceModel objects rather "
+	                  + "than a column-and-row result. Prefer this when consuming the result as "
+	                  + "typed JSON.")
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "401",
@@ -119,7 +120,8 @@ public class RACMAccessControlRESTController extends RACMController {
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the reason."),
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -205,8 +207,8 @@ public class RACMAccessControlRESTController extends RACMController {
 	@Operation(
 	    summary = "List the resources the caller may act on within one resource context.",
 	    description = "Narrows the resource listing to a single resource context, returning each "
-	                  + "resource with its type and the actions the caller is permitted to perform "
-	                  + "on it.",
+	                  + "resource with its type and the actions the caller is permitted to "
+	                  + "perform on it.",
 	    parameters = {
 	        @Parameter(name = "resourceContextUUID", in = ParameterIn.PATH,
 	                   description = "Identifier of the resource context to look within.")
@@ -232,13 +234,14 @@ public class RACMAccessControlRESTController extends RACMController {
 	    summary = "Check whether the caller may perform an action on a resource context as a "
 	              + "whole.",
 	    description = "Tests a single action against the root resource of the resource context, "
-	                  + "which is where context-wide rights such as registering a new resource are "
-	                  + "held. Returns a boolean.",
+	                  + "which is where context-wide rights such as registering a new resource "
+	                  + "are held. Returns a boolean.",
 	    parameters = {
 	        @Parameter(name = "resourceContextUUID", in = ParameterIn.PATH,
 	                   description = "Identifier of the resource context to test against."),
 	        @Parameter(name = "action", in = ParameterIn.PATH,
-	                   description = "Name of the action to test, as registered on the context class.")
+	                   description = "Name of the action to test, as registered on the context "
+	                                 + "class.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
@@ -263,13 +266,14 @@ public class RACMAccessControlRESTController extends RACMController {
 	@Operation(
 	    summary = "Check whether the caller may perform an action on one resource.",
 	    description = "Tests a single action against a single resource and returns a boolean. "
-	                  + "Intended for services deciding whether to offer an operation, rather than "
-	                  + "for enforcing it.",
+	                  + "Intended for services deciding whether to offer an operation, rather "
+	                  + "than for enforcing it.",
 	    parameters = {
 	        @Parameter(name = "resourceUUID", in = ParameterIn.PATH,
 	                   description = "Identifier of the resource to test against."),
 	        @Parameter(name = "action", in = ParameterIn.PATH,
-	                   description = "Name of the action to test, as registered on the resource's type.")
+	                   description = "Name of the action to test, as registered on the resource's "
+	                                 + "type.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
