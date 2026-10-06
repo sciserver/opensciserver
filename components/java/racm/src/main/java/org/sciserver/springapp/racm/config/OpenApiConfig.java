@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.SwaggerUiConfigProperties;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springdoc.core.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -121,12 +121,25 @@ public class OpenApiConfig {
      * property in the packaged application.properties is not read in production -- Try it out would
      * stay fully enabled on the public UI while appearing restricted in development.
      *
-     * @param properties the Swagger UI configuration to restrict
-     * @return a callback that limits its submit methods to GET once the context is ready
+     * <p>Done as a BeanPostProcessor, and declared static so the processor is available before this
+     * configuration class is instantiated. SwaggerUiConfigParameters takes SwaggerUiConfigProperties
+     * in its constructor and snapshots it, so anything that mutates the properties later -- an
+     * InitializingBean callback, for instance -- is simply missed, and the served swagger-config
+     * carries no supportedSubmitMethods at all.
+     *
+     * @return a post-processor limiting the Swagger UI submit methods to GET
      */
     @Bean
-    InitializingBean restrictSwaggerUiToReadOnly(SwaggerUiConfigProperties properties) {
-        return () -> properties.setSupportedSubmitMethods(List.of("get"));
+    static BeanPostProcessor restrictSwaggerUiToReadOnly() {
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessAfterInitialization(Object bean, String beanName) {
+                if (bean instanceof SwaggerUiConfigProperties properties) {
+                    properties.setSupportedSubmitMethods(List.of("get"));
+                }
+                return bean;
+            }
+        };
     }
 
     @Bean
