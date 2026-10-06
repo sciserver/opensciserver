@@ -1,6 +1,10 @@
 package org.sciserver.springapp.racm.config;
 
+import java.util.List;
+
 import org.springdoc.core.GroupedOpenApi;
+import org.springdoc.core.SwaggerUiConfigProperties;
+import org.springframework.beans.factory.InitializingBean;
 import org.springdoc.core.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -100,6 +104,31 @@ public class OpenApiConfig {
      * so a property set there would work locally and silently vanish in the deployed service --
      * where the UI is public.
      */
+    /**
+     * Restricts Swagger UI's "Try it out" button to GET requests.
+     *
+     * <p>Half of RACM's documented surface mutates state: 49 of 98 operations, including nine
+     * DELETEs that unregister file services and drop root volumes, user volumes and groups, and
+     * POST /computedomains/docker, which replaces a whole domain and deletes any image, volume
+     * container or root volume absent from the request.
+     *
+     * <p>Authentication bounds who can do that damage, not how easily. Reading stays fully
+     * interactive, which is where most of the UI's value is; anything that writes has to be issued
+     * deliberately from curl or a client.
+     *
+     * <p>Set here rather than as a springdoc.swagger-ui.* property on purpose: the deployment sets
+     * SPRING_CONFIG_LOCATION=/etc/secrets/, which replaces Spring's default config locations, so a
+     * property in the packaged application.properties is not read in production -- Try it out would
+     * stay fully enabled on the public UI while appearing restricted in development.
+     *
+     * @param properties the Swagger UI configuration to restrict
+     * @return a callback that limits its submit methods to GET once the context is ready
+     */
+    @Bean
+    InitializingBean restrictSwaggerUiToReadOnly(SwaggerUiConfigProperties properties) {
+        return () -> properties.setSupportedSubmitMethods(List.of("get"));
+    }
+
     @Bean
     GroupedOpenApi racmRestApi() {
         return GroupedOpenApi.builder()
