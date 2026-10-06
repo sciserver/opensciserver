@@ -45,6 +45,11 @@ import edu.jhu.job.DatabaseContext;
 import edu.jhu.job.RDBComputeDomain;
 import edu.jhu.job.RDBJob;
 import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -84,6 +89,28 @@ public class RDBJobRESTController {
 	 * @return
 	 * @todo use injector pattern to check for proper computedomain?
 	 */
+	@Operation(
+	    summary = "Submit a relational database job.",
+	    description = "Queues a SQL job against a registered database context. The caller must be "
+	                  + "permitted to query that context.",
+	    parameters = {
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.QUERY,
+	                   description = "Service token of the service submitting on a user's behalf. Omit for an "
+                    + "ordinary user request.")
+	    },
+	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+	                   description = "RDBJobModel as JSON, naming the database context and the SQL to run."))
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "400",
+	                 description = "The request is not valid; the response body carries the reason."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "403",
+	                 description = "The caller may not query the named database context."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@PostMapping("/jobs/rdb")
 	public ResponseEntity<JsonNode> submitJob(@RequestBody String body, @AuthenticationPrincipal UserProfile up, 
 	        @RequestHeader(name = X_SERVICE_ID,required = true) String serviceAccountToken) {
@@ -131,6 +158,30 @@ public class RDBJobRESTController {
 	 * @return
 	 * @throws VOURPException
 	 */
+	@Operation(
+	    summary = "Register a relational database compute domain, or replace an existing one.",
+	    description = "Registers a domain and its database contexts. As with the docker "
+	                  + "equivalent, replacing an existing domain is destructive: database contexts "
+	                  + "absent from the body are deleted.",
+	    parameters = {
+	        @Parameter(name = "admins", in = ParameterIn.QUERY,
+	                   description = "Comma-separated group names to be granted administrator rights over the "
+                    + "domain's database contexts.")
+	    },
+	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+	                   description = "RDBComputeDomainModel as JSON. Include the id and racmUUID to replace an "
+                    + "existing domain; omit both to register a new one."))
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "400",
+	                 description = "The request is not valid; the response body carries the reason."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "403",
+	                 description = "The caller is not permitted to register a compute domain."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@PostMapping("/computedomains/rdb")
 	public ResponseEntity<JsonNode> registerRDBComputeDomain(@RequestBody String body,
 			@RequestParam(required = false) String admins, @AuthenticationPrincipal UserProfile up)
@@ -181,6 +232,23 @@ public class RDBJobRESTController {
 	 * @return
 	 * @throws VOURPException
 	 */
+	@Operation(
+	    summary = "Register a compute domain manager for a relational database domain.",
+	    description = "Registers the COMPM that will run jobs for an RDB compute domain. A COMPM "
+	                  + "that has registered before must send the uuid it was given.",
+	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+	                   description = "DBCOMPMModel as JSON, including the COMPM's uuid when re-registering."))
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "400",
+	                 description = "The request is not valid; the response body carries the reason."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "403",
+	                 description = "The caller is not permitted to register a COMPM."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@PostMapping("/dbcompm")
 	public ResponseEntity<JsonNode> registerDBCOMPM(@RequestBody String body, HttpServletRequest request,
 			@AuthenticationPrincipal UserProfile up) throws VOURPException {
@@ -221,6 +289,17 @@ public class RDBJobRESTController {
 		}
 	}
 
+	@Operation(
+	    summary = "List the relational database compute domains available to the caller.",
+	    description = "Returns each RDB compute domain with the database contexts the caller may "
+	                  + "query, so a client can offer the user somewhere to send a job.")
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@GetMapping("/computedomains/rdb")
 	public ResponseEntity<JsonNode> queryRDBComputeDomains(@AuthenticationPrincipal UserProfile up)
 			throws VOURPException {
@@ -243,6 +322,30 @@ public class RDBJobRESTController {
 	 * @return
 	 * @throws VOURPException
 	 */
+	@Operation(
+	    summary = "Add a database context to an existing relational database compute domain.",
+	    description = "Registers one database context on the named domain without resending the "
+	                  + "whole domain document, so the domain's other contexts are left untouched.",
+	    parameters = {
+	        @Parameter(name = "domainId", in = ParameterIn.PATH,
+	                   description = "Identifier of the RDB compute domain the context is added to."),
+	        @Parameter(name = "admins", in = ParameterIn.QUERY,
+	                   description = "Comma-separated group names to be granted administrator rights over the "
+                    + "new database context.")
+	    },
+	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+	                   description = "DatabaseContextModel as JSON, describing the context to add."))
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "400",
+	                 description = "The request is not valid; the response body carries the reason."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "403",
+	                 description = "The caller is not permitted to modify this compute domain."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@PostMapping("/computedomains/rdb/{domainId}")
 	public ResponseEntity<JsonNode> registerRDBComputeDbContext(@PathVariable Long domainId, @RequestBody String body,
 			@RequestParam(required = false) String admins, @AuthenticationPrincipal UserProfile up)

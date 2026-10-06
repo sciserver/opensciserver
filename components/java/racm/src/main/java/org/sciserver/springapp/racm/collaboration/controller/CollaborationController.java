@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
@@ -29,6 +32,17 @@ public class CollaborationController {
 		this.jsonAPIHelper = jsonAPIHelper;
 	}
 
+	@Operation(
+	    summary = "List the collaborations the caller belongs to.",
+	    description = "Returns the collaborations of which the calling user is a member, with the "
+	                  + "other members of each.")
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@GetMapping
 	public ResponseEntity<?> getCollaborations(@AuthenticationPrincipal UserProfile up) {
 		try {
