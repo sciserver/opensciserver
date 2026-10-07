@@ -27,6 +27,7 @@
   },
   "ignorePatterns": [
     "src/graphql/typings.ts",
+    "next-env.d.ts",
     "*.js"
   ],
   "rules": {
