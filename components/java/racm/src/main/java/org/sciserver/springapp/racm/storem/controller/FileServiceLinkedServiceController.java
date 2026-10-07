@@ -83,6 +83,8 @@ public class FileServiceLinkedServiceController {
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "403",
                      description = "The caller may not create a volume under this root volume."),
+        @ApiResponse(responseCode = "404",
+                     description = "No root volume of that name on this file service."),
         @ApiResponse(responseCode = "500",
                      description = "Unexpected error. The response body carries a message.")
     })

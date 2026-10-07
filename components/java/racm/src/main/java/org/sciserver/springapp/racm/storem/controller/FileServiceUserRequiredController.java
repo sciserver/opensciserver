@@ -157,6 +157,9 @@ public class FileServiceUserRequiredController {
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "404",
+                     description = "No root volume of that name on this file service, or the "
+                                   + "caller may perform no actions on it."),
         @ApiResponse(responseCode = "500",
                      description = "Unexpected error. The response body carries a message.")
     })
