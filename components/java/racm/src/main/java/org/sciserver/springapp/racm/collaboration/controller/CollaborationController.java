@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/collaborations")
 @Tag(name = "Collaborations",
-     description = "Query the collaborations the calling user belongs to.")
+     description = "Query the collaborations (== user groups) the calling user belongs to.")
 public class CollaborationController {
 	private final CollaborationManager collaborationManager;
 	private final JsonAPIHelper jsonAPIHelper;

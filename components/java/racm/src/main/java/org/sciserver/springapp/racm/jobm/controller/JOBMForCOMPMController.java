@@ -96,8 +96,11 @@ public class JOBMForCOMPMController {
 	                   description = "Identifier of the docker job being reported on.")
 	    },
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "The new status, and any messages, as JSON. Format to be "
-	                                 + "confirmed."))
+	                   description = "COMPMDockerJobModel as JSON, the model this COMPM was "
+	                                 + "handed by /compmjob/next, carrying the new status. The "
+	                                 + "job updated is the one the body names in id; the id in "
+	                                 + "the path is ignored. Messages are added, never removed, "
+	                                 + "and executorDID cannot be changed once set."))
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "400",
@@ -106,10 +109,10 @@ public class JOBMForCOMPMController {
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
-	    @ApiResponse(responseCode = "403",
-	                 description = "This COMPM was not given this job."),
 	    @ApiResponse(responseCode = "500",
-	                 description = "Unexpected error. The response body carries a message.")
+	                 description = "Unexpected error. A job this COMPM was not given, and a job "
+	                               + "that has already completed, both arrive here rather than as "
+	                               + "a 4xx. The response body carries a message.")
 	})
 	@PostMapping("/compmdockerjob/{jobId}")
 	public ResponseEntity<JsonNode> updateDockerJobStatus(@PathVariable Long jobId, @RequestBody String body,
@@ -148,8 +151,9 @@ public class JOBMForCOMPMController {
 
 	/**
 	 * Returns a Json message concerning whether X-Service-Auth-ID field in the
-	 * request header corresponds to a valid registered COMPM. Returns a 200 code is
-	 * it is, or a 403 code if it's not.<br/>
+	 * request header corresponds to a valid registered COMPM. Returns 200 if it does.
+	 * If it does not, the request never reaches this method: COMPMRequiredInjector
+	 * answers 401 first, so the FORBIDDEN branch below is unreachable.<br/>
 	 *
 	 * @return
 	 */
@@ -161,7 +165,7 @@ public class JOBMForCOMPMController {
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200",
 	                 description = "The service token identifies a registered COMPM."),
-	    @ApiResponse(responseCode = "403",
+	    @ApiResponse(responseCode = "401",
 	                 description = "The service token does not identify a registered COMPM."),
 	    @ApiResponse(responseCode = "500",
 	                 description = "Unexpected error. The response body carries a message.")
@@ -201,10 +205,10 @@ public class JOBMForCOMPMController {
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
-	    @ApiResponse(responseCode = "403",
-	                 description = "This COMPM was not given this job."),
 	    @ApiResponse(responseCode = "500",
-	                 description = "Unexpected error. The response body carries a message.")
+	                 description = "Unexpected error. A job this COMPM was not given, and a job "
+	                               + "that has already completed, both arrive here rather than as "
+	                               + "a 4xx. The response body carries a message.")
 	})
 	@GetMapping("/compmjob/{jobId}")
 	public ResponseEntity<JsonNode> compmJobStatus(@PathVariable Long jobId,
@@ -242,10 +246,10 @@ public class JOBMForCOMPMController {
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
-	    @ApiResponse(responseCode = "403",
-	                 description = "This COMPM was not given this job."),
 	    @ApiResponse(responseCode = "500",
-	                 description = "Unexpected error. The response body carries a message.")
+	                 description = "Unexpected error. A job this COMPM was not given, and a job "
+	                               + "that has already completed, both arrive here rather than as "
+	                               + "a 4xx. The response body carries a message.")
 	})
 	@PostMapping("/compmjob/{jobId}")
 	public ResponseEntity<JsonNode> updateJobStatus(@PathVariable Long jobId, @RequestBody COMPMJobModel jobModel,

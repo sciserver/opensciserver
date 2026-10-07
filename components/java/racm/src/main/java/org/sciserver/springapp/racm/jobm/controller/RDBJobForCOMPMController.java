@@ -72,8 +72,11 @@ public class RDBJobForCOMPMController {
 	                   description = "Identifier of the database job being reported on.")
 	    },
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "The new status, and any messages, as JSON. Format to be "
-	                                 + "confirmed."))
+	                   description = "RDBJobModel as JSON, the model this COMPM was handed by "
+	                                 + "/compmjob/next, carrying the new status. The job updated "
+	                                 + "is the one the body names in id; the id in the path is "
+	                                 + "ignored. On a target that already exists only location "
+	                                 + "is updated; a target with no id is added."))
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),
 	    @ApiResponse(responseCode = "400",
@@ -82,10 +85,10 @@ public class RDBJobForCOMPMController {
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
-	    @ApiResponse(responseCode = "403",
-	                 description = "This COMPM was not given this job."),
 	    @ApiResponse(responseCode = "500",
-	                 description = "Unexpected error. The response body carries a message.")
+	                 description = "Unexpected error. A job this COMPM was not given, and a job "
+	                               + "that has already completed, both arrive here rather than as "
+	                               + "a 4xx. The response body carries a message.")
 	})
 	@PostMapping("/rdbjob/{jobId}")
 	public ResponseEntity<JsonNode> updateRDBJobStatus(@PathVariable Long jobId,

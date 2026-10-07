@@ -878,8 +878,10 @@ public class UserManagementRESTController extends RACMController {
 	                  + "users only when no filter is given.",
 	    parameters = {
 	        @Parameter(name = "users", in = ParameterIn.QUERY,
-	                   description = "Restrict the result to users matching this filter, and omit "
-                    + "groups from the response. Matching semantics to be confirmed.")
+	                   description = "Comma-separated list of exact usernames to return; there is "
+	                                 + "no pattern matching. Only users whose visibility is "
+	                                 + "PUBLIC are returned, whichever names are given. Supplying "
+	                                 + "this parameter also omits groups from the response.")
 	    })
 	@ApiResponses({
 	    @ApiResponse(responseCode = "200"),

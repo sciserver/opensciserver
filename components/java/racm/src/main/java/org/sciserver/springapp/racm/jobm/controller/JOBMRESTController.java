@@ -112,11 +112,25 @@ public class JOBMRESTController {
                        description = "Maximum number of jobs to return. -1, the default, returns "
                                      + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format "
-                                     + "to be confirmed.")
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -187,11 +201,25 @@ public class JOBMRESTController {
                        description = "Maximum number of jobs to return. -1, the default, returns "
                                      + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied."),
             @Parameter(name = "labelReg", in = ParameterIn.QUERY,
                        description = "Regular expression matched against job labels; only "
                                      + "matching jobs are returned.")
@@ -264,11 +292,25 @@ public class JOBMRESTController {
                        description = "Maximum number of jobs to return. -1, the default, returns "
                                      + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format "
-                                     + "to be confirmed.")
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -305,11 +347,25 @@ public class JOBMRESTController {
                        description = "Maximum number of jobs to return. -1, the default, returns "
                                      + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied."),
             @Parameter(name = "labelReg", in = ParameterIn.QUERY,
                        description = "Regular expression matched against job labels; only "
                                      + "matching jobs are returned.")
@@ -351,11 +407,25 @@ public class JOBMRESTController {
                        description = "Maximum number of jobs to return. -1, the default, returns "
                                      + "all of them."),
             @Parameter(name = "start", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time. Format "
-                                     + "to be confirmed."),
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
             @Parameter(name = "end", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time. Format "
-                                     + "to be confirmed.")
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
@@ -919,11 +989,15 @@ public class JOBMRESTController {
                       + "caller's token. On failure the upstream status code is passed through.",
         parameters = {
             @Parameter(name = "submittedFrom", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or after this time, passed "
-                                     + "to CasJobs unchanged. Format to be confirmed."),
+                       description = "Only return jobs submitted at or after this time. The "
+                                     + "value is passed to CasJobs unchanged, so CasJobs defines "
+                                     + "the format. Supply both: a parameter left out reaches "
+                                     + "CasJobs as the literal text null."),
             @Parameter(name = "submittedTo", in = ParameterIn.QUERY,
-                       description = "Only return jobs submitted at or before this time, passed "
-                                     + "to CasJobs unchanged. Format to be confirmed.")
+                       description = "Only return jobs submitted at or before this time. The "
+                                     + "value is passed to CasJobs unchanged, so CasJobs defines "
+                                     + "the format. Supply both: a parameter left out reaches "
+                                     + "CasJobs as the literal text null.")
         })
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
