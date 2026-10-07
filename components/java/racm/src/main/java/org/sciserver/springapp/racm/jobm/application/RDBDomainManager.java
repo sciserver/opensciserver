@@ -26,6 +26,7 @@ import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import edu.jhu.job.COMPM;
+import edu.jhu.job.ComputeDomain;
 import edu.jhu.job.DatabaseContext;
 import edu.jhu.job.RDBComputeDomain;
 import edu.jhu.job.RDBVendor;
@@ -116,7 +117,7 @@ public class RDBDomainManager {
                     String.format("No RDB compute domain with id=%s exists", domainId.toString()));
         }
         // Check if user has the right to register a database context on the computedomain
-        if (!jobmAccessControl.canRegisterDatabaseContext(up.getUser(), rdbcd)) {
+        if (!canRegisterDatabaseContext(up.getUser(), rdbcd)) {
             throw new VOURPException(VOURPException.UNAUTHORIZED, String.format(
                     "User %s is not authorized to register a DatabaseContext on the RDBComputeDomain with apiEndpoint '%s'",
                     up.getUsername(), rdbcd.getApiEndpoint()));
@@ -509,4 +510,15 @@ public class RDBDomainManager {
                     RACMNames.A_DATABASE_CONTEXT_QUERY);
         }
     }
+
+    /**
+     * Return true if the user holds the 'registerDatabaseContext' right on the compute domain's root context.
+     *
+     * @param u the user to check
+     * @param cd the compute domain whose root context is being checked
+     * @return true if the user holds the 'registerDatabaseContext' right on the compute domain's root context, false otherwise.
+     */
+	boolean canRegisterDatabaseContext(User u, ComputeDomain cd) {
+		return racm.canUserDoActionOnRootContext(u.getUsername(), cd.getResourceContext().getUuid(), RACMNames.A_REGISTER_DATABASE_CONTEXT);
+	}
 }
