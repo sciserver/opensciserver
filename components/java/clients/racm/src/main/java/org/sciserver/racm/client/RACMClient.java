@@ -336,14 +336,15 @@ public class RACMClient extends Client<RACMClientInterface> {
      * @param databaseContextModel basic information about the new Database Context
      * @param admins comma-separated list of groups to have admin privileges for the context
      * @param userToken token
+     * @param serviceToken service account token of the RDB Compute Domain identified by domainId
      * @return Newly registered DatabaseContextModel with fields populated by RACM
      *
      * @throws SciServerClientException in case of bad response or IO issue
      */
     public DatabaseContextModel registerRDBComputeDbContext(Long domainId, DatabaseContextModel databaseContextModel,
-            String admins, String userToken) throws SciServerClientException {
+            String admins, String userToken, String serviceToken) throws SciServerClientException {
         Call<DatabaseContextModel> call = retrofitAdapter.registerRDBComputeDbContextCall(domainId,
-                databaseContextModel, admins, userToken);
+                databaseContextModel, admins, userToken, serviceToken);
         return getSyncResponse(call);
     }
 
