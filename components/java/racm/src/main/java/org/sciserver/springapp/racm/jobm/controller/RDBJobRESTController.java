@@ -348,7 +348,10 @@ public class RDBJobRESTController {
 	                                 + "to."),
 	        @Parameter(name = "admins", in = ParameterIn.QUERY,
 	                   description = "Comma-separated group names to be granted administrator "
-                    + "rights over the new database context.")
+                    + "rights over the new database context."),
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the compute domain the context is added to. The "
+	                                 + "domain it identifies must be the one named in the path.")
 	    },
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 	                   description = "DatabaseContextModel as JSON, describing the context to "
@@ -363,7 +366,9 @@ public class RDBJobRESTController {
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
-	                 description = "The caller is not permitted to modify this compute domain."),
+	                 description = "The caller is not permitted to modify this compute domain, or the "
+	                               + "service token identifies a different domain from the one in the "
+	                               + "path."),
 	    @ApiResponse(responseCode = "500",
 	                 description = "Unexpected error. The response body carries a message.")
 	})
