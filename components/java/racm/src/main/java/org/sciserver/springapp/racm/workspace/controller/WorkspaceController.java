@@ -40,7 +40,8 @@ public class WorkspaceController {
 	    description = "Returns the workspace groups the calling user belongs to. Despite the "
 	                  + "method name, this endpoint submits nothing; it is a read.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The workspace groups the caller belongs to, as a WorkspaceGroupsModel."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",

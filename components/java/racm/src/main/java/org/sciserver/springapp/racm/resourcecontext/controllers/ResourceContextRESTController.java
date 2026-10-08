@@ -75,7 +75,9 @@ public class ResourceContextRESTController {
 	                   description = "NewResourceModel as JSON, naming the resource and its "
 	                                 + "resource type."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The registered resource, including the UUID RACM assigned it. The service stores "
+	                               + "that UUID and uses it in later calls."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -120,7 +122,9 @@ public class ResourceContextRESTController {
 	                   + "to the resource context in the path.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "true if the resource was changed. A change RACM rejected returns false with this "
+	                               + "same 200, not an error status."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -172,7 +176,9 @@ public class ResourceContextRESTController {
 	                   + "to the resource context in the path.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resources in the context, each with its associations and the actions the "
+	                               + "named user may perform on it."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -213,7 +219,9 @@ public class ResourceContextRESTController {
                        + "to the resource context in the path.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The UUIDs of the resources in this context carrying that publisher identifier. "
+                                   + "An empty list if none do."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "403",
@@ -250,7 +258,8 @@ public class ResourceContextRESTController {
                        description = "AssociatedResourceModel as JSON, naming the resource to "
                        + "associate and the nature of the association."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The association was recorded. The response has no body."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                   + "reason."),
@@ -294,7 +303,8 @@ public class ResourceContextRESTController {
 	                   description = "AssociatedSciserverEntityModel as JSON, naming the entity "
 	                   + "and the nature of the association."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The association was recorded. The response has no body."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -336,7 +346,9 @@ public class ResourceContextRESTController {
 	                   + "to the resource context in the path.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resource was deleted, together with the grants held on it. The response has "
+	                               + "no body."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -367,7 +379,9 @@ public class ResourceContextRESTController {
 	                   description = "Identifier of the resource to return.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resource, with its associations and the actions the caller may perform on "
+	                               + "it."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -393,7 +407,9 @@ public class ResourceContextRESTController {
 	                   description = "Identifier of the resource to return.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resource, with its associations and the actions the named user may perform "
+	                               + "on it. The body has the same shape as the user-facing form of this operation."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",

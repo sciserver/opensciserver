@@ -45,7 +45,8 @@ public class StoremController {
 	    description = "Returns the API endpoints of the registered file services, so a client can "
 	                  + "discover where to send file operations.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The API endpoints of the registered file services."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -108,7 +109,9 @@ public class StoremController {
 	                  + "description and API endpoint. The identifier is the resource context "
 	                  + "uuid used in the per-file-service endpoints.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "Each registered file service, with its identifier, name, description and API "
+	                               + "endpoint."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",

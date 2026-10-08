@@ -64,7 +64,8 @@ public class AccessControlController {
 	                   description = "A list of PrivilegeModel as JSON, each naming an entity "
 	                   + "and the action granted to it."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The privileges were granted. The response has no body."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),

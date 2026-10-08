@@ -29,7 +29,8 @@ public class ConfigController extends RACMController {
 	                  + "against, so front ends can discover them rather than hard-coding them. "
 	                  + "Requires no authentication.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The URLs of the SciServer components this deployment is configured against."),
 	    @ApiResponse(responseCode = "500",
 	                 description = "Unexpected error. The response body carries a message.")
 	})

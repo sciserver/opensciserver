@@ -75,7 +75,8 @@ public class FileServiceUserRequiredController {
                        description = "Name or UUID of the file service.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The file service, with all of its root, data and user volumes."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "403",
@@ -103,7 +104,8 @@ public class FileServiceUserRequiredController {
                        description = "Name or UUID of the file service.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The file service, with the root, data and user volumes the caller may use."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "403",
@@ -154,7 +156,8 @@ public class FileServiceUserRequiredController {
                        description = "Name of the root volume.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The names of the actions the caller may perform on the root volume."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "404",
@@ -185,7 +188,9 @@ public class FileServiceUserRequiredController {
                        description = "Name of the data volume.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The actions the caller may perform on the data volume, as a result set of "
+                                   + "columns and rows."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -214,7 +219,9 @@ public class FileServiceUserRequiredController {
                        description = "Name of the user volume.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The actions the caller may perform on the user volume, as a result set of "
+                                   + "columns and rows."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -244,7 +251,9 @@ public class FileServiceUserRequiredController {
                        description = "RegisterNewRootVolumeModel as JSON, naming the root volume "
                        + "and the path it maps to."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "201",
+                     description = "The root volume was registered. The response has no body; the Location header "
+                                   + "gives the URI at which the volume can be unregistered."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                   + "reason."),
@@ -281,7 +290,9 @@ public class FileServiceUserRequiredController {
                        description = "RegisterNewDataVolumeModel as JSON, naming the data volume "
                        + "and the path it maps to."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "201",
+                     description = "The data volume was registered. The response has no body; the Location header "
+                                   + "gives the URI at which the volume can be unregistered."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                   + "reason."),

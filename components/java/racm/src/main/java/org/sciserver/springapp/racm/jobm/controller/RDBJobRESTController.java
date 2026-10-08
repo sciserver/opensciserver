@@ -103,7 +103,9 @@ public class RDBJobRESTController {
 	                   description = "RDBJobModel as JSON, naming the database context and the "
 	                                 + "SQL to run."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The submitted job, as RACM now holds it, including the identifier the "
+	                               + "caller uses to follow its progress."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -175,7 +177,9 @@ public class RDBJobRESTController {
 	                   description = "RDBComputeDomainModel as JSON. Include the id and racmUUID "
                     + "to replace an existing domain; omit both to register a new one."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The compute domain as registered or replaced, including the identifier "
+	                               + "RACM assigned it and the database contexts it now holds."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -244,7 +248,9 @@ public class RDBJobRESTController {
 	                   description = "DBCOMPMModel as JSON, including the COMPM's uuid when "
 	                                 + "re-registering."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The compute domain manager as registered, including the identifier RACM "
+	                               + "assigned it."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -300,7 +306,9 @@ public class RDBJobRESTController {
 	    description = "Returns each RDB compute domain with the database contexts the caller may "
 	                  + "query, so a client can offer the user somewhere to send a job.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The relational database compute domains visible to the caller, each with "
+	                               + "the database contexts the caller may use."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -345,7 +353,9 @@ public class RDBJobRESTController {
 	                   description = "DatabaseContextModel as JSON, describing the context to "
 	                                 + "add."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The database context as registered, including the identifier RACM assigned "
+	                               + "it."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),

@@ -121,7 +121,9 @@ public class UserManagementRESTController extends RACMController {
 	    description = "Returns groups whose owner is the calling user, with their members and the "
 	                  + "resources shared with them.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The groups the caller may edit, each with its members and, where it has one, the "
+	                               + "resource that owns it."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -169,7 +171,8 @@ public class UserManagementRESTController extends RACMController {
                     + "request.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The group, with its members and outstanding invitations."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -205,7 +208,8 @@ public class UserManagementRESTController extends RACMController {
 	                   description = "Service token of the resource context owning the group.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The group, with its members and the resource that owns it."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -238,7 +242,8 @@ public class UserManagementRESTController extends RACMController {
 	                   description = "Service token of the resource context owning the resource.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The groups owned by that resource."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -282,7 +287,9 @@ public class UserManagementRESTController extends RACMController {
                     + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The JSON string OK. The group, its memberships and the grants made to it are "
+	                               + "gone."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -318,7 +325,8 @@ public class UserManagementRESTController extends RACMController {
 	    description = "Returns every group of which the calling user is a member, whoever owns "
 	                  + "it, together with the caller's membership status in each.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The groups the caller is a member of."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -340,7 +348,8 @@ public class UserManagementRESTController extends RACMController {
 	    description = "Returns groups marked PUBLIC, which any user may join without an "
 	                  + "invitation.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The public groups, which any user may join."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -380,7 +389,9 @@ public class UserManagementRESTController extends RACMController {
 	                   description = "GroupInfo as JSON. Include the id to update an existing "
                     + "group; omit it to create a new one."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The group as created or updated, including the identifier RACM assigned it and "
+	                               + "the invitations issued."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -460,7 +471,9 @@ public class UserManagementRESTController extends RACMController {
 	                   description = "CreateLinkedGroupModel as JSON, naming the group and the "
                     + "resource it belongs to."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The group as created, including the identifier RACM assigned it and the "
+	                               + "invitations issued."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -638,7 +651,8 @@ public class UserManagementRESTController extends RACMController {
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 	                   description = "UserProfile fields as JSON."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The profile as RACM now holds it."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -682,7 +696,8 @@ public class UserManagementRESTController extends RACMController {
 	    description = "Returns the calling user's profile as RACM holds it, including their "
 	                  + "visibility setting.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The caller's user profile."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -719,7 +734,8 @@ public class UserManagementRESTController extends RACMController {
                     + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The group joined, with the caller's membership now accepted."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "There is no pending invitation for this user and group."),
 	    @ApiResponse(responseCode = "401",
@@ -745,7 +761,10 @@ public class UserManagementRESTController extends RACMController {
                     + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "true if the caller is now a member of the group. false is also returned when the "
+	                               + "attempt failed, with the reason going to the service log rather than to the "
+	                               + "caller."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -777,7 +796,8 @@ public class UserManagementRESTController extends RACMController {
                     + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The JSON string OK. The caller is no longer a member of the group."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The caller is not a member of this group, or owns it."),
 	    @ApiResponse(responseCode = "401",
@@ -826,7 +846,8 @@ public class UserManagementRESTController extends RACMController {
                     + "when acting for a service rather than a user.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The group the invitation was to, with the caller's membership now declined."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "There is no pending invitation for this user and group."),
 	    @ApiResponse(responseCode = "401",
@@ -884,7 +905,9 @@ public class UserManagementRESTController extends RACMController {
 	                                 + "this parameter also omits groups from the response.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The users visible to the caller and, unless the users filter was supplied, the "
+	                               + "groups as well."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",

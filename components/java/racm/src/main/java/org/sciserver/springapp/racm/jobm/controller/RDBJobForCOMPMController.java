@@ -78,7 +78,10 @@ public class RDBJobForCOMPMController {
 	                                 + "ignored. On a target that already exists only location "
 	                                 + "is updated; a target with no id is added."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The relational database job as posted, echoed back once the update "
+	                               + "has been applied. The echo is the submitted body rather than the "
+	                               + "stored state."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),

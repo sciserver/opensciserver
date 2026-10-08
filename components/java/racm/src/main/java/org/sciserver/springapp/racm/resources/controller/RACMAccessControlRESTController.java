@@ -74,7 +74,10 @@ public class RACMAccessControlRESTController extends RACMController {
 	                  + "each, and the actions permitted on it. Returned as a NativeQueryResult "
 	                  + "of columns and rows.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "Every resource the caller may act on, each with its resource type, context "
+	                               + "class, resource context and the actions the caller is allowed. Service accounts "
+	                               + "are filtered out."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -95,7 +98,9 @@ public class RACMAccessControlRESTController extends RACMController {
 	                  + "than a column-and-row result. Prefer this when consuming the result as "
 	                  + "typed JSON.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "Every resource the caller may act on, as model objects rather than as the "
+	                               + "flattened v1 form."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -118,7 +123,8 @@ public class RACMAccessControlRESTController extends RACMController {
 	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 	                   description = "ResourceGrants as JSON, listing the grants to apply."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resource as RACM now holds it, with the grants that survived the update."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -177,7 +183,8 @@ public class RACMAccessControlRESTController extends RACMController {
 	                   description = "Identifier of the resource whose privileges are returned.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resource, with the privileges and role assignments held on it."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",
@@ -214,7 +221,9 @@ public class RACMAccessControlRESTController extends RACMController {
 	                   description = "Identifier of the resource context to look within.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The resources within that context the caller may act on, each with its type and "
+	                               + "the actions the caller is allowed."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -244,7 +253,9 @@ public class RACMAccessControlRESTController extends RACMController {
 	                                 + "class.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "true if the caller may perform that action on the context's root resource, false "
+	                               + "if not. An unknown context or action name yields false rather than an error."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -276,7 +287,9 @@ public class RACMAccessControlRESTController extends RACMController {
 	                                 + "type.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "true if the caller may perform that action on that resource, false if not. An "
+	                               + "unknown resource or action name yields false rather than an error."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",
@@ -309,7 +322,9 @@ public class RACMAccessControlRESTController extends RACMController {
                       + "different service, together with information about the owning resource, "
                       + "so the caller can follow the ownership chain.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The resources the caller may act on that are owned by another service, each with "
+                                   + "the resource and resource context that own it."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",

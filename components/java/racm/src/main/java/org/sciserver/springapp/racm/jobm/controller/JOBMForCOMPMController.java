@@ -102,7 +102,9 @@ public class JOBMForCOMPMController {
 	                                 + "the path is ignored. Messages are added, never removed, "
 	                                 + "and executorDID cannot be changed once set."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The docker job as posted, echoed back once the update has been applied. The echo "
+	                               + "is the submitted body rather than the stored state."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -201,7 +203,8 @@ public class JOBMForCOMPMController {
 	                   description = "Identifier of the job to report on.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The job, as RACM holds it. Only jobs handed to this COMPM can be asked for."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
@@ -239,7 +242,8 @@ public class JOBMForCOMPMController {
 	                   description = "COMPMJobModel as JSON, carrying the new status and any "
 	                                 + "messages."))
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The job as RACM now holds it, with the reported status and messages applied."),
 	    @ApiResponse(responseCode = "400",
 	                 description = "The request is not valid; the response body carries the "
 	                               + "reason."),
@@ -276,7 +280,9 @@ public class JOBMForCOMPMController {
 	    description = "Returns the jobs handed to the calling COMPM whose users have since asked "
 	                  + "for them to be cancelled, so that the COMPM can stop them.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The identifiers of the jobs given to this COMPM that a user has since cancelled, "
+	                               + "so that the COMPM can stop them."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
@@ -301,7 +307,8 @@ public class JOBMForCOMPMController {
 	    description = "Returns the jobs handed to the calling COMPM that have not yet reached a "
 	                  + "final status, so that it can reconcile its own record after a restart.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The jobs this COMPM has taken and not yet reported as finished."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),
@@ -359,7 +366,10 @@ public class JOBMForCOMPMController {
 	                                 + "default number.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The jobs now assigned to this COMPM, each carrying the submitting user's token "
+	                               + "so the COMPM can act on their behalf. When no job is waiting the body is empty "
+	                               + "rather than an empty list."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No service token was supplied, or it does not identify a "
 	                              + "registered COMPM."),

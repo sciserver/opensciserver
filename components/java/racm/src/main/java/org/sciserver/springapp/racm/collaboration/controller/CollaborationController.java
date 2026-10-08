@@ -38,7 +38,8 @@ public class CollaborationController {
 	    description = "Returns the collaborations of which the calling user is a member, with the "
 	                  + "other members of each.")
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The collaborations the caller is a member of, each with its other members."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "500",

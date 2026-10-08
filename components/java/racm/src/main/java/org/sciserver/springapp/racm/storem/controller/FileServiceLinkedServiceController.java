@@ -75,7 +75,8 @@ public class FileServiceLinkedServiceController {
                        description = "RegisterNewServiceVolumeModel as JSON, naming the volume "
                        + "and the resource that will own it."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The registered volume, including the name RACM gave it."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                   + "reason."),
@@ -217,7 +218,9 @@ public class FileServiceLinkedServiceController {
 	                                 + "Required.")
 	    })
 	@ApiResponses({
-	    @ApiResponse(responseCode = "200"),
+	    @ApiResponse(responseCode = "200",
+	                 description = "The actions the caller may perform on the volume, as a result set of columns and "
+	                               + "rows."),
 	    @ApiResponse(responseCode = "401",
 	                 description = "No user token was supplied, or it is not valid."),
 	    @ApiResponse(responseCode = "403",

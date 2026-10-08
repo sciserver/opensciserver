@@ -133,7 +133,9 @@ public class JOBMRESTController {
                                      + "applied.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's jobs, both docker and relational database, as COMPMJobModel "
+                                   + "entries."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -163,7 +165,9 @@ public class JOBMRESTController {
         description = "Returns a single count field holding the total number of docker jobs the "
                       + "caller has submitted.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "An object with a single count field, holding the number of docker jobs the "
+                                   + "caller has submitted."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -225,7 +229,9 @@ public class JOBMRESTController {
                                      + "matching jobs are returned.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's docker jobs, each with the container and image detail the "
+                                   + "general job listing omits."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -262,7 +268,9 @@ public class JOBMRESTController {
                                      + "to 24; a negative value is treated as 24.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "A map of job status to the number of the caller's jobs in that status over "
+                                   + "the window."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -313,7 +321,8 @@ public class JOBMRESTController {
                                      + "applied.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's docker jobs. Prefer /dockerjobs, which returns the same jobs."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -371,7 +380,9 @@ public class JOBMRESTController {
                                      + "matching jobs are returned.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's docker jobs, as a result set of columns and rows rather than "
+                                   + "model objects."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -428,7 +439,8 @@ public class JOBMRESTController {
                                      + "applied.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's relational database jobs."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -457,7 +469,8 @@ public class JOBMRESTController {
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                        description = "Criteria selecting which jobs to return."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The jobs matching the query."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                    + "reason."),
@@ -492,7 +505,9 @@ public class JOBMRESTController {
                       + "waiting, and the position a job submitted now by the caller would take "
                       + "in the queue.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "Queue depth per compute domain, as a result set of columns and rows, with "
+                                   + "the position a job submitted now by the caller would take."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -519,7 +534,8 @@ public class JOBMRESTController {
                                      + "endpoints.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The job, with its full status."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -551,7 +567,9 @@ public class JOBMRESTController {
                        description = "Identifier of the job to cancel.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The job, with the cancellation recorded. Cancelling is a request: the "
+                                   + "COMPM running the job stops it when it next polls."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                    + "reason."),
@@ -613,7 +631,9 @@ public class JOBMRESTController {
                                      + "domains are returned on their own.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The docker compute domains the caller may use, each with the images, "
+                                   + "volume containers and user volumes available to them."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
@@ -649,7 +669,9 @@ public class JOBMRESTController {
                       + "containers and root volumes, regardless of the caller's access to them. "
                       + "Administrators only.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "Every registered docker compute domain, with its images, volume containers "
+                                   + "and root volumes."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "403",
@@ -704,7 +726,9 @@ public class JOBMRESTController {
                                      + "to replace an existing domain; omit both to register a "
                                      + "new one."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The compute domain as registered or replaced, including its racmUUID and "
+                                   + "the images, volume containers and root volumes it now holds."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                    + "reason."),
@@ -784,7 +808,9 @@ public class JOBMRESTController {
                                      + "displayName are required; publisherDID is optional and "
                                      + "recorded as given; id must not be supplied."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The attachment as created, linking the root volume to the compute domain "
+                                   + "at the path given."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                    + "reason."),
@@ -850,7 +876,9 @@ public class JOBMRESTController {
                        description = "COMPMDockerJobModel as JSON, naming the image, compute "
                                      + "domain, command and volumes to mount."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The submitted job, as RACM now holds it, including the identifier the "
+                                   + "caller uses to follow its progress."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                    + "reason."),
@@ -947,7 +975,9 @@ public class JOBMRESTController {
                        description = "Registration details for the COMPM, including its uuid "
                                      + "when re-registering."))
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The COMPM as registered, carrying the uuid it must present on later calls "
+                                   + "and any jobs still outstanding for it."),
         @ApiResponse(responseCode = "400",
                      description = "The request is not valid; the response body carries the "
                                    + "reason."),
@@ -1000,7 +1030,9 @@ public class JOBMRESTController {
                                      + "CasJobs as the literal text null.")
         })
     @ApiResponses({
-        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "200",
+                     description = "The CasJobs job listing, as CasJobs returned it. RACM passes the body "
+                                   + "through without interpreting it."),
         @ApiResponse(responseCode = "401",
                      description = "No user token was supplied, or it is not valid."),
         @ApiResponse(responseCode = "500",
