@@ -15,10 +15,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @RequestMapping("workspace")
+@Tag(name = "Workspaces",
+     description = "Query the calling user's workspaces.")
 public class WorkspaceController {
 	private final GroupResourcesManager workspaceManager;
 	public final JsonAPIHelper jsonAPIHelper;
@@ -29,6 +35,18 @@ public class WorkspaceController {
 		this.jsonAPIHelper = jsonAPIHelper;
 	}
 
+	@Operation(
+	    summary = "List the groups backing the caller's workspaces.",
+	    description = "Returns the workspace groups the calling user belongs to. Despite the "
+	                  + "method name, this endpoint submits nothing; it is a read.")
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200",
+	                 description = "The workspace groups the caller belongs to, as a WorkspaceGroupsModel."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@GetMapping("/groups")
 	public ResponseEntity<JsonNode> submitJob(@AuthenticationPrincipal UserProfile up) {
 		try {

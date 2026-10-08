@@ -23,8 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.jhu.rac.Privilege;
 import edu.jhu.rac.Resource;
 import edu.jhu.user.SciserverEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("rc/{resourceContextUUID}/resource/{resourceUUID}")
+@Tag(name = "Resource permissions",
+     description = "Check whether a user may perform a given action on a given resource.")
 public class AccessControlController {
 	private final VOURPContext vourpContext;
 	private final RACMUtil racmUtil;
@@ -37,6 +45,38 @@ public class AccessControlController {
 		this.resourceContextAuthentication = resourceContextAuthentication;
 	}
 
+	@Operation(
+	    summary = "Grant privileges on a resource.",
+	    description = "Adds privileges to a resource, each naming the entity receiving the right "
+	                  + "and the action it may perform. Called by the service that owns the "
+	                  + "resource context.",
+	    parameters = {
+	        @Parameter(name = "resourceContextUUID", in = ParameterIn.PATH,
+	                   description = "Identifier of the resource context the resource belongs "
+	                                 + "to."),
+	        @Parameter(name = "resourceUUID", in = ParameterIn.PATH,
+	                   description = "Identifier of the resource the privileges apply to."),
+	        @Parameter(name = "X-Service-Auth-ID", in = ParameterIn.HEADER,
+	                   description = "Service token of the resource context. It must correspond "
+	                   + "to the resource context in the path.")
+	    },
+	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+	                   description = "A list of PrivilegeModel as JSON, each naming an entity "
+	                   + "and the action granted to it."))
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200",
+	                 description = "The privileges were granted. The response has no body."),
+	    @ApiResponse(responseCode = "400",
+	                 description = "The request is not valid; the response body carries the "
+	                               + "reason."),
+	    @ApiResponse(responseCode = "401",
+	                 description = "No user token was supplied, or it is not valid."),
+	    @ApiResponse(responseCode = "403",
+	                 description = "The service token does not grant access to this resource "
+	                              + "context."),
+	    @ApiResponse(responseCode = "500",
+	                 description = "Unexpected error. The response body carries a message.")
+	})
 	@PostMapping("privileges")
 	public void addNewPrivilege(@RequestHeader(SERVICE_TOKEN_HEADER) String serviceToken,
 			@PathVariable("resourceContextUUID") String resourceContextUUID,
