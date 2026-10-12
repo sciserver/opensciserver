@@ -470,7 +470,7 @@ web:
   globusEnabled: true
   resources:
     limits:
-      cpu: 500m
+      cpu: 300m
       memory: 4Gi
     requests:
       cpu: 100m
