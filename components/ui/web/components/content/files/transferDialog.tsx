@@ -6,7 +6,8 @@ import { Alert, Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { COPY_FILE, JSON_TREE, MOVE_FILE } from 'src/graphql/files';
 import { JsonTree } from 'src/graphql/typings';
 import { buildEntries } from 'src/utils/fileEntries';
-import { FilesRoute, transferBlocker } from 'src/utils/fileVolumes';
+import { transferBlocker } from 'src/utils/fileVolumes';
+import { FilesRoute } from 'src/types/files';
 import { planTransferNames, toVolumeRef } from 'src/utils/files';
 
 import type { FileBrowserProps, FileBrowserSelection } from './fileBrowser';

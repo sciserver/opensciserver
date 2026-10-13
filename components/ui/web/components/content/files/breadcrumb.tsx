@@ -2,7 +2,7 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { ButtonBase } from '@mui/material';
 import { VolumeType } from 'src/graphql/typings';
-import { FilesRoute } from 'src/utils/fileVolumes';
+import { FilesRoute } from 'src/types/files';
 import { pathSegments } from 'src/utils/files';
 
 import { Icon } from './filesStyles';

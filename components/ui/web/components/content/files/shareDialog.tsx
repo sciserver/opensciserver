@@ -6,8 +6,9 @@ import { Alert, Button, Checkbox, Chip, CircularProgress, Dialog, DialogActions,
 import { PUBLIC_USERS_AND_GROUPS } from 'src/graphql/accounts';
 import { SHARE_USER_VOLUME, SHARING_DETAILS } from 'src/graphql/volumes';
 import { FileService, PrincipalType, SharedWith, SharePrincipal } from 'src/graphql/typings';
-import { VolumeRow } from 'src/utils/fileVolumes';
-import { addMember, buildSharePayload, principalKey, removeMember, SHARE_ACTIONS, searchPrincipals, sharingChanged, toggleAction } from 'src/utils/sharing';
+import { VolumeRow } from 'src/types/files';
+import { addMember, buildSharePayload, principalKey, removeMember, searchPrincipals, sharingChanged, toggleAction } from 'src/utils/sharing';
+import { SHARE_ACTIONS } from 'src/config/files';
 
 import { BORDER, CircleButton, Icon, MUTED, ROW_BORDER, ROW_HOVER } from './filesStyles';
 

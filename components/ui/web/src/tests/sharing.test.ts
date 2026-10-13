@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PrincipalType } from '../graphql/typings';
-import { addMember, buildSharePayload, removeMember, searchPrincipals, sharingChanged, toggleAction } from './sharing';
+import { addMember, buildSharePayload, removeMember, searchPrincipals, sharingChanged, toggleAction } from '../utils/sharing';
 
 const user = { id: '5', name: 'ana', type: PrincipalType.User };
 const group = { id: '5', name: 'astro', type: PrincipalType.Group };

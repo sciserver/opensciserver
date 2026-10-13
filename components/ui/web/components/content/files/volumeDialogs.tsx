@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import { Alert, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, MenuItem, TextField } from '@mui/material';
 
 import { CREATE_USER_VOLUME, DELETE_USER_VOLUME, UPDATE_USER_VOLUME } from 'src/graphql/volumes';
-import { validateVolumeName, VolumeRow } from 'src/utils/fileVolumes';
+import { validateVolumeName } from 'src/utils/fileVolumes';
+import { VolumeRow } from 'src/types/files';
 
 const Content = styled(DialogContent)`
   && {

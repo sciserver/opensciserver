@@ -1,19 +1,12 @@
-import { DataVolume, UserVolume, VolumeType } from './../graphql/typings';
-import { FileVolumeRoute, isMoveIntoItself, normalizePath } from './files';
-
-export type FilesRoute = {
-  volumeType: VolumeType;
-  /** Undefined at the top level, where the volumes are listed. */
-  volume?: Omit<FileVolumeRoute, 'volumeType'>;
-  path: string;
-};
-
-type Query = Record<string, string | string[] | undefined>;
+import { DEFAULT_WORKSPACE_ROOT } from '../config/files';
+import { DataVolume, UserVolume, VolumeRefInput, VolumeType } from '../graphql/typings';
+import { FilesRoute, RouteQuery, SortKey, VolumeRow } from '../types/files';
+import { isMoveIntoItself, normalizePath } from './files';
 
 const first = (value: string | string[] | undefined): string | undefined => (Array.isArray(value) ? value[0] : value);
 
 /** Reads the Files page location from the URL query. Unknown values fall back to the user volume list. */
-export const parseFilesRoute = (query: Query): FilesRoute => {
+export const parseFilesRoute = (query: RouteQuery): FilesRoute => {
   const volumeType = first(query.type) === 'data' ? VolumeType.Datavolume : VolumeType.Uservolume;
   const name = first(query.volume);
   if (!name) {
@@ -53,27 +46,6 @@ export const isUserVolumeWritable = (volume: Pick<UserVolume, 'allowedActions'>)
 export const isSharedByOwner = (volume: Pick<UserVolume, 'owner' | 'sharedWith'>, userName?: string): boolean => (
   !!userName && volume.owner === userName && volume.sharedWith.length > 0
 );
-
-export type VolumeRow = {
-  key: string;
-  route: FileVolumeRoute;
-  name: string;
-  /** "Storage", "Temporary" or "Read-only". */
-  rootVolume: string;
-  /** Owner for user volumes, description for data volumes. */
-  detail: string;
-  writable: boolean;
-  shared: boolean;
-  description: string;
-  /** The signed-in user owns this user volume, so they can edit it. */
-  owned: boolean;
-  /** The server lets the user delete this volume. */
-  canDelete: boolean;
-  /** The user may change who the volume is shared with. */
-  canShare: boolean;
-};
-
-export type SortKey = 'name' | 'rootVolume' | 'detail';
 
 export const userVolumeRows = (rootVolumes: { userVolumes: UserVolume[] }[], userName?: string): VolumeRow[] => (
   rootVolumes.flatMap((root) => root.userVolumes).map((volume) => ({
@@ -118,9 +90,7 @@ export const filterAndSortRows = (rows: VolumeRow[], filter: string, sortKey: So
   return rows.filter((row) => !needle || row.name.toLowerCase().includes(needle)).sort(compare);
 };
 
-export const DEFAULT_FILES_ROUTE: FilesRoute = { volumeType: VolumeType.Uservolume, path: '' };
-
-export const sameVolume = (a: Omit<FileVolumeRoute, 'volumeType'>, b: Omit<FileVolumeRoute, 'volumeType'>): boolean => (
+export const sameVolume = (a: Omit<VolumeRefInput, 'volumeType'>, b: Omit<VolumeRefInput, 'volumeType'>): boolean => (
   a.volumeName === b.volumeName && (a.owner || '') === (b.owner || '') && (a.rootVolumeName || '') === (b.rootVolumeName || '')
 );
 

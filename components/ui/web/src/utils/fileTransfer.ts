@@ -1,7 +1,6 @@
-import { VolumeType } from '../graphql/typings';
-import { FileVolumeRoute, normalizePath } from './files';
-
-export const FILE_SERVICE_NOT_CONFIGURED = 'The file service address is not configured (NEXT_PUBLIC_FILE_SERVICE_URL).';
+import { VolumeRefInput, VolumeType } from '../graphql/typings';
+import { UploadHandle } from '../types/files';
+import { normalizePath } from './files';
 
 /** Base URL of the fileservice API with a trailing slash, e.g. https://host/fileservice/api/. '' when it is not configured. */
 export const fileServiceUrl = (): string => {
@@ -16,7 +15,7 @@ export const fileServiceUrl = (): string => {
  * URL of a file or folder on the fileservice. Port of the dashboard's joinURLWithFileName: user volumes are
  * addressed as root/owner/volume, data volumes by name, and every segment is URL-encoded.
  */
-export const fileUrl = (base: string, volume: FileVolumeRoute, path: string, name?: string): string => {
+export const fileUrl = (base: string, volume: VolumeRefInput, path: string, name?: string): string => {
   const head = volume.volumeType === VolumeType.Uservolume
     ? [volume.rootVolumeName, volume.owner, volume.volumeName]
     : [volume.volumeName];
@@ -34,8 +33,6 @@ export const errorMessage = (body: string): string => {
     return '';
   }
 };
-
-export type UploadHandle = { promise: Promise<void>; abort: () => void };
 
 /**
  * PUTs a file to the fileservice with the user's token, reporting progress as a 0-1 fraction.

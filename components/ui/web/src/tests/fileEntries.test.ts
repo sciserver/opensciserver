@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildEntries, defaultFolderName, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from './fileEntries';
+import { buildEntries, defaultFolderName, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from '../utils/fileEntries';
 
 const root = {
   folders: [{ name: 'logs', lastModified: '2026-01-21T15:22:00Z', creationTime: '' }, { name: '.hidden', lastModified: 'bad', creationTime: '' }],

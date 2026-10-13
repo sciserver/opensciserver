@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { VolumeType } from 'src/graphql/typings';
-import { SortKey, VolumeRow } from 'src/utils/fileVolumes';
+import { SortKey, VolumeRow } from 'src/types/files';
 
 import { CircleButton, Icon, listStyles, Tag } from './filesStyles';
 import { EmptyMessage, MenuAction, RowMenu, SortHeader } from './listParts';

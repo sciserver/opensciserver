@@ -1,19 +1,8 @@
-import { FileUsage } from '../graphql/typings';
+import { FileUsage, RootVolume, UserVolume } from '../graphql/typings';
+import { QuotaGroup, QuotaItem } from '../types/quotas';
 
-type RootVolumeNames = { id: string; name?: string | null; userVolumes: { id: string; name: string }[] };
-
-export type QuotaItem = {
-  key: string;
-  /** "ana's user volumes" for a per-user quota, otherwise the volume's name. */
-  label: string;
-  used: number;
-  quota: number;
-  /** 0-1, capped. A quota of 0 counts as full. */
-  fraction: number;
-  full: boolean;
-};
-
-export type QuotaGroup = { rootVolumeId: string; rootVolumeName: string; items: QuotaItem[] };
+// Only the ids and names are needed to label a quota, so that is all the caller has to provide.
+type RootVolumeNames = Pick<RootVolume, 'id' | 'name'> & { userVolumes: Pick<UserVolume, 'id' | 'name'>[] };
 
 const fractionOf = (used: number, quota: number): number => (quota > 0 ? Math.min(1, used / quota) : 1);
 

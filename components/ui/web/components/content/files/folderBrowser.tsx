@@ -7,9 +7,11 @@ import { Alert, Button, ButtonBase, Dialog, DialogActions, DialogContent, Dialog
 import { UserContext } from 'context';
 import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/files';
 import { JsonTree } from 'src/graphql/typings';
-import { buildEntries, defaultFolderName, EntrySortKey, FileEntry, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from 'src/utils/fileEntries';
-import { FilesRoute } from 'src/utils/fileVolumes';
-import { FILE_SERVICE_NOT_CONFIGURED, fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
+import { buildEntries, defaultFolderName, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from 'src/utils/fileEntries';
+import { EntrySortKey, FileEntry } from 'src/types/files';
+import { FilesRoute } from 'src/types/files';
+import { fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
+import { FILE_SERVICE_NOT_CONFIGURED } from 'src/config/files';
 import { joinPath, toVolumeRef } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
