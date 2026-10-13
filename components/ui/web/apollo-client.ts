@@ -1,4 +1,3 @@
-/* eslint-disable object-curly-newline */
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import Cookies from 'js-cookie';
@@ -22,18 +21,16 @@ const authLink = setContext((_, { headers }) => {
 const client = new ApolloClient({
   // eslint-disable-next-line unicorn/prefer-spread
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(
-    {
-      typePolicies: {
-        Dataset: { keyFields: ['name', 'source'] },
-        Container: { keyFields: ['id'] },
-        // User and group ids can be equal, so these are never cached by id alone.
-        SharedWith: { keyFields: false },
-        SharePrincipal: { keyFields: ['type', 'id'] },
-        UserVolume: { fields: { sharedWith: { merge: false } } }
-      }
+  cache: new InMemoryCache({
+    typePolicies: {
+      Dataset: { keyFields: ['name', 'source'] },
+      Container: { keyFields: ['id'] },
+      // User and group ids can be equal, so these are never cached by id alone.
+      SharedWith: { keyFields: false },
+      SharePrincipal: { keyFields: ['type', 'id'] },
+      UserVolume: { fields: { sharedWith: { merge: false } } }
     }
-  ),
+  }),
   connectToDevTools: true
 });
 
