@@ -26,7 +26,11 @@ const client = new ApolloClient({
     {
       typePolicies: {
         Dataset: { keyFields: ['name', 'source'] },
-        Container: { keyFields: ['id'] }
+        Container: { keyFields: ['id'] },
+        // User and group ids can be equal, so these are never cached by id alone.
+        SharedWith: { keyFields: false },
+        SharePrincipal: { keyFields: ['type', 'id'] },
+        UserVolume: { fields: { sharedWith: { merge: false } } }
       }
     }
   ),
