@@ -1,14 +1,16 @@
 import { CSSProperties, FC, useContext, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { Alert, Box, Button } from '@mui/material';
+import { Alert, Box, Button, ButtonBase } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
 import { FileService, VolumeType } from 'src/graphql/typings';
 import { DEFAULT_FILES_ROUTE, dataVolumeRows, FilesRoute, filterAndSortRows, sameVolume, SortKey, userVolumeRows, VolumeRow, workspacePath } from 'src/utils/fileVolumes';
+import { joinPath } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { Breadcrumb } from './breadcrumb';
+import { FolderBrowser } from './folderBrowser';
 import { VolumeList } from './volumeList';
 import { VolumeTabs } from './volumeTabs';
 
@@ -51,6 +53,8 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [direction, setDirection] = useState<1 | -1>(1);
   const [picked, setPicked] = useState<VolumeRow | null>(null);
+  const [pickedFolder, setPickedFolder] = useState<string | null>(null);
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const userRows = useMemo(() => userVolumeRows(data?.getVolumes?.rootVolumes || [], user?.userName), [data, user]);
   const dataRows = useMemo(() => dataVolumeRows(data?.getVolumes?.dataVolumes || []), [data]);
@@ -63,6 +67,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const go = (next: FilesRoute) => {
     setFilter('');
     setPicked(null);
+    setPickedFolder(null);
     if (!location) {
       setInternal(next);
     }
@@ -83,7 +88,8 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   // pick: the chosen row, or else the folder you are standing in.
   const currentRow = route.volume ? [...userRows, ...dataRows].find((row) => row.route.volumeType === route.volumeType && sameVolume(row.route, route.volume!)) : undefined;
   const pickedRoute = picked ? rowRoute(picked) : null;
-  const target: FilesRoute | null = pickedRoute ?? (route.volume ? route : null);
+  const folderRoute = route.volume && pickedFolder ? { ...route, path: joinPath(route.path, pickedFolder) } : null;
+  const target: FilesRoute | null = pickedRoute ?? folderRoute ?? (route.volume ? route : null);
   const targetWritable = picked ? picked.writable : !!currentRow?.writable;
   const canConfirm = !!target && (!mustBeWritable || targetWritable);
   const targetPath = target ? workspacePath(target) : '';
@@ -98,17 +104,22 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 52, flex: 'none' }}>
         {pick && <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>Click to select · double-click to open</Box>}
         <Box sx={{ flex: 1 }} />
-        {!route.volume && (
+        {(
           <Box component="label" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 32, px: 1.25, border: '1px solid #d5dae0', borderRadius: 1, width: 200, bgcolor: '#fff' }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'rgba(0,0,0,0.5)' }}>search</span>
             <input
               value={filter}
               onChange={(event) => setFilter(event.target.value)}
-              placeholder="Filter volumes"
-              aria-label="Filter volumes"
+              placeholder={route.volume ? 'Filter this folder' : 'Filter volumes'}
+              aria-label={route.volume ? 'Filter this folder' : 'Filter volumes'}
               style={{ border: 0, outline: 'none', font: '13px \'Noto Sans\', sans-serif', minWidth: 0, flex: 1, background: 'transparent' }}
             />
           </Box>
+        )}
+        {route.volume && (
+          <ButtonBase aria-label="Refresh" title="Refresh" onClick={() => setRefreshSignal((value) => value + 1)} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>refresh</span>
+          </ButtonBase>
         )}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 0.75, minHeight: 42, bgcolor: '#f4f6f8', borderTop: '1px solid #e6e9ed', borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
@@ -137,10 +148,14 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           pick={pick ? { selectedKey: picked?.key ?? null, isDisabled: (row) => mustBeWritable && !row.writable, onSelect: setPicked } : undefined}
         />
       )}
-      {!loading && !error && route.volume && (
-        <Box sx={{ flex: 1, display: 'grid', placeItems: 'center', color: 'rgba(0,0,0,0.6)', fontSize: 14 }}>
-          Folder contents are not available yet.
-        </Box>
+      {route.volume && (
+        <FolderBrowser
+          route={{ ...route, volume: route.volume }}
+          filter={filter}
+          refreshSignal={refreshSignal}
+          onOpenFolder={(path) => go({ ...route, path })}
+          pick={pick ? { selectedName: pickedFolder, onSelect: setPickedFolder } : undefined}
+        />
       )}
       {pick && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1.25, pl: 2, pr: 1.5, borderTop: '1px solid #e6e9ed', bgcolor: '#f7f9fb', flex: 'none' }}>
