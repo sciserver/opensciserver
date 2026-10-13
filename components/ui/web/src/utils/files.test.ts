@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType } from '../graphql/typings';
-import { joinPath, normalizePath, parentPath, pathSegments, resolveFreeName, toVolumeRef } from './files';
+import { isMoveIntoItself, joinPath, normalizePath, parentPath, pathSegments, planTransferNames, resolveFreeName, toVolumeRef } from './files';
 
 describe('toVolumeRef', () => {
   it('keeps root volume and owner for user volumes', () => {
@@ -43,5 +43,24 @@ describe('resolveFreeName', () => {
   it('appends (N) after the whole name, like the old dashboard', () => {
     expect(resolveFreeName('a.txt', ['a.txt'])).toBe('a.txt (1)');
     expect(resolveFreeName('a.txt', ['a.txt', 'a.txt (1)', 'a.txt (2)'])).toBe('a.txt (3)');
+  });
+});
+
+describe('planTransferNames', () => {
+  it('keeps free names and numbers the taken ones', () => {
+    expect(planTransferNames(['a', 'b'], ['b'])).toEqual([{ name: 'a' }, { name: 'b', newName: 'b (1)' }]);
+  });
+
+  it('does not reuse a name planned earlier in the same batch', () => {
+    expect(planTransferNames(['x', 'x'], [])).toEqual([{ name: 'x' }, { name: 'x', newName: 'x (1)' }]);
+  });
+});
+
+describe('isMoveIntoItself', () => {
+  it('detects the folder itself and its descendants only', () => {
+    expect(isMoveIntoItself('/a', 'b', '/a/b')).toBe(true);
+    expect(isMoveIntoItself('/a', 'b', '/a/b/c')).toBe(true);
+    expect(isMoveIntoItself('/a', 'b', '/a/bc')).toBe(false);
+    expect(isMoveIntoItself('', 'b', '/a')).toBe(false);
   });
 });

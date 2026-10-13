@@ -49,3 +49,23 @@ export const resolveFreeName = (name: string, existingNames: Iterable<string>): 
   }
   return candidate;
 };
+
+/**
+ * Gives each name a free spot in the destination, as copy and move do: the first free "name (N)", counting
+ * names already planned in the same batch. `newName` is only set when it differs from `name`.
+ */
+export const planTransferNames = (names: string[], existingNames: Iterable<string>): { name: string; newName?: string }[] => {
+  const taken = new Set(existingNames);
+  return names.map((name) => {
+    const free = resolveFreeName(name, taken);
+    taken.add(free);
+    return free === name ? { name } : { name, newName: free };
+  });
+};
+
+/** True when moving `name` (found in `sourcePath`) into `destinationPath` would put it inside itself. */
+export const isMoveIntoItself = (sourcePath: string, name: string, destinationPath: string): boolean => {
+  const own = joinPath(sourcePath, name);
+  const destination = normalizePath(destinationPath);
+  return destination === own || destination.startsWith(`${own}/`);
+};

@@ -11,6 +11,7 @@ import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { Breadcrumb } from './breadcrumb';
 import { FolderBrowser } from './folderBrowser';
+import { TransferDialog } from './transferDialog';
 import { VolumeList } from './volumeList';
 import { VolumeTabs } from './volumeTabs';
 
@@ -56,6 +57,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [pickedFolder, setPickedFolder] = useState<string | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [creating, setCreating] = useState(false);
+  const [transfer, setTransfer] = useState<{ kind: 'copy' | 'move'; names: string[] } | null>(null);
   const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
 
   const userRows = useMemo(() => userVolumeRows(data?.getVolumes?.rootVolumes || [], user?.userName), [data, user]);
@@ -176,8 +178,23 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
             }
           }}
           notify={(message, severity = 'success') => setToast({ message, severity })}
+          onTransfer={(kind, names) => setTransfer({ kind, names })}
           onOpenFolder={(path) => go({ ...route, path })}
           pick={pick ? { selectedName: pickedFolder, onSelect: setPickedFolder } : undefined}
+        />
+      )}
+      {transfer && route.volume && (
+        <TransferDialog
+          kind={transfer.kind}
+          names={transfer.names}
+          source={{ ...route, volume: route.volume }}
+          Picker={FileBrowser}
+          onClose={() => setTransfer(null)}
+          onDone={(message, severity) => {
+            setTransfer(null);
+            setToast({ message, severity });
+            setRefreshSignal((value) => value + 1);
+          }}
         />
       )}
       <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
