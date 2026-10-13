@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 
-import { FILE_SERVICE_NOT_CONFIGURED, fileServiceUrl, fileUrl, uploadFile } from 'src/utils/fileTransfer';
-import { FileVolumeRoute } from 'src/utils/files';
+import { fileServiceUrl, fileUrl, uploadFile } from 'src/utils/fileTransfer';
+import { FILE_SERVICE_NOT_CONFIGURED } from 'src/config/files';
+import { VolumeRefInput } from 'src/graphql/typings';
 
 import { UploadItem } from './uploadsPanel';
 
@@ -10,7 +11,7 @@ const DONE_UPLOAD_MS = 4000;
 type Options = {
   token: string;
   /** Where the files go; undefined when no writable folder is open. */
-  target?: { volume: FileVolumeRoute; path: string };
+  target?: { volume: VolumeRefInput; path: string };
   notifyError: (message: string) => void;
   /** Called once when a whole batch of uploads has finished, successfully or not. */
   onBatchDone: () => void;

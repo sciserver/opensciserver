@@ -1,25 +1,21 @@
-import { PrincipalType, SharedWith, SharePrincipal } from '../graphql/typings';
-
-export const SHARE_ACTIONS = ['read', 'write', 'grant', 'delete'] as const;
-export type ShareAction = typeof SHARE_ACTIONS[number];
-
-type Member = Pick<SharedWith, 'id' | 'name' | 'type' | 'allowedActions'>;
+import { PrincipalType, SharePrincipal } from '../graphql/typings';
+import { ShareAction, ShareMember } from '../types/sharing';
 
 /** User and group ids can collide, so a principal is identified by type and id together. */
 export const principalKey = (principal: { id: string | number; type: PrincipalType }): string => `${principal.type}:${principal.id}`;
 
 /** Adds a user or group with read access, unless they are already a member. */
-export const addMember = (members: Member[], principal: Pick<SharePrincipal, 'id' | 'name' | 'type'>): Member[] => (
+export const addMember = (members: ShareMember[], principal: Pick<SharePrincipal, 'id' | 'name' | 'type'>): ShareMember[] => (
   members.some((member) => principalKey(member) === principalKey(principal))
     ? members
     : [...members, { id: principal.id, name: principal.name, type: principal.type, allowedActions: ['read'] }]
 );
 
-export const removeMember = (members: Member[], target: Pick<Member, 'id' | 'type'>): Member[] => (
+export const removeMember = (members: ShareMember[], target: Pick<ShareMember, 'id' | 'type'>): ShareMember[] => (
   members.filter((member) => principalKey(member) !== principalKey(target))
 );
 
-export const toggleAction = (members: Member[], target: Pick<Member, 'id' | 'type'>, action: ShareAction): Member[] => (
+export const toggleAction = (members: ShareMember[], target: Pick<ShareMember, 'id' | 'type'>, action: ShareAction): ShareMember[] => (
   members.map((member) => {
     if (principalKey(member) !== principalKey(target)) {
       return member;
@@ -33,13 +29,13 @@ export const toggleAction = (members: Member[], target: Pick<Member, 'id' | 'typ
  * The share endpoint replaces the whole list, and revokes access by receiving a member with no actions.
  * So the payload is the current members plus everyone who was removed, with an empty action list.
  */
-export const buildSharePayload = (original: Member[], current: Member[]): Member[] => {
+export const buildSharePayload = (original: ShareMember[], current: ShareMember[]): ShareMember[] => {
   const kept = new Set(current.map((member) => principalKey(member)));
   const removed = original.filter((member) => !kept.has(principalKey(member))).map((member) => ({ ...member, allowedActions: [] as string[] }));
   return [...current, ...removed].map(({ id, name, type, allowedActions }) => ({ id, name, type, allowedActions }));
 };
 
-export const sharingChanged = (original: Member[], current: Member[]): boolean => {
+export const sharingChanged = (original: ShareMember[], current: ShareMember[]): boolean => {
   if (original.length !== current.length) {
     return true;
   }
@@ -50,7 +46,7 @@ export const sharingChanged = (original: Member[], current: Member[]): boolean =
 /** Principals matching the search that aren't members yet, capped so a huge directory stays fast to render. */
 export const searchPrincipals = (
   principals: SharePrincipal[],
-  members: Member[],
+  members: ShareMember[],
   needle: string,
   limit: number,
   type?: PrincipalType

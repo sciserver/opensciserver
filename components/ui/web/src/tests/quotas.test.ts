@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupQuotas } from './quotas';
+import { groupQuotas } from '../utils/quotas';
 
 const roots = [
   { id: '1', name: 'Temporary', userVolumes: [{ id: '10', name: 'scratch' }] },

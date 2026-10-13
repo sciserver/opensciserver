@@ -2,7 +2,8 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 
-import { filesRouteQuery, FilesRoute, parseFilesRoute } from 'src/utils/fileVolumes';
+import { filesRouteQuery, parseFilesRoute } from 'src/utils/fileVolumes';
+import { FilesRoute } from 'src/types/files';
 
 import { FileBrowser } from './fileBrowser';
 

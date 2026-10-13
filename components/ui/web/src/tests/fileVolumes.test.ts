@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType, PrincipalType } from '../graphql/typings';
-import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath, creatableRootVolumes, validateVolumeName, transferBlocker } from './fileVolumes';
+import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath, creatableRootVolumes, validateVolumeName, transferBlocker } from '../utils/fileVolumes';
 
 const userVolume = (name: string, owner: string, rootVolumeName: string, allowedActions: string[], shared = false) => ({
   id: name, name, owner, rootVolumeName, allowedActions, resourceUUID: name,

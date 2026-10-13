@@ -1,14 +1,7 @@
 import { VolumeRefInput, VolumeType } from '../graphql/typings';
 
-export type FileVolumeRoute = {
-  volumeType: VolumeType;
-  volumeName: string;
-  rootVolumeName?: string | null;
-  owner?: string | null;
-};
-
 /** Builds the GraphQL volume reference. User volumes need rootVolumeName and owner. */
-export const toVolumeRef = (volume: FileVolumeRoute): VolumeRefInput => ({
+export const toVolumeRef = (volume: VolumeRefInput): VolumeRefInput => ({
   volumeType: volume.volumeType,
   volumeName: volume.volumeName,
   ...(volume.volumeType === VolumeType.Uservolume

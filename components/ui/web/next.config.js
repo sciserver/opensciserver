@@ -14,13 +14,13 @@ module.exports = {
   transpilePackages: ['@mui/material', '@mui/system', '@mui/icons-material'],
   turbopack: {
     resolveAlias: {
-      '@mui/styled-engine': './src/utils/muiStyledEngine.js'
+      '@mui/styled-engine': './muiStyledEngine.js'
     }
   },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@mui/styled-engine': path.resolve(__dirname, 'src/utils/muiStyledEngine.js')
+      '@mui/styled-engine': path.resolve(__dirname, 'muiStyledEngine.js')
     };
     return config;
   },

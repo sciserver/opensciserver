@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType } from '../graphql/typings';
-import { isMoveIntoItself, joinPath, normalizePath, parentPath, pathSegments, planTransferNames, resolveFreeName, toVolumeRef } from './files';
+import { isMoveIntoItself, joinPath, normalizePath, parentPath, pathSegments, planTransferNames, resolveFreeName, toVolumeRef } from '../utils/files';
 
 describe('toVolumeRef', () => {
   it('keeps root volume and owner for user volumes', () => {

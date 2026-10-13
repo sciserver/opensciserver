@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { VolumeType } from '../graphql/typings';
-import { errorMessage, fileServiceUrl, fileUrl } from './fileTransfer';
+import { errorMessage, fileServiceUrl, fileUrl } from '../utils/fileTransfer';
 
 const base = 'https://host/fileservice/api/';
 

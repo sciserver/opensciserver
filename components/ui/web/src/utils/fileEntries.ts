@@ -1,15 +1,5 @@
 import { Root } from '../graphql/typings';
-
-export type FileEntry = {
-  name: string;
-  isFolder: boolean;
-  /** Bytes. 0 for folders. */
-  size: number;
-  /** Epoch millis, or 0 when the server sent no usable date. */
-  modified: number;
-};
-
-export type EntrySortKey = 'name' | 'modified' | 'size';
+import { EntrySortKey, FileEntry } from '../types/files';
 
 const toMillis = (value: unknown): number => {
   const millis = new Date(value as string | number).getTime();
