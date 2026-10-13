@@ -98,15 +98,17 @@ export const sameVolume = (a: Omit<VolumeRefInput, 'volumeType'>, b: Omit<Volume
  * Where the route is mounted inside a compute container, e.g. /home/idies/workspace/Storage/me/persistent/a.
  * '' at the top level. This is the same convention the old dashboard used for its copy-path buttons
  * (dashboard NotebookTab.vue): user volumes as root/owner/name, data volumes by name.
+ * `workspaceRoot` defaults to DEFAULT_WORKSPACE_ROOT (the job form passes NEXT_PUBLIC_JOB_WORKSPACE_PATH).
  */
-export const workspacePath = (route: FilesRoute): string => {
+export const workspacePath = (route: FilesRoute, workspaceRoot: string = DEFAULT_WORKSPACE_ROOT): string => {
   if (!route.volume) {
     return '';
   }
+  const root = workspaceRoot.replace(/\/+$/, '');
   const { volumeName, rootVolumeName, owner } = route.volume;
   const base = route.volumeType === VolumeType.Uservolume
-    ? `/home/idies/workspace/${rootVolumeName}/${owner}/${volumeName}`
-    : `/home/idies/workspace/${volumeName}`;
+    ? `${root}/${rootVolumeName}/${owner}/${volumeName}`
+    : `${root}/${volumeName}`;
   return `${base}${route.path}`;
 };
 
