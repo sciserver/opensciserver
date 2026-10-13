@@ -1,22 +1,25 @@
-import { CSSProperties, FC, useContext, useMemo, useRef, useState } from 'react';
+import { FC, useContext, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { Alert, Box, Button, ButtonBase, LinearProgress, Snackbar } from '@mui/material';
+import styled from 'styled-components';
+import { Alert, Button, LinearProgress, Snackbar } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
 import { FileService, VolumeType } from 'src/graphql/typings';
 import { creatableRootVolumes, DEFAULT_FILES_ROUTE, dataVolumeRows, FilesRoute, filterAndSortRows, sameVolume, SortKey, userVolumeRows, VolumeRow, workspacePath } from 'src/utils/fileVolumes';
-import { FILE_SERVICE_NOT_CONFIGURED, fileServiceUrl, fileUrl, toArray, uploadFile } from 'src/utils/fileTransfer';
+import { toArray } from 'src/utils/fileTransfer';
 import { joinPath } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { Breadcrumb } from './breadcrumb';
+import { BORDER, CircleButton, Icon, MUTED } from './filesStyles';
 import { FolderBrowser } from './folderBrowser';
 import { TransferDialog } from './transferDialog';
 import { QuotasDialog } from './quotasDialog';
 import { ShareDialog } from './shareDialog';
 import { CreateVolumeDialog, DeleteVolumeDialog, EditVolumeDialog } from './volumeDialogs';
-import { UploadItem, UploadsPanel } from './uploadsPanel';
+import { UploadsPanel } from './uploadsPanel';
+import { useUploads } from './useUploads';
 import { VolumeList } from './volumeList';
 import { VolumeTabs } from './volumeTabs';
 
@@ -38,17 +41,138 @@ export type FileBrowserProps = {
   writableOnly?: boolean;
   pickLabel?: string;
   onSelect?: (selection: FileBrowserSelection) => void;
-  style?: CSSProperties;
+  className?: string;
 };
 
-const DONE_UPLOAD_MS = 4000;
+const Styled = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px;
+  background: ${({ theme }) => theme.palette.background.paper};
+  border: 1px solid #dde2e7;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    min-height: 52px;
+    flex: none;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: ${MUTED};
+  }
+
+  .filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    width: 200px;
+    border: 1px solid #d5dae0;
+    border-radius: 4px;
+    background: #fff;
+  }
+
+  .filter input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    font: 13px 'Noto Sans', sans-serif;
+    background: transparent;
+  }
+
+  .path-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    min-height: 42px;
+    background: #f4f6f8;
+    border-top: 1px solid ${BORDER};
+    border-bottom: 1px solid ${BORDER};
+    flex: none;
+  }
+
+  .volume-meta {
+    display: flex;
+    gap: 14px;
+    font-size: 12px;
+    color: ${MUTED};
+    flex: none;
+  }
+
+  .volume-meta b {
+    color: ${({ theme }) => theme.palette.text.primary};
+  }
+
+  .reloading {
+    flex: none;
+  }
+
+  .pick-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px 10px 16px;
+    border-top: 1px solid ${BORDER};
+    background: #f7f9fb;
+    flex: none;
+  }
+
+  .pick-target {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pick-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: ${MUTED};
+  }
+
+  .pick-path {
+    font: 13px ui-monospace, Menlo, monospace;
+    color: ${({ theme }) => theme.palette.text.primary};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pick-path.empty {
+    color: rgba(0, 0, 0, 0.5);
+  }
+`;
+
+const ErrorAlert = styled(Alert)`
+  && {
+    margin: 16px;
+  }
+`;
 
 const rowRoute = (row: VolumeRow): FilesRoute => {
   const { volumeType, ...volume } = row.route;
   return { volumeType, volume, path: '' };
 };
 
-export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, initialLocation = DEFAULT_FILES_ROUTE, onLocationChange, writableOnly, pickLabel = 'Use this folder', onSelect, style }) => {
+export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, initialLocation = DEFAULT_FILES_ROUTE, onLocationChange, writableOnly, pickLabel = 'Use this folder', onSelect, className }) => {
   const pick = mode === 'pick';
   const mustBeWritable = writableOnly ?? pick;
   const { user, token } = useContext(UserContext);
@@ -68,9 +192,6 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [creating, setCreating] = useState(false);
   const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'quotas' } | { kind: 'edit' | 'delete' | 'share'; row: VolumeRow } | null>(null);
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
-  const uploadId = useRef(0);
-  const activeUploads = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
   const [transfer, setTransfer] = useState<{ kind: 'copy' | 'move'; names: string[] } | null>(null);
   const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
@@ -130,53 +251,23 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
     refetch().catch(() => undefined);
   };
 
-  const patchUpload = (id: number, patch: Partial<UploadItem>) => setUploads((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
-
-  const upload = (files: File[]) => {
-    if (!route.volume || !currentRow?.writable) {
-      setToast({ message: 'Open a writable folder to upload', severity: 'error' });
-      return;
-    }
-    const base = fileServiceUrl();
-    if (!base) {
-      setToast({ message: FILE_SERVICE_NOT_CONFIGURED, severity: 'error' });
-      return;
-    }
-    const { volume, volumeType, path } = route;
-    const where = path.split('/').filter(Boolean).pop() || volume.volumeName;
-    for (const file of files) {
-      uploadId.current += 1;
-      activeUploads.current += 1;
-      const id = uploadId.current;
-      const handle = uploadFile(fileUrl(base, { volumeType, ...volume }, path, file.name), file, token, (progress) => patchUpload(id, { progress }));
-      setUploads((current) => [...current, { id, name: file.name, where, progress: 0, status: 'uploading', abort: handle.abort }]);
-      handle.promise
-        .then(() => {
-          patchUpload(id, { status: 'done', progress: 1 });
-          // A finished upload clears itself; failures stay until dismissed.
-          setTimeout(() => setUploads((current) => current.filter((item) => item.id !== id)), DONE_UPLOAD_MS);
-        })
-        .finally(() => {
-          // One reload once the whole batch is done, not one per file.
-          activeUploads.current -= 1;
-          if (activeUploads.current === 0) {
-            setRefreshSignal((value) => value + 1);
-          }
-        })
-        .catch((error_: Error) => patchUpload(id, { status: 'error', error: error_.message }));
-    }
-  };
+  const { uploads, upload, dismiss: dismissUpload } = useUploads({
+    token,
+    target: route.volume && currentRow?.writable ? { volume: { volumeType: route.volumeType, ...route.volume }, path: route.path } : undefined,
+    notifyError: (message) => setToast({ message, severity: 'error' }),
+    onBatchDone: () => setRefreshSignal((value) => value + 1)
+  });
 
   return (
-    <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', minHeight: 320, bgcolor: 'background.paper', border: '1px solid #dde2e7', borderRadius: '6px', overflow: 'hidden', ...style }}>
+    <Styled className={className}>
       <VolumeTabs
         value={route.volumeType}
         counts={{ [VolumeType.Uservolume]: data ? userRows.length : undefined, [VolumeType.Datavolume]: data ? dataRows.length : undefined }}
         onChange={(type) => go({ volumeType: type, path: '' })}
       />
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 52, flex: 'none' }}>
+      <div className="toolbar">
         {canCreateVolume && (
-          <Button variant="contained" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>} onClick={() => setVolumeDialog({ kind: 'create' })}>
+          <Button variant="contained" startIcon={<Icon $size={18}>add</Icon>} onClick={() => setVolumeDialog({ kind: 'create' })}>
             Create user volume
           </Button>
         )}
@@ -185,7 +276,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
         )}
         {route.volume && currentRow?.writable && !pick && (
           <>
-            <Button variant="contained" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>upload</span>} onClick={() => fileInput.current?.click()}>
+            <Button variant="contained" startIcon={<Icon $size={18}>upload</Icon>} onClick={() => fileInput.current?.click()}>
               Upload
             </Button>
             <input
@@ -202,52 +293,49 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           </>
         )}
         {route.volume && currentRow?.writable && (
-          <Button variant="outlined" startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>create_new_folder</span>} onClick={() => setCreating(true)}>
+          <Button variant="outlined" startIcon={<Icon $size={18}>create_new_folder</Icon>} onClick={() => setCreating(true)}>
             New folder
           </Button>
         )}
         {route.volume && currentRow && !currentRow.writable && !pick && (
-          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lock</span>
+          <span className="note">
+            <Icon $size={18}>lock</Icon>
             {isData ? 'Read-only: you can only read this data volume' : 'Read-only: shared with you'}
-          </Box>
+          </span>
         )}
-        {pick && <Box component="span" sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)' }}>Click to select · double-click to open</Box>}
-        <Box sx={{ flex: 1 }} />
-        {(
-          <Box component="label" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 32, px: 1.25, border: '1px solid #d5dae0', borderRadius: 1, width: 200, bgcolor: '#fff' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'rgba(0,0,0,0.5)' }}>search</span>
-            <input
-              value={filter}
-              onChange={(event) => setFilter(event.target.value)}
-              placeholder={route.volume ? 'Filter this folder' : 'Filter volumes'}
-              aria-label={route.volume ? 'Filter this folder' : 'Filter volumes'}
-              style={{ border: 0, outline: 'none', font: '13px \'Noto Sans\', sans-serif', minWidth: 0, flex: 1, background: 'transparent' }}
-            />
-          </Box>
-        )}
+        {pick && <span className="note">Click to select · double-click to open</span>}
+        <span className="spacer" />
+        <label className="filter">
+          <Icon $size={18} $color="rgba(0,0,0,0.5)">search</Icon>
+          <input
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            placeholder={route.volume ? 'Filter this folder' : 'Filter volumes'}
+            aria-label={route.volume ? 'Filter this folder' : 'Filter volumes'}
+          />
+        </label>
         {route.volume && (
-          <ButtonBase aria-label="Refresh" title="Refresh" onClick={() => setRefreshSignal((value) => value + 1)} sx={{ width: 32, height: 32, borderRadius: '50%', color: 'rgba(0,0,0,0.6)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>refresh</span>
-          </ButtonBase>
+          <CircleButton aria-label="Refresh" title="Refresh" onClick={() => setRefreshSignal((value) => value + 1)}>
+            <Icon>refresh</Icon>
+          </CircleButton>
         )}
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 0.75, minHeight: 42, bgcolor: '#f4f6f8', borderTop: '1px solid #e6e9ed', borderBottom: '1px solid #e6e9ed', flex: 'none' }}>
+      </div>
+      <div className="path-bar">
         <Breadcrumb
           route={route}
           onRoot={() => go({ volumeType: route.volumeType, path: '' })}
           onPath={(path) => go({ ...route, path })}
         />
         {route.volume?.owner && (
-          <Box sx={{ display: 'flex', gap: 1.75, fontSize: 12, color: 'rgba(0,0,0,0.6)', flex: 'none' }}>
-            <span>Owner <b style={{ color: '#202124' }}>{route.volume.owner}</b></span>
+          <div className="volume-meta">
+            <span>Owner <b>{route.volume.owner}</b></span>
             <span>{route.volume.rootVolumeName} volume</span>
-          </Box>
+          </div>
         )}
-      </Box>
-      {reloading && <LinearProgress aria-label="Reloading volumes" sx={{ flex: 'none' }} />}
-      {error && <Alert severity="error" sx={{ m: 2 }}>Could not load volumes: {error.message}</Alert>}
-      <LoadingAnimation backDropIsOpen={initialLoading} />
+      </div>
+      {reloading && <LinearProgress className="reloading" aria-label="Reloading volumes" />}
+      {error && <ErrorAlert severity="error">Could not load volumes: {error.message}</ErrorAlert>}
+      {initialLoading && <LoadingAnimation backDropIsOpen />}
       {!initialLoading && !error && !route.volume && (
         <VolumeList
           volumeType={route.volumeType}
@@ -314,24 +402,24 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       {volumeDialog?.kind === 'quotas' && <QuotasDialog onClose={() => setVolumeDialog(null)} />}
       {volumeDialog?.kind === 'share' && <ShareDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
       {volumeDialog?.kind === 'delete' && <DeleteVolumeDialog volume={volumeDialog.row} onClose={() => setVolumeDialog(null)} onDone={onVolumeDone} />}
-      <UploadsPanel uploads={uploads} onDismiss={(id) => setUploads((current) => current.filter((item) => item.id !== id))} />
+      <UploadsPanel uploads={uploads} onDismiss={dismissUpload} />
       <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert severity={toast?.severity ?? 'success'} variant="filled" onClose={() => setToast(null)}>{toast?.message}</Alert>
       </Snackbar>
       {pick && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1.25, pl: 2, pr: 1.5, borderTop: '1px solid #e6e9ed', bgcolor: '#f7f9fb', flex: 'none' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#398CBF', fontVariationSettings: '\'FILL\' 1' }}>folder_open</span>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Box sx={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase', color: 'rgba(0,0,0,0.6)' }}>{pickLabel}</Box>
-            <Box title={targetPath} sx={{ font: '13px ui-monospace, Menlo, monospace', color: targetPath ? 'text.primary' : 'rgba(0,0,0,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div className="pick-footer">
+          <Icon $size={22} $filled $color="#398CBF">folder_open</Icon>
+          <div className="pick-target">
+            <div className="pick-label">{pickLabel}</div>
+            <div className={`pick-path${targetPath ? '' : ' empty'}`} title={targetPath}>
               {targetPath || 'Select a volume or folder'}
-            </Box>
-          </Box>
+            </div>
+          </div>
           <Button variant="contained" disabled={!canConfirm} onClick={() => target && onSelect?.({ route: target, workspacePath: targetPath })}>
             {pickLabel}
           </Button>
-        </Box>
+        </div>
       )}
-    </Box>
+    </Styled>
   );
 };

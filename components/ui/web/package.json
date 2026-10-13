@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
@@ -52,6 +53,7 @@
     "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@simbathesailor/use-what-changed": "^2.0.0",
     "@types/dompurify": "^2.4.0",
     "@types/js-cookie": "^3.0.2",

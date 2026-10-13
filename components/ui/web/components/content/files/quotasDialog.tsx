@@ -1,12 +1,73 @@
 import { FC, useContext } from 'react';
 import { useQuery } from '@apollo/client';
-import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress } from '@mui/material';
+import styled from 'styled-components';
+import { Alert, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_QUOTAS } from 'src/graphql/volumes';
 import { FileService, FileUsage } from 'src/graphql/typings';
 import { formatBytes } from 'src/utils/fileEntries';
 import { groupQuotas } from 'src/utils/quotas';
+
+import { BORDER, MUTED, ROW_BORDER } from './filesStyles';
+
+const Content = styled(DialogContent)`
+  && {
+    min-height: 120px;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .muted {
+    font-size: 14px;
+    color: ${MUTED};
+  }
+
+  .footnote {
+    font-size: 12px;
+    color: ${MUTED};
+  }
+
+  .group {
+    margin-bottom: 16px;
+    border: 1px solid ${BORDER};
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .group-title {
+    padding: 8px 16px;
+    background: #f4f6f8;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .quota {
+    padding: 10px 16px;
+    border-top: 1px solid ${ROW_BORDER};
+  }
+
+  .quota-label {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .quota-bar {
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  .quota-used {
+    margin-top: 4px;
+    font-size: 12px;
+    color: ${MUTED};
+  }
+`;
 
 type Props = { onClose: () => void };
 
@@ -20,30 +81,30 @@ export const QuotasDialog: FC<Props> = ({ onClose }) => {
     <Dialog open fullWidth maxWidth="sm" onClose={onClose}>
       <DialogTitle>Quotas</DialogTitle>
       {loading && <LinearProgress />}
-      <DialogContent sx={{ minHeight: 120 }}>
-        {loading && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: 14 }}><CircularProgress size={16} /> Loading quotas…</Box>}
+      <Content>
+        {loading && <div className="loading"><CircularProgress size={16} /> Loading quotas…</div>}
         {error && <Alert severity="error">Could not load quotas: {error.message}</Alert>}
-        {data && groups.length === 0 && <Box sx={{ fontSize: 14, color: 'rgba(0,0,0,0.6)' }}>No quota information is available yet.</Box>}
+        {data && groups.length === 0 && <div className="muted">No quota information is available yet.</div>}
         {groups.map((group) => (
-          <Box key={group.rootVolumeId} sx={{ mb: 2, border: '1px solid #e6e9ed', borderRadius: 1, overflow: 'hidden' }}>
-            <Box sx={{ px: 2, py: 1, bgcolor: '#f4f6f8', fontWeight: 600, fontSize: 14 }}>{group.rootVolumeName}</Box>
+          <div key={group.rootVolumeId} className="group">
+            <div className="group-title">{group.rootVolumeName}</div>
             {group.items.map((item) => (
-              <Box key={item.key} sx={{ px: 2, py: 1.25, borderTop: '1px solid #f0f2f4' }}>
-                <Box sx={{ fontSize: 14, mb: 0.75 }}>{item.label}</Box>
+              <div key={item.key} className="quota">
+                <div className="quota-label">{item.label}</div>
                 <LinearProgress
+                  className="quota-bar"
                   variant="determinate"
                   value={item.fraction * 100}
                   color={item.full ? 'error' : 'success'}
                   aria-label={`${item.label}: ${formatBytes(item.used)} of ${formatBytes(item.quota)} used`}
-                  sx={{ height: 8, borderRadius: 4 }}
                 />
-                <Box sx={{ mt: 0.5, fontSize: 12, color: 'rgba(0,0,0,0.6)' }}>{formatBytes(item.used)} used out of {formatBytes(item.quota)}</Box>
-              </Box>
+                <div className="quota-used">{formatBytes(item.used)} used out of {formatBytes(item.quota)}</div>
+              </div>
             ))}
-          </Box>
+          </div>
         ))}
-        <Box sx={{ fontSize: 12, color: 'rgba(0,0,0,0.6)' }}>File usage information can take up to 30 minutes to first appear or update.</Box>
-      </DialogContent>
+        <div className="footnote">File usage information can take up to 30 minutes to first appear or update.</div>
+      </Content>
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>

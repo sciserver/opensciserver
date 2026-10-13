@@ -1,9 +1,25 @@
 import { FC, useState } from 'react';
 import { useMutation } from '@apollo/client';
+import styled from 'styled-components';
 import { Alert, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, MenuItem, TextField } from '@mui/material';
 
 import { CREATE_USER_VOLUME, DELETE_USER_VOLUME, UPDATE_USER_VOLUME } from 'src/graphql/volumes';
 import { validateVolumeName, VolumeRow } from 'src/utils/fileVolumes';
+
+const Content = styled(DialogContent)`
+  && {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 8px;
+  }
+`;
+
+const DeleteAlert = styled(Alert)`
+  && {
+    margin-bottom: 8px;
+  }
+`;
 
 type RootOption = { name?: string | null; description?: string | null };
 
@@ -48,7 +64,7 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
     <Dialog open fullWidth maxWidth="xs" onClose={saving ? undefined : onClose}>
       <DialogTitle>Create user volume</DialogTitle>
       {saving && <LinearProgress />}
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+      <Content>
         {failure && <Alert severity="error">{failure}</Alert>}
         <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} error={!!error} helperText={error} fullWidth size="small" />
         <TextField label="Description" value={description} onChange={(event) => setDescription(event.target.value)} multiline minRows={2} fullWidth size="small" />
@@ -65,7 +81,7 @@ export const CreateVolumeDialog: FC<CreateProps> = ({ owner, roots, existing, on
             <MenuItem key={option.name} value={option.name || ''}>{option.name}{option.description ? ` - ${option.description}` : ''}</MenuItem>
           ))}
         </TextField>
-      </DialogContent>
+      </Content>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>Cancel</Button>
         <Button variant="contained" onClick={save} disabled={!canSave} startIcon={saving ? <CircularProgress size={16} color="inherit" /> : undefined}>{saving ? 'Creating…' : 'Create volume'}</Button>
@@ -109,11 +125,11 @@ export const EditVolumeDialog: FC<EditProps> = ({ volume, siblings, onClose, onD
     <Dialog open fullWidth maxWidth="xs" onClose={saving ? undefined : onClose}>
       <DialogTitle>Edit user volume</DialogTitle>
       {saving && <LinearProgress />}
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+      <Content>
         {failure && <Alert severity="error">{failure}</Alert>}
         <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} error={!!error} helperText={error} fullWidth size="small" />
         <TextField label="Description" value={description} onChange={(event) => setDescription(event.target.value)} multiline minRows={2} fullWidth size="small" />
-      </DialogContent>
+      </Content>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>Cancel</Button>
         <Button variant="contained" onClick={save} disabled={!!error || unchanged || saving} startIcon={saving ? <CircularProgress size={16} color="inherit" /> : undefined}>{saving ? 'Saving…' : 'Save changes'}</Button>
@@ -151,7 +167,7 @@ export const DeleteVolumeDialog: FC<DeleteProps> = ({ volume, onClose, onDone })
       <DialogTitle>Delete user volume?</DialogTitle>
       {deleting && <LinearProgress />}
       <DialogContent>
-        {failure && <Alert severity="error" sx={{ mb: 1 }}>{failure}</Alert>}
+        {failure && <DeleteAlert severity="error">{failure}</DeleteAlert>}
         <DialogContentText>
           “{volume.name}” and every file in it will be permanently deleted. Anyone it is shared with loses access. This can’t be undone.
         </DialogContentText>
