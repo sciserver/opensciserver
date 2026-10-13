@@ -6,6 +6,13 @@ const segments = (path?: string | null): string[] => (path || '').split('/').fil
 // Path inside a volume as sent in request bodies: '' for the volume root, otherwise '/a/b'
 export const normalizePath = (path?: string | null): string => segments(path).map(part => `/${part}`).join('');
 
+// A user volume as it appears in a fileservice URL: {rootVolume}/{owner}/{userVolume}.
+// Every part is encoded: owners are user names and root volumes are named by the service,
+// so neither is guaranteed to be URL safe.
+export const userVolumePath = (rootVolumeName: string, owner: string, name: string): string => (
+  [rootVolumeName, owner, name].map(part => encodeURIComponent(part)).join('/')
+);
+
 // Volume portion of a fileservice URL. User volumes are addressed as
 // {rootVolume}/{owner}/{userVolume}, data volumes just by their name.
 export const volumeUrlPart = (volume: VolumeRefInput): string => {
@@ -13,7 +20,7 @@ export const volumeUrlPart = (volume: VolumeRefInput): string => {
     if (!volume.rootVolumeName || !volume.owner) {
       throw new Error('rootVolumeName and owner are required for user volumes');
     }
-    return `${volume.rootVolumeName}/${volume.owner}/${encodeURIComponent(volume.volumeName)}`;
+    return userVolumePath(volume.rootVolumeName, volume.owner, volume.volumeName);
   }
   return encodeURIComponent(volume.volumeName);
 };
