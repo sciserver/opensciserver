@@ -60,3 +60,33 @@ export const formatModified = (millis: number): string => {
   const date = new Date(millis);
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
+
+/** Returns why `name` can't be used for a folder, file or rename, or '' when it is fine. `own` is the name being renamed. */
+export const validateEntryName = (name: string, existingNames: Iterable<string>, own?: string): string => {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return 'Name can’t be empty';
+  }
+  if (/[/\\]/.test(trimmed)) {
+    return 'Name can’t contain / or \\';
+  }
+  if (trimmed === '.' || trimmed === '..') {
+    return 'Name can’t be . or ..';
+  }
+  if (trimmed !== own && new Set(existingNames).has(trimmed)) {
+    return 'A file or folder with this name exists';
+  }
+  return '';
+};
+
+/** "New folder", then "New folder 2", "New folder 3"... */
+export const defaultFolderName = (existingNames: Iterable<string>): string => {
+  const taken = new Set(existingNames);
+  let name = 'New folder';
+  let counter = 2;
+  while (taken.has(name)) {
+    name = `New folder ${counter}`;
+    counter += 1;
+  }
+  return name;
+};
