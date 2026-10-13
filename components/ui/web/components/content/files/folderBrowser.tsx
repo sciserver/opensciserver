@@ -1,11 +1,14 @@
-import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { DragEvent, FC, KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useMutation, useQuery } from '@apollo/client';
 import { Alert, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem } from '@mui/material';
 
+import { UserContext } from 'context';
 import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/files';
 import { JsonTree } from 'src/graphql/typings';
 import { buildEntries, defaultFolderName, EntrySortKey, FileEntry, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from 'src/utils/fileEntries';
 import { FilesRoute } from 'src/utils/fileVolumes';
+import { FILE_SERVICE_NOT_CONFIGURED, fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
 import { joinPath, toVolumeRef } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
@@ -22,6 +25,8 @@ type Props = {
   onOpenFolder: (path: string) => void;
   /** Ask the parent to pick a destination for these names and copy or move them. */
   onTransfer: (kind: 'copy' | 'move', names: string[]) => void;
+  /** Files dropped onto the list (manage mode only). */
+  onDropFiles: (files: File[]) => void;
   notify: (message: string, severity?: 'success' | 'error') => void;
   /** Pick mode: files are greyed out, a click selects a folder and a double click opens it. */
   pick?: { selectedName: string | null; onSelect: (name: string) => void };
@@ -96,7 +101,7 @@ const NameInput: FC<NameInputProps> = ({ initial, existingNames, own, icon, hint
   );
 };
 
-export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSignal, creating, onCreatingDone, onOpenFolder, onTransfer, notify, pick }) => {
+export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSignal, creating, onCreatingDone, onOpenFolder, onTransfer, onDropFiles, notify, pick }) => {
   const { volume, volumeType, path } = route;
   const volumeRef = useMemo(() => toVolumeRef({ volumeType, ...volume }), [volumeType, volume.volumeName, volume.owner, volume.rootVolumeName]);
   const { data, loading, error, refetch } = useQuery<{ getJsonTree: JsonTree }>(JSON_TREE, {
@@ -115,6 +120,10 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   const [menu, setMenu] = useState<{ anchor: HTMLElement; entry: FileEntry } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [readme, setReadme] = useState('');
+  const readmeRef = useRef<HTMLDivElement>(null);
+  const { token } = useContext(UserContext);
 
   // A different folder or volume starts with nothing selected or being edited.
   useEffect(() => {
@@ -138,6 +147,37 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
 
   const all = useMemo(() => buildEntries(data?.getJsonTree.root), [data]);
   const names = useMemo(() => all.map((entry) => entry.name), [all]);
+  const hasReadme = all.some((entry) => !entry.isFolder && entry.name === 'README.md');
+  useEffect(() => {
+    let current = true;
+    setReadme('');
+    // The token fills in after the first render (see ContextWrapper); without one the request would just be refused.
+    if (hasReadme && !pick && token && fileServiceUrl()) {
+      fetchText(fileUrl(fileServiceUrl(), { volumeType, ...volume }, path, 'README.md'), token)
+        .then((text) => current && setReadme(text))
+        .catch(() => undefined);
+    }
+    return () => {
+      current = false;
+    };
+  }, [hasReadme, path, volume.volumeName, volume.owner, volume.rootVolumeName, volumeType, pick, refreshSignal, token]);
+
+  const download = (entry: FileEntry) => {
+    const base = fileServiceUrl();
+    if (!base) {
+      notify(FILE_SERVICE_NOT_CONFIGURED, 'error');
+      return;
+    }
+    startDownload(fileUrl(base, { volumeType, ...volume }, path, entry.name), entry.name);
+  };
+
+  // Several downloads in a row are spaced out so browsers don't drop them.
+  const downloadMany = (files: FileEntry[]) => {
+    for (const [index, entry] of toArray(files.entries())) {
+      setTimeout(() => download(entry), index * 1000);
+    }
+  };
+
   const entries = useMemo(() => filterAndSortEntries(all, filter, sortKey, direction), [all, filter, sortKey, direction]);
 
   // Drop selections that a filter or reload removed.
@@ -227,6 +267,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
 
   const menuItems = (entry: FileEntry) => [
     ...(entry.isFolder ? [{ label: 'Open', icon: 'folder_open', color: 'text.primary', run: () => open(entry) }] : []),
+    ...(entry.isFolder ? [] : [{ label: 'Download', icon: 'download', color: 'text.primary', run: () => download(entry) }]),
     { label: 'Copy to…', icon: 'content_copy', color: 'text.primary', run: () => onTransfer('copy', [entry.name]) },
     ...(writable ? [
       { label: 'Move to…', icon: 'drive_file_move', color: 'text.primary', run: () => onTransfer('move', [entry.name]) },
@@ -235,10 +276,31 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     ] : [])
   ];
 
-  const emptyHint = writable ? 'Use New folder to add a folder.' : '';
+  const emptyHint = writable ? 'Drop files here or use Upload.' : '';
+
+  const hasFiles = (event: DragEvent) => !pick && toArray(event.dataTransfer?.types || []).includes('Files');
+  function onDragOver(event: DragEvent) {
+    if (hasFiles(event)) {
+      event.preventDefault();
+      setDragging(true);
+    }
+  }
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', opacity: busy ? 0.7 : 1, pointerEvents: busy ? 'none' : 'auto' }}>
+    <Box
+      onDragEnter={onDragOver}
+      onDragOver={onDragOver}
+      sx={{ position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', opacity: busy ? 0.7 : 1, pointerEvents: busy ? 'none' : 'auto' }}
+    >
+      {readme && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 36, bgcolor: 'rgba(57,140,191,0.08)', borderBottom: '1px solid #e6e9ed', flex: 'none', fontSize: 13 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#398CBF' }}>article</span>
+          <span>This folder has a README. It is shown at the bottom of the list.</span>
+          <Button size="small" endIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_downward</span>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+            Jump to README
+          </Button>
+        </Box>
+      )}
       {selected.length > 0 && !pick && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, pl: 0.75, pr: 1.5, minHeight: 52, bgcolor: '#e8f1f8', flex: 'none' }}>
           <ButtonBase aria-label="Clear selection" onClick={() => setChecked(new Set())} sx={{ width: 36, height: 36, borderRadius: '50%', color: 'primary.main' }}>
@@ -246,6 +308,12 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           </ButtonBase>
           <Box component="span" sx={{ fontWeight: 600, color: 'primary.main' }}>{selected.length} selected</Box>
           <Box sx={{ flex: 1 }} />
+          {/* Folders can't be downloaded, so Download is only offered when every selected item is a file. */}
+          {selected.every((entry) => !entry.isFolder) && (
+            <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span>} onClick={() => downloadMany(selected)}>
+              Download
+            </Button>
+          )}
           <Button startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>content_copy</span>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
             Copy
           </Button>
@@ -386,10 +454,36 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           );
         })}
         {!showLoading && !showError && all.length === 0 && !creating && <Message icon="folder_open" title="This folder is empty" hint={emptyHint} />}
+        {readme && (
+          <Box ref={readmeRef} sx={{ m: 2, p: 2, border: '1px solid #e6e9ed', borderRadius: 1, bgcolor: '#fbfcfd', fontSize: 14 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>article</span>
+              README.md
+            </Box>
+            <ReactMarkdown>{readme}</ReactMarkdown>
+          </Box>
+        )}
         {!showLoading && !showError && all.length > 0 && entries.length === 0 && (
           <Message icon="search_off" title={`No matches for “${filter.trim()}”`} hint="Try a different name." />
         )}
       </Box>
+      {dragging && (
+        <Box
+          onDragOver={(event) => event.preventDefault()}
+          onDragLeave={(event) => !event.currentTarget.contains(event.relatedTarget as Node) && setDragging(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragging(false);
+            onDropFiles(toArray(event.dataTransfer.files));
+          }}
+          sx={{ position: 'absolute', inset: 6, zIndex: 35, border: '2px dashed #398CBF', borderRadius: '6px', bgcolor: 'rgba(232,241,248,0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, textAlign: 'center', p: 2 }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 40, color: '#398CBF', pointerEvents: 'none' }}>upload_file</span>
+          <Box sx={{ fontWeight: 600, fontSize: 16, color: 'primary.main', pointerEvents: 'none' }}>
+            {writable ? `Drop to upload to ${path.split('/').filter(Boolean).pop() || volume.volumeName}` : 'Open a writable folder to upload'}
+          </Box>
+        </Box>
+      )}
       <Menu anchorEl={menu?.anchor} open={!!menu} onClose={() => setMenu(null)}>
         {(menu ? menuItems(menu.entry) : []).map((item) => (
           <MenuItem key={item.label} onClick={() => {
