@@ -23,6 +23,13 @@ describe('VolumesAPI', () => {
     });
   });
 
+  it('encodes the root volume and owner in the volume URL too', async () => {
+    const { api, requests } = setup({});
+    await api.createUserVolume('Root Vol', 'bob@example.org', 'v', null);
+
+    expect(requests()[0]).toMatchObject({ method: 'PUT', url: `${BASE}volume/Root%20Vol/bob%40example.org/v` });
+  });
+
   it('updateUserVolume PATCHes the new name and description', async () => {
     const { api, requests } = setup({});
     await api.updateUserVolume('Storage', 'bob', 'old', 'new', null);

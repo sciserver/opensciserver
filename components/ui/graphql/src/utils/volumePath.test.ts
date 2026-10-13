@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { VolumeRefInput, VolumeType } from '../generated/typings';
-import { buildFileUrlPath, destinationBody, normalizePath, volumeUrlPart } from './volumePath';
+import { buildFileUrlPath, destinationBody, normalizePath, userVolumePath, volumeUrlPart } from './volumePath';
 
 const userVolume: VolumeRefInput = {
   volumeType: VolumeType.Uservolume,
@@ -13,8 +13,13 @@ const dataVolume: VolumeRefInput = { volumeType: VolumeType.Datavolume, volumeNa
 
 describe('volumePath', () => {
   describe('volumeUrlPart', () => {
-    it('addresses user volumes as root/owner/name and encodes only the name', () => {
+    it('addresses user volumes as root/owner/name', () => {
       expect(volumeUrlPart(userVolume)).toBe('Storage/bob/my%20vol');
+    });
+
+    it('encodes the root volume and the owner as well as the name', () => {
+      expect(volumeUrlPart({ ...userVolume, rootVolumeName: 'Root Vol/1', owner: 'bob@example.org' }))
+        .toBe('Root%20Vol%2F1/bob%40example.org/my%20vol');
     });
 
     it('addresses data volumes by name only', () => {
@@ -24,6 +29,12 @@ describe('volumePath', () => {
     it('rejects a user volume without root volume or owner', () => {
       expect(() => volumeUrlPart({ ...userVolume, owner: undefined })).toThrow(/required for user volumes/);
       expect(() => volumeUrlPart({ ...userVolume, rootVolumeName: undefined })).toThrow(/required for user volumes/);
+    });
+  });
+
+  describe('userVolumePath', () => {
+    it('encodes all three parts so none can add or break out of a path segment', () => {
+      expect(userVolumePath('Storage', 'a b', 'x/../y')).toBe('Storage/a%20b/x%2F..%2Fy');
     });
   });
 
