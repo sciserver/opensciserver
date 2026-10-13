@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType, PrincipalType } from '../graphql/typings';
-import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath, transferBlocker } from './fileVolumes';
+import { dataVolumeRows, filesRouteQuery, filterAndSortRows, isSharedByOwner, parseFilesRoute, sameVolume, userVolumeRows, workspacePath, creatableRootVolumes, validateVolumeName, transferBlocker } from './fileVolumes';
 
 const userVolume = (name: string, owner: string, rootVolumeName: string, allowedActions: string[], shared = false) => ({
   id: name, name, owner, rootVolumeName, allowedActions, resourceUUID: name,
@@ -82,6 +82,31 @@ describe('workspacePath', () => {
 
   it('compares volumes by name, root and owner', () => {
     expect(sameVolume({ volumeName: 'v', owner: 'a', rootVolumeName: 'Storage' }, { volumeName: 'v', owner: 'b', rootVolumeName: 'Storage' })).toBe(false);
+  });
+});
+
+describe('volume management helpers', () => {
+  it('flags owned volumes and the ones the server lets you delete', () => {
+    const rows = userVolumeRows([{
+      userVolumes: [
+        userVolume('mine', 'me', 'Storage', ['read', 'write', 'delete']),
+        userVolume('persistent', 'me', 'Storage', ['read', 'write']),
+        userVolume('theirs', 'other', 'Storage', ['read', 'delete'])
+      ] 
+    }], 'me');
+    expect(rows.map((r) => [r.name, r.owned, r.canDelete])).toEqual([['mine', true, true], ['persistent', true, false], ['theirs', false, true]]);
+  });
+
+  it('lists only root volumes you can create in, sorted', () => {
+    const roots = [{ name: 'Temporary', allowedActions: ['create'] }, { name: 'Workspace', allowedActions: ['read'] }, { name: 'Storage', allowedActions: ['create', 'read'] }];
+    expect(creatableRootVolumes(roots).map((r) => r.name)).toEqual(['Storage', 'Temporary']);
+  });
+
+  it('validates volume names', () => {
+    expect(validateVolumeName(' ')).toMatch(/empty/);
+    expect(validateVolumeName('a/b')).toMatch(/contain/);
+    expect(validateVolumeName('x', ['x'])).toMatch(/already/);
+    expect(validateVolumeName('x', ['x'], 'x')).toBe('');
   });
 });
 

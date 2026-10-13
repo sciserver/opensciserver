@@ -5,19 +5,14 @@ export const JSON_TREE = gql`
     getJsonTree(volume: $volume, path: $path) {
       queryPath
       root {
-        name
-        lastModified
-        creationTime
         folders {
           name
           lastModified
-          creationTime
         }
         files {
           name
           size
           lastModified
-          creationTime
         }
       }
     }
