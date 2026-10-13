@@ -4,6 +4,7 @@ import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
 import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 
 import { environment } from '../environment';
+import { userVolumePath } from '../utils/volumePath';
 import {
   DataVolume,
   FileService,
@@ -15,8 +16,6 @@ import {
   SharedWith,
   SharedWithInput
 } from '../generated/typings';
-
-const userVolumePath = (rootVolumeName: string, owner: string, name: string) => `${rootVolumeName}/${owner}/${encodeURIComponent(name)}`;
 
 export enum CALLER {
   FILESERVICE,
