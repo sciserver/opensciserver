@@ -1,0 +1,67 @@
+{{- range $name, $inst := .Values.compm.instances }}
+{{- $c := mergeOverwrite (deepCopy (omit $.Values.compm "instances")) (deepCopy (default dict $inst)) }}
+{{- $ctx := dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Template" $.Template "name" $name "compm" $c }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" $ }}-compm-{{ $name }}
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" $ }}
+    helm.sh/chart: {{ include "sciserver.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/component: compm-{{ $name }}
+spec:
+  # Two pods with the same compmId would pick up and run the same jobs, so
+  # never run more than one, including during rollouts.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" $ }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/component: compm-{{ $name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" $ }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/component: compm-{{ $name }}
+    spec:
+      {{ if $.Values.imagePullSecret -}}
+      imagePullSecrets:
+      - name: {{ $.Values.imagePullSecret }}
+      {{ end -}}
+      initContainers:
+      - name: wait-for-racm
+        image: "busybox:1.30-musl"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        command:
+        - sh
+        - '-c'
+        - 'echo "Waiting for RACM"; until wget -T 1 --spider -q http://{{ include "sciserver.fullname" $ }}-racm/{{ include "sciserver.prefix" $ }}racm/actuator/health; do sleep 5; done'
+      containers:
+      - name: app
+        image: "{{ $c.image.repository }}:{{ required "please specify compm image tag or use image manifest" $c.image.tag }}"
+        imagePullPolicy: {{ $c.image.pullPolicy }}
+        resources:
+          {{- toYaml $c.resources | nindent 10 }}
+        env:
+        - name: SCISERVER_PROPERTIES_FILE
+          value: /etc/sciserver/application.properties
+        - name: _CONFIG_HASH
+          value: {{ tpl ($.Files.Get "files/compm-application.properties") $ctx | sha256sum }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/sciserver
+          readOnly: true
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ include "sciserver.fullname" $ }}-compm-{{ $name }}
+{{- end }}
