@@ -642,15 +642,17 @@ public class JOBMModelFactory {
 		rvcd.setDisplayName(rvm.getDisplayName());
 		rvcd.setPath(rvm.getPathOnCD());
 		rvcd.setRootVolume(rv);
+		rvcd.setPublisherDID(rvm.getPublisherDID());
 		return rvcd;
 	}
 
-	private RootVolumeOnComputeDomainModel newRootVolumeOnComputeDomainModel(RootVolumeOnComputeDomain rv) {
+	public RootVolumeOnComputeDomainModel newRootVolumeOnComputeDomainModel(RootVolumeOnComputeDomain rv) {
 		RootVolumeOnComputeDomainModel rvm = new RootVolumeOnComputeDomainModel();
 		rvm.setDisplayName(rv.getDisplayName());
 		rvm.setPathOnCD(rv.getPath());
 		rvm.setRootVolumeId(rv.getRootVolume().getId());
 		rvm.setId(rv.getId());
+		rvm.setPublisherDID(rv.getPublisherDID());
 		return rvm;
 	}
 

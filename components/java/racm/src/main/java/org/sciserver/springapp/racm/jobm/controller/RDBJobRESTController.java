@@ -238,16 +238,23 @@ public class RDBJobRESTController {
 	 * @param body  JSON representation of a DatabaseContext to be added to the specified domain
 	 * @param admins  if set, give admin privileges to the groups in the comma-separated value
      * @param up  representation of the user submitting the requested DatabaseContext
+     * @param serviceAccountToken  service account token of the RDBComputeDomain being targeted
 	 * @return
 	 * @throws VOURPException
 	 */
 	@PostMapping("/computedomains/rdb/{domainId}")
 	public ResponseEntity<JsonNode> registerRDBComputeDbContext(@PathVariable Long domainId, @RequestBody String body,
-			@RequestParam(required = false) String admins, @AuthenticationPrincipal UserProfile up)
+			@RequestParam(required = false) String admins, @AuthenticationPrincipal UserProfile up,
+			@RequestHeader(name = X_SERVICE_ID, required = true) String serviceAccountToken)
 			throws VOURPException {
 		DatabaseContextModel dbcm = null;
 
         try {
+			RDBComputeDomain rdbcd = rdbDomainManager.getRDBComputeDomain(serviceAccountToken);
+			if (rdbcd == null || !rdbcd.getId().equals(domainId))
+				throw new VOURPException(VOURPException.UNAUTHORIZED,
+						"This request must have a service account corresponding to the domain that is targeted");
+
 			jobm.buildTrustIfNeeded(up.getUser(), up.getToken());
 			ObjectMapper mapper = RACMUtil.newObjectMapper();
 			ObjectNode node = mapper.readValue(body, ObjectNode.class);

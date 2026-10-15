@@ -31,8 +31,8 @@ import javax.persistence.TemporalType;
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.InvalidTOMException;
 import org.ivoa.dm.model.TransientObjectManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sciserver.racm.storem.model.RegisterNewFileServiceModel;
 import org.sciserver.racm.storem.model.RegisterNewRootVolumeModel;
 import org.sciserver.racm.storem.model.RegisterNewUserVolumeModel;
@@ -64,7 +64,7 @@ public class RepositoryPermissionsTests {
 	private UserProfile userProfile;
 	private FileServiceRepository repo;
 
-//	@Before
+//	@BeforeEach
 	public void setupMocks() {
 		when(user.getTom()).thenReturn(tom);
 		when(user.getId()).thenReturn(42L);

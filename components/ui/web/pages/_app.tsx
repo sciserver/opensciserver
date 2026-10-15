@@ -19,74 +19,74 @@ import 'styles/globals.css';
 // Wrappers
 import { ContextWrapper } from 'components/wrappers/Context';
 
-export default function App({ Component, pageProps }: AppProps) {
+const GlobalStyle = createGlobalStyle`
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
 
-  const GlobalStyle = createGlobalStyle`
-  html,
-  body {
-    padding: 0;
-    margin: 0;
-    font-family: -apple-system, Roboto, Oxygen,
-      Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  }
+a {
+  color: inherit;
+}
 
-  a {
-    color: inherit;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  * {
-    box-sizing: border-box;
-  }
+main {
+  margin: 1% 5% 5% 10%;
+}
 
-  main {
-    margin: 1% 5% 5% 10%;
-  }
-
-  h1, h2, h3, h4, h5 {
-    font-family: "Roboto Slab", serif;
-    font-style: normal;
-    font-optical-sizing: auto;
-  }
-    
-  h1, h2, h3 {
-      font-weight: 600;    
-  }
-
-  h4, h5 {
-      font-weight: 400;    
-  }
+h1, h2, h3, h4, h5 {
+  font-family: "Roboto Slab", serif;
+  font-style: normal;
+  font-optical-sizing: auto;
+}
   
-  p, blockquote {
-    font-family: "Noto Sans", sans-serif;
-    font-style: normal;
-    font-size: 18px;
-    color: #666;
-  }
-  
-  .caption {
-    font-family: "Noto Sans", sans-serif;
-    font-style: normal;
-    font-size: 12px;
-  }
+h1, h2, h3 {
+    font-weight: 600;    
+}
 
-  .MuiCardHeader-title, .MuiDataGrid-columnHeaderTitle {
-    font-family: "Roboto Slab", serif;
-    font-style: normal;
-    font-optical-sizing: auto;
-  }
+h4, h5 {
+    font-weight: 400;    
+}
 
-  .MuiCardHeader-subheader, .MuiTableCell-body, .MuiDataGrid-cell {
-    font-family: "Noto Sans", sans-serif;
-    font-style: normal;
-  }
+p, blockquote {
+  font-family: "Noto Sans", sans-serif;
+  font-style: normal;
+  font-size: 18px;
+  color: #666;
+}
+
+.caption {
+  font-family: "Noto Sans", sans-serif;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.MuiCardHeader-title, .MuiDataGrid-columnHeaderTitle {
+  font-family: "Roboto Slab", serif;
+  font-style: normal;
+  font-optical-sizing: auto;
+}
+
+.MuiCardHeader-subheader, .MuiTableCell-body, .MuiDataGrid-cell {
+  font-family: "Noto Sans", sans-serif;
+  font-style: normal;
+}
 
 `;
 
-  const theme = createTheme({
-    ...themeJSON,
-    // disable performance-sucking transitions
-    transitions: { create: () => 'none' }
-  });
+const theme = createTheme({
+  ...themeJSON,
+  // disable performance-sucking transitions
+  transitions: { create: () => 'none' }
+});
+
+export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
