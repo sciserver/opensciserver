@@ -86,16 +86,14 @@ spec:
         - name: uploads
           mountPath: {{ .Values.sciquery.uploadPath }}
         livenessProbe:
-          initialDelaySeconds: 60
+          # Flyway runs during Spring context refresh, so a first install against 
+          # a remote database can be slow to start answering. Match RACM's grace 
+          # period rather than restarting mid-migration.
+          initialDelaySeconds: 300
           timeoutSeconds: 5
           periodSeconds: 60
           httpGet:
             path: /{{ include "sciserver.prefix" . }}sciquery/api/ping
-            port: web
-        readinessProbe:
-          timeoutSeconds: 5
-          httpGet:
-            path: /{{ include "sciserver.prefix" . }}sciquery/api/health
             port: web
       volumes:
       - name: config
