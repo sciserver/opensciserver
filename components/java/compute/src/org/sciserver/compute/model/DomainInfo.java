@@ -11,6 +11,7 @@ public class DomainInfo {
     private long id;
     private String name;
     private String description;
+    private boolean selected;
     private Iterable<NodeInfo> nodes;
 
     public long getId() {
@@ -43,5 +44,13 @@ public class DomainInfo {
 
     public void setNodes(Iterable<NodeInfo> nodes) {
         this.nodes = nodes;
+    }
+    
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

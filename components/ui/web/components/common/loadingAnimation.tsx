@@ -4,7 +4,7 @@ import { Backdrop } from '@mui/material';
 import styled from 'styled-components';
 
 import { AppContext } from 'context';
-import logoGif from 'public/sciserver-loading.gif';
+import logoGif from 'public/sciserver-loading-dark-bg.gif';
 import { drawerClosedWidth, drawerOpenWidth } from 'components/common/drawer';
 
 type Props = {

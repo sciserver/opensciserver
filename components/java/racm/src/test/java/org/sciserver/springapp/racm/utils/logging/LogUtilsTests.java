@@ -1,6 +1,6 @@
 package org.sciserver.springapp.racm.utils.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -8,9 +8,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sciserver.springapp.loginterceptor.Log;
 import org.springframework.context.ApplicationContext;
@@ -38,7 +38,7 @@ public class LogUtilsTests {
 
 	private Logger loggerSpy;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		// No sink is enabled on a bare Logger, so SendMessage does no I/O; the spy records the
 		// message that LogUtils built and handed over.
@@ -56,7 +56,7 @@ public class LogUtilsTests {
 		LogUtils.setJobmApplicationName(JOBM_APPLICATION_NAME);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		RequestContextHolder.resetRequestAttributes();
 		LogUtils.setJobmApplicationName(DEFAULT_JOBM_APPLICATION_NAME);

@@ -4,10 +4,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -22,8 +22,8 @@ import java.util.UUID;
 
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sciserver.racm.storem.model.RegisterNewFileServiceModel;
 import org.sciserver.racm.storem.model.RegisterNewRootVolumeModel;
 import org.sciserver.racm.storem.model.RegisterNewUserVolumeModel;
@@ -127,7 +127,7 @@ public class MapperRegisteringTests {
 		assertTrue(fs.isValid());
 		assertTrue(fs.getResourceContext().isValid());
 		for(RootVolume rv : fs.getRootVolume()) {
-			assertTrue(rv.validationErrors(), rv.isValid());
+			assertTrue(rv.isValid(), rv.validationErrors());
 		}
 	}
 
@@ -219,7 +219,7 @@ public class MapperRegisteringTests {
 		assertTrue(uv.getResource().isValid());
 	}
 
-//	@Before
+//	@BeforeEach
 	public void setupMockTom() throws VOURPException {
 		tom = mock(TransientObjectManager.class);
 
@@ -237,7 +237,7 @@ public class MapperRegisteringTests {
 		mapper = new StoremMapper(racmUtil);
 	}
 
-//	@Before
+//	@BeforeEach
 	public void setupObjectMapper() {
 		objectMapper.registerModule(new Jdk8Module());
 	}
