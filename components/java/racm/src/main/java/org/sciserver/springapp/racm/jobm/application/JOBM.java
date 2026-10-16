@@ -245,8 +245,8 @@ public class JOBM {
      * @param user The user for whom the jobs are queried.
      * @param open If true, only open jobs, i.e. status <= FINISHED (FINISHED means not yet confirmed that job is properly destroyed).
      * @param top If specified as a positive integer the maximum number of jobs that should be returned. If not specified of <= 0, all jobs are returned
-     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS. If not specified, no lower bound on date.
-     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS, If not specified, no upper bound on the submit time.
+     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd. If not specified, no lower bound on date.
+     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd, If not specified, no upper bound on the submit time.
      * @return
      * @throws VOURPException
      */
@@ -373,8 +373,8 @@ public class JOBM {
      * @param user The user for whom the jobs are queried.
      * @param open If true, only open jobs, i.e. status <= FINISHED (FINISHED means not yet confirmed that job is properly destroyed).
      * @param top If specified as a positive integer the maximum number of jobs that should be returned. If not specified of <= 0, all jobs are returned
-     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS. If not specified, no lower bound on date.
-     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS, If not specified, no upper bound on the submit time.
+     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd. If not specified, no lower bound on date.
+     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd, If not specified, no upper bound on the submit time.
      * @return
      * @throws VOURPException
      */
@@ -467,8 +467,8 @@ public class JOBM {
      * @param user The user for whom the jobs are queried.
      * @param open If true, only open jobs, i.e. status <= FINISHED (FINISHED means not yet confirmed that job is properly destroyed).
      * @param top If specified as a positive integer the maximum number of jobs that should be returned. If not specified of <= 0, all jobs are returned
-     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS. If not specified, no lower bound on date.
-     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS, If not specified, no upper bound on the submit time.
+     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd. If not specified, no lower bound on date.
+     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd, If not specified, no upper bound on the submit time.
      * @return
      * @throws VOURPException
      */
@@ -609,8 +609,8 @@ public class JOBM {
      * @param user The user for whom the jobs are queried.
      * @param open If true, only open jobs, i.e. status <= FINISHED (FINISHED means not yet confirmed that job is properly destroyed).
      * @param top If specified as a positive integer the maximum number of jobs that should be returned. If not specified of <= 0, all jobs are returned
-     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS. If not specified, no lower bound on date.
-     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd hh:mm:ss.SSS, If not specified, no upper bound on the submit time.
+     * @param start The earliest date (inclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd. If not specified, no lower bound on date.
+     * @param end The latest date (exclusive) to search for jobs, in format yyyy-MM-dd HH:mm:ss Z, or yyyy-MM-dd, If not specified, no upper bound on the submit time.
      * @return
      * @throws VOURPException
      */
