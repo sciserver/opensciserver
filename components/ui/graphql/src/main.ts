@@ -18,6 +18,7 @@ import { DomainsAPI } from './data/domains';
 import { DatasetsAPI } from './data/datasets';
 import { AccountsAPI } from './data/accounts';
 import { VolumesAPI } from './data/volumes';
+import { FilesAPI } from './data/files';
 import { JobsAPI } from './data/jobs';
 
 // We need to build a context type so the generated
@@ -31,6 +32,7 @@ export type Context = {
     containersAPI: ContainersAPI
     datasetsAPI: DatasetsAPI
     domainsAPI: DomainsAPI
+    filesAPI: FilesAPI
     jobsAPI: JobsAPI
     volumesAPI: VolumesAPI
   };
@@ -76,7 +78,8 @@ server.start().then(() => {
         const volumesAPI = new VolumesAPI({ cache, token });
         const accountsAPI = new AccountsAPI({ cache, token });
         const datasetsAPI = new DatasetsAPI({ cache, token });
-        const jobsAPI = new JobsAPI({ cache, token, volumesAPI });
+        const filesAPI = new FilesAPI({ cache, token });
+        const jobsAPI = new JobsAPI({ cache, token, volumesAPI, filesAPI });
         const domainsAPI = new DomainsAPI({ cache, token, volumesAPI });
         const containersAPI = new ContainersAPI({ cache, token, volumesAPI, domainsAPI, accountsAPI });
 
@@ -87,6 +90,7 @@ server.start().then(() => {
             containersAPI,
             datasetsAPI,
             domainsAPI,
+            filesAPI,
             jobsAPI,
             volumesAPI
           }
