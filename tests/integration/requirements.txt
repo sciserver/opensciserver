@@ -1,0 +1,3 @@
+requests
+nose2
+nose2-html-report
