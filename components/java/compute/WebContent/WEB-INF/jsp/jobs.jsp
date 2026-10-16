@@ -39,12 +39,22 @@
 	</c:if>
 
 	  <c:if test="${uiNewAppBannerEnabled}">
-	  <div id="new-app-banner" class="alert alert-primary" role="alert">
-	    <strong>Try the new Jobs experience.</strong>
-	    <span>
-	      We are migrating to a new app with the same core workflow plus new features.
-	      You can opt in now and switch back any time. Click <a href="${fn:escapeXml(jobsMigrationUrl)}"> here </a> to try it out.
-	    </span>
+	  <div id="new-app-banner" role="region" aria-label="New Jobs experience">
+	    <div class="new-app-banner-inner">
+	      <span class="new-app-banner-icon" aria-hidden="true"><i class="fa fa-rocket"></i></span>
+	      <div class="new-app-banner-text">
+	        <div class="new-app-banner-title">
+	          <span class="new-app-banner-badge">New</span>
+	          Try the new Jobs experience
+	        </div>
+	        <div class="new-app-banner-body">
+	          Same core workflow, plus new features. Opt in now &mdash; you can switch back any time.
+	        </div>
+	      </div>
+	      <a class="new-app-banner-cta" href="${fn:escapeXml(jobsMigrationUrl)}">
+	        Try it now <i class="fa fa-arrow-right" aria-hidden="true"></i>
+	      </a>
+	    </div>
 	  </div>
 	  </c:if>
 
