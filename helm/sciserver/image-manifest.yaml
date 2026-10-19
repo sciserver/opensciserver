@@ -56,6 +56,10 @@ rendersvc:
   image:
     tag: <<<VTAG>>>
     repo: <<<IMAGE_REPO>>>
+sciquery:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
 web:
   image:
     tag: <<<VTAG>>>
