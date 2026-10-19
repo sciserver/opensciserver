@@ -360,6 +360,81 @@ computeDb:
       cpu: 100m
       memory: 128Mi
 
+# Compute Manager (COMPM)
+#
+# A COMPM runs the jobs of a single compute domain, so an install may run
+# several of them, one per entry in compm.instances. Each COMPM must first be
+# registered in RACM to obtain its compmId: docker COMPMs through the RACM UI
+# at {racm url}/compm/mvc/list, rdb (SciQuery) COMPMs with a POST to
+# {racm url}/jobm/rest/dbcompm. For this reason no COMPM is deployed by default.
+#
+# Instance names are used in kubernetes object names, so they must be lower
+# case alphanumerics or '-'. Any of the settings below the instances map can
+# also be overridden per instance. Example:
+#
+#   instances:
+#     small-jobs:
+#       compmId: "5f3c...-uuid-from-racm"
+#       jobType: docker
+#       # id of the compute domain this compm was registered with, used to
+#       # build the compute API url. Alternatively set domainUrl.
+#       domainId: 3
+#       numWorkers: 10
+#     sciquery:
+#       compmId: "8a1d...-uuid-from-racm"
+#       jobType: rdb
+#       db:
+#         jdbcUrl: "jdbc:sqlserver://host:1433;database=sciquery;user=...;password=...;"
+compm:
+  instances: {}
+  image:
+    repository: <<<IMAGE_REPO>>>/compm
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  # one of: docker, rdb
+  jobType: docker
+  # number of worker threads, i.e. the max number of jobs run concurrently
+  numWorkers: 10
+  # max number of jobs asked to JOBM for this COMPM to manage at a time
+  maxNumberOfJobs: 2
+  # min number of jobs in the local queue before asking JOBM for more
+  minNumberOfJobs: 1
+  # idle times, in seconds
+  idleTimeBetweenJobs: 10
+  idleTimeBetweenJobmRequests: 10
+  idleTimeBetweenFailedRequests: 10
+  # max tries when submitting a job to the compute API
+  maxTries: 10
+  # Overrides the compute API url built from domainId, e.g.
+  # http://sciserver-compute/compute/api/domains/3/
+  domainUrl:
+  # Default location of job results folders: basePath/rootVolume/{user}/userVolume/jobsFolderRelativePath
+  fileservice:
+    basePath: /home/idies/workspace/
+    rootVolume: Temporary
+    userVolume: jobs
+    jobsFolderRelativePath: /
+  # CasJobs REST API url used by rdb COMPMs, defaults to {casjobs url}/RestApi/
+  # when casjobs.enable is true
+  casjobsApiUrl:
+  # SciQuery database settings, used by rdb COMPMs only
+  db:
+    jdbcUrl:
+    connPoolSize: 8
+    resultFetchSize: 1000
+  # Output writer settings for rdb COMPMs, timeouts in seconds
+  outputWriter:
+    numRowsPerFlush: 1000
+    httpRequestTimeout: 600
+    dbConnectionTimeout: 600
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
 # SciQuery
 
 sciqueryDb:
