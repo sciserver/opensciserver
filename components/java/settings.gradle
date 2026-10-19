@@ -13,6 +13,6 @@ include 'compute',
   'logging',
   'racm',
   'login-portal',
-  'compm'
+  'compm',
   'sciquery',
   'sciquery-utils'
