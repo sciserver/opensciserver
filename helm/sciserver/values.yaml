@@ -427,6 +427,14 @@ compm:
     numRowsPerFlush: 1000
     httpRequestTimeout: 600
     dbConnectionTimeout: 600
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
 # SciQuery
 
 sciqueryDb:
