@@ -38,6 +38,9 @@ spec:
       - name: wait-for-racm
         image: "busybox:1.30-musl"
         resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi        
           limits:
             cpu: 100m
             memory: 100Mi
