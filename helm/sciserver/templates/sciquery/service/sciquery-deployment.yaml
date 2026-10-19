@@ -36,6 +36,9 @@ spec:
           limits:
             cpu: 100m
             memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
         command:
         - sh
         - -c
@@ -55,6 +58,9 @@ spec:
           limits:
             cpu: 100m
             memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
         command:
         - sh
         - '-c'
