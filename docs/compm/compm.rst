@@ -67,8 +67,9 @@ in request header when calling the RACM/JOBM or SciServer-Compute APIs as a mean
 **Configuring, Building and Running COMPMs**
 
 
-The configuration variables for the Compute-Manager are placed in the ``config.properties`` and ``log4j2.xml`` files under 
-``/src/main/resources/``. Example instances of those can be found under ``/conf.examples/``.
+The source code of the Compute-Manager is under ``components/java/compm``. Its configuration variables are read from the file
+named by the ``SCISERVER_PROPERTIES_FILE`` environment variable, or else from the ``config.properties`` file under ``src/main/resources/``,
+and logging is configured in ``src/main/resources/log4j2.xml``. Example instances of those can be found under ``conf.examples/``.
 
 Both COMPM types share common configuration variables, stored in the ``config.properties`` file:
 
@@ -119,9 +120,23 @@ whereas RDB COMPMs additionally require:
 
 6) ``OUTPUT.WRITER.dbConnectionTimeout``: timeout for the table row insert statement for the case of writing a query result set into a database (might be deprecated).
 
-Since the COMPM source code is integrated with `Gradle <https://gradle.org>`_ , 
-one can build and run it locally by executing the respective Gradle targets in Visual Studio Code/Eclipse, or explicitly by executing ``./gradlew build`` or ``./gradlew run``
-on the base level of the project directory. For running it in a production-grade environment, refer to the SciServer Kubernetes setup.
+COMPM is built with `Gradle <https://gradle.org>`_ as part of the SciServer java projects. From ``components/java``, run
+``./gradlew :racm:modelJar`` followed by ``./gradlew :compm:build`` to create the ``compm.jar`` fat jar, or ``./gradlew :compm:run`` to run it locally.
+
+In Kubernetes, COMPMs are deployed by the SciServer helm chart, one deployment per entry in ``compm.instances``. Since each COMPM must
+first be registered in RACM, none are deployed by default. After registering, add the COMPM to the helm values and upgrade the release, e.g.:
+
+.. code-block:: yaml
+
+   compm:
+     instances:
+       small-jobs:
+         compmId: "{CompmID from RACM}"
+         jobType: docker
+         domainId: 3
+
+The URLs of RACM, the FileService, the Login Portal and the logging RabbitMQ are filled in from the release. RDB COMPMs
+need ``jobType: rdb`` and ``db.jdbcUrl`` instead of ``domainId``. See the ``compm`` section of the chart's ``values.yaml`` for all settings.
 
 
 

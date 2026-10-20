@@ -12,4 +12,7 @@ include 'compute',
   'fileservice-bootstrapper',
   'logging',
   'racm',
-  'login-portal'
+  'login-portal',
+  'compm',
+  'sciquery',
+  'sciquery-utils'
