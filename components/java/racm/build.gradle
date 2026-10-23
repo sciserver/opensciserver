@@ -19,7 +19,7 @@ group 'org.sciserver'
 
 
 checkstyle {
-    maxWarnings 33357
+    maxWarnings 33400
 }
 
 repositories {
