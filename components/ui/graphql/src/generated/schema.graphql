@@ -73,7 +73,7 @@ type DataVolume {
   publisherDID: String!
   racmUUID: String!
   resourceUUID: ID
-  sharedWith: [String]!
+  sharedWith: [SharedWith!]!
   url: URL
   writable: Boolean!
 }
@@ -119,6 +119,11 @@ type File {
   size: Float!
 }
 
+input FileLocationInput {
+  path: String!
+  volume: VolumeRefInput!
+}
+
 type FileService {
   apiEndpoint: URL
   dataVolumes: [DataVolume!]
@@ -126,6 +131,15 @@ type FileService {
   identifier: ID!
   name: String
   rootVolumes: [RootVolume!]
+}
+
+type FileUsage {
+  numberOfBytesQuota: Float!
+  numberOfBytesUsed: Float!
+  rootVolumeId: ID
+  type: String
+  userVolumeId: ID
+  username: String
 }
 
 type Folder {
@@ -217,10 +231,24 @@ type JobsResponse {
 
 type Mutation {
   cancelJob(jobId: ID!): Boolean!
+  copyFile(destination: FileLocationInput!, name: String!, newName: String, source: FileLocationInput!): Boolean!
+  createFolder(name: String!, path: String!, volume: VolumeRefInput!): Boolean!
   createJob(createJobParams: CreateJobParams!): Job!
+  createUserVolume(description: String, name: String!, owner: String!, rootVolumeName: String!): Boolean!
   deleteContainer(containerId: ID!, domainId: ID!): Boolean!
+  deleteFile(name: String!, path: String!, volume: VolumeRefInput!): Boolean!
+  deleteUserVolume(name: String!, owner: String!, rootVolumeName: String!): Boolean!
   login(password: String!, username: String!): String!
+  moveFile(destination: FileLocationInput!, name: String!, newName: String, source: FileLocationInput!): Boolean!
+  renameFile(name: String!, newName: String!, path: String!, volume: VolumeRefInput!): Boolean!
   root: String
+  shareUserVolume(name: String!, owner: String!, rootVolumeName: String!, sharedWith: [SharedWithInput!]!): Boolean!
+  updateUserVolume(description: String, name: String!, newName: String!, owner: String!, rootVolumeName: String!): Boolean!
+}
+
+enum PrincipalType {
+  GROUP
+  USER
 }
 
 type Query {
@@ -231,9 +259,11 @@ type Query {
   getDatasets(volumeType: VolumeType!): [Dataset!]!
   getDomainByID(id: ID!): Domain
   getDomains(jobs: Boolean): [Domain!]!
+  getFileUsage: [FileUsage!]!
   getJobDetails(jobId: ID!): JobDetails!
   getJobs(end: DateTime, filters: [JobFilters!], top: Int): JobsResponse!
-  getJsonTree(volumeName: String!): JSONTree!
+  getJsonTree(path: String, volume: VolumeRefInput!): JSONTree!
+  getPublicUsersAndGroups: [SharePrincipal!]!
   getUser: User!
   getVolumes: FileService
   pingContainer(containerId: ID!): Boolean
@@ -264,8 +294,28 @@ type RootVolume {
   owningResourceId: ID
   pathOnFileSystem: String
   resourceUUID: ID!
-  sharedWith: [String]!
+  sharedWith: [SharedWith!]!
   userVolumes: [UserVolume!]!
+}
+
+type SharePrincipal {
+  id: ID!
+  name: String!
+  type: PrincipalType!
+}
+
+type SharedWith {
+  allowedActions: [String!]!
+  id: ID!
+  name: String!
+  type: PrincipalType!
+}
+
+input SharedWithInput {
+  allowedActions: [String!]!
+  id: ID!
+  name: String!
+  type: PrincipalType!
 }
 
 type Subscription {
@@ -298,7 +348,14 @@ type UserVolume {
   relativePath: String
   resourceUUID: ID!
   rootVolumeName: String!
-  sharedWith: [String]!
+  sharedWith: [SharedWith!]!
+}
+
+input VolumeRefInput {
+  owner: String
+  rootVolumeName: String
+  volumeName: String!
+  volumeType: VolumeType!
 }
 
 enum VolumeType {

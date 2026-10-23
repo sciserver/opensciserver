@@ -9,7 +9,7 @@ import { CREATE_JOB, JOB_DETAIL_VIEW } from 'src/graphql/jobs';
 
 import { NewComputeSession } from 'components/content/newComputeSession/newComputeSession';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { JobCreatedModalWording, UnableToAddJobModalWording } from 'src/utils/swalWording';
+import { JobCreatedModalWording, UnableToAddJobModalWording } from 'src/config/swalWording';
 
 
 export const NewJob: FC = () => {

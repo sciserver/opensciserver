@@ -173,5 +173,21 @@
     "unicorn/no-abusive-eslint-disable": "off",
     "eslint-comments/no-unlimited-disable": "off",
     "promise/always-return": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "e2e/**/*.ts",
+        "playwright.config.ts"
+      ],
+      "rules": {
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            "devDependencies": true
+          }
+        ]
+      }
+    }
+  ]
 }

@@ -8,8 +8,16 @@ export const typeDefs = gql`
     visibility: String!
   }
 
+  # A user or group a volume can be shared with
+  type SharePrincipal {
+    id: ID!
+    name: String!
+    type: PrincipalType!
+  }
+
   type Query {
     getUser: User!
+    getPublicUsersAndGroups: [SharePrincipal!]!
   }
 
   type Mutation {
