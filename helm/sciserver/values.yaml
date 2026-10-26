@@ -360,6 +360,161 @@ computeDb:
       cpu: 100m
       memory: 128Mi
 
+# Compute Manager (COMPM)
+#
+# A COMPM runs the jobs of a single compute domain, so an install may run
+# several of them, one per entry in compm.instances. Each COMPM must first be
+# registered in RACM to obtain its compmId: docker COMPMs through the RACM UI
+# at {racm url}/compm/mvc/list, rdb (SciQuery) COMPMs with a POST to
+# {racm url}/jobm/rest/dbcompm. For this reason no COMPM is deployed by default.
+#
+# Instance names are used in kubernetes object names, so they must be lower
+# case alphanumerics or '-'. Any of the settings below the instances map can
+# also be overridden per instance. Example:
+#
+#   instances:
+#     small-jobs:
+#       compmId: "5f3c...-uuid-from-racm"
+#       jobType: docker
+#       # id of the compute domain this compm was registered with, used to
+#       # build the compute API url. Alternatively set domainUrl.
+#       domainId: 3
+#       numWorkers: 10
+#     sciquery:
+#       compmId: "8a1d...-uuid-from-racm"
+#       jobType: rdb
+#       db:
+#         jdbcUrl: "jdbc:sqlserver://host:1433;database=sciquery;user=...;password=...;"
+compm:
+  instances: {}
+  image:
+    repository: <<<IMAGE_REPO>>>/compm
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  # one of: docker, rdb
+  jobType: docker
+  # number of worker threads, i.e. the max number of jobs run concurrently
+  numWorkers: 10
+  # max number of jobs asked to JOBM for this COMPM to manage at a time
+  maxNumberOfJobs: 2
+  # min number of jobs in the local queue before asking JOBM for more
+  minNumberOfJobs: 1
+  # idle times, in seconds
+  idleTimeBetweenJobs: 10
+  idleTimeBetweenJobmRequests: 10
+  idleTimeBetweenFailedRequests: 10
+  # max tries when submitting a job to the compute API
+  maxTries: 10
+  # Overrides the compute API url built from domainId, e.g.
+  # http://sciserver-compute/compute/api/domains/3/
+  domainUrl:
+  # Default location of job results folders: basePath/rootVolume/{user}/userVolume/jobsFolderRelativePath
+  fileservice:
+    basePath: /home/idies/workspace/
+    rootVolume: Temporary
+    userVolume: jobs
+    jobsFolderRelativePath: /
+  # CasJobs REST API url used by rdb COMPMs, defaults to {casjobs url}/RestApi/
+  # when casjobs.enable is true
+  casjobsApiUrl:
+  # SciQuery database settings, used by rdb COMPMs only
+  db:
+    jdbcUrl:
+    connPoolSize: 8
+    resultFetchSize: 1000
+  # Output writer settings for rdb COMPMs, timeouts in seconds
+  outputWriter:
+    numRowsPerFlush: 1000
+    httpRequestTimeout: 600
+    dbConnectionTimeout: 600
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# SciQuery
+
+sciqueryDb:
+  # Set host (and optionally port, dbname and user) to point at an existing SQL
+  # Server instead of deploying one as part of this chart.
+  host:
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+  image:
+    repository: mcr.microsoft.com/mssql/server
+    tag: 2022-CU17-ubuntu-22.04
+    pullPolicy: Always
+  backup:
+    enable: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 12Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+sciquery:
+  # SciQuery needs resources that only exist once RACM has been bootstrapped and
+  # the databases it federates have been registered: a service token, an admin
+  # group, a default database server, and the domain/server holding the MyDBs.
+  # There is no bootstrapper for these, so SciQuery stays off until the values
+  # below are filled in.
+  enable: false
+  replicaCount: 1
+  image:
+    repository: <<<IMAGE_REPO>>>/sciquery
+    tag: <<<VTAG>>>
+    pullPolicy: Always
+  # Let flyway bring the SciQuery metadata database up to the current schema on
+  # startup. Set to false if migrations are applied out of band.
+  flywayEnabled: true
+  # RACM id of the user group whose members administer SciQuery.
+  adminGroupId:
+  # Service token of the SciQuery resource context, as registered in RACM.
+  serviceToken:
+  # Id, in SciQuery's own DBServer table, of the server that newly registered
+  # database contexts default to. Servers are registered via api/register/server.
+  defaultServerId:
+  mydb:
+    # SciQuery DBDomain and DBServer ids for the per-user MyDB databases.
+    domainId:
+    serverId:
+    # Host of the SQL Server holding the MyDBs, and the accounts SciQuery uses
+    # to read from and write to them.
+    host:
+    readonlyUsername:
+    readonlyPassword:
+    readwriteUsername:
+    readwritePassword:
+  casjobs:
+    # CasJobs REST endpoint, used for metadata and privilege lookups.
+    endpoint: https://skyserver.sdss.org/CasJobs/RestApi/
+    # CasJobs instance UUID, used by the metadata manager.
+    uuid:
+  # Scratch space for uploaded CSVs on their way into a database. Backed by an
+  # emptyDir, so it does not need to be writable in the image.
+  uploadPath: /var/tmp/sciquery-uploads
+  # Maximum size of an uploaded table, in bytes.
+  maxUploadSize: 100000000
+  # Rows fetched at a time from a queried database.
+  resultFetchSize: 1000
+  # Seconds before a query to a database times out.
+  queryTimeout: 5
+  # Rows buffered before each flush to the HTTP response.
+  numRowsPerFlush: 1000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
 deployPoller:
   enable: false
   dryRun: false

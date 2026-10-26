@@ -1,0 +1,27 @@
+What to leave out of grammar?
+clauses dealing with
+- cursors
+- 
+
+
+What to check for?
+- insert, update, delete: is user allowed to edit table?
+- create TABLE | FUNCTION | ...: is user allowed to write into database
+- alter | drop TABLE | ... : ise user allowed to edit table?
+- create | drop | alter INDEX | CONSTRAINT | ... : is user allowed to edit table?
+- create, select ... into ...: is user allowed to write into database
+-...
+-...
+-...
+
+
+
+Model:
+- Table: how is it used in statement? read or also write?
+- Function, StoredProcedure: how is it used in statement? read or also write (like drop)? 
+. how to deal with execution with side effects on table user is not allowed to use? 
+. should it be decided in RACM whether user is allowed to run it?
+. how about sp_executesql? allow running? 
+ 
+- SQLClsue: type of statement, query, update, other
+- 
