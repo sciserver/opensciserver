@@ -141,8 +141,8 @@ function dc_update() {
 						<c:forEach var="domain" items="${domains}">
 							<option
 								value="${domain.getId()}"
-								data-description="${domain.getDescription()}">
-
+								data-description="${domain.getDescription()}"
+								${domain.isSelected()?'selected="selected"':''}>
 								${domain.getName()}
 							</option>
 						</c:forEach>
