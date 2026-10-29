@@ -9,7 +9,7 @@ import { CREATE_JOB } from 'src/graphql/jobs';
 import { Job, JobStatus } from 'src/graphql/typings';
 
 import { jobStatusPollingInterval } from 'components/content/jobs/list/jobsList';
-import { JobCreatedModalWording, ReRunJobModalWording, UnableToAddJobModalWording } from 'src/utils/swalWording';
+import { JobCreatedModalWording, ReRunJobModalWording, UnableToAddJobModalWording } from 'src/config/swalWording';
 
 interface Props {
   job: Job;

@@ -74,7 +74,10 @@ export class DatasetsAPI extends RESTDataSource {
   }
 
   async getDataset({ name, volumeID, source, catalog }: DatasetDetailInput): Promise<Dataset> {
-    const fileRes = await this.get(`${this.baseURL!}file/${source}/datasets-index.json`);
+    // `source` is the raw volume path ("Storage/bob/my vol"), which the multiple-file request body needs unencoded,
+    // but it is part of a URL here, so each segment is encoded.
+    const sourceUrlPath = source.split('/').map(segment => encodeURIComponent(segment)).join('/');
+    const fileRes = await this.get(`${this.baseURL!}file/${sourceUrlPath}/datasets-index.json`);
 
     if (fileRes && fileRes.datasets) {
       const datasetsRes = this.datasetListReducer(fileRes.datasets, source, volumeID);
