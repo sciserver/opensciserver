@@ -27,8 +27,6 @@ interface AppContextInterface {
   setMenuOption: (option: string) => void;
   drawerOpen: boolean;
   setDrawerOpen: (open: boolean) => void;
-  showAppBar: boolean;
-  setShowAppBar: (show: boolean) => void;
   showBanner: boolean;
   setShowBanner: (show: boolean) => void;
 }
@@ -38,8 +36,6 @@ export const AppContext = createContext<AppContextInterface>({
   setMenuOption: (option) => { },
   drawerOpen: true,
   setDrawerOpen: (open: boolean) => { },
-  showAppBar: true,
-  setShowAppBar: (show: boolean) => { },
   showBanner: true,
   setShowBanner: (show: boolean) => { }
 });
