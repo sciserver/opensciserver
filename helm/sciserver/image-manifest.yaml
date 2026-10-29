@@ -1,4 +1,8 @@
 # Manifest of image tags to install from latest build
+compm:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
 compute:
   image:
     tag: <<<VTAG>>>
@@ -49,6 +53,10 @@ racm:
     tag: <<<VTAG>>>
     repo: <<<IMAGE_REPO>>>
 rendersvc:
+  image:
+    tag: <<<VTAG>>>
+    repo: <<<IMAGE_REPO>>>
+sciquery:
   image:
     tag: <<<VTAG>>>
     repo: <<<IMAGE_REPO>>>

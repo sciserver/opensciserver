@@ -1,0 +1,56 @@
+{{- if and .Values.sciquery.enable .Values.backup.enable .Values.sciqueryDb.backup.enable (not .Values.sciqueryDb.host) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sciserver.fullname" . }}-sciquery-db-backup
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: sciquery-db-backup
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  suspend: false
+  schedule: '{{ default "0 0 * * *" .Values.sciqueryDb.backup.schedule }}'
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.sciqueryDb.image.repository }}:{{ .Values.sciqueryDb.image.tag }}"
+            name: backup
+            resources:
+              limits:
+                cpu: 200m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+            command:
+            - "/bin/bash"
+            - "-xe"
+            - "-c"
+            - "/opt/mssql-tools/bin/sqlcmd -S {{ include "sciserver.fullname" . }}-sciquery-db -U sa -P $SA_PASSWORD -Q \"BACKUP DATABASE SciQuery TO DISK = N'/backup/sciquery-$(date +%F-%H-%M).bak' WITH NOFORMAT, NOINIT, NAME = 'SciQuery-full', SKIP, NOREWIND, NOUNLOAD\" && find /backup -name 'sciquery-*.bak' -ctime +{{ default 7 .Values.sciqueryDb.backup.retainDays }} -delete"
+            env:
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sciserver.fullname" . }}-sciquery-db
+                  key: password
+            volumeMounts:
+            - name: backup
+              mountPath: /backup
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: backup
+            nfs:
+              server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+              path: {{ default "/backup" .Values.backup.nfs.path }}
+{{- end -}}
