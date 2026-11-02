@@ -491,3 +491,31 @@ graphql:
     requests:
       cpu: 100m
       memory: 128Mi
+
+# Optional administrator API for running integration tests. Reports are received
+# through authenticated callbacks and held in bounded memory; no PVC is required.
+testService:
+  enable: true
+  image:
+    repository: <<<IMAGE_REPO>>>/test-service
+    tag: <<<VTAG>>>
+  runnerImage:
+    repository: <<<IMAGE_REPO>>>/integration-tests
+    tag: <<<VTAG>>>
+    # Prefer a digest for reproducible discovery/planning/execution.
+    digest: ""
+  # Optional existing Secret with a base64-encoded (as the decoded Secret value)
+  # signing-key of at least 32 random bytes. Otherwise Helm creates/reuses one.
+  reportingSecret: ""
+  callbackWindowSeconds: 120
+  retainedReports: 50
+  retentionSeconds: 3600
+  deadlineSeconds: 1800
+  maxActive: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi

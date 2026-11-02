@@ -1,0 +1,175 @@
+{
+  "contractVersion": "1",
+  "tests": [
+    {
+      "id": "preflight.login",
+      "name": "preflight / login",
+      "description": "Exercise preflight.login.",
+      "dependsOn": [],
+      "after": [],
+      "implementation": "test_preflight.TestPreflight.test_login_portal"
+    },
+    {
+      "id": "preflight.dashboard",
+      "name": "preflight / dashboard",
+      "description": "Exercise preflight.dashboard.",
+      "dependsOn": [],
+      "after": [],
+      "implementation": "test_preflight.TestPreflight.test_dashboard"
+    },
+    {
+      "id": "preflight.compute",
+      "name": "preflight / compute",
+      "description": "Exercise preflight.compute.",
+      "dependsOn": [],
+      "after": [],
+      "implementation": "test_preflight.TestPreflight.test_compute"
+    },
+    {
+      "id": "identity.register",
+      "name": "identity / register",
+      "description": "Register a new user and save its session for this run.",
+      "dependsOn": [
+        "preflight.login"
+      ],
+      "after": [],
+      "implementation": "test_register.TestRegister.test_register"
+    },
+    {
+      "id": "identity.token",
+      "name": "identity / token",
+      "description": "Exercise identity.token.",
+      "dependsOn": [
+        "identity.register"
+      ],
+      "after": [],
+      "implementation": "test_register.TestRegister.test_token"
+    },
+    {
+      "id": "fileservice.volumes",
+      "name": "fileservice / volumes",
+      "description": "Verify Storage/persistent and Temporary/scratch volumes.",
+      "dependsOn": [
+        "identity.token"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_fileservice_basic_volumes"
+    },
+    {
+      "id": "fileservice.upload",
+      "name": "fileservice / upload",
+      "description": "Exercise fileservice.upload.",
+      "dependsOn": [
+        "fileservice.volumes"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_fileservice_upload_file"
+    },
+    {
+      "id": "fileservice.tree",
+      "name": "fileservice / tree",
+      "description": "Exercise fileservice.tree.",
+      "dependsOn": [
+        "fileservice.volumes"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_fileservice_tree"
+    },
+    {
+      "id": "racm.user",
+      "name": "racm / user",
+      "description": "Exercise racm.user.",
+      "dependsOn": [
+        "identity.token"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_racm_user"
+    },
+    {
+      "id": "racm.create-group",
+      "name": "racm / create group",
+      "description": "Exercise racm.create-group.",
+      "dependsOn": [
+        "identity.token"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_racm_create_group"
+    },
+    {
+      "id": "racm.public-privacy",
+      "name": "racm / public privacy",
+      "description": "Exercise racm.public-privacy.",
+      "dependsOn": [
+        "identity.token"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_racm_public_no_info_leak"
+    },
+    {
+      "id": "identity.public-privacy",
+      "name": "identity / public privacy",
+      "description": "Exercise identity.public-privacy.",
+      "dependsOn": [
+        "identity.register"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_login_portal_public_user_endpoints_no_info_leak"
+    },
+    {
+      "id": "identity.validate",
+      "name": "identity / validate",
+      "description": "Exercise identity.validate.",
+      "dependsOn": [
+        "identity.token"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_token_validation"
+    },
+    {
+      "id": "compute.create-container",
+      "name": "compute / create container",
+      "description": "Create a notebook container in an accessible compute domain.",
+      "dependsOn": [
+        "identity.token",
+        "preflight.compute"
+      ],
+      "after": [],
+      "implementation": "test_api.TestApi.test_compute_create_container"
+    },
+    {
+      "id": "identity.logout",
+      "name": "identity / logout",
+      "description": "Exercise identity.logout.",
+      "dependsOn": [
+        "identity.register"
+      ],
+      "after": [
+        "preflight.login",
+        "preflight.dashboard",
+        "preflight.compute",
+        "identity.register",
+        "identity.token",
+        "fileservice.volumes",
+        "fileservice.upload",
+        "fileservice.tree",
+        "racm.user",
+        "racm.create-group",
+        "racm.public-privacy",
+        "identity.public-privacy",
+        "identity.validate",
+        "compute.create-container"
+      ],
+      "implementation": "test_logout.TestLogout.test_logout"
+    },
+    {
+      "id": "identity.revoked-token",
+      "name": "identity / revoked token",
+      "description": "Exercise identity.revoked-token.",
+      "dependsOn": [
+        "identity.logout"
+      ],
+      "after": [],
+      "implementation": "test_logout.TestLogout.test_post_logout_token"
+    }
+  ]
+}

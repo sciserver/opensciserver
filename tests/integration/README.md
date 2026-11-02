@@ -12,18 +12,11 @@ authorship through a non-squashed Git subtree merge.
 These tests exercise a deployed SciServer through HTTP APIs. They can run
 manually, from CI, or as a Kubernetes Job; Jenkins is not required.
 
-The tests have some ordering requirements and maintain some state via
-local files, in short, test should run in order
-
-1. **test_preflight**
-1. **test_register**
-1. **test_api** (and other tests)
-1. **test_logout**
-
-In particular, the **test_register** sets up a random user to use for
-the test session for those test requiring authentication, while the
-**test_logout** test dismantles the session and checks authorization
-no longer valid.
+The versioned runner interface is owned here: see [the contract](contract/README.md),
+[the test catalog](contract/catalog.json), and [the report schema](contract/report.schema.json).
+The runner expands selected tests' prerequisites, enforces dependencies, and orders
+logout after selected session consumers. Consumers do not need to know Python
+method names or nose2 ordering.
 
 ## Caveats
 
@@ -44,28 +37,26 @@ requirements.txt, so if needed first install via pip:
 pip install -r requirements.txt
 ```
 
-Then, we create a pointer to the sciserver base url to be tested, for
-example:
+Use the contract runner for both full and individual runs:
 
-```
-echo https://kubetest.sciserver.org/ak-1 > sciserverbase
-```
+```sh
+export SCISERVER_BASE_URL=https://kubetest.sciserver.org/ak-1
+export TEST_REPORT_PATH="$PWD/results/report.json"
 
-And then running the full suite in order:
-
-```
-nose2 --config nose2.config test_preflight test_register test_api test_logout
-```
-
-Or, if you've already run the **test_register** tests, then you can
-run others independently:
-
-```
-nose2 --config nose2.config test_api
+python runner.py --list
+python runner.py --plan --test fileservice.upload
+python runner.py --test fileservice.upload
+# Or run the full suite:
+python runner.py
 ```
 
-The nose2 config is setup to generate an html report at report.html
-for a friendly view of results.
+Selection can also be supplied as a JSON array in `TEST_IDS`, e.g.
+`TEST_IDS='["racm.user","identity.validate"]'`. Each run has fresh local state;
+authenticated selections automatically include registration and token checks.
+A failed prerequisite blocks its dependents while independent tests continue.
+The runner emits readable diagnostics and a structured JSON report. Exit codes
+are 0 (passed), 1 (failed/blocked), 2 (test or runner error), and 3 (callback/receipt failure). The direct nose2
+invocation is legacy and does not enforce this contract or produce its report.
 
 ## Running against a Helm deployment from Kubernetes
 
@@ -125,10 +116,12 @@ image is not automatically available on Kubernetes nodes in other VMs.
 For a private registry, create an image pull secret in the test namespace and
 reference it in the Job's `spec.template.spec.imagePullSecrets`.
 
-The same image can run directly from a terminal:
+The same image can run directly from a terminal. Mount a writable results
+directory to retain its structured report:
 
 ```sh
-docker run --rm \
+mkdir -p results
+docker run --rm -v "$PWD/results:/results" \
   -e SCISERVER_BASE_URL=https://sciserver.example.org/test \
   "$TEST_IMAGE"
 ```
@@ -167,12 +160,20 @@ the pod finishes quickly or cannot start; inspect the Job and pod, and try the
 logs command regardless. `generateName` gives each run a distinct name; use
 `create`, not `apply`.
 
-The runner executes preflight, registration, API, and logout tests in their
-documented order. Retries are disabled to avoid repeating mutations and
+The runner resolves the catalog dependency graph and executes the selected
+tests (the full suite by default). Set `TEST_IDS` in the Job environment to
+select individual IDs; merely exporting it locally does not change the template. Retries are disabled to avoid repeating mutations and
 registering more users. The 30-minute deadline bounds the run, including HTTP
 requests that currently have no explicit timeout.
 
 ### 4. Inspect results and remove the Job
+
+The sample Job uses temporary local storage. Without a reporting callback, logs
+and exit status are available but its report file cannot be copied out after the
+container exits. The test service supplies a generic callback URL and temporary
+bearer token automatically; a CLI runner can optionally provide the same
+`TEST_REPORT_CALLBACK_URL` and `TEST_REPORT_CALLBACK_TOKEN` configuration. See
+[callback delivery](contract/README.md#optional-report-callback).
 
 Following logs does not establish success. Check Job conditions and the
 container exit code:
@@ -188,11 +189,11 @@ Successful tests exit zero; failing tests exit nonzero. Scheduling, image-pull,
 and deadline failures are infrastructure failures and may not have a test
 exit code. Inspect pod events if the runner never starts.
 
-The HTML report is written to `/tests/report.html`. This minimal Job does not
-export reports to persistent storage, and `kubectl cp` cannot retrieve files
-from a terminated container. Use console results initially; persistent report
-collection is a follow-up task. The session file contains credentials and must
-not be published as a test artifact.
+The contract runner writes JSON to `/results/report.json`, and a small delivery
+receipt to `/results/delivery.json`. It does not produce the legacy nose2 HTML
+report. A standalone Job without a callback supports console diagnostics and
+exit status; a configured callback delivers the JSON before the container exits.
+The private session file is temporary and must never be published as an artifact.
 
 Jobs are retained for log inspection. Remove this run when finished:
 
