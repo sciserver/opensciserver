@@ -1,0 +1,13 @@
+{
+"comments":"some text here explaining the unit test",
+"sql":"
+SELECT something FROM atable
+",
+"context":"[user1:mydb]",
+"tables-used":[
+	{"database":"[user1:mydb]",
+	"schema":"dbo",
+	"table_name":"atable",
+	"usage":"R"}
+]
+}

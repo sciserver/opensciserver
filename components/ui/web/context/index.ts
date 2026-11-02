@@ -29,6 +29,8 @@ interface AppContextInterface {
   setDrawerOpen: (open: boolean) => void;
   showAppBar: boolean;
   setShowAppBar: (show: boolean) => void;
+  showBanner: boolean;
+  setShowBanner: (show: boolean) => void;
 }
 
 export const AppContext = createContext<AppContextInterface>({
@@ -37,5 +39,7 @@ export const AppContext = createContext<AppContextInterface>({
   drawerOpen: true,
   setDrawerOpen: (open: boolean) => { },
   showAppBar: true,
-  setShowAppBar: (show: boolean) => { }
+  setShowAppBar: (show: boolean) => { },
+  showBanner: true,
+  setShowBanner: (show: boolean) => { }
 });

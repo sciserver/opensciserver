@@ -1,0 +1,64 @@
+plugins {
+    id 'java-library'
+    id 'antlr'
+    id 'eclipse'
+    id 'maven-publish'
+}
+
+group 'org.sciserver'
+
+repositories {
+    mavenCentral()
+}
+
+// The generated ANTLR lexer/parser lands in the main source set, and it is not
+// written to our style guide. Check only the hand written sources, and carry
+// their existing violations as a ratchet the way the other vendored components
+// here do.
+checkstyle {
+    maxWarnings 1929
+}
+tasks.withType(Checkstyle).configureEach {
+    exclude '**/org/sciserver/antlr4/tsql/gen/**'
+}
+
+dependencies {
+    antlr 'org.antlr:antlr4:4.9.2'
+
+    // STIL (Starlink Tables Infrastructure Library) backs the table ingestor.
+    // Upstream published 3.4 to SciServer's Nexus only; 4.x is on Maven Central
+    // and keeps the StarTable/StarTableFactory/RowSequence API this uses.
+    api 'uk.ac.starlink:stil:4.3.6'
+
+    implementation project(':clients:racm')
+    implementation project(':clients:utils')
+    implementation project(':springutils:logging-interceptor')
+    implementation 'org.json:json:20190722'
+    // Kept in step with the log4j2 version Spring Boot 2.6.x manages for :sciquery.
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
+
+    testImplementation 'junit:junit:4.13.2'
+}
+
+generateGrammarSource {
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-long-messages', '-package', 'org.sciserver.antlr4.tsql.gen']
+    outputDirectory = file("${project.buildDir}/generated-src/antlr/main/org/sciserver/antlr4/tsql/gen")
+}
+
+test {
+    useJUnit()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

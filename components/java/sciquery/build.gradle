@@ -1,0 +1,81 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.6'
+    id 'java'
+    id 'eclipse'
+    id 'maven-publish'
+}
+apply plugin: 'io.spring.dependency-management'
+
+group 'org.sciserver'
+
+checkstyle {
+    maxWarnings 0
+}
+
+repositories {
+    mavenCentral()
+}
+
+springBoot {
+    mainClass = 'org.sciserver.springapp.Application'
+}
+
+dependencies {
+    implementation project(':springutils:base-app')
+    implementation project(':springutils:authenticator')
+    implementation project(':springutils:logging-interceptor')
+    implementation project(':clients:utils')
+    implementation project(':clients:auth')
+    implementation project(':clients:casjobs')
+    implementation project(':clients:racm')
+    implementation project(':sciquery-utils')
+
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.2'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
+
+    // flyway manages the SciQuery metadata database schema
+    implementation 'org.flywaydb:flyway-core'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testng:testng:6.14.3'
+    testImplementation 'org.mockito:mockito-core:3.2.4'
+    // In-memory stand-in for the SQL Server metadata database, so the context
+    // smoke test can run without one. See src/test/resources/application.properties.
+    testRuntimeOnly 'com.h2database:h2'
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+test {
+    useTestNG()
+    jvmArgs '-Dlogging.console=true'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

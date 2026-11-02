@@ -6,9 +6,8 @@ https://apps.sciserver.org/ - this repository contains the software that powers
 that system (and others), so you can install and start working with your
 datasets!
 
-For more information about the background of SciServer, see “SciServer: a
-Science Platform for Astronomy and Beyond” (Taghizadeh-Popp et al., 2020,
-arXiv:2001.08619). If you use SciServer in your work, please cite that paper.
+For more information about the background of SciServer, see [“SciServer: a
+Science Platform for Astronomy and Beyond” (Taghizadeh-Popp et al., 2020)](https://arxiv.org/abs/2001.08619), published in [Astronomy and Computing, 33, 100412, 2020](https://doi.org/10.1016/j.ascom.2020.100412). If you use SciServer in your work, please cite that paper.
 
 🚧❗ While SciServer is a mature software system, we are in the process of
 setting up the open repository for it here. Please feel free to create issues
@@ -45,8 +44,8 @@ passwords for services that need them:
 
 ```sh
 helm -n {namespace} \
-  {name} \
   upgrade --install \
+  {name} \  
   --set prefix={name} \
   --set baseDomain={domain-name} \
   --set backup.enable=false \

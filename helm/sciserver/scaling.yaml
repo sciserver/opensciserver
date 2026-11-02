@@ -11,5 +11,7 @@ fileservice:
   replicaCount: 1
 compute:
   replicaCount: 1
+sciquery:
+  replicaCount: 1
 rabbitmqElastic:
   replicaCount: 1

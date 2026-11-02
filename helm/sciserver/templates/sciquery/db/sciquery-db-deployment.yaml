@@ -1,0 +1,70 @@
+{{ if and .Values.sciquery.enable (not .Values.sciqueryDb.host) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sciserver.fullname" . }}-sciquery-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: sciquery-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sciserver.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: sciquery-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sciserver.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: sciquery-db
+    spec:
+      containers:
+      - name: db
+        image: "{{ .Values.sciqueryDb.image.repository }}:{{ .Values.sciqueryDb.image.tag }}"
+        imagePullPolicy: {{ .Values.sciqueryDb.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.sciqueryDb.resources | nindent 10 }}
+        ports:
+        - containerPort: 1433
+          name: mssql
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_PID
+          value: Express
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sciserver.fullname" . }}-sciquery-db
+              key: password
+        - name: _CONFIG_HASH
+          value: {{ include (print $.Template.BasePath "/sciquery/db/sciquery-db-secret.yaml") . | sha256sum }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/opt/mssql
+        {{ if and .Values.backup.enable .Values.sciqueryDb.backup.enable }}
+        - name: backup
+          mountPath: /backup
+        {{ end }}
+      volumes:
+      - name: data
+        {{ if .Values.dev.nopvc }}
+        emptyDir: {}
+        {{ else }}
+        persistentVolumeClaim:
+          claimName: {{ include "sciserver.fullname" . }}-sciquery-db
+        {{ end }}
+      {{ if and .Values.backup.enable .Values.sciqueryDb.backup.enable -}}
+      - name: backup
+        nfs:
+          server: {{ required "Need nfs server for backup" .Values.backup.nfs.server }}
+          path: {{ default "/backup" .Values.backup.nfs.path }}
+      {{ end -}}
+{{ end -}}
