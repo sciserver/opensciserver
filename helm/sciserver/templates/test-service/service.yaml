@@ -1,0 +1,181 @@
+{{- if .Values.testService.enable }}
+{{- $name := printf "%s-test-service" (include "sciserver.fullname" .) }}
+{{- $secretName := default (printf "%s-reporting" $name) .Values.testService.reportingSecret }}
+{{- if not .Values.testService.reportingSecret }}
+{{- $previous := lookup "v1" "Secret" .Release.Namespace $secretName }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secretName }}
+  annotations:
+    helm.sh/resource-policy: keep
+type: Opaque
+data:
+  signing-key: {{ if $previous }}{{ index $previous.data "signing-key" }}{{ else }}{{ randBytes 32 | b64enc }}{{ end }}
+---
+{{- end }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+rules:
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "create", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: test-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: test-service
+    spec:
+      serviceAccountName: {{ $name }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: "{{ .Values.testService.image.repository }}:{{ .Values.testService.image.tag }}"
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.testService.resources | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: TEST_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: TEST_OWNER
+              value: {{ $name | trunc 40 | trimSuffix "-" | quote }}
+            - name: TEST_IMAGE
+              {{- if .Values.testService.runnerImage.digest }}
+              value: "{{ .Values.testService.runnerImage.repository }}@{{ .Values.testService.runnerImage.digest }}"
+              {{- else }}
+              value: "{{ .Values.testService.runnerImage.repository }}:{{ .Values.testService.runnerImage.tag }}"
+              {{- end }}
+            - name: TEST_BASE_URL
+              value: {{ printf "%s/%s" (include "sciserver.domainurl" (dict "Values" .Values)) (default "" .Values.prefix) | trimSuffix "/" | quote }}
+            - name: TEST_RACM_URL
+              value: "http://{{ include "sciserver.fullname" . }}-racm/{{ include "sciserver.prefix" . }}racm"
+            - name: TEST_CALLBACK_URL
+              value: "http://{{ $name }}.{{ .Release.Namespace }}.svc:8080/{{ include "sciserver.prefix" . }}test-service/reporting"
+            - name: TEST_REPORT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: signing-key
+            - name: TEST_CALLBACK_WINDOW_SECONDS
+              value: {{ .Values.testService.callbackWindowSeconds | quote }}
+            - name: TEST_RETAINED_REPORTS
+              value: {{ .Values.testService.retainedReports | quote }}
+            - name: TEST_RETENTION_SECONDS
+              value: {{ .Values.testService.retentionSeconds | quote }}
+            - name: TEST_DEADLINE_SECONDS
+              value: {{ .Values.testService.deadlineSeconds | quote }}
+            - name: TEST_MAX_ACTIVE
+              value: {{ .Values.testService.maxActive | quote }}
+            - name: TEST_PULL_SECRET
+              value: {{ default "" .Values.imagePullSecret | quote }}
+            - name: TEST_SERVICE_CONTEXT_PATH
+              value: "/{{ include "sciserver.prefix" . }}test-service"
+          readinessProbe:
+            httpGet:
+              path: /{{ include "sciserver.prefix" . }}test-service/actuator/health
+              port: http
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /{{ include "sciserver.prefix" . }}test-service/actuator/health
+              port: http
+            initialDelaySeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+spec:
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: test-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: {{ eq .Values.protocol "https" | quote }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.proxy.cidrWhiteList | quote }}
+spec:
+  ingressClassName: {{ default "nginx" .Values.ingressClassName | quote }}
+  {{- if .Values.ingressTlsSecret }}
+  tls:
+    - secretName: {{ .Values.ingressTlsSecret }}
+      hosts:
+        - {{ .Values.baseDomain }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.baseDomain }}
+      http:
+        paths:
+          - path: /{{ include "sciserver.prefix" . }}test-service
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $name }}
+                port:
+                  name: http
+{{- end }}

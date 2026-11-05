@@ -1,0 +1,40 @@
+{
+  "contractVersion": "1",
+  "runId": "example-failed",
+  "startedAt": "2026-10-28T12:00:00Z",
+  "finishedAt": "2026-10-28T12:00:01Z",
+  "outcome": "failed",
+  "requested": [
+    "identity.register"
+  ],
+  "tests": [
+    {
+      "id": "preflight.login",
+      "name": "preflight / login",
+      "selected": false,
+      "status": "failed",
+      "durationSeconds": 1,
+      "blockedBy": [],
+      "detail": "AssertionError: login portal did not return HTTP 200"
+    },
+    {
+      "id": "identity.register",
+      "name": "Register a user",
+      "selected": true,
+      "status": "blocked",
+      "durationSeconds": 0,
+      "blockedBy": [
+        "preflight.login"
+      ],
+      "detail": "Prerequisites did not pass"
+    }
+  ],
+  "counts": {
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "skipped": 0,
+    "blocked": 1
+  },
+  "runnerError": null
+}

@@ -12,6 +12,7 @@
     "buildConfigureDockerImage": "docker build -f Dockerfile-configure -t containers.repo.sciserver.org/dashboard-build .",
     "buildRunDockerImage": "docker build -f Dockerfile-run -t containers.repo.sciserver.org/dashboard .",
     "buildDockerImages": "npm run buildConfigureDockerImage && npm run buildRunDockerImage",
+    "check:integration-tests": "node test/integration-tests.cjs",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",

@@ -68,3 +68,8 @@ graphql:
   image:
     tag: <<<VTAG>>>
     repo: <<<IMAGE_REPO>>>
+testService:
+  image:
+    tag: <<<VTAG>>>
+  runnerImage:
+    tag: <<<VTAG>>>
