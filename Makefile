@@ -22,8 +22,10 @@ REPO=sciserver
 IMAGE_COMPONENTS=fileservice compute racm login-portal fileservice-bootstrapper sciquery compm test-service
 IMAGE_TARGETS=$(addsuffix .image,$(IMAGE_COMPONENTS))
 DOCKER_BUILD_OPTS=--platform linux/amd64
+test-service.image: export SOURCE_REPOSITORY := $(SOURCE_REPOSITORY)
 $(IMAGE_TARGETS):
-	cd components/java/$(subst .image,,$@) && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/$(subst .image,,$@):$(VTAG) .
+	$(if $(filter test-service.image,$@),@test -n "$$SOURCE_REPOSITORY" || { echo "SOURCE_REPOSITORY is required; export the source repository URL or pass SOURCE_REPOSITORY=... to make." >&2; exit 1; })
+	cd components/java/$(subst .image,,$@) && docker build $(DOCKER_BUILD_OPTS) $(if $(filter test-service.image,$@),--build-arg SOURCE_REPOSITORY) -t $(REPO)/$(subst .image,,$@):$(VTAG) .
 keystone.image:
 	cd components/keystone-image && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/keystone:$(VTAG) .
 dashboard-build.image:
@@ -36,7 +38,6 @@ graphql.image:
 	cd components/ui/graphql && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/graphql:$(VTAG) .
 rendersvc.image: python
 	cd components/python/rendersvc && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/rendersvc:$(VTAG) -f docker/Dockerfile .
-
 integration-tests.image:
 	cd tests/integration && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/integration-tests:$(VTAG) .
 

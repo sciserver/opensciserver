@@ -160,9 +160,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: {{ eq .Values.protocol "https" | quote }}
     nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.proxy.cidrWhiteList | quote }}
 spec:
-  {{- if .Values.ingressClassName }}
-  ingressClassName: {{ .Values.ingressClassName | quote }}
-  {{- end }}
+  ingressClassName: {{ default "nginx" .Values.ingressClassName | quote }}
   {{- if .Values.ingressTlsSecret }}
   tls:
     - secretName: {{ .Values.ingressTlsSecret }}

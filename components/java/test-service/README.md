@@ -73,7 +73,17 @@ cd components/java
 ```
 
 From the repository root, `make test-service.image REPO=... VTAG=...` builds the
-service image after the jar is built. A clean, targeted service build needs the
+service image after the jar is built. Local builds require `SOURCE_REPOSITORY`
+to identify the image's source repository; there is no default. Export it before
+building, or pass it as a Make variable:
+
+```sh
+export SOURCE_REPOSITORY=https://github.com/OWNER/REPOSITORY
+make test-service.image REPO=... VTAG=...
+```
+
+CI supplies this URL from `github.server_url` and `github.repository`.
+A clean, targeted service build needs the
 separate `:racm:modelJar` step above; the shared client's file dependency does not
 automatically schedule it. The root `make java` already builds the models first.
 The new component participates in the existing `java`, `images` and `publish-images` targets. The runner image must
