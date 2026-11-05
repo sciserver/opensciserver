@@ -37,14 +37,17 @@ graphql.image:
 rendersvc.image: python
 	cd components/python/rendersvc && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/rendersvc:$(VTAG) -f docker/Dockerfile .
 
-PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push web.push graphql.push rendersvc.push
+integration-tests.image:
+	cd tests/integration && docker build $(DOCKER_BUILD_OPTS) -t $(REPO)/integration-tests:$(VTAG) .
+
+PUSH_TARGETS=$(addsuffix .push,$(IMAGE_COMPONENTS)) keystone.push dashboard.push dashboard-build.push web.push graphql.push rendersvc.push integration-tests.push
 HASHTAG=$(shell git rev-parse --short=7 HEAD)
 %.push: %.image
 	docker tag $(REPO)/$(subst .push,,$@):$(VTAG) $(REPO)/$(subst .push,,$@):$(HASHTAG)
 	docker push $(REPO)/$(subst .push,,$@):$(VTAG)
 	docker push $(REPO)/$(subst .push,,$@):$(HASHTAG)
 
-images: $(IMAGE_TARGETS)
+images: $(IMAGE_TARGETS) integration-tests.image
 
 publish-images: $(PUSH_TARGETS)
 
