@@ -14,19 +14,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WebAuthenticationAuthorizationHandlers {
-	@Component
-	public static class RedirectToLoginPortal implements AuthenticationEntryPoint {
-		@Autowired
-		private LoginConfig loginConfig;
+    @Component
+    public static class RedirectToLoginPortal implements AuthenticationEntryPoint {
+        @Autowired
+        private LoginConfig loginConfig;
 
-		@Override
-		public void commence(HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException exception)
-				throws IOException, ServletException {
-			String callback = request.getRequestURL().toString();
-			String loginUrl = loginConfig.getLoginPortalUrl() + "/login";
+        @Override
+        public void commence(HttpServletRequest request, HttpServletResponse response,
+                AuthenticationException exception) throws IOException, ServletException {
+            String callback = request.getRequestURL().toString();
+            String loginUrl = loginConfig.getLoginPortalUrl() + "/login";
 
-			response.sendRedirect(loginUrl + "?callbackUrl=" + callback);
-		}
-	}
+            response.sendRedirect(loginUrl + "?callbackUrl=" + callback);
+        }
+    }
 }

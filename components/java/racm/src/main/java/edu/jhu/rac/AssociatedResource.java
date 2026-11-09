@@ -32,13 +32,18 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_AssociatedResource")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_AssociatedResource")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "AssociatedResource.findById", query = "SELECT o FROM AssociatedResource o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "AssociatedResource.findByPublisherDID", query = "SELECT o FROM AssociatedResource o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "AssociatedResource.findById",
+            query = "SELECT o FROM AssociatedResource o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "AssociatedResource.findByPublisherDID",
+            query = "SELECT o FROM AssociatedResource o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -48,12 +53,14 @@ public class AssociatedResource extends MetadataObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version()
+    @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /** container gives the parent entity which owns a collection containing instances of this class */
     @javax.persistence.ManyToOne(cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY) @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
+        javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY)
+    @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
     protected Resource container;
 
     /**
@@ -64,7 +71,8 @@ public class AssociatedResource extends MetadataObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "usage", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "usage", nullable = true)
 
     private String usage;
 
@@ -76,7 +84,9 @@ public class AssociatedResource extends MetadataObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Enumerated(javax.persistence.EnumType.STRING) @javax.persistence.Column(name = "ownership", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Enumerated(javax.persistence.EnumType.STRING)
+    @javax.persistence.Column(name = "ownership", nullable = true)
 
     private OwnershipCategory ownership;
 
@@ -88,9 +98,10 @@ public class AssociatedResource extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
 
     private Resource resource = null;
     /**

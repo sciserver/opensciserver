@@ -16,26 +16,25 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @CrossOrigin
 @RestController
 @FileServiceTokenRequired
-@RequestMapping(value="/storem")
+@RequestMapping(value = "/storem")
 @Tag(name = "File service self-registration",
-     description = "Called by a FileService instance to retrieve its own registration.")
+        description = "Called by a FileService instance to retrieve its own registration.")
 @SecurityRequirement(name = "serviceToken")
 public class FileServiceTokenRequiredController {
-	/**
-	 * Hidden from the API document, and not by preference: OpenAPI keys an operation by path
-	 * and method, and this handler shares both with getDetailsOfFileServiceFAST, which answers
-	 * the same request when a user token is present. Two entries cannot coexist there, and
-	 * springdoc fails the whole document rather than one path when asked to build them. The
-	 * behaviour described here is documented on that operation instead.
-	 */
-	@Hidden
-	@GetMapping(value="/fileservice/{fileServiceIdentifer}",
-			headers = "!"+AUTH_HEADER)
-	public RegisteredFileServiceModel getDetailsOfFileService(@PathVariable String fileServiceIdentifer,
-			RegisteredFileServiceModel fileService) {
-		if (!fileService.getIdentifier().equals(fileServiceIdentifer))
-			throw new ResourceNotFoundException("Couldn't find identifier");
+    /**
+     * Hidden from the API document, and not by preference: OpenAPI keys an operation by path
+     * and method, and this handler shares both with getDetailsOfFileServiceFAST, which answers
+     * the same request when a user token is present. Two entries cannot coexist there, and
+     * springdoc fails the whole document rather than one path when asked to build them. The
+     * behaviour described here is documented on that operation instead.
+     */
+    @Hidden
+    @GetMapping(value = "/fileservice/{fileServiceIdentifer}", headers = "!" + AUTH_HEADER)
+    public RegisteredFileServiceModel getDetailsOfFileService(@PathVariable String fileServiceIdentifer,
+            RegisteredFileServiceModel fileService) {
+        if (!fileService.getIdentifier().equals(fileServiceIdentifer))
+            throw new ResourceNotFoundException("Couldn't find identifier");
 
-		return fileService;
-	}
+        return fileService;
+    }
 }

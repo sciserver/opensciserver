@@ -125,8 +125,7 @@ class FileServiceRepository {
 
     public boolean existsByIdentifier(UserProfile up, String fileServiceIdentifer) {
         return !up.getTom()
-                .createQuery(
-                        "SELECT f.resourceContext.uuid from FileService f WHERE f.resourceContext.uuid = :uuid")
+                .createQuery("SELECT f.resourceContext.uuid from FileService f WHERE f.resourceContext.uuid = :uuid")
                 .setMaxResults(1).setParameter("uuid", fileServiceIdentifer).getResultList().isEmpty();
     }
 
@@ -137,17 +136,16 @@ class FileServiceRepository {
 
     public List<MinimalFileServiceModel> getMinimalFileServices(UserProfile up) {
         TransientObjectManager tom = up.getTom();
-        String sql = "  select rc.uuid, f.name,f.description,f.apiendpoint " + 
-                "  from t_fileservice f " + 
-                "    join t_resourcecontext rc on rc.id=f.resourceContextId " + 
-                " where exists (select ua.resourceId from racm.userResourceActionsOnContext(rc.uuid,?) ua)" + 
-                "";
+        String sql = "  select rc.uuid, f.name,f.description,f.apiendpoint " + "  from t_fileservice f "
+                + "    join t_resourcecontext rc on rc.id=f.resourceContextId "
+                + " where exists (select ua.resourceId from racm.userResourceActionsOnContext(rc.uuid,?) ua)" + "";
         Query q = tom.createNativeQuery(sql).setParameter(1, up.getUsername());
         List<MinimalFileServiceModel> fms = new ArrayList<MinimalFileServiceModel>();
         List<?> rows = tom.executeNativeQuery(q);
-        for(Object r : rows) {
+        for (Object r : rows) {
             Object[] row = (Object[]) r;
-            MinimalFileServiceModel fm = new MinimalFileServiceModel((String)row[0], (String)row[1],(String)row[2],(String)row[3]);
+            MinimalFileServiceModel fm =
+                    new MinimalFileServiceModel((String) row[0], (String) row[1], (String) row[2], (String) row[3]);
             fms.add(fm);
         }
         return fms;
@@ -185,119 +183,123 @@ class FileServiceRepository {
      */
     public FileServiceModel getFileServiceFAST(UserProfile up, String fileServiceResourceContextUUID) {
         TransientObjectManager tom = up.getTom();
-        Query q = tom.createQuery("select fs from FileService fs where fs.resourceContext.uuid=:uuid").setParameter("uuid", fileServiceResourceContextUUID);
-        FileService fs = tom.queryOne(q, FileService.class); 
-        
+        Query q = tom.createQuery("select fs from FileService fs where fs.resourceContext.uuid=:uuid")
+                .setParameter("uuid", fileServiceResourceContextUUID);
+        FileService fs = tom.queryOne(q, FileService.class);
+
         String columns = "type,id,resourceUUID,name,description,path,displayName,owner,url,"
                 + "containsSharedVolumes,actions,resourceId,rootVolumeId,owningResourceId";
         // important to order by type first, so R comes before U and RZ in between them!
-        String sql = String.format("SELECT %s FROM racm.userFileserviceResources(?,?) order by type,resourceId", columns);
-        Query nativeQuery = tom.createNativeQuery(sql).setParameter(1, fileServiceResourceContextUUID).setParameter(2,up.getUsername());
+        String sql =
+                String.format("SELECT %s FROM racm.userFileserviceResources(?,?) order by type,resourceId", columns);
+        Query nativeQuery = tom.createNativeQuery(sql).setParameter(1, fileServiceResourceContextUUID).setParameter(2,
+                up.getUsername());
 
         List<?> rawResults = tom.executeNativeQuery(nativeQuery);
-        HashMap<Long,RootVolumeModel> rvs = new HashMap<Long,RootVolumeModel>();
+        HashMap<Long, RootVolumeModel> rvs = new HashMap<Long, RootVolumeModel>();
         List<DataVolumeModel> dvs = new ArrayList<DataVolumeModel>();
-        HashMap<Long,FileServiceResourceModel> resources = new HashMap<Long, FileServiceResourceModel>();
-        for(Object o: rawResults) {
-            Object[] row = (Object[])o;
+        HashMap<Long, FileServiceResourceModel> resources = new HashMap<Long, FileServiceResourceModel>();
+        for (Object o : rawResults) {
+            Object[] row = (Object[]) o;
             int ix = 0;
             String type = (String) row[ix++];
             Long id = (Long) row[ix++];
-            String resourceUUID=(String)row[ix++];
-            String name=(String)row[ix++];
-            String description=(String)row[ix++];
-            String path=(String)row[ix++];
-            String displayName=(String)row[ix++];
-            String owner=(String)row[ix++];
-            String url=(String)row[ix++];
-            Integer bit = (Integer)row[ix++];
-            Boolean containsSharedVolumes = (bit == null || bit.equals(0))?false:true;
-            List<String> actions = csv2list((String)row[ix++]);
-            Long resourceId=(Long)row[ix++];
-            Long rootVolumeId=(Long)row[ix++];
-            Long owningResourceId=(Long)row[ix++];
+            String resourceUUID = (String) row[ix++];
+            String name = (String) row[ix++];
+            String description = (String) row[ix++];
+            String path = (String) row[ix++];
+            String displayName = (String) row[ix++];
+            String owner = (String) row[ix++];
+            String url = (String) row[ix++];
+            Integer bit = (Integer) row[ix++];
+            Boolean containsSharedVolumes = (bit == null || bit.equals(0)) ? false : true;
+            List<String> actions = csv2list((String) row[ix++]);
+            Long resourceId = (Long) row[ix++];
+            Long rootVolumeId = (Long) row[ix++];
+            Long owningResourceId = (Long) row[ix++];
             FileServiceResourceModel r = null;
-            if("R".equals(type)) {
-                r = new RootVolumeModel(id,resourceUUID,name,description,path,containsSharedVolumes,actions);
-                rvs.put(id,(RootVolumeModel)r);
-            }
-            else if("RZ".equals(type)) {  // in case there are RootVOlumes the user has no actions on.
+            if ("R".equals(type)) {
+                r = new RootVolumeModel(id, resourceUUID, name, description, path, containsSharedVolumes, actions);
+                rvs.put(id, (RootVolumeModel) r);
+            } else if ("RZ".equals(type)) { // in case there are RootVOlumes the user has no actions on.
                 RootVolumeModel rv = rvs.get(id);
-                if(rv != null)
+                if (rv != null)
                     continue;
-                r = new RootVolumeModel(id,resourceUUID,name,description,path,containsSharedVolumes,actions);
-                rvs.put(id,(RootVolumeModel)r);
-            }
-            else if("D".equals(type)) {
-                r = new DataVolumeModel(id,resourceUUID,name,description,displayName,path,url,actions);
-                dvs.add((DataVolumeModel)r);
-            }
-            else if("U".equals(type)) {
-                UserVolumeModel uv = new UserVolumeModel(id,resourceUUID,name,description,path,owner,actions);
-                r=uv;
+                r = new RootVolumeModel(id, resourceUUID, name, description, path, containsSharedVolumes, actions);
+                rvs.put(id, (RootVolumeModel) r);
+            } else if ("D".equals(type)) {
+                r = new DataVolumeModel(id, resourceUUID, name, description, displayName, path, url, actions);
+                dvs.add((DataVolumeModel) r);
+            } else if ("U".equals(type)) {
+                UserVolumeModel uv = new UserVolumeModel(id, resourceUUID, name, description, path, owner, actions);
+                r = uv;
                 RootVolumeModel rv = rvs.get(rootVolumeId);
-                if(rv != null)   
+                if (rv != null)
                     rv.addUserVolume(uv);
                 else
-                    LOG.warn("UserVolume [{},{},{},{}] cannot find RootVolume [{}]",
-                            uv.getResourceUUID(), uv.getName(), uv.getRelativePath(), uv.getOwner(), rootVolumeId);
+                    LOG.warn("UserVolume [{},{},{},{}] cannot find RootVolume [{}]", uv.getResourceUUID(), uv.getName(),
+                            uv.getRelativePath(), uv.getOwner(), rootVolumeId);
             }
-            if(r != null) {
-                if(owningResourceId != null)
+            if (r != null) {
+                if (owningResourceId != null)
                     r.setOwningResourceId(owningResourceId);
                 resources.put(resourceId, r);
             }
         }
-        
+
         columns = "resourceid,resourceUUID,scientitytype,scientityid,scientityname,action";
-        sql = String.format("SELECT %s FROM racm.userContextResourceShares(?,?) order by resourceId,scientityid", columns);
-        nativeQuery = tom.createNativeQuery(sql).setParameter(1, fileServiceResourceContextUUID).setParameter(2,up.getUsername());
-        
+        sql = String.format("SELECT %s FROM racm.userContextResourceShares(?,?) order by resourceId,scientityid",
+                columns);
+        nativeQuery = tom.createNativeQuery(sql).setParameter(1, fileServiceResourceContextUUID).setParameter(2,
+                up.getUsername());
+
         rawResults = tom.executeNativeQuery(nativeQuery);
         SharedWithEntity s = null;
         Long currentResourceId = null;
         Long currentscientityid = null;
         FileServiceResourceModel currentResource = null;
-        for(Object o: rawResults) {
-            Object[] row = (Object[])o;
+        for (Object o : rawResults) {
+            Object[] row = (Object[]) o;
             int ix = 0;
-            Long resourceId = (Long)row[ix++];
-            if(!resourceId.equals(currentResourceId)) {
+            Long resourceId = (Long) row[ix++];
+            if (!resourceId.equals(currentResourceId)) {
                 currentResourceId = resourceId;
                 currentResource = resources.get(resourceId);
-                currentscientityid = null;  // needs resetting as well
+                currentscientityid = null; // needs resetting as well
             }
-            if(currentResource != null) {
-                String resourceUUID = (String)row[ix++];
-                String scientitytype = (String)row[ix++];
-                Long scientityid = (Long)row[ix++];
-                String scientityname = (String)row[ix++];
-                String action = (String)row[ix++];
-                if(!scientityid.equals(currentscientityid)) {
+            if (currentResource != null) {
+                String resourceUUID = (String) row[ix++];
+                String scientitytype = (String) row[ix++];
+                Long scientityid = (Long) row[ix++];
+                String scientityname = (String) row[ix++];
+                String action = (String) row[ix++];
+                if (!scientityid.equals(currentscientityid)) {
                     SciServerEntityType t = SciServerEntityType.valueOf(scientitytype);
                     s = new SharedWithEntity(scientityid, scientityname, t, null);
-                    if(!(t == SciServerEntityType.USER && currentResource instanceof UserVolumeModel
-                            && scientityname.equals(((UserVolumeModel)currentResource).getOwner())))
-                            if(!(currentResource instanceof RootVolumeModel))
-                                currentResource.addSharedWith(s); 
+                    if (!(t == SciServerEntityType.USER && currentResource instanceof UserVolumeModel
+                            && scientityname.equals(((UserVolumeModel) currentResource).getOwner())))
+                        if (!(currentResource instanceof RootVolumeModel))
+                            currentResource.addSharedWith(s);
                     currentscientityid = scientityid;
                 }
                 s.addAllowedAction(action);
             } else { // this would be a server error. log here iso returning anything to user
-                LOG.warn("currentResource == null for currentResourceId={}: can happen e.g. if a __rootcontext__ has a privilege",
+                LOG.warn(
+                        "currentResource == null for currentResourceId={}: can happen e.g. if a __rootcontext__ has a privilege",
                         currentResourceId);
             }
-        } 
+        }
         List<RootVolumeModel> lrvs = new ArrayList<RootVolumeModel>(rvs.values());
-        FileServiceModel fsm = new FileServiceModel(fileServiceResourceContextUUID,fs.getName(),fs.getDescription(),fs.getApiEndpoint(),lrvs, dvs);
-        
+        FileServiceModel fsm = new FileServiceModel(fileServiceResourceContextUUID, fs.getName(), fs.getDescription(),
+                fs.getApiEndpoint(), lrvs, dvs);
+
         return fsm;
     }
 
     private List<String> csv2list(String actionsCSV) {
-        return actionsCSV == null ? new ArrayList<String>():Arrays.asList(actionsCSV.split(","));
+        return actionsCSV == null ? new ArrayList<String>() : Arrays.asList(actionsCSV.split(","));
     }
-    
+
     public FileServiceModel getFileService(UserProfile up, String fileServiceIdentifer) {
         return maybeGetFileService(up, fileServiceIdentifer)
                 .orElseThrow(() -> new ResourceNotFoundException("Cannot locate file service"));
@@ -321,8 +323,8 @@ class FileServiceRepository {
                         .map(VOURPEntityWithResource::wrap))
                 .collect(Collectors.toList());
 
-        Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWith = accessControl
-                .getSharedPrivileges(userVolumesToSearch, up.getTom());
+        Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWith =
+                accessControl.getSharedPrivileges(userVolumesToSearch, up.getTom());
 
         return mapper.getListingDTO(fs, dataVolumes, allowedActions, sharedWith);
     }
@@ -332,8 +334,8 @@ class FileServiceRepository {
             throw new InsufficientPermissionsException("register a file service");
 
         FileService newFileService = mapper.createFileService(fileService, up.getTom());
-        RegisteredFileServiceModel createdFileService = mapper.getRegisteredFileServiceView(newFileService,
-                getDataVolumes(newFileService));
+        RegisteredFileServiceModel createdFileService =
+                mapper.getRegisteredFileServiceView(newFileService, getDataVolumes(newFileService));
 
         racmUtil.assignRole(R_FILESERVICE_ADMIN, racmUtil.addRootContext(newFileService.getResourceContext()),
                 up.getUser());
@@ -367,47 +369,48 @@ class FileServiceRepository {
         persistUncheckingException(up.getTom());
         return mapper.getRegisteredRootVolume(rv);
     }
+
     /* package-private visible for testing purposes */
-     RegisteredUserVolumeModel registerUserVolume(UserProfile up, FileService fs, RootVolume rv,
-            RegisterNewUserVolumeModel userVolume) throws InvalidTOMException{
-         User user = up.getUser();
+    RegisteredUserVolumeModel registerUserVolume(UserProfile up, FileService fs, RootVolume rv,
+            RegisterNewUserVolumeModel userVolume) throws InvalidTOMException {
+        User user = up.getUser();
 
-         if (!accessControl.canCreateUserVolume(up, rv))
-             throw new InsufficientPermissionsException("create a user volume");
+        if (!accessControl.canCreateUserVolume(up, rv))
+            throw new InsufficientPermissionsException("create a user volume");
 
-         if (getUserVolume(up.getTom(), userVolume.getName(), fs.getResourceContext().getUuid(), rv.getName(),
-                 userVolume.getOwner().orElse(up.getUsername())).isPresent()) {
-             throw new RegistrationInvalidException("User volume name must be unique for each user");
-         }
+        if (getUserVolume(up.getTom(), userVolume.getName(), fs.getResourceContext().getUuid(), rv.getName(),
+                userVolume.getOwner().orElse(up.getUsername())).isPresent()) {
+            throw new RegistrationInvalidException("User volume name must be unique for each user");
+        }
 
-         userVolume.getOwner().ifPresent(id -> {
-             if (!id.equals(up.getUsername()))
-                 throw new InsufficientPermissionsException("register a user volume as another user or group."
-                         + " This functionality may be implemented later");
-         });
+        userVolume.getOwner().ifPresent(id -> {
+            if (!id.equals(up.getUsername()))
+                throw new InsufficientPermissionsException("register a user volume as another user or group."
+                        + " This functionality may be implemented later");
+        });
 
-         RegisterNewUserVolumeWithOwnerModel newUserVolume = new RegisterNewUserVolumeWithOwnerModel(
-                 userVolume.getName(), userVolume.getDescription(), userVolume.getRelativePath(), user);
+        RegisterNewUserVolumeWithOwnerModel newUserVolume = new RegisterNewUserVolumeWithOwnerModel(
+                userVolume.getName(), userVolume.getDescription(), userVolume.getRelativePath(), user);
 
-         ChangeSet changeSet = up.getTom().newChangeSet();
-         
-         UserVolume uv = mapper.createUserVolume(newUserVolume, rv, fs);
-         changeSet.add(uv);
-         changeSet.add(uv.getResource());
-         
-         List<Privilege> privs = racmUtil.assignPrivileges(user, uv.getResource(), A_FILESERVICE_USERVOLUME_READ, A_FILESERVICE_USERVOLUME_WRITE,
-                 A_FILESERVICE_USERVOLUME_DELETE);
-         for(Privilege priv : privs)
-             changeSet.add(priv);
-         
-         if (rv.getContainsSharedVolumes()) {
-             privs = racmUtil.assignPrivileges(user, uv.getResource(), A_FILESERVICE_USERVOLUME_GRANT);
-             for(Privilege priv : privs)
-                 changeSet.add(priv);
-         }
+        ChangeSet changeSet = up.getTom().newChangeSet();
 
-         up.getTom().persistChangeSet(changeSet,  true);
-         return mapper.getRegisteredUserVolume(uv);
+        UserVolume uv = mapper.createUserVolume(newUserVolume, rv, fs);
+        changeSet.add(uv);
+        changeSet.add(uv.getResource());
+
+        List<Privilege> privs = racmUtil.assignPrivileges(user, uv.getResource(), A_FILESERVICE_USERVOLUME_READ,
+                A_FILESERVICE_USERVOLUME_WRITE, A_FILESERVICE_USERVOLUME_DELETE);
+        for (Privilege priv : privs)
+            changeSet.add(priv);
+
+        if (rv.getContainsSharedVolumes()) {
+            privs = racmUtil.assignPrivileges(user, uv.getResource(), A_FILESERVICE_USERVOLUME_GRANT);
+            for (Privilege priv : privs)
+                changeSet.add(priv);
+        }
+
+        up.getTom().persistChangeSet(changeSet, true);
+        return mapper.getRegisteredUserVolume(uv);
     }
 
     public RegisteredUserVolumeModel registerUserVolume(UserProfile up, String fileServiceIdentifer,
@@ -451,11 +454,12 @@ class FileServiceRepository {
                 UriComponentsBuilder.fromPath(rootVolumeName).pathSegment(userVolumeOwnerName)
                         .pathSegment(userVolumeName).build().toUriString());
     }
+
     public void removeMyShares(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
             String userVolumeOwnerName, String userVolumeName) {
-        UserVolume uv = getUserVolume(up.getTom(),
-                userVolumeName, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName)
-                .orElseThrow(() ->  new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
+        UserVolume uv =
+                getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName)
+                        .orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
 
         if (accessControl.isUserVolumeOwned(uv))
             throw new InsufficientPermissionsException(
@@ -479,8 +483,9 @@ class FileServiceRepository {
 
     public void deleteUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
             String userVolumeOwnerName, String userVolumeName) {
-        UserVolume uv = getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName,
-                userVolumeOwnerName).orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
+        UserVolume uv =
+                getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName)
+                        .orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
 
         // TBD whether this check should be done at the RACM level already
         if (accessControl.isUserVolumeOwned(uv))
@@ -558,8 +563,9 @@ class FileServiceRepository {
 
     public void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
             String userVolumeOwnerName, String userVolumeName, UpdateSharedWithEntry updatedEntry) {
-        UserVolume uv = getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName,
-                userVolumeOwnerName).orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
+        UserVolume uv =
+                getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName)
+                        .orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
 
         if (!accessControl.canUserShareUserVolume(up, uv))
             throw new InsufficientPermissionsException("share this user volume");
@@ -641,8 +647,9 @@ class FileServiceRepository {
 
     public void updateUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
             String userVolumeOwnerName, String userVolumeName, UpdatedUserVolumeInfo updatedUserVolumeInfo) {
-        UserVolume uv = getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName,
-                userVolumeOwnerName).orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
+        UserVolume uv =
+                getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName)
+                        .orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
 
         if (!uv.getOwner().equals(up.getUser()))
             throw new InsufficientPermissionsException("update this user volume");
@@ -741,6 +748,7 @@ class FileServiceRepository {
         q.setHint(QueryHints.LEFT_FETCH, QUERY_PATH_FS_RESOURCE_CONTEXT);
         return tom.queryOne(q, FileService.class);
     }
+
     /**
      * Return only a FileService, its rootvolumes and its resourcecontext.<br/>
      * Useful for registering new uservolumes. 
@@ -755,6 +763,7 @@ class FileServiceRepository {
         q.setHint(QueryHints.LEFT_FETCH, "f.rootVolume");
         return tom.queryOne(q, FileService.class);
     }
+
     /**
      * TODO why not just ask the fileservice for its root volumes and select the one
      * with the right name?<br/>
@@ -809,9 +818,8 @@ class FileServiceRepository {
     }
 
     /*
-     * Convert InvalidTOMException to a runtime exception. This probably should be
-     * wrapped in a vo-urp-dependent exception, but at least this avoids classes in
-     * higher layers from having to catch this.
+     * Convert InvalidTOMException to a runtime exception. This probably should be wrapped in a vo-urp-dependent
+     * exception, but at least this avoids classes in higher layers from having to catch this.
      */
     private void persistUncheckingException(TransientObjectManager tom) {
         try {
@@ -840,7 +848,7 @@ class FileServiceRepository {
      * @throws InvalidTOMException
      */
     public RegisteredServiceVolumeModel registerServiceVolume(UserProfile owner, String fileServiceIdentifer,
-            String rootVolumeName, RegisterNewServiceVolumeModel serviceVolume) throws InvalidTOMException{
+            String rootVolumeName, RegisterNewServiceVolumeModel serviceVolume) throws InvalidTOMException {
         TransientObjectManager tom = owner.getTom();
 
         ServiceAccount serviceAccount = RACMUtil.findServiceAccount(serviceVolume.getServiceToken(), tom);
@@ -868,26 +876,28 @@ class FileServiceRepository {
         }
 
         UserVolume uv = mapper.createServiceVolume(owner.getUser(), serviceVolume, rv, fs);
-        
+
         ChangeSet changeSet = tom.newChangeSet();
         changeSet.add(uv);
         changeSet.add(uv.getResource());
-        
-        List<Privilege> privs = racmUtil.assignPrivileges(serviceAccount, uv.getResource(), A_FILESERVICE_USERVOLUME_READ,
-                A_FILESERVICE_USERVOLUME_WRITE, A_FILESERVICE_USERVOLUME_DELETE, A_FILESERVICE_USERVOLUME_GRANT);
-        
+
+        List<Privilege> privs = racmUtil.assignPrivileges(serviceAccount, uv.getResource(),
+                A_FILESERVICE_USERVOLUME_READ, A_FILESERVICE_USERVOLUME_WRITE, A_FILESERVICE_USERVOLUME_DELETE,
+                A_FILESERVICE_USERVOLUME_GRANT);
+
         for (NewSharedWithEntity share : serviceVolume.getShares()) {
             SciserverEntity e = RACMUtil.querySciServerEntity(tom, share.getName(), share.getType());
-            privs.addAll(racmUtil.assignPrivileges(e, uv.getResource(), share.getAllowedActions().toArray(new String[] {})));
+            privs.addAll(
+                    racmUtil.assignPrivileges(e, uv.getResource(), share.getAllowedActions().toArray(new String[] {})));
         }
-        for(Privilege priv : privs)
+        for (Privilege priv : privs)
             changeSet.add(priv);
 
         AssociatedResource ar = new AssociatedResource(owningResource);
         ar.setOwnership(OwnershipCategory.OWNED);
         ar.setResource(uv.getResource());
         ar.setUsage(serviceVolume.getUsage());
-        
+
         changeSet.add(ar);
 
         tom.persistChangeSet(changeSet, true);
@@ -909,8 +919,9 @@ class FileServiceRepository {
      */
     public void deleteServiceVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
             String userVolumeOwnerName, String userVolumeName, String serviceToken) {
-        UserVolume uv = getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName,
-                userVolumeOwnerName).orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
+        UserVolume uv =
+                getUserVolume(up.getTom(), userVolumeName, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName)
+                        .orElseThrow(() -> new ResourceNotFoundException(UNKNOWN_USER_VOLUME_MESSAGE));
 
         if (!accessControl.isUserVolumeOwnedByService(serviceToken, uv))
             throw new InsufficientPermissionsException("user volume is not owned by service.");

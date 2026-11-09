@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LoggingInitializer {
-	@Value("${logging.jobm.application:JOBM}")
-	private String jobmApplicationName;
+    @Value("${logging.jobm.application:JOBM}")
+    private String jobmApplicationName;
 
-	@PostConstruct
-	public void init() {
-		LogUtils.setJobmApplicationName(jobmApplicationName);
-	}
+    @PostConstruct
+    public void init() {
+        LogUtils.setJobmApplicationName(jobmApplicationName);
+    }
 }

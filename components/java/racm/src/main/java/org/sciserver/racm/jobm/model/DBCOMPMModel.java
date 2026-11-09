@@ -4,81 +4,81 @@ import java.util.List;
 
 import org.sciserver.racm.utils.model.RACMBaseModel;
 
-public class DBCOMPMModel extends RACMBaseModel{
+public class DBCOMPMModel extends RACMBaseModel {
 
-	private String uuid;
-	private String description;
-	private String creatorUsername;
-	private String creatorUserid;
-	private String label;
+    private String uuid;
+    private String description;
+    private String creatorUsername;
+    private String creatorUserid;
+    private String label;
     private long defaultJobTimeout = 8L * 60 * 60;
     private long defaultJobsPerUser = 1;
-    
-	private List<RDBJobModel> outstandingJobs;
-	private Long rdbComputeDomainId;
-	public DBCOMPMModel(){
-	}
 
-	public DBCOMPMModel(String id){
-		super(id);
-	}
-	public String getUuid() {
-		return uuid;
-	}
+    private List<RDBJobModel> outstandingJobs;
+    private Long rdbComputeDomainId;
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public DBCOMPMModel() {
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public DBCOMPMModel(String id) {
+        super(id);
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
-	public List<RDBJobModel> getOutstandingJobs() {
-		return outstandingJobs;
-	}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
-	public void setOutstandingJobs(List<RDBJobModel> outstandingJobs) {
-		this.outstandingJobs = outstandingJobs;
-	}
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
+    public List<RDBJobModel> getOutstandingJobs() {
+        return outstandingJobs;
+    }
 
-	public String getCreatorUsername() {
-		return creatorUsername;
-	}
+    public void setOutstandingJobs(List<RDBJobModel> outstandingJobs) {
+        this.outstandingJobs = outstandingJobs;
+    }
 
-	public void setCreatorUsername(String creator) {
-		this.creatorUsername = creator;
-	}
+    public String getCreatorUsername() {
+        return creatorUsername;
+    }
 
-	public String getLabel() {
-		return label;
-	}
+    public void setCreatorUsername(String creator) {
+        this.creatorUsername = creator;
+    }
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+    public String getLabel() {
+        return label;
+    }
 
-	public Long getRdbComputeDomainId() {
-		return rdbComputeDomainId;
-	}
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
-	public void setComputeDomain(Long computeDomain) {
-		this.rdbComputeDomainId = computeDomain;
-	}
+    public Long getRdbComputeDomainId() {
+        return rdbComputeDomainId;
+    }
 
-	public String getCreatorUserid() {
-		return creatorUserid;
-	}
+    public void setComputeDomain(Long computeDomain) {
+        this.rdbComputeDomainId = computeDomain;
+    }
 
-	public void setCreatorUserid(String createrUserid) {
-		this.creatorUserid = createrUserid;
-	}
+    public String getCreatorUserid() {
+        return creatorUserid;
+    }
+
+    public void setCreatorUserid(String createrUserid) {
+        this.creatorUserid = createrUserid;
+    }
 
     public long getDefaultJobTimeout() {
         return defaultJobTimeout;
@@ -94,4 +94,5 @@ public class DBCOMPMModel extends RACMBaseModel{
 
     public void setDefaultJobsPerUser(long defaultJobsPerUser) {
         this.defaultJobsPerUser = defaultJobsPerUser;
-    }}
+    }
+}

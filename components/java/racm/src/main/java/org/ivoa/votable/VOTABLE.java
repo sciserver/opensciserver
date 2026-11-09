@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -53,11 +52,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "description",
-    "definitions",
-    "coosysAndGROUPSAndPARAMS"
-})
+@XmlType(name = "", propOrder = { "description", "definitions", "coosysAndGROUPSAndPARAMS" })
 @XmlRootElement(name = "VOTABLE")
 public class VOTABLE {
 
@@ -65,13 +60,11 @@ public class VOTABLE {
     protected AnyTEXT description;
     @XmlElement(name = "DEFINITIONS")
     protected Definitions definitions;
-    @XmlElements({
-        @XmlElement(name = "RESOURCE", required = true, type = Resource.class),
+    @XmlElements({ @XmlElement(name = "RESOURCE", required = true, type = Resource.class),
         @XmlElement(name = "PARAM", required = true, type = Param.class),
         @XmlElement(name = "COOSYS", required = true, type = CoordinateSystem.class),
         @XmlElement(name = "GROUP", required = true, type = Group.class),
-        @XmlElement(name = "INFO", required = true, type = Info.class)
-    })
+        @XmlElement(name = "INFO", required = true, type = Info.class) })
     protected List<Object> coosysAndGROUPSAndPARAMS;
     @XmlAttribute(name = "ID")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)

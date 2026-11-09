@@ -16,20 +16,24 @@ import org.ivoa.util.JavaUtils;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 public class PropertyHolder extends LogSupport implements Serializable {
-    //~ Constants --------------------------------------------------------------------------------------------------------
+    // ~ Constants
+    // --------------------------------------------------------------------------------------------------------
 
     /** serial UID for Serializable interface */
     private static final long serialVersionUID = 1L;
 
-    //~ Members ----------------------------------------------------------------------------------------------------------
+    // ~ Members
+    // ----------------------------------------------------------------------------------------------------------
     /** property file */
     private final String propertyFile;
     /** properties */
     private Properties properties = null;
 
-    //~ Constructors -----------------------------------------------------------------------------------------------------
+    // ~ Constructors
+    // -----------------------------------------------------------------------------------------------------
 
-    //~ Methods ----------------------------------------------------------------------------------------------------------
+    // ~ Methods
+    // ----------------------------------------------------------------------------------------------------------
     /**
      * Concrete implementations of the SingletonSupport's initialize() method :<br/>
      * Callback to initialize this SingletonSupport instance<br/>
@@ -41,51 +45,51 @@ public class PropertyHolder extends LogSupport implements Serializable {
      *
      * @see SingletonSupport#initialize()
      *
-   * @throws IllegalStateException if a problem occurred
+    * @throws IllegalStateException if a problem occurred
      */
-	public PropertyHolder(final String propertyFile) {
-		this.propertyFile = propertyFile;
+    public PropertyHolder(final String propertyFile) {
+        this.propertyFile = propertyFile;
 
-		if (JavaUtils.isEmpty(propertyFile)) {
-			throw new IllegalStateException(
-					"Unable to load the configuration : the property file to load is undefined !");
-		}
+        if (JavaUtils.isEmpty(propertyFile)) {
+            throw new IllegalStateException(
+                    "Unable to load the configuration : the property file to load is undefined !");
+        }
 
-		boolean res = false;
+        boolean res = false;
 
-		try (InputStream in = getClass().getResource(propertyFile).openStream()) {
+        try (InputStream in = getClass().getResource(propertyFile).openStream()) {
 
-			this.properties = new Properties();
-			this.properties.load(in);
+            this.properties = new Properties();
+            this.properties.load(in);
 
-			// filter empty strings :
-			String k;
+            // filter empty strings :
+            String k;
 
-			// filter empty strings :
-			String s;
+            // filter empty strings :
+            String s;
 
-			for (final Iterator<Object> it = this.properties.keySet().iterator(); it.hasNext();) {
-				k = (String) it.next();
-				s = this.properties.getProperty(k);
+            for (final Iterator<Object> it = this.properties.keySet().iterator(); it.hasNext();) {
+                k = (String) it.next();
+                s = this.properties.getProperty(k);
 
-				if (JavaUtils.isTrimmedEmpty(s)) {
-					it.remove();
-				}
-			}
+                if (JavaUtils.isTrimmedEmpty(s)) {
+                    it.remove();
+                }
+            }
 
-			if (logB.isDebugEnabled()) {
-				logB.debug("properties [" + propertyFile + "] : " + CollectionUtils.toString(getProperties()));
-			}
+            if (logB.isDebugEnabled()) {
+                logB.debug("properties [" + propertyFile + "] : " + CollectionUtils.toString(getProperties()));
+            }
 
-			res = true;
-		} catch (final IOException ioe) {
-			logB.error("IO Failure : ", ioe);
-		}
+            res = true;
+        } catch (final IOException ioe) {
+            logB.error("IO Failure : ", ioe);
+        }
 
-		if (!res) {
-			throw new IllegalStateException("Unable to load the configuration : " + propertyFile + " !");
-		}
-	}
+        if (!res) {
+            throw new IllegalStateException("Unable to load the configuration : " + propertyFile + " !");
+        }
+    }
 
     /**
      * Return the property file name
@@ -126,7 +130,8 @@ public class PropertyHolder extends LogSupport implements Serializable {
         final String value = this.getProperties().getProperty(name);
 
         if (JavaUtils.isTrimmedEmpty(value)) {
-            throw new IllegalStateException("undefined property [" + name + "] in the configuration file = " + propertyFile + " !");
+            throw new IllegalStateException(
+                    "undefined property [" + name + "] in the configuration file = " + propertyFile + " !");
         }
         return value;
     }
@@ -160,4 +165,5 @@ public class PropertyHolder extends LogSupport implements Serializable {
         return Boolean.valueOf(val).booleanValue();
     }
 }
-//~ End of file --------------------------------------------------------------------------------------------------------
+// ~ End of file
+// --------------------------------------------------------------------------------------------------------

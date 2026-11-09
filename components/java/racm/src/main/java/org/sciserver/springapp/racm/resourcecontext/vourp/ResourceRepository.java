@@ -27,7 +27,6 @@ import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.stereotype.Component;
 
-
 import edu.jhu.rac.AssociatedSciEntity;
 import edu.jhu.rac.OwnershipCategory;
 import edu.jhu.rac.ResourceContext;
@@ -46,13 +45,13 @@ public class ResourceRepository {
 
     public Resource add(Resource resource, String serviceToken) throws NotAuthorizedException {
         edu.jhu.rac.ResourceContext rc = queryResourceContextCheckToken(resource.resourceContextUUID(), serviceToken);
-        
+
         edu.jhu.rac.ResourceType selectedType = rc.getContextClass().getResourceType().stream()
                 .filter(rt -> rt.getName().equals(resource.resourceTypeName())).findAny()
                 .orElseThrow(() -> new RegistrationInvalidException("Could not find resource type"));
 
-        edu.jhu.rac.Resource newResource = resource.isTransient() ? RACMUtil.newResource(rc)
-                : getFromDatabase(resource.uuid());
+        edu.jhu.rac.Resource newResource =
+                resource.isTransient() ? RACMUtil.newResource(rc) : getFromDatabase(resource.uuid());
 
         newResource.setName(resource.name());
         newResource.setDescription(resource.description());
@@ -132,12 +131,12 @@ public class ResourceRepository {
 
     public ServiceResourceFromUserPerspectiveModel convertServiceResourceFromDatabase(
             edu.jhu.rac.Resource databaseResource, String username, Set<ActionModel> allowedActions) {
-        ServiceResourceFromUserPerspectiveModel model = new ServiceResourceFromUserPerspectiveModel(
-                databaseResource.getId().longValue(), databaseResource.getPublisherDID(), databaseResource.getUuid(),
-                databaseResource.getName(), databaseResource.getDescription(),
-                databaseResource.getResourceType().getName(), allowedActions,
-                convertAssociatedResourceAndActionsFromDatabase(databaseResource.getUuid(), username),
-                convertAssociatedEntityModelFromDatabase(databaseResource.getAssociatedGroup()));
+        ServiceResourceFromUserPerspectiveModel model =
+                new ServiceResourceFromUserPerspectiveModel(databaseResource.getId().longValue(),
+                        databaseResource.getPublisherDID(), databaseResource.getUuid(), databaseResource.getName(),
+                        databaseResource.getDescription(), databaseResource.getResourceType().getName(), allowedActions,
+                        convertAssociatedResourceAndActionsFromDatabase(databaseResource.getUuid(), username),
+                        convertAssociatedEntityModelFromDatabase(databaseResource.getAssociatedGroup()));
 
         return model;
     }
@@ -238,24 +237,20 @@ public class ResourceRepository {
 
     public Collection<String> getByPubDID(String serviceToken, String rcUUID, String pubDID) {
         TransientObjectManager tom = vourpContext.newTOM();
-        String sql= "SELECT r.uuid "
-                + " FROM ResourceContext rc "
-                + "  join ServiceAccount sa on sa.id=rc.accountId "
+        String sql = "SELECT r.uuid " + " FROM ResourceContext rc " + "  join ServiceAccount sa on sa.id=rc.accountId "
                 + "  join Resource r on rc.id=r.containerId and r.publisherDID=? "
                 + " WHERE rc.uuid=? and sa.serviceToken=?";
-        Query query = tom.createNativeQuery(sql)
-                .setParameter(1, pubDID)
-                .setParameter(2, rcUUID)
-                .setParameter(3, serviceToken);
-        
+        Query query = tom.createNativeQuery(sql).setParameter(1, pubDID).setParameter(2, rcUUID).setParameter(3,
+                serviceToken);
+
         @SuppressWarnings("unchecked")
-        Collection<String> rawResults = (Collection<String>)tom.executeNativeQuery(query);
+        Collection<String> rawResults = (Collection<String>) tom.executeNativeQuery(query);
         return rawResults;
     }
 
     public Resource get(String resourceUUID) {
         edu.jhu.rac.Resource databaseResource = getFromDatabase(resourceUUID);
-        if(databaseResource == null)
+        if (databaseResource == null)
             return null;
         return convertFromDatabase(databaseResource);
     }
@@ -263,10 +258,10 @@ public class ResourceRepository {
     public ServiceResourceFromUserPerspectiveModel toServiceResourceFromUserPerspectiveModel(String resourceUUID,
             String username, Set<ActionModel> actions) {
         edu.jhu.rac.Resource databaseResource = getFromDatabase(resourceUUID);
-        if(databaseResource == null)
+        if (databaseResource == null)
             return null;
-        ServiceResourceFromUserPerspectiveModel model = convertServiceResourceFromDatabase(databaseResource, username,
-                actions);
+        ServiceResourceFromUserPerspectiveModel model =
+                convertServiceResourceFromDatabase(databaseResource, username, actions);
         return model;
     }
 

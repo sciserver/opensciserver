@@ -8,84 +8,85 @@ import edu.jhu.rac.Resource;
 import edu.jhu.user.SciserverEntity;
 
 public interface VOURPEntityWithResource {
-	Resource getResource();
-	boolean showPrivilegesForUser(SciserverEntity user);
+    Resource getResource();
 
-	static VOURPEntityWithResource wrap(DataVolume dataVolume) {
-		return new WrappedDataVolume(dataVolume);
-	}
+    boolean showPrivilegesForUser(SciserverEntity user);
 
-	static VOURPEntityWithResource wrap(UserVolume userVolume) {
-		return new WrappedUserVolume(userVolume);
-	}
+    static VOURPEntityWithResource wrap(DataVolume dataVolume) {
+        return new WrappedDataVolume(dataVolume);
+    }
 
-	class WrappedDataVolume implements VOURPEntityWithResource {
-		private final DataVolume dataVolume;
+    static VOURPEntityWithResource wrap(UserVolume userVolume) {
+        return new WrappedUserVolume(userVolume);
+    }
 
-		private WrappedDataVolume(DataVolume dataVolume) {
-			this.dataVolume = dataVolume;
-		}
+    class WrappedDataVolume implements VOURPEntityWithResource {
+        private final DataVolume dataVolume;
 
-		@Override
-		public Resource getResource() {
-			return dataVolume.getResource();
-		}
+        private WrappedDataVolume(DataVolume dataVolume) {
+            this.dataVolume = dataVolume;
+        }
 
-		@Override
-		public boolean showPrivilegesForUser(SciserverEntity user) {
-			return true;
-		}
+        @Override
+        public Resource getResource() {
+            return dataVolume.getResource();
+        }
 
-		@Override
-		public int hashCode() {
-			return Objects.hash(dataVolume);
-		}
+        @Override
+        public boolean showPrivilegesForUser(SciserverEntity user) {
+            return true;
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			WrappedDataVolume other = (WrappedDataVolume) obj;
-			return Objects.equals(dataVolume, other.dataVolume);
-		}
-	}
+        @Override
+        public int hashCode() {
+            return Objects.hash(dataVolume);
+        }
 
-	class WrappedUserVolume implements VOURPEntityWithResource {
-		private UserVolume userVolume;
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            WrappedDataVolume other = (WrappedDataVolume) obj;
+            return Objects.equals(dataVolume, other.dataVolume);
+        }
+    }
 
-		private WrappedUserVolume(UserVolume userVolume) {
-			this.userVolume = userVolume;
-		}
+    class WrappedUserVolume implements VOURPEntityWithResource {
+        private UserVolume userVolume;
 
-		@Override
-		public Resource getResource() {
-			return userVolume.getResource();
-		}
+        private WrappedUserVolume(UserVolume userVolume) {
+            this.userVolume = userVolume;
+        }
 
-		@Override
-		public boolean showPrivilegesForUser(SciserverEntity user) {
-			return !userVolume.getOwner().equals(user);
-		}
+        @Override
+        public Resource getResource() {
+            return userVolume.getResource();
+        }
 
-		@Override
-		public int hashCode() {
-			return Objects.hash(userVolume);
-		}
+        @Override
+        public boolean showPrivilegesForUser(SciserverEntity user) {
+            return !userVolume.getOwner().equals(user);
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			WrappedUserVolume other = (WrappedUserVolume) obj;
-			return Objects.equals(userVolume, other.userVolume);
-		}
-	}
+        @Override
+        public int hashCode() {
+            return Objects.hash(userVolume);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            WrappedUserVolume other = (WrappedUserVolume) obj;
+            return Objects.equals(userVolume, other.userVolume);
+        }
+    }
 }

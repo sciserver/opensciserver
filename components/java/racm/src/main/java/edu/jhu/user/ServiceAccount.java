@@ -27,15 +27,20 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_ServiceAccount")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_ServiceAccount")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.DiscriminatorValue("ServiceAccount")
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "ServiceAccount.findById", query = "SELECT o FROM ServiceAccount o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "ServiceAccount.findByPublisherDID", query = "SELECT o FROM ServiceAccount o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "ServiceAccount.findById",
+            query = "SELECT o FROM ServiceAccount o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "ServiceAccount.findByPublisherDID",
+            query = "SELECT o FROM ServiceAccount o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -50,7 +55,8 @@ public class ServiceAccount extends SciserverEntity {
      * For the future: this could be a public key. ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "serviceToken", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "serviceToken", nullable = false)
 
     private String serviceToken;
 

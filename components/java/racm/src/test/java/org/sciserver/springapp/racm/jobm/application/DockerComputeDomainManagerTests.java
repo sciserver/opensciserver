@@ -190,8 +190,7 @@ public class DockerComputeDomainManagerTests {
     @Test
     public void duplicatePathIsRejected() throws Exception {
         DockerComputeDomain dcd = authorizedDomain();
-        withExistingEntries(dcd,
-                existingEntry(999L, "/home/idies/workspace/Storage", "Other"));
+        withExistingEntries(dcd, existingEntry(999L, "/home/idies/workspace/Storage", "Other"));
 
         assertRejected(validModel());
     }

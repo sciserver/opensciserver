@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Attribute complex type.
  * 
@@ -30,15 +29,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Attribute", propOrder = {
-    "datatype",
-    "multiplicity",
-    "constraints",
-    "skosconcept"
-})
-public class Attribute
-    extends Element
-{
+@XmlType(name = "Attribute", propOrder = { "datatype", "multiplicity", "constraints", "skosconcept" })
+public class Attribute extends Element {
 
     @XmlElement(required = true)
     protected TypeRef datatype;

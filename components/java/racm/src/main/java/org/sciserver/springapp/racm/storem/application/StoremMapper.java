@@ -65,243 +65,183 @@ import edu.jhu.user.UserGroup;
  */
 @Component
 class StoremMapper {
-	private final RACMUtil racmUtil;
-	@Autowired
-	public StoremMapper(RACMUtil racmUtil) {
-		this.racmUtil = racmUtil;
-	}
+    private final RACMUtil racmUtil;
 
-	Optional<FileServiceModel> getListingDTO(FileService source,
-			List<DataVolume> dataVolumes, Map<Long, List<String>> allowedActions,
-			Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
-		FileServiceModel model =  new FileServiceModel(
-				source.getResourceContext().getUuid(),
-				source.getName(),
-				source.getDescription(),
-				source.getApiEndpoint(),
-				mapOptionals(source.getRootVolume(), x -> getListingDTO(x, source.getUserVolumes(), allowedActions, sharedWithInfo)),
-				mapOptionals(dataVolumes, x -> getListingDTO(x, allowedActions, sharedWithInfo)));
+    @Autowired
+    public StoremMapper(RACMUtil racmUtil) {
+        this.racmUtil = racmUtil;
+    }
 
-		long numberOfActions = Stream.of(
-				model.getRootVolumes().stream().map(RootVolumeModel::getAllowedActions),
-				model.getRootVolumes().stream()
-					.flatMap(rv -> rv.getUserVolumes().stream()).map(UserVolumeModel::getAllowedActions))
-				.flatMap(x -> x)
-				.flatMap(Collection::stream)
-				.count();
+    Optional<FileServiceModel> getListingDTO(FileService source, List<DataVolume> dataVolumes,
+            Map<Long, List<String>> allowedActions,
+            Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
+        FileServiceModel model = new FileServiceModel(source.getResourceContext().getUuid(), source.getName(),
+                source.getDescription(), source.getApiEndpoint(),
+                mapOptionals(source.getRootVolume(),
+                        x -> getListingDTO(x, source.getUserVolumes(), allowedActions, sharedWithInfo)),
+                mapOptionals(dataVolumes, x -> getListingDTO(x, allowedActions, sharedWithInfo)));
 
-		if (numberOfActions == 0)
-			return Optional.empty();
+        long numberOfActions = Stream
+                .of(model.getRootVolumes().stream().map(RootVolumeModel::getAllowedActions),
+                        model.getRootVolumes().stream().flatMap(rv -> rv.getUserVolumes().stream())
+                                .map(UserVolumeModel::getAllowedActions))
+                .flatMap(x -> x).flatMap(Collection::stream).count();
 
-		return Optional.of(model);
-	}
+        if (numberOfActions == 0)
+            return Optional.empty();
 
-	Optional<RootVolumeModel> getListingDTO(RootVolume source, Collection<UserVolume> allUserVolumes,
-			Map<Long, List<String>> allowedActions,
-			Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
-		Collection<String> actions = allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList());
-		List<UserVolumeModel> userVolumes =
-				mapOptionals(allUserVolumes, x -> getListingDTO(x, allowedActions, sharedWithInfo), uv -> uv.getRootVolume() == source);
+        return Optional.of(model);
+    }
 
-		long numberOfActions = Stream.concat(
-				actions.stream(),
-				userVolumes.stream().map(UserVolumeModel::getAllowedActions).flatMap(List::stream))
-				.count();
+    Optional<RootVolumeModel> getListingDTO(RootVolume source, Collection<UserVolume> allUserVolumes,
+            Map<Long, List<String>> allowedActions,
+            Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
+        Collection<String> actions = allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList());
+        List<UserVolumeModel> userVolumes = mapOptionals(allUserVolumes,
+                x -> getListingDTO(x, allowedActions, sharedWithInfo), uv -> uv.getRootVolume() == source);
 
-		if(numberOfActions == 0) return Optional.empty();
-		return Optional.of(new RootVolumeModel(
-				source.getId(),
-				source.getResource().getUuid(),
-				source.getName(),
-				source.getDescription(),
-				source.getPathOnFileSystem(),
-				source.getContainsSharedVolumes(),
-				userVolumes,
-				allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList())));
-	}
+        long numberOfActions = Stream.concat(actions.stream(),
+                userVolumes.stream().map(UserVolumeModel::getAllowedActions).flatMap(List::stream)).count();
 
-	Optional<UserVolumeModel> getListingDTO(UserVolume source, Map<Long, List<String>> allowedActions,
-			Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
-		List<String> actions = allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList());
-		Map<SciserverEntity, List<Privilege>> sharedWithForThisUserVolume =
-				sharedWithInfo.getOrDefault(VOURPEntityWithResource.wrap(source), Collections.emptyMap());
+        if (numberOfActions == 0)
+            return Optional.empty();
+        return Optional.of(new RootVolumeModel(source.getId(), source.getResource().getUuid(), source.getName(),
+                source.getDescription(), source.getPathOnFileSystem(), source.getContainsSharedVolumes(), userVolumes,
+                allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList())));
+    }
 
-		if(actions.isEmpty()) return Optional.empty();
+    Optional<UserVolumeModel> getListingDTO(UserVolume source, Map<Long, List<String>> allowedActions,
+            Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
+        List<String> actions = allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList());
+        Map<SciserverEntity, List<Privilege>> sharedWithForThisUserVolume =
+                sharedWithInfo.getOrDefault(VOURPEntityWithResource.wrap(source), Collections.emptyMap());
 
-		return Optional.of(new UserVolumeModel(
-				source.getId(),
-				source.getResource().getUuid(),
-				source.getName(),
-				source.getDescription(),
-				source.getRelativePath(),
-				source.getOwner().getUsername(),
-				actions,
-				getListingDTO(sharedWithForThisUserVolume)
-				));
-	}
+        if (actions.isEmpty())
+            return Optional.empty();
 
-	Optional<DataVolumeModel> getListingDTO(DataVolume source, Map<Long, List<String>> allowedActions,
-			Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
-		List<String> actions = allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList());
-		Map<SciserverEntity, List<Privilege>> sharedWithForThisDataVolume =
-				sharedWithInfo.getOrDefault(VOURPEntityWithResource.wrap(source), Collections.emptyMap());
+        return Optional.of(new UserVolumeModel(source.getId(), source.getResource().getUuid(), source.getName(),
+                source.getDescription(), source.getRelativePath(), source.getOwner().getUsername(), actions,
+                getListingDTO(sharedWithForThisUserVolume)));
+    }
 
-		if(actions.isEmpty()) return Optional.empty();
+    Optional<DataVolumeModel> getListingDTO(DataVolume source, Map<Long, List<String>> allowedActions,
+            Map<VOURPEntityWithResource, Map<SciserverEntity, List<Privilege>>> sharedWithInfo) {
+        List<String> actions = allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList());
+        Map<SciserverEntity, List<Privilege>> sharedWithForThisDataVolume =
+                sharedWithInfo.getOrDefault(VOURPEntityWithResource.wrap(source), Collections.emptyMap());
 
-		return Optional.of(new DataVolumeModel(
-				source.getId(),
-				source.getResource().getUuid(),
-				source.getName(),
-				source.getDescription(),
-				source.getDisplayName(),
-				source.getPathOnFileSystem(),
-				source.getUrl(),
-				actions,
-				getListingDTO(sharedWithForThisDataVolume)
-				));
-	}
+        if (actions.isEmpty())
+            return Optional.empty();
 
-	private List<SharedWithEntity> getListingDTO(Map<SciserverEntity, List<Privilege>> sharedWithInfo) {
-		List<SharedWithEntity> output = new ArrayList<>(sharedWithInfo.size());
-		for (Map.Entry<SciserverEntity, List<Privilege>> entry : sharedWithInfo.entrySet()) {
-			List<String> actions = entry.getValue().stream().map(p -> p.getAction().getName()).collect(toList());
-			if (entry.getKey() instanceof User) {
-				User user = (User) entry.getKey();
-				output.add(new SharedWithEntity(
-						user.getId(), user.getUsername(), SciServerEntityType.USER,
-						actions));
-			} else if (entry.getKey() instanceof UserGroup) {
-				UserGroup group = (UserGroup) entry.getKey();
-				output.add(new SharedWithEntity(
-						group.getId(), group.getName(), SciServerEntityType.GROUP,
-						actions));
-			} else if (entry.getKey() instanceof ServiceAccount) { 
-			    // TODO decide what should be done with ServiceAccount-s
-			    // here returned with its pubDID playing the role of its name 
-			    ServiceAccount sa = (ServiceAccount) entry.getKey();
-                output.add(new SharedWithEntity(
-                        sa.getId(), sa.getPublisherDID(), SciServerEntityType.SERVICE,
-                        actions));
+        return Optional.of(new DataVolumeModel(source.getId(), source.getResource().getUuid(), source.getName(),
+                source.getDescription(), source.getDisplayName(), source.getPathOnFileSystem(), source.getUrl(),
+                actions, getListingDTO(sharedWithForThisDataVolume)));
+    }
+
+    private List<SharedWithEntity> getListingDTO(Map<SciserverEntity, List<Privilege>> sharedWithInfo) {
+        List<SharedWithEntity> output = new ArrayList<>(sharedWithInfo.size());
+        for (Map.Entry<SciserverEntity, List<Privilege>> entry : sharedWithInfo.entrySet()) {
+            List<String> actions = entry.getValue().stream().map(p -> p.getAction().getName()).collect(toList());
+            if (entry.getKey() instanceof User) {
+                User user = (User) entry.getKey();
+                output.add(new SharedWithEntity(user.getId(), user.getUsername(), SciServerEntityType.USER, actions));
+            } else if (entry.getKey() instanceof UserGroup) {
+                UserGroup group = (UserGroup) entry.getKey();
+                output.add(new SharedWithEntity(group.getId(), group.getName(), SciServerEntityType.GROUP, actions));
+            } else if (entry.getKey() instanceof ServiceAccount) {
+                // TODO decide what should be done with ServiceAccount-s
+                // here returned with its pubDID playing the role of its name
+                ServiceAccount sa = (ServiceAccount) entry.getKey();
+                output.add(
+                        new SharedWithEntity(sa.getId(), sa.getPublisherDID(), SciServerEntityType.SERVICE, actions));
             } else {
-				throw new IllegalStateException("An unknown SciserverEntity was found. Please tell someone to update StoremMapper.getListingDTO(Privilege)");
-			}
-		}
-		return output;
-	}
-	RegisteredFileServiceModel getRegisteredFileServiceView(FileService source, List<DataVolume> dataVolumes) {
-		return new RegisteredFileServiceModel(
-				source.getResourceContext().getUuid(),
-				source.getName(),
-				source.getServiceToken(),
-				source.getDescription(),
-				source.getApiEndpoint(),
-				map(source.getRootVolume(), this::getRegisteredRootVolume),
-				map(dataVolumes, this::getRegisteredDataVolume)
-				);
-	}
+                throw new IllegalStateException(
+                        "An unknown SciserverEntity was found. Please tell someone to update StoremMapper.getListingDTO(Privilege)");
+            }
+        }
+        return output;
+    }
 
-	MinimalFileServiceModel getMinimalFileServiceModel(FileService source) {
-		return new MinimalFileServiceModel(
-				source.getResourceContext().getUuid(),
-				source.getName(),
-				source.getDescription(),
-				source.getApiEndpoint()
-				);
-	}
+    RegisteredFileServiceModel getRegisteredFileServiceView(FileService source, List<DataVolume> dataVolumes) {
+        return new RegisteredFileServiceModel(source.getResourceContext().getUuid(), source.getName(),
+                source.getServiceToken(), source.getDescription(), source.getApiEndpoint(),
+                map(source.getRootVolume(), this::getRegisteredRootVolume),
+                map(dataVolumes, this::getRegisteredDataVolume));
+    }
 
-	RegisteredRootVolumeModel getRegisteredRootVolume(RootVolume rv) {
-		return new RegisteredRootVolumeModel(
-				rv.getName(),
-				rv.getDescription(),
-				rv.getPathOnFileSystem(),
-				rv.getContainsSharedVolumes());
-	}
+    MinimalFileServiceModel getMinimalFileServiceModel(FileService source) {
+        return new MinimalFileServiceModel(source.getResourceContext().getUuid(), source.getName(),
+                source.getDescription(), source.getApiEndpoint());
+    }
 
-	RegisteredDataVolumeModel getRegisteredDataVolume(DataVolume dv) {
-		return new RegisteredDataVolumeModel(
-				dv.getId(),
-				dv.getName(),
-				dv.getDescription(),
-				dv.getDisplayName(),
-				dv.getPathOnFileSystem(),
-				dv.getUrl());
-	}
+    RegisteredRootVolumeModel getRegisteredRootVolume(RootVolume rv) {
+        return new RegisteredRootVolumeModel(rv.getName(), rv.getDescription(), rv.getPathOnFileSystem(),
+                rv.getContainsSharedVolumes());
+    }
+
+    RegisteredDataVolumeModel getRegisteredDataVolume(DataVolume dv) {
+        return new RegisteredDataVolumeModel(dv.getId(), dv.getName(), dv.getDescription(), dv.getDisplayName(),
+                dv.getPathOnFileSystem(), dv.getUrl());
+    }
 
     RegisteredUserVolumeModel getRegisteredUserVolume(UserVolume uv) {
-        return new RegisteredUserVolumeModel(
-                uv.getId(),
-                uv.getName(),
-                uv.getDescription(),
-                uv.getRelativePath(),
+        return new RegisteredUserVolumeModel(uv.getId(), uv.getName(), uv.getDescription(), uv.getRelativePath(),
                 uv.getOwner().getUsername());
     }
-    
-   
-    RegisteredServiceVolumeModel getRegisteredServiceVolume(UserVolume uv,Resource owningResource, AssociatedResource ar) {
-        return new RegisteredServiceVolumeModel(
-                uv.getId(),
-                uv.getResource().getUuid(),
-                uv.getName(),
-                uv.getDescription(),
-                uv.getRelativePath(),
-                uv.getOwner().getUsername(),
-                owningResource.getContainer().getUuid(),owningResource.getUuid(),
-                ar.getOwnership().value(),
+
+    RegisteredServiceVolumeModel getRegisteredServiceVolume(UserVolume uv, Resource owningResource,
+            AssociatedResource ar) {
+        return new RegisteredServiceVolumeModel(uv.getId(), uv.getResource().getUuid(), uv.getName(),
+                uv.getDescription(), uv.getRelativePath(), uv.getOwner().getUsername(),
+                owningResource.getContainer().getUuid(), owningResource.getUuid(), ar.getOwnership().value(),
                 ar.getUsage());
     }
-    
-	FileService createFileService(RegisterNewFileServiceModel source, TransientObjectManager tom) {
-		FileService output = new FileService(tom);
-		output.setName(source.getName());
-		output.setDescription(source.getDescription());
-		output.setApiEndpoint(source.getApiEndpoint());
-		output.setServiceToken(
-				source.getServiceToken()
-				.orElse(UUID.randomUUID().toString()));
 
-		createResourceContext(output,
-				source.getIdentifier().orElse(UUID.randomUUID().toString())
-				);
+    FileService createFileService(RegisterNewFileServiceModel source, TransientObjectManager tom) {
+        FileService output = new FileService(tom);
+        output.setName(source.getName());
+        output.setDescription(source.getDescription());
+        output.setApiEndpoint(source.getApiEndpoint());
+        output.setServiceToken(source.getServiceToken().orElse(UUID.randomUUID().toString()));
 
-		output.setRootVolume(map(source.getRootVolumes(), r -> createRootVolume(r, output)));
+        createResourceContext(output, source.getIdentifier().orElse(UUID.randomUUID().toString()));
 
-		return output;
-	}
+        output.setRootVolume(map(source.getRootVolumes(), r -> createRootVolume(r, output)));
 
-	RootVolume createRootVolume(RegisterNewRootVolumeModel source, FileService fileservice) {
-		RootVolume output = new RootVolume(fileservice);
-		output.setName(source.getName());
-		output.setDescription(source.getDescription());
-		output.setPathOnFileSystem(source.getPathOnFileSystem());
-		output.setContainsSharedVolumes(source.isContainsSharedVolumes());
-		output.setResource(createResource(
-				fileservice.getResourceContext(),
-				RT_FILESERVICE_ROOTVOLUME,
-				source.getName(),
-				fileservice.getTom()
-				));
+        return output;
+    }
 
-		return output;
-	}
+    RootVolume createRootVolume(RegisterNewRootVolumeModel source, FileService fileservice) {
+        RootVolume output = new RootVolume(fileservice);
+        output.setName(source.getName());
+        output.setDescription(source.getDescription());
+        output.setPathOnFileSystem(source.getPathOnFileSystem());
+        output.setContainsSharedVolumes(source.isContainsSharedVolumes());
+        output.setResource(createResource(fileservice.getResourceContext(), RT_FILESERVICE_ROOTVOLUME, source.getName(),
+                fileservice.getTom()));
 
-	UserVolume createUserVolume(RegisterNewUserVolumeWithOwnerModel source, RootVolume rootVolume, FileService fileservice) {
-		UserVolume output = new UserVolume(fileservice);
-		output.setName(source.getName());
-		output.setDescription(source.getDescription());
-		output.setRelativePath(source.getRelativePath());
-		output.setOwner(source.getOwner());
-		output.setRootVolume(rootVolume);
+        return output;
+    }
 
-		output.setResource(createResource(
-				fileservice.getResourceContext(),
-				RT_FILESERVICE_USERVOLUME,
-				UriComponentsBuilder.fromPath(rootVolume.getName()).pathSegment(source.getOwner().getUsername()).pathSegment(source.getName()).build().toUriString(),
-				fileservice.getTom()
-				));
+    UserVolume createUserVolume(RegisterNewUserVolumeWithOwnerModel source, RootVolume rootVolume,
+            FileService fileservice) {
+        UserVolume output = new UserVolume(fileservice);
+        output.setName(source.getName());
+        output.setDescription(source.getDescription());
+        output.setRelativePath(source.getRelativePath());
+        output.setOwner(source.getOwner());
+        output.setRootVolume(rootVolume);
 
-		return output;
-	}
-    UserVolume createServiceVolume(User owner, RegisterNewServiceVolumeModel source, RootVolume rootVolume, FileService fileservice) {
+        output.setResource(createResource(fileservice.getResourceContext(), RT_FILESERVICE_USERVOLUME,
+                UriComponentsBuilder.fromPath(rootVolume.getName()).pathSegment(source.getOwner().getUsername())
+                        .pathSegment(source.getName()).build().toUriString(),
+                fileservice.getTom()));
+
+        return output;
+    }
+
+    UserVolume createServiceVolume(User owner, RegisterNewServiceVolumeModel source, RootVolume rootVolume,
+            FileService fileservice) {
         UserVolume output = new UserVolume(fileservice);
         output.setName(source.getName());
         output.setDescription(source.getDescription());
@@ -309,110 +249,98 @@ class StoremMapper {
         output.setOwner(owner);
         output.setRootVolume(rootVolume);
 
-        output.setResource(createResource(
-                fileservice.getResourceContext(),
-                RT_FILESERVICE_USERVOLUME,
-                source.getName(),
-                UriComponentsBuilder.fromPath(rootVolume.getName()).pathSegment(owner.getUsername()).pathSegment(source.getName()).build().toUriString(),
-                source.getDescription(),
-                fileservice.getTom()
-                ));
+        output.setResource(createResource(fileservice.getResourceContext(), RT_FILESERVICE_USERVOLUME, source.getName(),
+                UriComponentsBuilder.fromPath(rootVolume.getName()).pathSegment(owner.getUsername())
+                        .pathSegment(source.getName()).build().toUriString(),
+                source.getDescription(), fileservice.getTom()));
 
         return output;
     }
-	DataVolume createDataVolume(RegisterNewDataVolumeModel source, FileService fileservice) {
-		DataVolume output = new DataVolume(fileservice.getTom());
-		output.setName(source.getName());
-		output.setDescription(source.getDescription());
-		output.setDisplayName(source.getDisplayName());
-		output.setPathOnFileSystem(source.getPathOnFileSystem());
-		output.setUrl(source.getUrl());
-		output.setFileService(fileservice);
 
-		output.setResource(createResource(
-				fileservice.getResourceContext(),
-				RT_FILESERVICE_DATAVOLUME,
-				source.getDisplayName(),
-				source.getName(),				
-				source.getDescription(),
-				fileservice.getTom()
-				));
-		return output;
-	}
+    DataVolume createDataVolume(RegisterNewDataVolumeModel source, FileService fileservice) {
+        DataVolume output = new DataVolume(fileservice.getTom());
+        output.setName(source.getName());
+        output.setDescription(source.getDescription());
+        output.setDisplayName(source.getDisplayName());
+        output.setPathOnFileSystem(source.getPathOnFileSystem());
+        output.setUrl(source.getUrl());
+        output.setFileService(fileservice);
 
-	private void createResourceContext(FileService fileService, String uuid) {
-		TransientObjectManager tom = fileService.getTom();
-		ResourceContext rc = new ResourceContext(tom);
+        output.setResource(createResource(fileservice.getResourceContext(), RT_FILESERVICE_DATAVOLUME,
+                source.getDisplayName(), source.getName(), source.getDescription(), fileservice.getTom()));
+        return output;
+    }
 
-		try {
-			rc.setContextClass(getContextClass(tom));
-		} catch (VOURPException e) {
-			throw new IllegalStateException(e);
-		}
+    private void createResourceContext(FileService fileService, String uuid) {
+        TransientObjectManager tom = fileService.getTom();
+        ResourceContext rc = new ResourceContext(tom);
 
-		rc.setUuid(uuid);
-		rc.setRacmEndpoint(fileService.getApiEndpoint());
-		rc.setDescription("ResourceContext representing the File Service at " + fileService.getApiEndpoint());
-		fileService.setResourceContext(rc);
-	}
+        try {
+            rc.setContextClass(getContextClass(tom));
+        } catch (VOURPException e) {
+            throw new IllegalStateException(e);
+        }
 
-	private Resource createResource(ResourceContext context, String rt, String publisherDID, TransientObjectManager tom) {
-		ResourceType resourceType = getResourceType(rt, tom);
-		return createResource(context, publisherDID, resourceType);
-	}
-	
-    private Resource createResource(ResourceContext context, String rt, String name, String publisherDID, String description, TransientObjectManager tom) {
+        rc.setUuid(uuid);
+        rc.setRacmEndpoint(fileService.getApiEndpoint());
+        rc.setDescription("ResourceContext representing the File Service at " + fileService.getApiEndpoint());
+        fileService.setResourceContext(rc);
+    }
+
+    private Resource createResource(ResourceContext context, String rt, String publisherDID,
+            TransientObjectManager tom) {
+        ResourceType resourceType = getResourceType(rt, tom);
+        return createResource(context, publisherDID, resourceType);
+    }
+
+    private Resource createResource(ResourceContext context, String rt, String name, String publisherDID,
+            String description, TransientObjectManager tom) {
         ResourceType resourceType = getResourceType(rt, tom);
         Resource r = createResource(context, publisherDID, resourceType);
         r.setName(name);
         r.setDescription(description);
         return r;
     }
-    
-	private Resource createResource(ResourceContext context, String publisherDID, ResourceType rt) {
-		Resource resource = racmUtil.newResource(context);
-		resource.setResourceType(rt);
-		resource.setPublisherDID(publisherDID);
-		return resource;
-	}
 
-	/* Map a potentially lazy-loaded collection
-	 * This has the complication that old versions of eclipse link
-	 * do not support the stream() API in Java 8.
-	 * We defensively copy the collection to be safe.
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=433075 and
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=467470
-	 * describes these and some of the design problems.
-	 */
-	private <T,E> List<T> mapOptionals(Collection<E> collection, Function<E, Optional<T>> func, Predicate<E> filter) {
-		if(collection == null) return Collections.emptyList();
-		return new ArrayList<>(collection).stream()
-				.filter(filter)
-				.map(func)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.collect(Collectors.toList());
-	}
-	private <T, E> List<T> mapOptionals(Collection<E> collection, Function<E, Optional<T>> func) {
-		return mapOptionals(collection, func, x -> true);
-	}
+    private Resource createResource(ResourceContext context, String publisherDID, ResourceType rt) {
+        Resource resource = racmUtil.newResource(context);
+        resource.setResourceType(rt);
+        resource.setPublisherDID(publisherDID);
+        return resource;
+    }
 
-	private <T,E> List<T> map(Collection<E> collection, Function<E, T> func, Predicate<E> filter) {
-		if(collection == null) return Collections.emptyList();
-		return new ArrayList<>(collection).stream()
-				.filter(filter)
-				.map(func)
-				.collect(Collectors.toList());
-	}
-	private <T, E> List<T> map(Collection<E> collection, Function<E, T> func) {
-		return map(collection, func, x -> true);
-	}
+    /*
+     * Map a potentially lazy-loaded collection This has the complication that old versions of eclipse link do not
+     * support the stream() API in Java 8. We defensively copy the collection to be safe.
+     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=433075 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=467470
+     * describes these and some of the design problems.
+     */
+    private <T, E> List<T> mapOptionals(Collection<E> collection, Function<E, Optional<T>> func, Predicate<E> filter) {
+        if (collection == null)
+            return Collections.emptyList();
+        return new ArrayList<>(collection).stream().filter(filter).map(func).filter(Optional::isPresent)
+                .map(Optional::get).collect(Collectors.toList());
+    }
 
-	private ResourceType getResourceType(String resourceTypeName, TransientObjectManager tom) {
-		return racmUtil.queryResourceType(CC_FILESERVICE_NAME, resourceTypeName, tom);
-	}
+    private <T, E> List<T> mapOptionals(Collection<E> collection, Function<E, Optional<T>> func) {
+        return mapOptionals(collection, func, x -> true);
+    }
 
-	private ContextClass getContextClass(TransientObjectManager tom) throws VOURPException {
-		return racmUtil.queryContextClass(CC_FILESERVICE_NAME, tom);
-	}
+    private <T, E> List<T> map(Collection<E> collection, Function<E, T> func, Predicate<E> filter) {
+        if (collection == null)
+            return Collections.emptyList();
+        return new ArrayList<>(collection).stream().filter(filter).map(func).collect(Collectors.toList());
+    }
+
+    private <T, E> List<T> map(Collection<E> collection, Function<E, T> func) {
+        return map(collection, func, x -> true);
+    }
+
+    private ResourceType getResourceType(String resourceTypeName, TransientObjectManager tom) {
+        return racmUtil.queryResourceType(CC_FILESERVICE_NAME, resourceTypeName, tom);
+    }
+
+    private ContextClass getContextClass(TransientObjectManager tom) throws VOURPException {
+        return racmUtil.queryContextClass(CC_FILESERVICE_NAME, tom);
+    }
 }

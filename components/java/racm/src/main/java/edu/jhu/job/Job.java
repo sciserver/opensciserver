@@ -34,13 +34,17 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_Job")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_Job")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "Job.findById", query = "SELECT o FROM Job o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "Job.findByPublisherDID", query = "SELECT o FROM Job o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "Job.findById", query = "SELECT o FROM Job o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "Job.findByPublisherDID",
+            query = "SELECT o FROM Job o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -54,7 +58,8 @@ public abstract class Job extends MetadataRootEntityObject {
     protected String classType;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version()
+    @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**
@@ -65,7 +70,9 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP) @javax.persistence.Column(name = "submitTime", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @javax.persistence.Column(name = "submitTime", nullable = false)
 
     private Date submitTime;
 
@@ -77,7 +84,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "expectedTime", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "expectedTime", nullable = true)
 
     private String expectedTime;
 
@@ -89,7 +97,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 1 , MaxLength : 4 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "status", nullable = false, length = 4)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "status", nullable = false, length = 4)
 
     private Integer status;
 
@@ -101,7 +110,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "excutorDID", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "excutorDID", nullable = true)
 
     private String excutorDID;
 
@@ -113,7 +123,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "submitterDID", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "submitterDID", nullable = true)
 
     private String submitterDID;
 
@@ -125,7 +136,9 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP) @javax.persistence.Column(name = "startedTime", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @javax.persistence.Column(name = "startedTime", nullable = true)
 
     private Date startedTime;
 
@@ -137,7 +150,9 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP) @javax.persistence.Column(name = "finishedTime", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @javax.persistence.Column(name = "finishedTime", nullable = true)
 
     private Date finishedTime;
 
@@ -146,7 +161,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * finishedTime-startedTime. ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "duration", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "duration", nullable = true)
 
     private Double duration;
 
@@ -158,7 +174,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "resultsFolderURI", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "resultsFolderURI", nullable = true)
 
     private String resultsFolderURI;
 
@@ -166,7 +183,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * Attribute timeout : Job timeout in seconds ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "timeout", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "timeout", nullable = true)
 
     private Long timeout;
 
@@ -178,7 +196,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
+            mappedBy = "container", orphanRemoval = true)
 
     private List<JobMessage> message = null;
 
@@ -190,7 +209,8 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
+            mappedBy = "container", orphanRemoval = true)
 
     private List<RequiredUserVolume> userVolume = null;
 
@@ -202,9 +222,10 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "runById", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "runById", referencedColumnName = "id", nullable = true)
 
     private COMPM runBy = null;
     /**
@@ -224,9 +245,10 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "computeDomainId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "computeDomainId", referencedColumnName = "id", nullable = false)
 
     private ComputeDomain computeDomain = null;
     /**
@@ -246,9 +268,10 @@ public abstract class Job extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "submitterId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "submitterId", referencedColumnName = "id", nullable = false)
 
     private User submitter = null;
     /**

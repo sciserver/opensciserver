@@ -29,146 +29,113 @@ import edu.jhu.job.COMPM;
 @RequestMapping("compm/mvc")
 public class COMPMMvcController {
 
-	private static final String LOGGING_FIELD_COMPM = "compm";
-	private static final String LOGGING_PREDICATE_COMPM = "COMPM '%s'";
-	private final COMPMManager compmManager;
-	private final RACM racm;
-	private final JOBMModelFactory jobmModelFactory;
+    private static final String LOGGING_FIELD_COMPM = "compm";
+    private static final String LOGGING_PREDICATE_COMPM = "COMPM '%s'";
+    private final COMPMManager compmManager;
+    private final RACM racm;
+    private final JOBMModelFactory jobmModelFactory;
 
-	@Autowired
-	public COMPMMvcController(COMPMManager compmManager, RACM racm, JOBMModelFactory jobmModelFactory) {
-		this.compmManager = compmManager;
-		this.racm = racm;
-		this.jobmModelFactory = jobmModelFactory;
-	}
+    @Autowired
+    public COMPMMvcController(COMPMManager compmManager, RACM racm, JOBMModelFactory jobmModelFactory) {
+        this.compmManager = compmManager;
+        this.racm = racm;
+        this.jobmModelFactory = jobmModelFactory;
+    }
 
-	@GetMapping("/list")
-	public ModelAndView viewCompms(@AuthenticationPrincipal UserProfile user) {
-		List<COMPM> compms = compmManager.queryCOMPMs(user);
-		List<COMPMModel> cms = new ArrayList<>();
-		for (COMPM c : compms)
-			cms.add(jobmModelFactory.newCOMPMModel(c, user));
-		LogUtils.buildLog()
-			.forJOBM()
-			.user(user)
-			.sentence()
-				.subject(user.getUsername())
-				.verb("listed")
-				.predicate("all compms")
-			.log();
-		ModelAndView mav = new ModelAndView();
-		mav.setViewName("ViewCOMPMs");
-		mav.addObject("compms", cms);
-		mav.addObject("user", user.getUsername());
-		return mav;
-	}
+    @GetMapping("/list")
+    public ModelAndView viewCompms(@AuthenticationPrincipal UserProfile user) {
+        List<COMPM> compms = compmManager.queryCOMPMs(user);
+        List<COMPMModel> cms = new ArrayList<>();
+        for (COMPM c : compms)
+            cms.add(jobmModelFactory.newCOMPMModel(c, user));
+        LogUtils.buildLog().forJOBM().user(user).sentence().subject(user.getUsername()).verb("listed")
+                .predicate("all compms").log();
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("ViewCOMPMs");
+        mav.addObject("compms", cms);
+        mav.addObject("user", user.getUsername());
+        return mav;
+    }
 
-	@GetMapping("/new")
-	public ModelAndView viewCompm(@AuthenticationPrincipal UserProfile user) {
-		ModelAndView mav = new ModelAndView();
-		mav.setViewName("ViewCOMPM");
-		COMPMModel cm = jobmModelFactory.newCOMPMModel(null, user);
-		mav.addObject("compmModel", cm);
+    @GetMapping("/new")
+    public ModelAndView viewCompm(@AuthenticationPrincipal UserProfile user) {
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("ViewCOMPM");
+        COMPMModel cm = jobmModelFactory.newCOMPMModel(null, user);
+        mav.addObject("compmModel", cm);
 
-		LogUtils.buildLog()
-			.forJOBM()
-			.user(user)
-			.sentence()
-				.subject(user.getUsername())
-				.verb("openned ")
-				.predicate("new compm form")
-			.log();
-		return mav;
-	}
+        LogUtils.buildLog().forJOBM().user(user).sentence().subject(user.getUsername()).verb("openned ")
+                .predicate("new compm form").log();
+        return mav;
+    }
 
-	/**
-	 *
-	 * @param compmModel
-	 * @param nextPage
-	 *          possible values: "this" "list"
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws VOURPException
-	 */
-	@PostMapping("/new")
-	public ModelAndView createCompm(COMPMModel compmModel, @RequestParam(required = false) String nextPage,
-			@AuthenticationPrincipal UserProfile user) throws VOURPException {
+    /**
+     *
+     * @param compmModel
+     * @param nextPage
+     *          possible values: "this" "list"
+     * @param request
+     * @param response
+     * @return
+     * @throws VOURPException
+     */
+    @PostMapping("/new")
+    public ModelAndView createCompm(COMPMModel compmModel, @RequestParam(required = false) String nextPage,
+            @AuthenticationPrincipal UserProfile user) throws VOURPException {
 
-		if (!racm.canUserDoRootAction(user.getUsername(), RACMNames.A_REGISTER_COMPMM))
-			throw new ForbiddenException();
+        if (!racm.canUserDoRootAction(user.getUsername(), RACMNames.A_REGISTER_COMPMM))
+            throw new ForbiddenException();
 
-		ModelAndView mav = new ModelAndView();
-		compmManager.createCOMPM(compmModel, user);
+        ModelAndView mav = new ModelAndView();
+        compmManager.createCOMPM(compmModel, user);
 
-		LogUtils.buildLog()
-			.forJOBM()
-			.showInUserHistory()
-			.user(user)
-			.sentence()
-				.subject(user.getUsername())
-				.verb("registered")
-				.predicate(LOGGING_PREDICATE_COMPM, compmModel.getDescription())
-			.extraField(LOGGING_FIELD_COMPM, compmModel.getId())
-			.log();
+        LogUtils.buildLog().forJOBM().showInUserHistory().user(user).sentence().subject(user.getUsername())
+                .verb("registered").predicate(LOGGING_PREDICATE_COMPM, compmModel.getDescription())
+                .extraField(LOGGING_FIELD_COMPM, compmModel.getId()).log();
 
-		mav.setViewName("redirect:/compm/mvc/list");
-		return mav;
-	}
+        mav.setViewName("redirect:/compm/mvc/list");
+        return mav;
+    }
 
-	/**
-	 *
-	 * @param compmModel
-	 * @param nextPage
-	 *          possible values: "this" "list"
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws VOURPException
-	 */
-	@PostMapping("/view/{uuid}")
-	public ModelAndView updateCompm(COMPMModel compmModel, @AuthenticationPrincipal UserProfile user)
-			throws VOURPException {
-		ModelAndView mav = new ModelAndView();
-		compmManager.updateCOMPM(compmModel, user);
+    /**
+     *
+     * @param compmModel
+     * @param nextPage
+     *          possible values: "this" "list"
+     * @param request
+     * @param response
+     * @return
+     * @throws VOURPException
+     */
+    @PostMapping("/view/{uuid}")
+    public ModelAndView updateCompm(COMPMModel compmModel, @AuthenticationPrincipal UserProfile user)
+            throws VOURPException {
+        ModelAndView mav = new ModelAndView();
+        compmManager.updateCOMPM(compmModel, user);
 
-		LogUtils.buildLog()
-			.forJOBM()
-			.showInUserHistory()
-			.user(user)
-			.sentence()
-				.subject(user.getUsername())
-				.verb("updated")
-				.predicate(LOGGING_PREDICATE_COMPM, compmModel.getDescription())
-			.extraField(LOGGING_FIELD_COMPM, compmModel.getId())
-			.log();
-		mav.setViewName("redirect:/compm/mvc/list");
-		return mav;
-	}
+        LogUtils.buildLog().forJOBM().showInUserHistory().user(user).sentence().subject(user.getUsername())
+                .verb("updated").predicate(LOGGING_PREDICATE_COMPM, compmModel.getDescription())
+                .extraField(LOGGING_FIELD_COMPM, compmModel.getId()).log();
+        mav.setViewName("redirect:/compm/mvc/list");
+        return mav;
+    }
 
-	@GetMapping("/view/{compmUuid}")
-	public ModelAndView viewCompm(@PathVariable String compmUuid,
-			@AuthenticationPrincipal UserProfile user) {
-		// / next will throw exception if not allowed to do this action.
-		COMPM compm = compmManager.find(compmUuid);
-		if (!user.getUserid().equals(compm.getCreatorUserid())) {
-			throw new InsufficientPermissionsException("view compm " + compm.getDescription());
-		}
+    @GetMapping("/view/{compmUuid}")
+    public ModelAndView viewCompm(@PathVariable String compmUuid, @AuthenticationPrincipal UserProfile user) {
+        // / next will throw exception if not allowed to do this action.
+        COMPM compm = compmManager.find(compmUuid);
+        if (!user.getUserid().equals(compm.getCreatorUserid())) {
+            throw new InsufficientPermissionsException("view compm " + compm.getDescription());
+        }
 
-		COMPMModel compmModel = jobmModelFactory.newCOMPMModel(compm, user);
-		LogUtils.buildLog()
-			.forJOBM()
-			.user(user)
-			.sentence()
-				.subject(user.getUsername())
-				.verb("viewed")
-				.predicate(LOGGING_PREDICATE_COMPM, compmModel.getDescription())
-			.extraField(LOGGING_FIELD_COMPM, compmModel.getId())
-			.log();
-		ModelAndView mav = new ModelAndView();
+        COMPMModel compmModel = jobmModelFactory.newCOMPMModel(compm, user);
+        LogUtils.buildLog().forJOBM().user(user).sentence().subject(user.getUsername()).verb("viewed")
+                .predicate(LOGGING_PREDICATE_COMPM, compmModel.getDescription())
+                .extraField(LOGGING_FIELD_COMPM, compmModel.getId()).log();
+        ModelAndView mav = new ModelAndView();
 
-		mav.setViewName("ViewCOMPM");
-		mav.addObject("compmModel", compmModel);
-		return mav;
-	}
+        mav.setViewName("ViewCOMPM");
+        mav.addObject("compmModel", compmModel);
+        return mav;
+    }
 }

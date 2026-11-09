@@ -20,55 +20,53 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @ControllerAdvice
 public class RACMErrorHandler extends ResponseEntityExceptionHandler {
-	private final JsonAPIHelper jsonAPIHelper;
-	public RACMErrorHandler(JsonAPIHelper jsonAPIHelper) {
-		this.jsonAPIHelper = jsonAPIHelper;
-	}
+    private final JsonAPIHelper jsonAPIHelper;
 
-	@ExceptionHandler
-	@ResponseBody
-	ResponseEntity<JsonNode> handleAllOtherExceptions(HttpServletRequest request, Throwable ex,
-			@AuthenticationPrincipal UserProfile up) {
-		HttpStatus status = getStatus(request);
-		Exception exception = ex instanceof Exception
-				? (Exception) ex
-				: new Exception(ex);
+    public RACMErrorHandler(JsonAPIHelper jsonAPIHelper) {
+        this.jsonAPIHelper = jsonAPIHelper;
+    }
 
-		return jsonAPIHelper.logAndReturnJsonExceptionEntity(
-				"Unknown error", Optional.ofNullable(up), exception, status);
-	}
+    @ExceptionHandler
+    @ResponseBody
+    ResponseEntity<JsonNode> handleAllOtherExceptions(HttpServletRequest request, Throwable ex,
+            @AuthenticationPrincipal UserProfile up) {
+        HttpStatus status = getStatus(request);
+        Exception exception = ex instanceof Exception ? (Exception) ex : new Exception(ex);
 
-	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<JsonNode> handleResourceNotFound(ResourceNotFoundException ex) {
-		return jsonAPIHelper.logAndReturnJsonExceptionEntity(
-				"Resource not found or not readable by this user",
-				Optional.empty(), ex, HttpStatus.NOT_FOUND);
-	}
+        return jsonAPIHelper.logAndReturnJsonExceptionEntity("Unknown error", Optional.ofNullable(up), exception,
+                status);
+    }
 
-	@ExceptionHandler(DuplicateIdentifierException.class)
-	public ResponseEntity<JsonNode> handleDuplicateError(DuplicateIdentifierException ex) {
-		return jsonAPIHelper.logAndReturnJsonExceptionEntity(
-				ex.getMessage(), Optional.empty(), ex, HttpStatus.CONFLICT);
-	}
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<JsonNode> handleResourceNotFound(ResourceNotFoundException ex) {
+        return jsonAPIHelper.logAndReturnJsonExceptionEntity("Resource not found or not readable by this user",
+                Optional.empty(), ex, HttpStatus.NOT_FOUND);
+    }
 
-	@ExceptionHandler(RegistrationInvalidException.class)
-	public ResponseEntity<JsonNode> handleValidationError(RegistrationInvalidException ex) {
-		return jsonAPIHelper.logAndReturnJsonExceptionEntity(
-				ex.getMessage(), Optional.empty(), ex, HttpStatus.BAD_REQUEST);
-	}
+    @ExceptionHandler(DuplicateIdentifierException.class)
+    public ResponseEntity<JsonNode> handleDuplicateError(DuplicateIdentifierException ex) {
+        return jsonAPIHelper.logAndReturnJsonExceptionEntity(ex.getMessage(), Optional.empty(), ex,
+                HttpStatus.CONFLICT);
+    }
 
-	@ExceptionHandler(InsufficientPermissionsException.class)
-	@ResponseBody
-	public ResponseEntity<JsonNode> handleForbidden(InsufficientPermissionsException ex) {
-		return jsonAPIHelper.logAndReturnJsonExceptionEntity(
-				ex.getMessage(), Optional.empty(), ex, HttpStatus.FORBIDDEN);
-	}
+    @ExceptionHandler(RegistrationInvalidException.class)
+    public ResponseEntity<JsonNode> handleValidationError(RegistrationInvalidException ex) {
+        return jsonAPIHelper.logAndReturnJsonExceptionEntity(ex.getMessage(), Optional.empty(), ex,
+                HttpStatus.BAD_REQUEST);
+    }
 
-	private HttpStatus getStatus(HttpServletRequest request) {
-		Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
-		if (statusCode == null) {
-			return HttpStatus.INTERNAL_SERVER_ERROR;
-		}
-		return HttpStatus.valueOf(statusCode);
-	}
+    @ExceptionHandler(InsufficientPermissionsException.class)
+    @ResponseBody
+    public ResponseEntity<JsonNode> handleForbidden(InsufficientPermissionsException ex) {
+        return jsonAPIHelper.logAndReturnJsonExceptionEntity(ex.getMessage(), Optional.empty(), ex,
+                HttpStatus.FORBIDDEN);
+    }
+
+    private HttpStatus getStatus(HttpServletRequest request) {
+        Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
+        if (statusCode == null) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return HttpStatus.valueOf(statusCode);
+    }
 }

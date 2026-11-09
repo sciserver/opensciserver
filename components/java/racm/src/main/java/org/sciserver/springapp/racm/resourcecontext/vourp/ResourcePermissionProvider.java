@@ -17,39 +17,29 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ResourcePermissionProvider {
-	@PersistenceContext
-	private EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
 
-	public Map<String, Set<Action>> getActionsAllowedInResourceContext(String username,
-			String resourceContextUUID) {
-		Query query = em.createNativeQuery(
-				"SELECT DISTINCT resourceUUID, action, actionCategory FROM racm.userActions(?) "
-				+ "WHERE resourceContextUUID = ?")
-				.setParameter(1, username)
-				.setParameter(2, resourceContextUUID);
-		@SuppressWarnings("unchecked")
-		List<Object[]> results = query.getResultList();
-		return results
-				.stream()
-				.collect(groupingBy(
-						row -> row[0].toString(),
-						mapping(row -> new Action(row[1].toString(), row[2].toString()), toSet())
-						));
-	}
+    public Map<String, Set<Action>> getActionsAllowedInResourceContext(String username, String resourceContextUUID) {
+        Query query = em
+                .createNativeQuery("SELECT DISTINCT resourceUUID, action, actionCategory FROM racm.userActions(?) "
+                        + "WHERE resourceContextUUID = ?")
+                .setParameter(1, username).setParameter(2, resourceContextUUID);
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+        return results.stream().collect(groupingBy(row -> row[0].toString(),
+                mapping(row -> new Action(row[1].toString(), row[2].toString()), toSet())));
+    }
 
+    public Set<Action> getActionsForResource(String username, String resourceUUID) {
+        Query query = em
+                .createNativeQuery(
+                        "SELECT DISTINCT action, actionCategory FROM racm.userActions(?) " + "WHERE resourceUUID = ?")
+                .setParameter(1, username).setParameter(2, resourceUUID);
 
-	public Set<Action> getActionsForResource(String username, String resourceUUID) {
-		Query query = em.createNativeQuery(
-				"SELECT DISTINCT action, actionCategory FROM racm.userActions(?) "
-				+ "WHERE resourceUUID = ?")
-				.setParameter(1, username)
-				.setParameter(2, resourceUUID);
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
 
-		@SuppressWarnings("unchecked")
-		List<Object[]> results = query.getResultList();
-
-		return results.stream()
-				.map(row -> new Action(row[0].toString(), row[1].toString()))
-				.collect(toSet());
-	}
+        return results.stream().map(row -> new Action(row[0].toString(), row[1].toString())).collect(toSet());
+    }
 }

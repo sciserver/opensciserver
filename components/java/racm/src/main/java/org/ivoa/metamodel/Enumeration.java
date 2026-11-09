@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Enumeration complex type.
  * 
@@ -40,12 +39,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Enumeration", propOrder = {
-    "literal"
-})
-public class Enumeration
-    extends ValueType
-{
+@XmlType(name = "Enumeration", propOrder = { "literal" })
+public class Enumeration extends ValueType {
 
     @XmlElement(required = true)
     protected List<Enumeration.Literal> literal;
@@ -79,7 +74,6 @@ public class Enumeration
         return this.literal;
     }
 
-
     /**
      * <p>Java class for anonymous complex type.
      * 
@@ -101,10 +95,7 @@ public class Enumeration
      * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "value",
-        "description"
-    })
+    @XmlType(name = "", propOrder = { "value", "description" })
     public static class Literal {
 
         @XmlElement(required = true)

@@ -36,23 +36,16 @@ import org.sciserver.springapp.racm.storem.controller.FileServiceUserRequiredCon
  * them cannot be turned into a document: the first symptom is a 500 from /v3/api-docs, which takes
  * the whole reference page down rather than degrading one entry.
  */
-@SpringBootTest(classes = ApiDocumentGenerationTests.Config.class,
-                webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(classes = ApiDocumentGenerationTests.Config.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class ApiDocumentGenerationTests {
 
     @EnableWebMvc
     @ContextConfiguration
-    @ImportAutoConfiguration({JacksonAutoConfiguration.class})
-    @org.springframework.context.annotation.Import({
-        SpringDocConfiguration.class,
-        SpringDocWebMvcConfiguration.class,
-        SpringDocConfigProperties.class,
-        OpenApiConfig.class,
-        OpenApiDefinition.class,
-        FileServiceUserRequiredController.class,
-        FileServiceTokenRequiredController.class,
-        FileServiceLinkedServiceController.class,
-    })
+    @ImportAutoConfiguration({ JacksonAutoConfiguration.class })
+    @org.springframework.context.annotation.Import({ SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class,
+        SpringDocConfigProperties.class, OpenApiConfig.class, OpenApiDefinition.class,
+        FileServiceUserRequiredController.class, FileServiceTokenRequiredController.class,
+        FileServiceLinkedServiceController.class, })
     static class Config {
         @MockBean
         private FileServiceManager fileServiceManager;

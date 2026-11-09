@@ -11,6 +11,7 @@ import edu.jhu.job.ComputeDomain;
 import edu.jhu.job.DockerImage;
 import edu.jhu.job.VolumeContainer;
 import edu.jhu.user.User;
+
 /**
  * This class defines utility methods to allow JOBM functions to check whether a user is allowed to do particular things.<br/>
  * The methods define these explicit requests into calls to RACM with appropriate parameters.
@@ -22,46 +23,54 @@ import edu.jhu.user.User;
  */
 @Service
 public class JOBMAccessControl {
-	private final RACM racm;
-	@Autowired
-	public JOBMAccessControl(RACM racm) {
-		this.racm = racm;
-	}
+    private final RACM racm;
 
-	void tryUseDockerImage(UserProfile u, DockerImage di ) throws RACMException{
-		racm.tryDoActionOnResource(u, di.getResource().getUuid(), RACMNames.A_DOCKER_IMAGE_CREATE_CONTAINER);
-	}
-	void tryUseVolumeContainer(UserProfile u, VolumeContainer vc ) throws RACMException{
-		racm.tryDoActionOnResource(u, vc.getResource().getUuid(), RACMNames.A_VOLUME_CONTAINER_READ);
-	}
-	void tryWriteVolumeContainer(UserProfile u, VolumeContainer vc ) throws RACMException{
+    @Autowired
+    public JOBMAccessControl(RACM racm) {
+        this.racm = racm;
+    }
+
+    void tryUseDockerImage(UserProfile u, DockerImage di) throws RACMException {
+        racm.tryDoActionOnResource(u, di.getResource().getUuid(), RACMNames.A_DOCKER_IMAGE_CREATE_CONTAINER);
+    }
+
+    void tryUseVolumeContainer(UserProfile u, VolumeContainer vc) throws RACMException {
+        racm.tryDoActionOnResource(u, vc.getResource().getUuid(), RACMNames.A_VOLUME_CONTAINER_READ);
+    }
+
+    void tryWriteVolumeContainer(UserProfile u, VolumeContainer vc) throws RACMException {
         racm.tryDoActionOnResource(u, vc.getResource().getUuid(), RACMNames.A_VOLUME_CONTAINER_WRITE);
     }
 
-	void tryUserSubmitJob(UserProfile up) throws RACMException{
-		// no-op for now
-	}
-	boolean canRegisterCOMPM(UserProfile u) {
-		return racm.canUserDoRootAction(u.getUsername(), RACMNames.A_REGISTER_COMPMM);
-	}
-	boolean canRegisterComputeDomain(User u) {
-		return racm.canUserDoRootAction(u.getUsername(),  RACMNames.A_REGISTER_COMPUTE_DOMAIN);
-	}
-	boolean canEditComputeDomain(User u, ComputeDomain cd) {
-		return racm.doesUserHaveRoleOnResource(u.getUsername(), cd.getResourceContext().getUuid(), RACMNames.CONTEXT_ROOTRESOURCE_PUBDID, RACMNames.R_COMPUTE_DOMAIN_ROOT_ADMIN);
-	}
-	/**
-	 * Return whether the user may mount a root volume on the specified compute domain.<br/>
-	 *
-	 * Unlike canEditComputeDomain, which asks for the whole root-admin role, this checks a single
-	 * action and can therefore be granted to a narrower role without code changes.
-	 *
-	 * @param up the user
-	 * @param cd the compute domain
-	 * @return true if the user holds the addRootVolume action on the domain's root context
-	 */
-	boolean canAddRootVolume(UserProfile up, ComputeDomain cd) {
-		return racm.canUserDoActionOnRootContext(up.getUsername(),
-				cd.getResourceContext().getUuid(), RACMNames.A_ADD_ROOT_VOLUME);
-	}
+    void tryUserSubmitJob(UserProfile up) throws RACMException {
+        // no-op for now
+    }
+
+    boolean canRegisterCOMPM(UserProfile u) {
+        return racm.canUserDoRootAction(u.getUsername(), RACMNames.A_REGISTER_COMPMM);
+    }
+
+    boolean canRegisterComputeDomain(User u) {
+        return racm.canUserDoRootAction(u.getUsername(), RACMNames.A_REGISTER_COMPUTE_DOMAIN);
+    }
+
+    boolean canEditComputeDomain(User u, ComputeDomain cd) {
+        return racm.doesUserHaveRoleOnResource(u.getUsername(), cd.getResourceContext().getUuid(),
+                RACMNames.CONTEXT_ROOTRESOURCE_PUBDID, RACMNames.R_COMPUTE_DOMAIN_ROOT_ADMIN);
+    }
+
+    /**
+     * Return whether the user may mount a root volume on the specified compute domain.<br/>
+     *
+     * Unlike canEditComputeDomain, which asks for the whole root-admin role, this checks a single
+     * action and can therefore be granted to a narrower role without code changes.
+     *
+     * @param up the user
+     * @param cd the compute domain
+     * @return true if the user holds the addRootVolume action on the domain's root context
+     */
+    boolean canAddRootVolume(UserProfile up, ComputeDomain cd) {
+        return racm.canUserDoActionOnRootContext(up.getUsername(), cd.getResourceContext().getUuid(),
+                RACMNames.A_ADD_ROOT_VOLUME);
+    }
 }

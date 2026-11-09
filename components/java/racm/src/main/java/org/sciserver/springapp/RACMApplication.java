@@ -27,55 +27,51 @@ public class RACMApplication extends SpringBootServletInitializer {
     public static void main(String[] args) {
         SpringApplication.run(RACMApplication.class, args);
     }
-    
-	@Bean
-	public MeterBinder processMemoryMetrics() {
-		return new ProcessMemoryMetrics();
-	}
 
-	@Bean
-	public MeterBinder processThreadMetrics() {
-		return new ProcessThreadMetrics();
-	}
+    @Bean
+    public MeterBinder processMemoryMetrics() {
+        return new ProcessMemoryMetrics();
+    }
 
-	/*
-	 * Needed by racm.Config to obtain details about the current request for logging.
-	 */
-	@Bean
-	@ConditionalOnWebApplication
-	public RequestContextListener requestContextListener() {
-		return new RequestContextListener();
-	}
+    @Bean
+    public MeterBinder processThreadMetrics() {
+        return new ProcessThreadMetrics();
+    }
 
-	@Bean
-	@ConditionalOnWebApplication
-	FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
-		FilterRegistrationBean<ForwardedHeaderFilter> filterRegistrationBean =
-				new FilterRegistrationBean<>();
-		filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
-		filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    /*
+     * Needed by racm.Config to obtain details about the current request for logging.
+     */
+    @Bean
+    @ConditionalOnWebApplication
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
+    }
 
-		return filterRegistrationBean;
-	}
+    @Bean
+    @ConditionalOnWebApplication
+    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
+        FilterRegistrationBean<ForwardedHeaderFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+        filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
+        filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
-	@Bean
-	@Autowired
-	public LoginPortalService loginPortalService(LoginConfig loginConfig) {
-		return new Retrofit.Builder()
-				.addConverterFactory(JacksonConverterFactory.create())
-				.baseUrl(loginConfig.getLoginPortalUrl())
-				.build()
-				.create(LoginPortalService.class);
-	}
+        return filterRegistrationBean;
+    }
 
-	@Bean
-	public WebMvcConfigurer registerLoggerHelperConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addInterceptors(InterceptorRegistry registry) {
-				WebMvcConfigurer.super.addInterceptors(registry);
-				registry.addInterceptor(new ControllerMethodLogger());
-			}
-		};
-	}
+    @Bean
+    @Autowired
+    public LoginPortalService loginPortalService(LoginConfig loginConfig) {
+        return new Retrofit.Builder().addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl(loginConfig.getLoginPortalUrl()).build().create(LoginPortalService.class);
+    }
+
+    @Bean
+    public WebMvcConfigurer registerLoggerHelperConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                WebMvcConfigurer.super.addInterceptors(registry);
+                registry.addInterceptor(new ControllerMethodLogger());
+            }
+        };
+    }
 }

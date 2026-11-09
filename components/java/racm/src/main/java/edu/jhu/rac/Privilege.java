@@ -31,15 +31,19 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_Privilege")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_Privilege")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.DiscriminatorValue("Privilege")
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "Privilege.findById", query = "SELECT o FROM Privilege o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "Privilege.findByPublisherDID", query = "SELECT o FROM Privilege o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "Privilege.findById", query = "SELECT o FROM Privilege o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "Privilege.findByPublisherDID",
+            query = "SELECT o FROM Privilege o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -56,9 +60,10 @@ public class Privilege extends AccessControl {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "actionId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "actionId", referencedColumnName = "id", nullable = false)
 
     private Action action = null;
     /**

@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * 
  *     Deprecated in Version 1.1
@@ -35,15 +34,11 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Definitions", propOrder = {
-    "coosysAndPARAMS"
-})
+@XmlType(name = "Definitions", propOrder = { "coosysAndPARAMS" })
 public class Definitions {
 
-    @XmlElements({
-        @XmlElement(name = "COOSYS", type = CoordinateSystem.class),
-        @XmlElement(name = "PARAM", type = Param.class)
-    })
+    @XmlElements({ @XmlElement(name = "COOSYS", type = CoordinateSystem.class),
+        @XmlElement(name = "PARAM", type = Param.class) })
     protected List<Object> coosysAndPARAMS;
 
     /**

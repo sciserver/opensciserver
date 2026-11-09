@@ -31,13 +31,17 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_COMPM")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_COMPM")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "COMPM.findById", query = "SELECT o FROM COMPM o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "COMPM.findByPublisherDID", query = "SELECT o FROM COMPM o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "COMPM.findById", query = "SELECT o FROM COMPM o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "COMPM.findByPublisherDID",
+            query = "SELECT o FROM COMPM o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -47,7 +51,8 @@ public class COMPM extends MetadataRootEntityObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version()
+    @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**
@@ -58,7 +63,8 @@ public class COMPM extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "uuid", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "uuid", nullable = false)
 
     private String uuid;
 
@@ -70,7 +76,9 @@ public class COMPM extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "description", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
+    @javax.persistence.Lob
+    @javax.persistence.Column(name = "description", nullable = true)
 
     private String description;
 
@@ -82,7 +90,8 @@ public class COMPM extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "label", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "label", nullable = true)
 
     private String label;
 
@@ -90,7 +99,8 @@ public class COMPM extends MetadataRootEntityObject {
      * Attribute creatorUserid : The usernameof the owner ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "creatorUserid", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "creatorUserid", nullable = false)
 
     private String creatorUserid;
 
@@ -98,7 +108,8 @@ public class COMPM extends MetadataRootEntityObject {
      * Attribute defaultJobTimeout : The default job timeout in seconds ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "defaultJobTimeout", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "defaultJobTimeout", nullable = false)
 
     private Long defaultJobTimeout;
 
@@ -110,7 +121,8 @@ public class COMPM extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "defaultJobsPerUser", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "defaultJobsPerUser", nullable = false)
 
     private Long defaultJobsPerUser;
 
@@ -122,9 +134,10 @@ public class COMPM extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "computeDomainId", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "computeDomainId", referencedColumnName = "id", nullable = true)
 
     private ComputeDomain computeDomain = null;
     /**

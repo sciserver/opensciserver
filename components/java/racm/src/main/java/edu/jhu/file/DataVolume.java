@@ -31,16 +31,20 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_DataVolume")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_DataVolume")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "DataVolume.findById", query = "SELECT o FROM DataVolume o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "DataVolume.findByPublisherDID", query = "SELECT o FROM DataVolume o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "DataVolume.findById", query = "SELECT o FROM DataVolume o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "DataVolume.findByPublisherDID",
+            query = "SELECT o FROM DataVolume o WHERE o.identity.publisherDID = :publisherDID")
 
-        ,
-        @javax.persistence.NamedQuery(name = "DataVolume.findByName", query = "SELECT o FROM DataVolume o WHERE o.name = :name")
+    , @javax.persistence.NamedQuery(name = "DataVolume.findByName",
+            query = "SELECT o FROM DataVolume o WHERE o.name = :name")
 
 })
 
@@ -50,7 +54,8 @@ public class DataVolume extends MetadataRootEntityObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version()
+    @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**
@@ -61,7 +66,8 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "name", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "name", nullable = false)
 
     private String name;
 
@@ -73,7 +79,9 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "description", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
+    @javax.persistence.Lob
+    @javax.persistence.Column(name = "description", nullable = true)
 
     private String description;
 
@@ -85,7 +93,8 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "displayName", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "displayName", nullable = false)
 
     private String displayName;
 
@@ -97,7 +106,8 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "pathOnFileSystem", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "pathOnFileSystem", nullable = false)
 
     private String pathOnFileSystem;
 
@@ -109,7 +119,8 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "url", nullable = true)
+    @javax.persistence.Basic(optional = true)
+    @javax.persistence.Column(name = "url", nullable = true)
 
     private String url;
 
@@ -121,9 +132,10 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
 
     private Resource resource = null;
     /**
@@ -143,9 +155,10 @@ public class DataVolume extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "fileServiceId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "fileServiceId", referencedColumnName = "id", nullable = false)
 
     private FileService fileService = null;
     /**

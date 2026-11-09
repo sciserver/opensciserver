@@ -30,13 +30,18 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_SciserverEntity")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_SciserverEntity")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "SciserverEntity.findById", query = "SELECT o FROM SciserverEntity o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "SciserverEntity.findByPublisherDID", query = "SELECT o FROM SciserverEntity o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "SciserverEntity.findById",
+            query = "SELECT o FROM SciserverEntity o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "SciserverEntity.findByPublisherDID",
+            query = "SELECT o FROM SciserverEntity o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -50,7 +55,8 @@ public abstract class SciserverEntity extends MetadataRootEntityObject {
     protected String classType;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version()
+    @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**

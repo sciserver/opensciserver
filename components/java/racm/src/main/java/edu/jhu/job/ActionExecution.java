@@ -38,13 +38,18 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_ActionExecution")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_ActionExecution")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "ActionExecution.findById", query = "SELECT o FROM ActionExecution o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "ActionExecution.findByPublisherDID", query = "SELECT o FROM ActionExecution o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "ActionExecution.findById",
+            query = "SELECT o FROM ActionExecution o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "ActionExecution.findByPublisherDID",
+            query = "SELECT o FROM ActionExecution o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -54,12 +59,14 @@ public class ActionExecution extends MetadataObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version()
+    @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /** container gives the parent entity which owns a collection containing instances of this class */
     @javax.persistence.ManyToOne(cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY) @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
+        javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY)
+    @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
     protected History container;
 
     /**
@@ -70,7 +77,9 @@ public class ActionExecution extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP) @javax.persistence.Column(name = "executionDate", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @javax.persistence.Column(name = "executionDate", nullable = false)
 
     private Date executionDate;
 
@@ -82,7 +91,8 @@ public class ActionExecution extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "status", nullable = false)
+    @javax.persistence.Basic(optional = false)
+    @javax.persistence.Column(name = "status", nullable = false)
 
     private String status;
 
@@ -94,9 +104,10 @@ public class ActionExecution extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "actionId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "actionId", referencedColumnName = "id", nullable = false)
 
     private Action action = null;
     /**
@@ -116,9 +127,10 @@ public class ActionExecution extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "userId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "userId", referencedColumnName = "id", nullable = false)
 
     private User user = null;
     /**
@@ -138,9 +150,10 @@ public class ActionExecution extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
 
     private Resource resource = null;
     /**

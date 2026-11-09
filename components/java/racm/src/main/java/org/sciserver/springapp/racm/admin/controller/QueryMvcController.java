@@ -24,61 +24,61 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value="/query")
+@RequestMapping(value = "/query")
 public class QueryMvcController {
 
-	private final RACMAccessControl rac;
-	private final VOURPContext vourpContext;
+    private final RACMAccessControl rac;
+    private final VOURPContext vourpContext;
 
-	@PersistenceContext
-	private EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
 
-	@Autowired
-	public QueryMvcController(RACMAccessControl rac, VOURPContext vourpContext) {
-		this.rac = rac;
-		this.vourpContext = vourpContext;
-	}
+    @Autowired
+    public QueryMvcController(RACMAccessControl rac, VOURPContext vourpContext) {
+        this.rac = rac;
+        this.vourpContext = vourpContext;
+    }
 
-	@GetMapping("/jpql")
-	public ModelAndView jpqlQuery(@AuthenticationPrincipal UserProfile up) throws VOURPException {
+    @GetMapping("/jpql")
+    public ModelAndView jpqlQuery(@AuthenticationPrincipal UserProfile up) throws VOURPException {
 
-		if(!rac.canUserQueryJOQL(up.getUser()))
-			throw new VOURPException(VOURPException.UNAUTHORIZED, "User not allowed to submit JOQL queries");
+        if (!rac.canUserQueryJOQL(up.getUser()))
+            throw new VOURPException(VOURPException.UNAUTHORIZED, "User not allowed to submit JOQL queries");
 
-		ModelAndView mav = new ModelAndView();
-		mav.addObject("jpqlQueryModel",new JPQLQueryModel());
-		mav.setViewName("JPQLQuery");
-		return mav;
-	}
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("jpqlQueryModel", new JPQLQueryModel());
+        mav.setViewName("JPQLQuery");
+        return mav;
+    }
 
-	@PostMapping("/jpql")
-	public ModelAndView executeJpqlQuery(JPQLQueryModel query, @AuthenticationPrincipal UserProfile up)
-			throws VOURPException {
-		if(!rac.canUserQueryJOQL(up.getUser()))
-			throw new VOURPException(VOURPException.UNAUTHORIZED, "User not allowed to submit JOQL queries");
+    @PostMapping("/jpql")
+    public ModelAndView executeJpqlQuery(JPQLQueryModel query, @AuthenticationPrincipal UserProfile up)
+            throws VOURPException {
+        if (!rac.canUserQueryJOQL(up.getUser()))
+            throw new VOURPException(VOURPException.UNAUTHORIZED, "User not allowed to submit JOQL queries");
 
-		TransientObjectManager tom = vourpContext.newTOM();
+        TransientObjectManager tom = vourpContext.newTOM();
 
-		try {
-			Query q = tom.createQuery(query.getJpql());
-			List<?> l = tom.customJPQL(q, false);
-			List<String> rows = new ArrayList<>();
-			for(Object o:l){
-				if(o instanceof MetadataObject)
-					rows.add(((MetadataObject)o).deepToString());
-				else if (o instanceof Object[])
-					rows.add(Arrays.deepToString((Object[])o));
-				else 
-					rows.add(o != null?o.toString():null);
-			}
-			query.setRows(rows);
-		} catch(Exception e) {
-			query.setError(e.getMessage());
-		}
-		ModelAndView mav = new ModelAndView();
-		mav.addObject("jpqlQueryModel", query);
-		mav.setViewName("JPQLQuery");
-		return mav;
-	}
+        try {
+            Query q = tom.createQuery(query.getJpql());
+            List<?> l = tom.customJPQL(q, false);
+            List<String> rows = new ArrayList<>();
+            for (Object o : l) {
+                if (o instanceof MetadataObject)
+                    rows.add(((MetadataObject) o).deepToString());
+                else if (o instanceof Object[])
+                    rows.add(Arrays.deepToString((Object[]) o));
+                else
+                    rows.add(o != null ? o.toString() : null);
+            }
+            query.setRows(rows);
+        } catch (Exception e) {
+            query.setError(e.getMessage());
+        }
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("jpqlQueryModel", query);
+        mav.setViewName("JPQLQuery");
+        return mav;
+    }
 
 }

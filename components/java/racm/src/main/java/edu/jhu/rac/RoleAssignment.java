@@ -31,15 +31,20 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_RoleAssignment")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_RoleAssignment")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.DiscriminatorValue("RoleAssignment")
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "RoleAssignment.findById", query = "SELECT o FROM RoleAssignment o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "RoleAssignment.findByPublisherDID", query = "SELECT o FROM RoleAssignment o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "RoleAssignment.findById",
+            query = "SELECT o FROM RoleAssignment o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "RoleAssignment.findByPublisherDID",
+            query = "SELECT o FROM RoleAssignment o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -56,9 +61,10 @@ public class RoleAssignment extends AccessControl {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "roleId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "roleId", referencedColumnName = "id", nullable = false)
 
     private Role role = null;
     /**

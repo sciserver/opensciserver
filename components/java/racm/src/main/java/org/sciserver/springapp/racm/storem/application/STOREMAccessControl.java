@@ -126,13 +126,12 @@ public class STOREMAccessControl {
     }
 
     Map<Long, List<String>> getAllowedActions(UserProfile up, ResourceContext... resourceContexts) {
-        List<String> resourceContextUUIDsToSearch = Arrays.asList(resourceContexts).stream()
-                .map(ResourceContext::getUuid).collect(toList());
+        List<String> resourceContextUUIDsToSearch =
+                Arrays.asList(resourceContexts).stream().map(ResourceContext::getUuid).collect(toList());
 
         /*
-         * According to https://stackoverflow.com/a/21494273/239003 , collections are
-         * not allowed in native queries. This must be native since we use a table
-         * function, so we do some manual looping.
+         * According to https://stackoverflow.com/a/21494273/239003 , collections are not allowed in native queries.
+         * This must be native since we use a table function, so we do some manual looping.
          */
         String sql = "SELECT DISTINCT resourceId, action FROM racm.userActions(?) WHERE resourceContextUUID in ("
                 + String.join(",", Collections.nCopies(resourceContextUUIDsToSearch.size(), "?")) + ")";
@@ -154,8 +153,9 @@ public class STOREMAccessControl {
         String sql = "SELECT resourceId, action FROM racm.userResourceActionsOnContext(?,?)";
 
         TransientObjectManager tom = up.getTom();
-        Query nativeQuery = tom.createNativeQuery(sql).setParameter(1,resourceContextsUUID).setParameter(2, up.getUsername());
-        
+        Query nativeQuery =
+                tom.createNativeQuery(sql).setParameter(1, resourceContextsUUID).setParameter(2, up.getUsername());
+
         @SuppressWarnings("unchecked")
         Collection<Object[]> rawResults = (Collection<Object[]>) tom.executeNativeQuery(nativeQuery);
 
@@ -164,7 +164,8 @@ public class STOREMAccessControl {
     }
 
     Set<String> getAllowedActions(UserProfile up, String resourceContextUUID, String pubDID) {
-        String sql = "SELECT DISTINCT action FROM racm.userActions(?) WHERE resourcePubDID = (?) and resourceContextUUID = (?)";
+        String sql =
+                "SELECT DISTINCT action FROM racm.userActions(?) WHERE resourcePubDID = (?) and resourceContextUUID = (?)";
         TransientObjectManager tom = up.getTom();
         Query nativeQuery = tom.createNativeQuery(sql).setParameter(1, up.getUsername()).setParameter(2, pubDID)
                 .setParameter(3, resourceContextUUID);
@@ -238,9 +239,9 @@ public class STOREMAccessControl {
 
     @SuppressWarnings("unchecked")
     private List<Privilege> getAllEntitiesWithPrivilege(TransientObjectManager tom, Resource resource) {
-        Query privileges = tom
-                .createQuery("SELECT p FROM Privilege p join fetch p.scisEntity WHERE p.container = :resource")
-                .setParameter("resource", resource);
+        Query privileges =
+                tom.createQuery("SELECT p FROM Privilege p join fetch p.scisEntity WHERE p.container = :resource")
+                        .setParameter("resource", resource);
         List<Privilege> privs = privileges.getResultList();
         return privs;
     }
@@ -265,6 +266,7 @@ public class STOREMAccessControl {
             resource.getAccesControl().remove(p);
         }
     }
+
     void deleteAllRoles(TransientObjectManager tom, long entityId, Resource resource) {
         List<RoleAssignment> rolesToDelete = new ArrayList<>();
         for (AccessControl ac : resource.getAccesControl()) {
@@ -276,11 +278,11 @@ public class STOREMAccessControl {
             resource.getAccesControl().remove(p);
         }
     }
-    
+
     private Action findAction(TransientObjectManager tom, String name, ResourceType rt) {
-        Query actionQuery = tom
-                .createQuery("SELECT a FROM Action a WHERE a.name = :name AND a.container = :resourcetype")
-                .setParameter("name", name).setParameter("resourcetype", rt);
+        Query actionQuery =
+                tom.createQuery("SELECT a FROM Action a WHERE a.name = :name AND a.container = :resourcetype")
+                        .setParameter("name", name).setParameter("resourcetype", rt);
         return tom.queryOne(actionQuery, Action.class);
     }
 

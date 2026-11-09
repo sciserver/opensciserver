@@ -33,15 +33,20 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_VolumeContainer")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_VolumeContainer")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.DiscriminatorValue("VolumeContainer")
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "VolumeContainer.findById", query = "SELECT o FROM VolumeContainer o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "VolumeContainer.findByPublisherDID", query = "SELECT o FROM VolumeContainer o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "VolumeContainer.findById",
+            query = "SELECT o FROM VolumeContainer o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "VolumeContainer.findByPublisherDID",
+            query = "SELECT o FROM VolumeContainer o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -58,9 +63,10 @@ public class VolumeContainer extends ComputeResource {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
-            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "datavolumeId", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
+            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+                javax.persistence.CascadeType.REFRESH })
+    @javax.persistence.JoinColumn(name = "datavolumeId", referencedColumnName = "id", nullable = true)
 
     private DataVolume datavolume = null;
     /**

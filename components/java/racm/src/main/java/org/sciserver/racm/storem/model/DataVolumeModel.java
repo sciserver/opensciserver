@@ -20,14 +20,14 @@ public final class DataVolumeModel extends FileServiceResourceModel {
             @JsonProperty("displayName") String displayName, @JsonProperty("pathOnFileSystem") String pathOnFileSystem,
             @JsonProperty("url") String url, @JsonProperty("allowedActions") List<String> allowedActions,
             @JsonProperty("sharedWith") List<SharedWithEntity> sharedWith) {
-        this(id,resourceUUID,name,description,displayName,pathOnFileSystem, url,allowedActions);
-        if(sharedWith != null)
+        this(id, resourceUUID, name, description, displayName, pathOnFileSystem, url, allowedActions);
+        if (sharedWith != null)
             this.addSharedWith(sharedWith);
     }
 
-    public DataVolumeModel(Long id, String resourceUUID, String name, String description,
-            String displayName, String pathOnFileSystem, String url, List<String> allowedActions) {
-        super(id,resourceUUID,name,description,allowedActions);
+    public DataVolumeModel(Long id, String resourceUUID, String name, String description, String displayName,
+            String pathOnFileSystem, String url, List<String> allowedActions) {
+        super(id, resourceUUID, name, description, allowedActions);
         this.displayName = displayName;
         this.pathOnFileSystem = Objects.requireNonNull(pathOnFileSystem);
         this.url = url;
@@ -47,18 +47,17 @@ public final class DataVolumeModel extends FileServiceResourceModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAllowedActions(), getResourceUUID(), getDescription(), getDisplayName(), getId(), 
+        return Objects.hash(getAllowedActions(), getResourceUUID(), getDescription(), getDisplayName(), getId(),
                 getName(), getPathOnFileSystem(), getSharedWith(), getUrl());
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof DataVolumeModel))
             return false;
         DataVolumeModel other = (DataVolumeModel) obj;
-        return super.equals(other)
-                && Objects.equals(displayName, other.displayName) && Objects.equals(url, other.url)
-                && Objects.equals(pathOnFileSystem, other.pathOnFileSystem) ;
+        return super.equals(other) && Objects.equals(displayName, other.displayName) && Objects.equals(url, other.url)
+                && Objects.equals(pathOnFileSystem, other.pathOnFileSystem);
     }
 
 }

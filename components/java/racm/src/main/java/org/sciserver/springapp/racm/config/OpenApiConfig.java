@@ -28,20 +28,19 @@ public class OpenApiConfig {
         // None of these is a request parameter, but springdoc cannot tell: it sees an
         // unannotated handler argument and documents it as one the caller must supply.
         //
-        //   UserProfile  is resolved from the X-Auth-Token header by
-        //                SciServerHeaderAuthenticationFilter and injected via
-        //                @AuthenticationPrincipal.
-        //   COMPMInfo    is injected by COMPMRequiredInjector, a @ControllerAdvice that
-        //                resolves it from the X-Service-Auth-ID header.
-        //   RegisteredFileServiceModel
-        //                is injected by FileServiceAuthenticationInjector, which resolves it
-        //                from the file service's own token.
+        // UserProfile is resolved from the X-Auth-Token header by
+        // SciServerHeaderAuthenticationFilter and injected via
+        // @AuthenticationPrincipal.
+        // COMPMInfo is injected by COMPMRequiredInjector, a @ControllerAdvice that
+        // resolves it from the X-Service-Auth-ID header.
+        // RegisteredFileServiceModel
+        // is injected by FileServiceAuthenticationInjector, which resolves it
+        // from the file service's own token.
         //
         // Registering them here removes a bogus "up" query parameter from 87 operations and a
         // bogus "compm" one from 8, without annotating every handler individually. The tokens
         // themselves stay documented, as the userToken and serviceToken security schemes.
-        SpringDocUtils.getConfig()
-                .addRequestWrapperToIgnore(UserProfile.class)
+        SpringDocUtils.getConfig().addRequestWrapperToIgnore(UserProfile.class)
                 .addRequestWrapperToIgnore(COMPMRequiredInjector.COMPMInfo.class)
                 .addRequestWrapperToIgnore(RegisteredFileServiceModel.class);
     }
@@ -56,16 +55,8 @@ public class OpenApiConfig {
      * <p>A new controller on a prefix not listed here is silently absent from the published
      * documentation. OpenApiConfigTests guards both directions.
      */
-    static final String[] REST_PATH_PATTERNS = {
-        "/jobm/rest/**",
-        "/storem/**",
-        "/ugm/rest/**",
-        "/rc/**",
-        "/rest/**",
-        "/collaborations/**",
-        "/config/**",
-        "/workspace/**",
-    };
+    static final String[] REST_PATH_PATTERNS = { "/jobm/rest/**", "/storem/**", "/ugm/rest/**", "/rc/**", "/rest/**",
+        "/collaborations/**", "/config/**", "/workspace/**", };
 
     /**
      * Restricts the generated document to the REST API.
@@ -116,9 +107,6 @@ public class OpenApiConfig {
 
     @Bean
     GroupedOpenApi racmRestApi() {
-        return GroupedOpenApi.builder()
-                .group("racm")
-                .pathsToMatch(REST_PATH_PATTERNS)
-                .build();
+        return GroupedOpenApi.builder().group("racm").pathsToMatch(REST_PATH_PATTERNS).build();
     }
 }

@@ -157,15 +157,15 @@ public class RACMUtil {
             SciServerEntityType type) {
         String where = null;
         switch (type) {
-        case USER:
-            where = "username";
-            break;
-        case GROUP:
-            where = "name";
-            break;
-        default: // case SERVICE:
-            where = "serviceToken";
-            break;
+            case USER:
+                where = "username";
+                break;
+            case GROUP:
+                where = "name";
+                break;
+            default: // case SERVICE:
+                where = "serviceToken";
+                break;
         }
         Query q = tom.createQuery(String.format("select s from %s s where s.%s=:name", type.className, where));
         q.setParameter("name", name);
@@ -207,7 +207,7 @@ public class RACMUtil {
         r.setName(RACMNames.CONTEXT_ROOTRESOURCE_PUBDID); // protected name
         r.setDescription(
                 "The root Resource for its container ResourceContext, corresponding to root ResourceType of its ContainerClass. \"\r\n"
-                        + "					+ \"Used for associating privileges having to do with ResourceContext-level actions such as those to create other Resources");
+                        + "\t\t\t\t\t+ \"Used for associating privileges having to do with ResourceContext-level actions such as those to create other Resources");
         r.setResourceType(rootResourceType);
         r.setPublisherDID(RACMNames.CONTEXT_ROOTRESOURCE_PUBDID);
         return r;

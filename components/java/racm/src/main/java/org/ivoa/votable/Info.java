@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * <p>Java class for Info complex type.
  * 
@@ -38,9 +37,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Info", propOrder = {
-    "value"
-})
+@XmlType(name = "Info", propOrder = { "value" })
 public class Info {
 
     @XmlValue

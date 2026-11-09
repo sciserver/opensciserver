@@ -11,43 +11,47 @@ package org.ivoa.dm.model;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 public final class State {
-  //~ Constants --------------------------------------------------------------------------------------------------------
+    // ~ Constants
+    // --------------------------------------------------------------------------------------------------------
 
-  /**
-   * marshall flag value to indicate that the parent metadata object must be marshalled
-   */
-  public static final int TO_BE_MARSHALLED = 32;
+    /**
+     * marshall flag value to indicate that the parent metadata object must be marshalled
+     */
+    public static final int TO_BE_MARSHALLED = 32;
 
-  //~ Members ----------------------------------------------------------------------------------------------------------
-  /**
-   * status value (binary flags)
-   */
-  private int status = 0;
+    // ~ Members
+    // ----------------------------------------------------------------------------------------------------------
+    /**
+     * status value (binary flags)
+     */
+    private int status = 0;
 
-  //~ Methods ----------------------------------------------------------------------------------------------------------
-  /**
-   * Set the marshall flag
-   */
-  public void setToBeMarshalled() {
-    this.status |= TO_BE_MARSHALLED;
-  }
-
-  /**
-   * UnSet the marshall flag
-   */
-  public void unsetToBeMarshalled() {
-    if (isToBeMarshalled()) {
-      this.status -= TO_BE_MARSHALLED;
+    // ~ Methods
+    // ----------------------------------------------------------------------------------------------------------
+    /**
+     * Set the marshall flag
+     */
+    public void setToBeMarshalled() {
+        this.status |= TO_BE_MARSHALLED;
     }
-  }
 
-  /**
-   * Return the marshall flag
-   *
-   * @return true if the marshall flag is set
-   */
-  public boolean isToBeMarshalled() {
-    return (this.status & TO_BE_MARSHALLED) == TO_BE_MARSHALLED;
-  }
+    /**
+     * UnSet the marshall flag
+     */
+    public void unsetToBeMarshalled() {
+        if (isToBeMarshalled()) {
+            this.status -= TO_BE_MARSHALLED;
+        }
+    }
+
+    /**
+     * Return the marshall flag
+     *
+     * @return true if the marshall flag is set
+     */
+    public boolean isToBeMarshalled() {
+        return (this.status & TO_BE_MARSHALLED) == TO_BE_MARSHALLED;
+    }
 }
-//~ End of file --------------------------------------------------------------------------------------------------------
+// ~ End of file
+// --------------------------------------------------------------------------------------------------------

@@ -24,51 +24,52 @@ import org.sciserver.racm.utils.model.RACMBaseModel;
  */
 public class CollectionMerger<D extends MetadataObject, M extends RACMBaseModel> {
 
-	private Collection<D> remove = null;
-	private List<M> insert = new ArrayList<>();
-	private List<D> updateD = new ArrayList<>();
-	private List<M> updateM = new ArrayList<>();
-	/**
-	 * If addOnly = true, existing elements in the collection will not be removed if their is no counterpart in the model's collection
-	 */
-	public CollectionMerger(List<D> ds, List<M> ms, boolean addOnly){
-		Map<Long, D> dd=new HashMap<>();
-		for(D d:ds)
-			dd.put(d.getId(), d);
+    private Collection<D> remove = null;
+    private List<M> insert = new ArrayList<>();
+    private List<D> updateD = new ArrayList<>();
+    private List<M> updateM = new ArrayList<>();
 
-		if(ms != null){
-			for(M m: ms){
-				if(m.getId() == null)
-					insert.add(m);
-				else {
-					D d = dd.get(m.getId());
-					if(d == null)
-						throw new IllegalStateException("Cannot find Object with id=%d from input collection");
-					updateD.add(d);
-					updateM.add(m);
-					dd.remove(m.getId());
-				}
-			}
-		}
-		if(addOnly)
-			remove = new ArrayList<>();
-		else
-			remove=dd.values();
-	}
+    /**
+     * If addOnly = true, existing elements in the collection will not be removed if their is no counterpart in the model's collection
+     */
+    public CollectionMerger(List<D> ds, List<M> ms, boolean addOnly) {
+        Map<Long, D> dd = new HashMap<>();
+        for (D d : ds)
+            dd.put(d.getId(), d);
 
-	public Collection<D> getRemove() {
-		return remove;
-	}
+        if (ms != null) {
+            for (M m : ms) {
+                if (m.getId() == null)
+                    insert.add(m);
+                else {
+                    D d = dd.get(m.getId());
+                    if (d == null)
+                        throw new IllegalStateException("Cannot find Object with id=%d from input collection");
+                    updateD.add(d);
+                    updateM.add(m);
+                    dd.remove(m.getId());
+                }
+            }
+        }
+        if (addOnly)
+            remove = new ArrayList<>();
+        else
+            remove = dd.values();
+    }
 
-	public List<M> getInsert() {
-		return insert;
-	}
+    public Collection<D> getRemove() {
+        return remove;
+    }
 
-	public List<D> getUpdateD() {
-		return updateD;
-	}
+    public List<M> getInsert() {
+        return insert;
+    }
 
-	public List<M> getUpdateM() {
-		return updateM;
-	}
+    public List<D> getUpdateD() {
+        return updateD;
+    }
+
+    public List<M> getUpdateM() {
+        return updateM;
+    }
 }

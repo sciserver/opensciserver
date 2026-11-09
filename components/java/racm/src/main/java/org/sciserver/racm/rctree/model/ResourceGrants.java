@@ -12,78 +12,94 @@ import org.sciserver.racm.utils.model.VOURPBaseModel;
  *
  */
 public class ResourceGrants extends VOURPBaseModel {
-	private String contextuuid;
-	private String resourceName;
-	private String resourceId;
-	private String resourceUUID;
-	private String resourceDescription;
-	private String contextClass;
-	private ResourceTypeModel rtm;
+    private String contextuuid;
+    private String resourceName;
+    private String resourceId;
+    private String resourceUUID;
+    private String resourceDescription;
+    private String contextClass;
+    private ResourceTypeModel rtm;
 
-	private List<PrivilegeModel> privileges = new ArrayList<>();
-	private List<RoleAssignmentModel> roles = new ArrayList<>();
+    private List<PrivilegeModel> privileges = new ArrayList<>();
+    private List<RoleAssignmentModel> roles = new ArrayList<>();
 
+    public ResourceGrants() {
+    }
 
-	public ResourceGrants(){}
+    public ResourceGrants(long id) {
+        super(id);
+    }
 
-	public ResourceGrants(long id){
-		super(id);
-	}
-	public String getResourceName() {
-		return resourceName;
-	}
-	public void setResourceName(String resourceName) {
-		this.resourceName = resourceName;
-	}
-	public String getResourceId() {
-		return resourceId;
-	}
-	public void setResourceId(String resourceId) {
-		this.resourceId = resourceId;
-	}
-	public String getResourceDescription() {
-		return resourceDescription;
-	}
-	public void setResourceDescription(String resourceDescription) {
-		this.resourceDescription = resourceDescription;
-	}
-	public String getContextClass() {
-		return contextClass;
-	}
-	public void setContextClass(String contextClass) {
-		this.contextClass = contextClass;
-	}
-	public ResourceTypeModel getRtm() {
-		return rtm;
-	}
-	public void setRtm(ResourceTypeModel rtm) {
-		this.rtm = rtm;
-	}
-	public String getContextuuid() {
-		return contextuuid;
-	}
-	public void setContextuuid(String contextuuid) {
-		this.contextuuid = contextuuid;
-	}
-	public List<PrivilegeModel> getPrivileges() {
-		return privileges;
-	}
-	public void setPrivileges(List<PrivilegeModel> privileges) {
-		this.privileges = privileges;
-	}
-	public List<RoleAssignmentModel> getRoles() {
-		return roles;
-	}
-	public void setRoles(List<RoleAssignmentModel> roles) {
-		this.roles = roles;
-	}
+    public String getResourceName() {
+        return resourceName;
+    }
 
-	public String getResourceUUID() {
-		return resourceUUID;
-	}
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
 
-	public void setResourceUUID(String resourceUUID) {
-		this.resourceUUID = resourceUUID;
-	}
+    public String getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public String getResourceDescription() {
+        return resourceDescription;
+    }
+
+    public void setResourceDescription(String resourceDescription) {
+        this.resourceDescription = resourceDescription;
+    }
+
+    public String getContextClass() {
+        return contextClass;
+    }
+
+    public void setContextClass(String contextClass) {
+        this.contextClass = contextClass;
+    }
+
+    public ResourceTypeModel getRtm() {
+        return rtm;
+    }
+
+    public void setRtm(ResourceTypeModel rtm) {
+        this.rtm = rtm;
+    }
+
+    public String getContextuuid() {
+        return contextuuid;
+    }
+
+    public void setContextuuid(String contextuuid) {
+        this.contextuuid = contextuuid;
+    }
+
+    public List<PrivilegeModel> getPrivileges() {
+        return privileges;
+    }
+
+    public void setPrivileges(List<PrivilegeModel> privileges) {
+        this.privileges = privileges;
+    }
+
+    public List<RoleAssignmentModel> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleAssignmentModel> roles) {
+        this.roles = roles;
+    }
+
+    public String getResourceUUID() {
+        return resourceUUID;
+    }
+
+    public void setResourceUUID(String resourceUUID) {
+        this.resourceUUID = resourceUUID;
+    }
 
 }

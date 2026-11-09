@@ -512,8 +512,8 @@ public class RACMModelFactory {
         }
 
         // remove access controls that are not in rg
-        ArrayList<MetadataObject> removed = removeAccessControlsFromResource(r, originalAccessControls,
-                existingPrivs.keySet(), up);
+        ArrayList<MetadataObject> removed =
+                removeAccessControlsFromResource(r, originalAccessControls, existingPrivs.keySet(), up);
         for (MetadataObject o : removed)
             changeSet.delete(o);
 

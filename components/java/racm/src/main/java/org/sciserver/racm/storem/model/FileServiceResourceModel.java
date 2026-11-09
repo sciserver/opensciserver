@@ -14,7 +14,7 @@ public abstract class FileServiceResourceModel {
     private List<String> allowedActions;
     private List<SharedWithEntity> sharedWith;
     private Long owningResourceId;
-    
+
     /**
      * Constructor to be used when all fields are known.<br/>
      * @param id
@@ -44,7 +44,7 @@ public abstract class FileServiceResourceModel {
      */
     public FileServiceResourceModel(long id, String resourceUUID, String name, String description,
             List<String> allowedActions) {
-        this(id,resourceUUID,name,description,allowedActions,new ArrayList<SharedWithEntity>());
+        this(id, resourceUUID, name, description, allowedActions, new ArrayList<SharedWithEntity>());
     }
 
     public long getId() {
@@ -74,21 +74,21 @@ public abstract class FileServiceResourceModel {
     public void addSharedWith(SharedWithEntity sh) {
         this.sharedWith.add(sh);
     }
-    
+
     public void addSharedWith(List<SharedWithEntity> shs) {
         this.sharedWith.addAll(shs);
     }
-    
+
     @Override
     public boolean equals(Object other) {
-        if(other == this)
+        if (other == this)
             return true;
         if (!(other instanceof FileServiceResourceModel))
             return false;
         FileServiceResourceModel castOther = (FileServiceResourceModel) other;
         return Objects.equals(name, castOther.name) && Objects.equals(description, castOther.description)
                 && Objects.equals(resourceUUID, castOther.resourceUUID)
-                && Objects.equals(sharedWith, castOther.sharedWith) 
+                && Objects.equals(sharedWith, castOther.sharedWith)
                 && Objects.equals(allowedActions, castOther.allowedActions) && Objects.equals(id, castOther.getId());
     }
 

@@ -7,6 +7,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 
 public interface LoginPortalService {
-	@GET("api/tokens/{token}")
-	Call<JsonNode> getTokenInfo(@Path("token") String token);
+    @GET("api/tokens/{token}")
+    Call<JsonNode> getTokenInfo(@Path("token") String token);
 }

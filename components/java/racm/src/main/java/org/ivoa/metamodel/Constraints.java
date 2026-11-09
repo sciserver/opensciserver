@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Constraints complex type.
  * 
@@ -36,18 +35,14 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Constraints", propOrder = {
-    "minLengthOrMaxLengthOrLength"
-})
+@XmlType(name = "Constraints", propOrder = { "minLengthOrMaxLengthOrLength" })
 public class Constraints {
 
-    @XmlElementRefs({
-        @XmlElementRef(name = "minLength", type = JAXBElement.class),
+    @XmlElementRefs({ @XmlElementRef(name = "minLength", type = JAXBElement.class),
         @XmlElementRef(name = "length", type = JAXBElement.class),
         @XmlElementRef(name = "uniqueInCollection", type = JAXBElement.class),
         @XmlElementRef(name = "maxLength", type = JAXBElement.class),
-        @XmlElementRef(name = "uniqueGlobally", type = JAXBElement.class)
-    })
+        @XmlElementRef(name = "uniqueGlobally", type = JAXBElement.class) })
     protected List<JAXBElement<? extends Serializable>> minLengthOrMaxLengthOrLength;
 
     /**

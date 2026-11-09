@@ -42,8 +42,7 @@ class DocumentedParameterTests {
     private static final String BASE_PACKAGE = "org.sciserver.springapp.racm";
 
     private static List<Class<?>> restControllers() {
-        ClassPathScanningCandidateComponentProvider scanner =
-                new ClassPathScanningCandidateComponentProvider(false);
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(RestController.class));
 
         List<Class<?>> found = new ArrayList<>();
@@ -103,8 +102,8 @@ class DocumentedParameterTests {
                                 controller.getSimpleName(), method.getName(), documented.name(), bound.keySet()));
                     } else if (actual != documented.in()) {
                         problems.add(String.format("%s.%s documents '%s' as %s, but binds it from the %s",
-                                controller.getSimpleName(), method.getName(), documented.name(),
-                                documented.in(), actual));
+                                controller.getSimpleName(), method.getName(), documented.name(), documented.in(),
+                                actual));
                     }
                 }
             }
@@ -175,7 +174,7 @@ class DocumentedParameterTests {
             return paths;
         }
         if (suffixes.length == 0) {
-            suffixes = new String[] {""};
+            suffixes = new String[] { "" };
         }
         for (String prefix : prefixes) {
             for (String suffix : suffixes) {
@@ -199,8 +198,7 @@ class DocumentedParameterTests {
         Map<String, List<String>> servedBy = new HashMap<>();
         for (Class<?> controller : restControllers()) {
             for (Method method : controller.getDeclaredMethods()) {
-                if (method.getAnnotation(Hidden.class) != null
-                        || controller.getAnnotation(Hidden.class) != null) {
+                if (method.getAnnotation(Hidden.class) != null || controller.getAnnotation(Hidden.class) != null) {
                     continue;
                 }
                 for (String endpoint : pathsOf(controller, method)) {

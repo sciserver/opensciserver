@@ -2,58 +2,59 @@ package org.sciserver.racm.workspace.model;
 
 public class WorkspaceUserModel {
 
-	private Long userid;
-	public Long getUserid() {
-		return userid;
-	}
+    private Long userid;
 
-	public void setUserid(Long userid) {
-		this.userid = userid;
-	}
+    public Long getUserid() {
+        return userid;
+    }
 
-	private String username;
-	private String email;
-	private String memberrole;
-	private String affiliation;
-	private String fullName;
+    public void setUserid(Long userid) {
+        this.userid = userid;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    private String username;
+    private String email;
+    private String memberrole;
+    private String affiliation;
+    private String fullName;
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getMemberrole() {
-		return memberrole;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setMemberrole(String memberrole) {
-		this.memberrole = memberrole;
-	}
+    public String getMemberrole() {
+        return memberrole;
+    }
 
-	public String getAffiliation() {
-		return affiliation;
-	}
+    public void setMemberrole(String memberrole) {
+        this.memberrole = memberrole;
+    }
 
-	public void setAffiliation(String affiliation) {
-		this.affiliation = affiliation;
-	}
+    public String getAffiliation() {
+        return affiliation;
+    }
 
-	public String getFullName() {
-		return fullName;
-	}
+    public void setAffiliation(String affiliation) {
+        this.affiliation = affiliation;
+    }
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 }

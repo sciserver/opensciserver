@@ -47,8 +47,7 @@ public class RDBDomainManager {
     private EntityManager em;
 
     @Autowired
-    public RDBDomainManager(JOBMAccessControl jobmAccessControl, RACM racm,
-            JOBMModelFactory jobmModelFactory) {
+    public RDBDomainManager(JOBMAccessControl jobmAccessControl, RACM racm, JOBMModelFactory jobmModelFactory) {
         this.jobmAccessControl = jobmAccessControl;
         this.racm = racm;
         this.jobmModelFactory = jobmModelFactory;
@@ -61,33 +60,33 @@ public class RDBDomainManager {
      */
     public RDBComputeDomain getRDBComputeDomain(String serviceAccountToken) {
         TransientObjectManager tom = racm.newTom();
-        Query q = tom.createQuery("select cd from RDBComputeDomain cd where cd.resourceContext.account.serviceToken = :token");
+        Query q = tom.createQuery(
+                "select cd from RDBComputeDomain cd where cd.resourceContext.account.serviceToken = :token");
         q.setParameter("token", serviceAccountToken);
         RDBComputeDomain rdbcd = tom.queryOne(q, RDBComputeDomain.class);
         return rdbcd;
     }
 
-    public RDBComputeDomain manageRDBComputeDomain(RDBComputeDomainModel model, UserProfile up,
-            UserGroup[] admins) throws VOURPException {
+    public RDBComputeDomain manageRDBComputeDomain(RDBComputeDomainModel model, UserProfile up, UserGroup[] admins)
+            throws VOURPException {
         if (model.getId() != null)
             return updateRDBComputeDomain(model, up, admins);
         else
             return createRDBComputeDomain(model, up, admins);
     }
 
-    public COMPM manageDBCOMPM(String uuid, DBCOMPMModel model, UserProfile up)
-            throws VOURPException {
+    public COMPM manageDBCOMPM(String uuid, DBCOMPMModel model, UserProfile up) throws VOURPException {
 
         COMPM compm = null;
         TransientObjectManager tom = up.getTom();
         if (uuid == null) { // create
             if (!jobmAccessControl.canRegisterCOMPM(up))
-                throw new VOURPException(VOURPException.UNAUTHORIZED, String
-                        .format("User %s is not authorized to register a COMPM", up.getUsername()));
+                throw new VOURPException(VOURPException.UNAUTHORIZED,
+                        String.format("User %s is not authorized to register a COMPM", up.getUsername()));
             RDBComputeDomain rdbcd = queryRDBComputeDomainForId(model.getRdbComputeDomainId(), up);
             if (rdbcd == null) // TODO, check that there is not already a COMPM for the domain
-                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
-                        "Cannot find RDBComputeDomain for id=%d", model.getRdbComputeDomainId()));
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
+                        String.format("Cannot find RDBComputeDomain for id=%d", model.getRdbComputeDomainId()));
 
             compm = new COMPM(tom);
             uuid = UUID.randomUUID().toString();
@@ -97,8 +96,7 @@ public class RDBDomainManager {
         } else { // retrieve (assumes model==null) and update
             compm = findCOMPM(uuid, tom);
             if (compm == null)
-                throw new IllegalArgumentException(
-                        "The UUID specified for registering a COMPM is not known");
+                throw new IllegalArgumentException("The UUID specified for registering a COMPM is not known");
         }
         compm.setLabel(model.getLabel());
         compm.setDescription(model.getDescription());
@@ -139,8 +137,8 @@ public class RDBDomainManager {
 
         ChangeSet changeSet = up.getTom().newChangeSet();
         // NB: I've verified that the following tables have associated records persisted w/out explicily adding other
-        //   objects to the changeSet: t_Resource, t_DatabaseContext, t_AccessControl, and t_RoleAssignment.  May want
-        //   to review this in the future or usage of changeSet in other classes.
+        // objects to the changeSet: t_Resource, t_DatabaseContext, t_AccessControl, and t_RoleAssignment. May want
+        // to review this in the future or usage of changeSet in other classes.
         changeSet.add(dbc);
         up.getTom().persistChangeSet(changeSet, true);
 
@@ -148,20 +146,21 @@ public class RDBDomainManager {
     }
 
     // ~~~ RDB domain management ~~~
-    private RDBComputeDomain createRDBComputeDomain(RDBComputeDomainModel model, UserProfile up,
-            UserGroup[] admins) throws VOURPException {
+    private RDBComputeDomain createRDBComputeDomain(RDBComputeDomainModel model, UserProfile up, UserGroup[] admins)
+            throws VOURPException {
         TransientObjectManager tom = up.getTom();
 
         if (!jobmAccessControl.canRegisterComputeDomain(up.getUser())) {
-            throw new VOURPException(VOURPException.UNAUTHORIZED, String.format(
-                    "User %s is not authorized to register a ComputeDomain", up.getUsername()));
+            throw new VOURPException(VOURPException.UNAUTHORIZED,
+                    String.format("User %s is not authorized to register a ComputeDomain", up.getUsername()));
         }
 
         RDBComputeDomain rcd = new RDBComputeDomain(tom);
         rcd.setName(model.getName());
         rcd.setDescription(model.getDescription());
-        rcd.setVendor(RDBVendor.fromValue(model.getVendor()));  // TODO do we really care about this?  Should be at DBContext level I think
-        rcd.setPublisherDID(model.getPublisherDID());  // TODO check whether publisherDID unique if not null
+        rcd.setVendor(RDBVendor.fromValue(model.getVendor())); // TODO do we really care about this? Should be at
+                                                               // DBContext level I think
+        rcd.setPublisherDID(model.getPublisherDID()); // TODO check whether publisherDID unique if not null
         rcd.setApiEndpoint(model.getApiEndpoint());
 
         if (model.getDatabaseContexts() != null) {
@@ -172,8 +171,8 @@ public class RDBDomainManager {
 
         // register with RACM
         // TODO: Assignment to unused variable here done in anticipation of modifications required to allow access to
-        //   the service token assigned during creation, which is otherwise unavailable.  This may or may not be used
-        //   when that work is performed.
+        // the service token assigned during creation, which is otherwise unavailable. This may or may not be used
+        // when that work is performed.
         ResourceContext rc = defineResourceContext(rcd, up.getUser(), admins);
 
         return rcd;
@@ -191,7 +190,7 @@ public class RDBDomainManager {
     private ResourceContext defineResourceContext(RDBComputeDomain dcd, User u, UserGroup[] admins)
             throws VOURPException {
         if (admins == null) {
-            admins = new UserGroup[] {};  // to avoid nullpointerexception below
+            admins = new UserGroup[] {}; // to avoid nullpointerexception below
         }
 
         TransientObjectManager tom = u.getTom();
@@ -210,7 +209,7 @@ public class RDBDomainManager {
         rc.setLabel(dcd.getName());
 
         ResourceContextManager.newServiceAccount(rc);
-       
+
         // create root context so we can assign user to admin role on ComputeDomain
         Resource rootContext = RACMUtil.addRootContext(rc);
         RACMUtil.assignRole(RACMNames.R_COMPUTE_DOMAIN_ROOT_ADMIN, rootContext, u);
@@ -222,8 +221,8 @@ public class RDBDomainManager {
 
         ResourceType databaseContextResourceType =
                 ContextClassManager.getResourceType(RACMNames.RT_DATABASE_CONTEXT, cc);
-        Role adminRoleOnDatabaseContext = ContextClassManager
-                .getRole(RACMNames.R_DATABASE_CONTEXT_ADMIN, databaseContextResourceType);
+        Role adminRoleOnDatabaseContext =
+                ContextClassManager.getRole(RACMNames.R_DATABASE_CONTEXT_ADMIN, databaseContextResourceType);
 
         if (dcd.getDatabaseContext() != null) {
             for (DatabaseContext cr : dcd.getDatabaseContext()) {
@@ -253,8 +252,8 @@ public class RDBDomainManager {
         return r;
     }
 
-    private RDBComputeDomain updateRDBComputeDomain(RDBComputeDomainModel rdbcdm, UserProfile up,
-            UserGroup[] admins) throws VOURPException {
+    private RDBComputeDomain updateRDBComputeDomain(RDBComputeDomainModel rdbcdm, UserProfile up, UserGroup[] admins)
+            throws VOURPException {
         if (admins == null) {
             admins = new UserGroup[] {};
         }
@@ -265,14 +264,14 @@ public class RDBDomainManager {
         RDBComputeDomain rdbcd = queryRDBComputeDomainForId(rdbcdm.getId(), up);
         if (rdbcd == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
-                    String.format("No RDB compute domain with id=%s and racmUUID=%s exists",
-                            rdbcdm.getId().toString(), rdbcdm.getRacmUUID()));
+                    String.format("No RDB compute domain with id=%s and racmUUID=%s exists", rdbcdm.getId().toString(),
+                            rdbcdm.getRacmUUID()));
         }
         // Check if user is allowed to update the computedomain, must have admin role on it
         if (!jobmAccessControl.canEditComputeDomain(up.getUser(), rdbcd)) {
-            throw new VOURPException(VOURPException.UNAUTHORIZED, String.format(
-                    "User %s is not authorized to update the RDBComputeDomain with apiEndpoint '%s'",
-                    up.getUsername(), rdbcd.getApiEndpoint()));
+            throw new VOURPException(VOURPException.UNAUTHORIZED,
+                    String.format("User %s is not authorized to update the RDBComputeDomain with apiEndpoint '%s'",
+                            up.getUsername(), rdbcd.getApiEndpoint()));
         }
 
         // TBD can a computedomain change its apiendpoint? NO
@@ -296,7 +295,7 @@ public class RDBDomainManager {
                     throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                             String.format("DatabaseContext '%s' does not exist in repository", dbcm.getRacmUUID()));
                 } else {
-                    dbcs.remove(dbc.getId());  // remove from hashtable so it won't be deleted in the end
+                    dbcs.remove(dbc.getId()); // remove from hashtable so it won't be deleted in the end
                     dbc.setDescription(dbcm.getDescription());
                     dbc.setName(dbcm.getName());
                     dbc.setPublisherDID(dbcm.getPublisherDID());
@@ -307,7 +306,7 @@ public class RDBDomainManager {
         ResourceContext rc = rdbcd.getResourceContext();
         for (DatabaseContext dbc : dbcs.values()) {
             rdbcd.getDatabaseContext().remove(dbc);
-            rc.getResource().remove(dbc.getResource());  // also delete the Resource!
+            rc.getResource().remove(dbc.getResource()); // also delete the Resource!
         }
         synchronizeResourceContext(rdbcd, up.getUser(), admins);
 
@@ -316,8 +315,8 @@ public class RDBDomainManager {
 
     // Perform actions required to create or update a Resource for a DatabaseContext, including specified Roles
     private Resource manageDatabaseContextResource(ResourceContext resourceContext, DatabaseContext dbContext,
-            ResourceType databaseContextResourceType, Role adminRoleOnDatabaseContext, User user,
-            UserGroup[] admins) throws VOURPException {
+            ResourceType databaseContextResourceType, Role adminRoleOnDatabaseContext, User user, UserGroup[] admins)
+            throws VOURPException {
 
         Resource resource = null;
         if (dbContext.getResource() == null) {
@@ -337,8 +336,8 @@ public class RDBDomainManager {
     }
 
     // Synchronize the full ResourceContext encompassing both the RDBComputeDomain and all contained DatabaseContexts
-    private ResourceContext synchronizeResourceContext(RDBComputeDomain dcd, User u,
-            UserGroup[] admins) throws VOURPException {
+    private ResourceContext synchronizeResourceContext(RDBComputeDomain dcd, User u, UserGroup[] admins)
+            throws VOURPException {
         ResourceContext rc = dcd.getResourceContext();
 
         if (rc == null) {
@@ -353,10 +352,10 @@ public class RDBDomainManager {
             rc.setLabel(dcd.getName());
         }
 
-        ResourceType databaseContextResourceType = ContextClassManager
-                .getResourceType(RACMNames.RT_DATABASE_CONTEXT, rc.getContextClass());
-        Role adminRoleOnDatabaseContext = ContextClassManager
-                .getRole(RACMNames.R_DATABASE_CONTEXT_ADMIN, databaseContextResourceType);
+        ResourceType databaseContextResourceType =
+                ContextClassManager.getResourceType(RACMNames.RT_DATABASE_CONTEXT, rc.getContextClass());
+        Role adminRoleOnDatabaseContext =
+                ContextClassManager.getRole(RACMNames.R_DATABASE_CONTEXT_ADMIN, databaseContextResourceType);
 
         for (DatabaseContext cr : dcd.getDatabaseContext()) {
             manageDatabaseContextResource(rc, cr, databaseContextResourceType, adminRoleOnDatabaseContext, u, admins);
@@ -366,8 +365,8 @@ public class RDBDomainManager {
     }
 
     // Synchronize only the specific Resource for the new DatabaseContext
-    private Resource synchronizeResource(RDBComputeDomain dcd, DatabaseContext cr, User u,
-            UserGroup[] admins) throws VOURPException {
+    private Resource synchronizeResource(RDBComputeDomain dcd, DatabaseContext cr, User u, UserGroup[] admins)
+            throws VOURPException {
         ResourceContext rc = dcd.getResourceContext();
 
         if (rc == null) {
@@ -375,23 +374,22 @@ public class RDBDomainManager {
                     "An RDBComputeDomain is not backed by a ResourceContext");
         }
 
-        ResourceType databaseContextResourceType = ContextClassManager
-                .getResourceType(RACMNames.RT_DATABASE_CONTEXT, rc.getContextClass());
-        Role adminRoleOnDatabaseContext = ContextClassManager
-                .getRole(RACMNames.R_DATABASE_CONTEXT_ADMIN, databaseContextResourceType);
+        ResourceType databaseContextResourceType =
+                ContextClassManager.getResourceType(RACMNames.RT_DATABASE_CONTEXT, rc.getContextClass());
+        Role adminRoleOnDatabaseContext =
+                ContextClassManager.getRole(RACMNames.R_DATABASE_CONTEXT_ADMIN, databaseContextResourceType);
 
-        return manageDatabaseContextResource(rc, cr, databaseContextResourceType, adminRoleOnDatabaseContext, u, admins);
+        return manageDatabaseContextResource(rc, cr, databaseContextResourceType, adminRoleOnDatabaseContext, u,
+                admins);
     }
 
-    private ContextClass queryRDBDomainContextClass(TransientObjectManager tom)
-            throws VOURPException {
+    private ContextClass queryRDBDomainContextClass(TransientObjectManager tom) throws VOURPException {
         return RACMUtil.queryContextClass(RACMNames.RDB_COMPUTE_DOMAIN_CC_NAME, tom);
     }
 
     private RDBComputeDomain queryRDBComputeDomainForId(long id, UserProfile user) {
         TransientObjectManager tom = user.getTom();
-        Query q = tom.createQuery("select dcd from RDBComputeDomain dcd where dcd.id=:id")
-                .setParameter("id", id);
+        Query q = tom.createQuery("select dcd from RDBComputeDomain dcd where dcd.id=:id").setParameter("id", id);
         return tom.queryOne(q, RDBComputeDomain.class);
     }
 
@@ -405,8 +403,7 @@ public class RDBDomainManager {
      * @return
      * @throws VOURPException
      */
-    public List<RDBComputeDomainModel> queryVisibleRDBComputeDomains(UserProfile user)
-            throws VOURPException {
+    public List<RDBComputeDomainModel> queryVisibleRDBComputeDomains(UserProfile user) throws VOURPException {
         // TODO should find those user is allowed to see
         TransientObjectManager tom = user.getTom();
         String jpaq = "select dcd from RDBComputeDomain dcd ";
@@ -420,8 +417,8 @@ public class RDBDomainManager {
         if (os != null && !os.isEmpty()) {
             NativeQueryResult nqr = queryAccessibleDatabaseContexts(user);
 
-            Map<Long, Long> databaseContextToDomainId = nqr.getRows().stream()
-                    .collect(toMap(row -> (Long) row[1], row -> (Long) row[0]));
+            Map<Long, Long> databaseContextToDomainId =
+                    nqr.getRows().stream().collect(toMap(row -> (Long) row[1], row -> (Long) row[0]));
 
             for (RDBComputeDomain dcd : os) {
                 RDBComputeDomainModel dcdm = jobmModelFactory.newRDBComputeDomainModel(dcd, false);
@@ -431,8 +428,7 @@ public class RDBDomainManager {
                     Long rdId = databaseContextToDomainId.get(cr.getId());
                     if (rdId != null && rdId.equals(dcd.getId())) {
                         count++;
-                        dcdm.getDatabaseContexts()
-                                .add(jobmModelFactory.newDatabaseContextModel(cr));
+                        dcdm.getDatabaseContexts().add(jobmModelFactory.newDatabaseContextModel(cr));
                     }
                 }
                 if (count > 0) {
@@ -445,16 +441,16 @@ public class RDBDomainManager {
 
     private DatabaseContext queryDatabaseContextForName(Long domainId, String name, UserProfile user) {
         TransientObjectManager tom = user.getTom();
-        Query q = tom.createQuery("SELECT dbc FROM DatabaseContext dbc WHERE dbc.container.id=:domainId And dbc.name=:name")
+        Query q = tom
+                .createQuery("SELECT dbc FROM DatabaseContext dbc WHERE dbc.container.id=:domainId And dbc.name=:name")
                 .setParameter("domainId", domainId).setParameter("name", name);
         return tom.queryOne(q, DatabaseContext.class);
     }
 
     private NativeQueryResult queryAccessibleDatabaseContexts(UserProfile up) {
         String sql = "select distinct cr.containerId as rdbDomainId, cr.id as databaseContextId "
-                + "  from racm.userActions(?) ua " + "  ,    DatabaseContext cr "
-                + " where ua.contextclass=? " + "   and ua.resourceType =? and ua.[action] = ? "
-                + "   and cr.resourceId= ua.resourceId order by 1,2";
+                + "  from racm.userActions(?) ua " + "  ,    DatabaseContext cr " + " where ua.contextclass=? "
+                + "   and ua.resourceType =? and ua.[action] = ? " + "   and cr.resourceId= ua.resourceId order by 1,2";
 
         TransientObjectManager tom = up.getTom();
         Query nq = tom.createNativeQuery(sql);
@@ -477,8 +473,7 @@ public class RDBDomainManager {
      * @return
      */
     private COMPM findCOMPM(String uuid, TransientObjectManager tom) {
-        Query q = tom.createQuery("select c from COMPM c where c.uuid=:uuid").setParameter("uuid",
-                uuid);
+        Query q = tom.createQuery("select c from COMPM c where c.uuid=:uuid").setParameter("uuid", uuid);
         return tom.queryOne(q, COMPM.class);
     }
 
@@ -491,23 +486,21 @@ public class RDBDomainManager {
      * @param databaseContextName
      * @return
      */
-    boolean canUserQueryDatabaseContext(UserProfile up, Long rdbDomainId,
-            String databaseContextName) {
+    boolean canUserQueryDatabaseContext(UserProfile up, Long rdbDomainId, String databaseContextName) {
         TransientObjectManager tom = up.getTom();
         // first retrieve uuid of resource
-        Query q = tom.createQuery(
-                "select db.resource.uuid from DatabaseContext db where db.container.id=:id and db.name=:name")
+        Query q = tom
+                .createQuery(
+                        "select db.resource.uuid from DatabaseContext db where db.container.id=:id and db.name=:name")
                 .setParameter("id", rdbDomainId).setParameter("name", databaseContextName);
         List<?> l = tom.customJPQL(q, false);
         if (l.isEmpty()) {
             return false;
         } else if (l.size() > 1) {
-            throw new IllegalStateException(
-                    "Retrieved multiple databases with the same name in the same rdb domain");
+            throw new IllegalStateException("Retrieved multiple databases with the same name in the same rdb domain");
         } else {
             String uuid = l.get(0).toString();
-            return racm.canUserDoActionOnResource(up.getUsername(), uuid,
-                    RACMNames.A_DATABASE_CONTEXT_QUERY);
+            return racm.canUserDoActionOnResource(up.getUsername(), uuid, RACMNames.A_DATABASE_CONTEXT_QUERY);
         }
     }
 
@@ -518,7 +511,8 @@ public class RDBDomainManager {
      * @param cd the compute domain whose root context is being checked
      * @return true if the user holds the 'registerDatabaseContext' right on the compute domain's root context, false otherwise.
      */
-	boolean canRegisterDatabaseContext(User u, ComputeDomain cd) {
-		return racm.canUserDoActionOnRootContext(u.getUsername(), cd.getResourceContext().getUuid(), RACMNames.A_REGISTER_DATABASE_CONTEXT);
-	}
+    boolean canRegisterDatabaseContext(User u, ComputeDomain cd) {
+        return racm.canUserDoActionOnRootContext(u.getUsername(), cd.getResourceContext().getUuid(),
+                RACMNames.A_REGISTER_DATABASE_CONTEXT);
+    }
 }

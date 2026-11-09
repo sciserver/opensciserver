@@ -29,15 +29,20 @@ import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity @javax.persistence.Table(name = "t_DockerImage")
+@javax.persistence.Entity
+@javax.persistence.Table(name = "t_DockerImage")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
+@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
+        length = 32)
 
 @javax.persistence.DiscriminatorValue("DockerImage")
 
 @javax.persistence.NamedQueries({
-        @javax.persistence.NamedQuery(name = "DockerImage.findById", query = "SELECT o FROM DockerImage o WHERE o.id = :id"),
-        @javax.persistence.NamedQuery(name = "DockerImage.findByPublisherDID", query = "SELECT o FROM DockerImage o WHERE o.identity.publisherDID = :publisherDID")
+    @javax.persistence.NamedQuery(name = "DockerImage.findById",
+            query = "SELECT o FROM DockerImage o WHERE o.id = :id"),
+    @javax.persistence.NamedQuery(name = "DockerImage.findByPublisherDID",
+            query = "SELECT o FROM DockerImage o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
