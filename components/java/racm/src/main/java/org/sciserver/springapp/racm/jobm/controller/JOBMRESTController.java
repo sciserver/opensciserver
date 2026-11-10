@@ -55,10 +55,19 @@ import edu.jhu.job.DockerComputeDomain;
 import edu.jhu.job.DockerJob;
 import edu.jhu.job.RootVolumeOnComputeDomain;
 import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController
 @RequestMapping("jobm/rest")
+@Tag(name = "Jobs and compute domains",
+     description = "Submit and query jobs, and discover the compute domains and images available "
+                 + "to the caller.")
 public class JOBMRESTController {
     public static final String X_SERVICE_ID = "X-Service-Auth-ID";
 
@@ -90,6 +99,48 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(
+        summary = "List the caller's jobs, optionally only open ones or those within a time "
+                  + "range.",
+        description = "Returns every job the caller has submitted, as COMPMJobModel entries "
+                      + "covering both docker and relational database jobs.",
+        parameters = {
+            @Parameter(name = "open", in = ParameterIn.QUERY,
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
+            @Parameter(name = "top", in = ParameterIn.QUERY,
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
+            @Parameter(name = "start", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
+            @Parameter(name = "end", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's jobs, both docker and relational database, as COMPMJobModel "
+                                   + "entries."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/jobs")
     public ResponseEntity<JsonNode> queryUserJobs(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top, @RequestParam(required = false) String start,
@@ -109,6 +160,19 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(
+        summary = "Count the caller's docker jobs.",
+        description = "Returns a single count field holding the total number of docker jobs the "
+                      + "caller has submitted.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "An object with a single count field, holding the number of docker jobs the "
+                                   + "caller has submitted."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/jobs/count")
     public ResponseEntity<JsonNode> queryDockerJobsCount(@AuthenticationPrincipal UserProfile up) {
         try {
@@ -129,6 +193,50 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(
+        summary = "List the caller's docker jobs, with optional label filtering.",
+        description = "Returns the caller's docker jobs as COMPMDockerJobModel entries, which "
+                      + "carry container and image detail that the general job listing omits.",
+        parameters = {
+            @Parameter(name = "open", in = ParameterIn.QUERY,
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
+            @Parameter(name = "top", in = ParameterIn.QUERY,
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
+            @Parameter(name = "start", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
+            @Parameter(name = "end", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied."),
+            @Parameter(name = "labelReg", in = ParameterIn.QUERY,
+                       description = "Regular expression matched against job labels; only "
+                                     + "matching jobs are returned.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's docker jobs, each with the container and image detail the "
+                                   + "general job listing omits."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/dockerjobs")
     public ResponseEntity<JsonNode> queryUserDockerJobs(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top,
@@ -149,6 +257,25 @@ public class JOBMRESTController {
      * @param up
      * @return
      */
+    @Operation(
+        summary = "Summarise the caller's job outcomes over a recent period.",
+        description = "Returns a map of job status to the number of the caller's jobs in that "
+                      + "status, covering jobs that finished within the window and any still "
+                      + "running.",
+        parameters = {
+            @Parameter(name = "since", in = ParameterIn.QUERY,
+                       description = "Number of hours before the present to report on. Defaults "
+                                     + "to 24; a negative value is treated as 24.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "A map of job status to the number of the caller's jobs in that status over "
+                                   + "the window."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/jobsstats")
     public ResponseEntity<JsonNode> queryUserJobsStats(@RequestParam(required=false) Integer since, @AuthenticationPrincipal UserProfile up) {
         try {
@@ -160,6 +287,47 @@ public class JOBMRESTController {
                     "Error querying jobs stats", Optional.of(up), e, true);
         }
     }
+    @Operation(
+        summary = "List the caller's docker jobs. Superseded by /dockerjobs; retained for "
+                         + "compatibility.",
+        description = "Retained for compatibility with older clients. Behaves like /dockerjobs "
+                      + "but offers no label filtering. Prefer /dockerjobs.",
+        parameters = {
+            @Parameter(name = "open", in = ParameterIn.QUERY,
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
+            @Parameter(name = "top", in = ParameterIn.QUERY,
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
+            @Parameter(name = "start", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
+            @Parameter(name = "end", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's docker jobs. Prefer /dockerjobs, which returns the same jobs."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/dockerjobsold")
     public ResponseEntity<JsonNode> queryUserDockerJobsOld(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top,
@@ -175,6 +343,51 @@ public class JOBMRESTController {
     }
 
     
+    @Operation(
+        summary = "List the caller's docker jobs using a faster native query.",
+        description = "Selects the same jobs as /dockerjobs but runs a native query and returns a "
+                      + "NativeQueryResult of columns and rows rather than model objects. Faster "
+                      + "for large result sets.",
+        parameters = {
+            @Parameter(name = "open", in = ParameterIn.QUERY,
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
+            @Parameter(name = "top", in = ParameterIn.QUERY,
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
+            @Parameter(name = "start", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
+            @Parameter(name = "end", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied."),
+            @Parameter(name = "labelReg", in = ParameterIn.QUERY,
+                       description = "Regular expression matched against job labels; only "
+                                     + "matching jobs are returned.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's docker jobs, as a result set of columns and rows rather than "
+                                   + "model objects."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/dockerjobs/quick")
     public ResponseEntity<JsonNode> queryUserDockerJobsNative(@RequestParam(required = false) String open,
             @RequestParam(required = false, defaultValue="-1") int top,
@@ -194,9 +407,47 @@ public class JOBMRESTController {
      * filtering, e.g. between two times.
      *
      */
+    @Operation(
+        summary = "List the caller's relational database jobs.",
+        description = "Returns the caller's relational database jobs.",
+        parameters = {
+            @Parameter(name = "open", in = ParameterIn.QUERY,
+                       description = "Present with any value to return only jobs that have not "
+                                     + "yet finished. Omit to return all."),
+            @Parameter(name = "top", in = ParameterIn.QUERY,
+                       description = "Maximum number of jobs to return. -1, the default, returns "
+                                     + "all of them."),
+            @Parameter(name = "start", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or after this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no lower bound is "
+                                     + "applied."),
+            @Parameter(name = "end", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted strictly before this time. Two "
+                                     + "formats are accepted: yyyy-MM-dd HH:mm:ss Z, for example "
+                                     + "2026-10-07 14:30:00 -0400, and yyyy-MM-dd, which is read "
+                                     + "in the time zone of the service. The zone is not "
+                                     + "optional: a value carrying a time but no zone falls back "
+                                     + "to the date alone, so 2026-10-07 14:30:00 and "
+                                     + "2026-10-07T14:30:00Z both mean midnight. A value not "
+                                     + "beginning with a date is ignored, and no upper bound is "
+                                     + "applied.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The caller's relational database jobs."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/rdbjobs")
-    public ResponseEntity<JsonNode> queryUserRdbJobs(
-            @RequestParam(required = false) String open,
+    public ResponseEntity<JsonNode> queryUserRdbJobs(@RequestParam(required = false) String open,
             @RequestParam(defaultValue = "-1", required = false) int top,
             @RequestParam(required = false) String start,
             @RequestParam(required = false) String end,
@@ -211,9 +462,25 @@ public class JOBMRESTController {
         }
     }
 
+    @Operation(
+        summary = "Search jobs using a structured query.",
+        description = "Returns the jobs matching a structured query. Use this when the query "
+                      + "parameters on the listing endpoints are not expressive enough.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                       description = "Criteria selecting which jobs to return."))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The jobs matching the query."),
+        @ApiResponse(responseCode = "400",
+                     description = "The request is not valid; the response body carries the "
+                                   + "reason."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @PostMapping("/jobs/query")
-    public ResponseEntity<JsonNode> queryJob(
-            @RequestBody JobQuery query,
+    public ResponseEntity<JsonNode> queryJob(@RequestBody JobQuery query,
             @AuthenticationPrincipal UserProfile up) {
         try {
             return jsonAPIHelper.success(
@@ -231,6 +498,21 @@ public class JOBMRESTController {
      * @param up
      * @return
      */
+    @Operation(
+        summary = "Report queue depth per compute domain and where a job submitted now would "
+                  + "land.",
+        description = "Returns, for every compute domain, the jobs currently running, the jobs "
+                      + "waiting, and the position a job submitted now by the caller would take "
+                      + "in the queue.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "Queue depth per compute domain, as a result set of columns and rows, with "
+                                   + "the position a job submitted now by the caller would take."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/jobs/queues")
     public NativeQueryResult queryJobsQueues(@AuthenticationPrincipal UserProfile up) {
         return jobm.queryJobsQueues(up);
@@ -242,6 +524,23 @@ public class JOBMRESTController {
      * @param jobId
      * @return
      */
+    @Operation(
+        summary = "Get the status of one job, if the caller may view it.",
+        description = "Returns the full status of one job. The caller must be permitted to view "
+                      + "it.",
+        parameters = {
+            @Parameter(name = "jobId", in = ParameterIn.PATH,
+                       description = "Identifier of the job, as returned by the job listing "
+                                     + "endpoints.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The job, with its full status."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<JsonNode> jobStatus(@PathVariable Long jobId, @AuthenticationPrincipal UserProfile up) {
         COMPMJobModel jm = jobm.queryUserJob(jobId, up);
@@ -259,6 +558,26 @@ public class JOBMRESTController {
         return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
+    @Operation(
+        summary = "Cancel one of the caller's jobs.",
+        description = "Requests cancellation of one of the caller's jobs and returns its updated "
+                      + "status.",
+        parameters = {
+            @Parameter(name = "jobId", in = ParameterIn.PATH,
+                       description = "Identifier of the job to cancel.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The job, with the cancellation recorded. Cancelling is a request: the "
+                                   + "COMPM running the job stops it when it next polls."),
+        @ApiResponse(responseCode = "400",
+                     description = "The request is not valid; the response body carries the "
+                                   + "reason."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @PostMapping("/jobs/{jobId}/cancel")
     public ResponseEntity<JsonNode> cancelJob(@PathVariable Long jobId, @AuthenticationPrincipal UserProfile up)
             throws VOURPException {
@@ -296,6 +615,30 @@ public class JOBMRESTController {
      * @return
      * @throws VOURPException
      */
+    @Operation(
+        summary = "List the docker compute domains the caller can use, with the images and "
+                         + "volumes available to them.",
+        description = "Returns the docker compute domains the caller may use, each with the "
+                      + "images, volume containers and user volumes available to them. "
+                      + "Interactive domains only, unless batch is requested.",
+        parameters = {
+            @Parameter(name = "batch", in = ParameterIn.QUERY,
+                       description = "Set to true to include batch domains, that is, domains "
+                                     + "served by a registered COMPM."),
+            @Parameter(name = "interactive", in = ParameterIn.QUERY,
+                       description = "Only consulted when batch is true. Set to true to include "
+                                     + "interactive domains alongside batch ones; otherwise batch "
+                                     + "domains are returned on their own.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The docker compute domains the caller may use, each with the images, "
+                                   + "volume containers and user volumes available to them."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/computedomains")
     public ResponseEntity<JsonNode> queryComputeDomains(@RequestParam(required = false) String batch,
             @RequestParam(required = false) String interactive, @AuthenticationPrincipal UserProfile up) {
@@ -320,6 +663,22 @@ public class JOBMRESTController {
      * @param up
      * @return
      */
+    @Operation(
+        summary = "List all registered docker compute domains. Requires an administrator.",
+        description = "Returns every registered docker compute domain with its images, volume "
+                      + "containers and root volumes, regardless of the caller's access to them. "
+                      + "Administrators only.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "Every registered docker compute domain, with its images, volume containers "
+                                   + "and root volumes."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "403",
+                     description = "The caller is not permitted to perform this action."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/dockercomputedomains")
     public ResponseEntity<JsonNode> queryDockerComputeDomains(@AuthenticationPrincipal UserProfile up) {
         try {
@@ -349,6 +708,35 @@ public class JOBMRESTController {
      * @return
      * @throws VOURPException
      */
+    @Operation(
+        summary = "Register a docker compute domain, or replace an existing one. Omitted images, "
+                         + "volumes and root volumes are deleted.",
+        description = "Registers a docker compute domain, or replaces an existing one when the "
+                      + "body carries both id and racmUUID. Replacement is destructive: images, "
+                      + "volume containers and root volumes absent from the body are deleted. To "
+                      + "add a single root volume without that risk, use POST "
+                      + "/computedomains/docker/{racmUUID}/rootvolumes instead.",
+        parameters = {
+            @Parameter(name = "admins", in = ParameterIn.QUERY,
+                       description = "Comma-separated group names to be granted administrator "
+                                     + "rights over the domain's images and volume containers.")
+        },
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                       description = "DockerComputeDomainModel as JSON. Include id and racmUUID "
+                                     + "to replace an existing domain; omit both to register a "
+                                     + "new one."))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The compute domain as registered or replaced, including its racmUUID and "
+                                   + "the images, volume containers and root volumes it now holds."),
+        @ApiResponse(responseCode = "400",
+                     description = "The request is not valid; the response body carries the "
+                                   + "reason."),
+        @ApiResponse(responseCode = "403",
+                     description = "The caller is not permitted to perform this action."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @PostMapping("/computedomains/docker")
     public ResponseEntity<JsonNode> registerDockerComputeDomain(@RequestBody String body,
             @RequestParam(required = false) String admins, @AuthenticationPrincipal UserProfile up) {
@@ -402,9 +790,39 @@ public class JOBMRESTController {
      * @param up the calling user
      * @return the created entry, including the id assigned by RACM
      */
+    @Operation(
+        summary = "Attach one root volume to a docker compute domain, leaving its other contents "
+                         + "untouched.",
+        description = "Attaches one root volume to the domain without resending the whole "
+                      + "registration document, so its existing images, volume containers and "
+                      + "root volumes are left untouched. The root volume must not already be "
+                      + "mounted on the domain, and its path and display name must each be unused "
+                      + "there.",
+        parameters = {
+            @Parameter(name = "racmUUID", in = ParameterIn.PATH,
+                       description = "Identifier of the compute domain's resource context, "
+                                     + "returned as racmUUID by GET /dockercomputedomains.")
+        },
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                       description = "Root volume to attach. rootVolumeId, pathOnCD and "
+                                     + "displayName are required; publisherDID is optional and "
+                                     + "recorded as given; id must not be supplied."))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The attachment as created, linking the root volume to the compute domain "
+                                   + "at the path given."),
+        @ApiResponse(responseCode = "400",
+                     description = "The request is not valid; the response body carries the "
+                                   + "reason."),
+        @ApiResponse(responseCode = "403",
+                     description = "The caller is not permitted to perform this action."),
+        @ApiResponse(responseCode = "404",
+                     description = "No compute domain exists with that racmUUID."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @PostMapping("/computedomains/docker/{racmUUID}/rootvolumes")
-    public ResponseEntity<JsonNode> addRootVolumeToDockerComputeDomain(
-            @PathVariable String racmUUID,
+    public ResponseEntity<JsonNode> addRootVolumeToDockerComputeDomain(@PathVariable String racmUUID,
             @RequestBody RootVolumeOnComputeDomainModel rvm,
             @AuthenticationPrincipal UserProfile up) {
         try {
@@ -449,6 +867,26 @@ public class JOBMRESTController {
      * @param response
      * @return
      */
+    @Operation(
+        summary = "Submit a docker job.",
+        description = "Submits a docker job to a compute domain. The caller must be permitted to "
+                      + "create a container from the requested image and to mount every volume "
+                      + "the job asks for.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                       description = "COMPMDockerJobModel as JSON, naming the image, compute "
+                                     + "domain, command and volumes to mount."))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The submitted job, as RACM now holds it, including the identifier the "
+                                   + "caller uses to follow its progress."),
+        @ApiResponse(responseCode = "400",
+                     description = "The request is not valid; the response body carries the "
+                                   + "reason."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @PostMapping("/jobs/docker")
     public ResponseEntity<JsonNode> submitJob(@RequestBody String body, @AuthenticationPrincipal UserProfile up) {
         String username = up==null?"null":up.getUsername();
@@ -528,9 +966,26 @@ public class JOBMRESTController {
      * @param request
      * @return
      */
+    @Operation(
+        summary = "Register a compute domain manager and return any jobs still assigned to it.",
+        description = "Registers a compute domain manager. A COMPM that has registered before "
+                      + "must send the uuid it was given; a new one is assigned one. The response "
+                      + "lists any jobs still outstanding for that COMPM.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                       description = "Registration details for the COMPM, including its uuid "
+                                     + "when re-registering."))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The COMPM as registered, carrying the uuid it must present on later calls "
+                                   + "and any jobs still outstanding for it."),
+        @ApiResponse(responseCode = "400",
+                     description = "The request is not valid; the response body carries the "
+                                   + "reason."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @PostMapping("/compm/register")
-    public ResponseEntity<JsonNode> registerCOMPM(
-            @AuthenticationPrincipal UserProfile up,
+    public ResponseEntity<JsonNode> registerCOMPM(@AuthenticationPrincipal UserProfile up,
             @RequestBody COMPMModel compmModel) {
         try {
             COMPMModel cm = compmManager.createCOMPM(compmModel, up);
@@ -558,6 +1013,31 @@ public class JOBMRESTController {
      *
      * @return
      */
+    @Operation(
+        summary = "List the caller's CasJobs jobs, proxied from SkyServer.",
+        description = "Proxies a CasJobs job listing for the caller from SkyServer, using the "
+                      + "caller's token. On failure the upstream status code is passed through.",
+        parameters = {
+            @Parameter(name = "submittedFrom", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or after this time. The "
+                                     + "value is passed to CasJobs unchanged, so CasJobs defines "
+                                     + "the format. Supply both: a parameter left out reaches "
+                                     + "CasJobs as the literal text null."),
+            @Parameter(name = "submittedTo", in = ParameterIn.QUERY,
+                       description = "Only return jobs submitted at or before this time. The "
+                                     + "value is passed to CasJobs unchanged, so CasJobs defines "
+                                     + "the format. Supply both: a parameter left out reaches "
+                                     + "CasJobs as the literal text null.")
+        })
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                     description = "The CasJobs job listing, as CasJobs returned it. RACM passes the body "
+                                   + "through without interpreting it."),
+        @ApiResponse(responseCode = "401",
+                     description = "No user token was supplied, or it is not valid."),
+        @ApiResponse(responseCode = "500",
+                     description = "Unexpected error. The response body carries a message.")
+    })
     @GetMapping("/casjobs")
     public ResponseEntity<JsonNode> queryUserCasJobs(@RequestParam(required = false) String submittedFrom,
             @RequestParam(required = false) String submittedTo, @AuthenticationPrincipal UserProfile up) {
