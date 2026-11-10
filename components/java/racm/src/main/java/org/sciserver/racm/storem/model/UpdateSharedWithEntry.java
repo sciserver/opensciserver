@@ -1,13 +1,11 @@
 package org.sciserver.racm.storem.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.sciserver.racm.resources.model.SciServerEntityType;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UpdateSharedWithEntry {
     private final Optional<Long> id;

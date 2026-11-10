@@ -1,11 +1,10 @@
 package org.sciserver.springapp.racm.resourcecontext.vourp;
 
+import edu.jhu.rac.ResourceContext;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.springapp.racm.resourcecontext.controllers.InvalidServiceToken;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.stereotype.Service;
-
-import edu.jhu.rac.ResourceContext;
 
 @Service
 public class ResourceContextAuthentication {

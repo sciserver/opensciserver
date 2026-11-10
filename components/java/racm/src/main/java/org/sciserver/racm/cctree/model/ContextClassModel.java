@@ -1,8 +1,6 @@
 package org.sciserver.racm.cctree.model;
 
 import java.util.List;
-
-import org.sciserver.racm.cctree.model.ResourceTypeModel;
 import org.sciserver.racm.utils.model.RACMMVCBaseModel;
 
 public class ContextClassModel extends RACMMVCBaseModel {

@@ -1,6 +1,19 @@
 package org.sciserver.springapp.racm.jobm.application;
 
 import static java.util.stream.Collectors.toMap;
+
+import edu.jhu.job.COMPM;
+import edu.jhu.job.ComputeDomain;
+import edu.jhu.job.DatabaseContext;
+import edu.jhu.job.RDBComputeDomain;
+import edu.jhu.job.RDBVendor;
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.rac.ResourceType;
+import edu.jhu.rac.Role;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,18 +38,6 @@ import org.sciserver.springapp.racm.utils.RACMNames;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import edu.jhu.job.COMPM;
-import edu.jhu.job.ComputeDomain;
-import edu.jhu.job.DatabaseContext;
-import edu.jhu.job.RDBComputeDomain;
-import edu.jhu.job.RDBVendor;
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.rac.ResourceType;
-import edu.jhu.rac.Role;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 @Service
 public class RDBDomainManager {

@@ -3,14 +3,12 @@ package org.sciserver.springapp.racm.config;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.util.AntPathMatcher;
-
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.AntPathMatcher;
 
 /**
  * Pins the path filter that keeps the generated API document to REST controllers.

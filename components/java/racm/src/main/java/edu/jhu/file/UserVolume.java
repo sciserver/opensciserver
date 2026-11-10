@@ -9,21 +9,15 @@ of its origins when interpreting it.
 
 package edu.jhu.file;
 
-import java.util.Date;
-
-import java.util.Map;
-import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.IMetadataObjectContainer;
-import org.ivoa.dm.model.Reference;
-import org.ivoa.dm.model.TransientObjectManager;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.IMetadataObjectContainer;
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 import edu.jhu.rac.Resource;
-
 import edu.jhu.user.User;
-
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import java.util.Map;
+import org.ivoa.dm.model.IMetadataObjectContainer;
+import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.Reference;
 
 /**
  * UML Object UserVolume :

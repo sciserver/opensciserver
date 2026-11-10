@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Properties;
-
 import org.ivoa.bean.LogSupport;
 import org.ivoa.util.CollectionUtils;
 import org.ivoa.util.JavaUtils;

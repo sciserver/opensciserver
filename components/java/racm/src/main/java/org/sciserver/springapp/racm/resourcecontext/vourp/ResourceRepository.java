@@ -3,13 +3,18 @@ package org.sciserver.springapp.racm.resourcecontext.vourp;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import edu.jhu.rac.AssociatedSciEntity;
+import edu.jhu.rac.OwnershipCategory;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.user.SciserverEntity;
+import edu.jhu.user.ServiceAccount;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.InvalidTOMException;
 import org.ivoa.dm.model.TransientObjectManager;
@@ -26,14 +31,6 @@ import org.sciserver.springapp.racm.storem.application.RegistrationInvalidExcept
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.stereotype.Component;
-
-import edu.jhu.rac.AssociatedSciEntity;
-import edu.jhu.rac.OwnershipCategory;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.user.SciserverEntity;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 @Component
 public class ResourceRepository {

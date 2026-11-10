@@ -1,9 +1,10 @@
 package org.sciserver.springapp.racm.resources.application;
 
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.rac.ResourceType;
 import java.util.List;
-
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.racm.rctree.model.ResourceMVCModel;
@@ -12,10 +13,6 @@ import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.rac.ResourceType;
 
 @Service
 public class ResourceManager {

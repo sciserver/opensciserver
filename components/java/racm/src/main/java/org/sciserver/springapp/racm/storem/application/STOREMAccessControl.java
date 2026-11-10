@@ -13,29 +13,6 @@ import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_DELETE;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_GRANT;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Stream;
-
-import javax.persistence.Query;
-
-import org.ivoa.dm.model.TransientObjectManager;
-import org.sciserver.racm.utils.model.NativeQueryResult;
-import org.sciserver.springapp.racm.ugm.domain.UserProfile;
-import org.sciserver.springapp.racm.utils.RACM;
-import org.sciserver.springapp.racm.utils.RACMUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import edu.jhu.file.DataVolume;
 import edu.jhu.file.FileService;
 import edu.jhu.file.RootVolume;
@@ -48,6 +25,26 @@ import edu.jhu.rac.ResourceContext;
 import edu.jhu.rac.ResourceType;
 import edu.jhu.rac.RoleAssignment;
 import edu.jhu.user.SciserverEntity;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
+import javax.persistence.Query;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.sciserver.racm.utils.model.NativeQueryResult;
+import org.sciserver.springapp.racm.ugm.domain.UserProfile;
+import org.sciserver.springapp.racm.utils.RACM;
+import org.sciserver.springapp.racm.utils.RACMUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Class implementing methods to perform permission-related queries to the

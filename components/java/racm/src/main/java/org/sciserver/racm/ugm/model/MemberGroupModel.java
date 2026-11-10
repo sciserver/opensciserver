@@ -1,8 +1,7 @@
 package org.sciserver.racm.ugm.model;
 
-import org.sciserver.racm.utils.model.RACMBaseModel;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.sciserver.racm.utils.model.RACMBaseModel;
 
 public class MemberGroupModel extends RACMBaseModel {
 

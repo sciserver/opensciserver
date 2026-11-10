@@ -1,8 +1,7 @@
 package org.sciserver.racm.collaboration.model;
 
-import java.util.Optional;
-
 import edu.jhu.user.SciserverEntity;
+import java.util.Optional;
 
 public class User {
     private final long id;

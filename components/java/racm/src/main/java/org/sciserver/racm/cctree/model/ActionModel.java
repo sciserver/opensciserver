@@ -1,12 +1,10 @@
 package org.sciserver.racm.cctree.model;
 
+import edu.jhu.rac.ActionCategory;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.sciserver.racm.utils.model.RACMMVCBaseModel;
-
-import edu.jhu.rac.ActionCategory;
 
 public class ActionModel extends RACMMVCBaseModel {
     private long resourceTypeId;

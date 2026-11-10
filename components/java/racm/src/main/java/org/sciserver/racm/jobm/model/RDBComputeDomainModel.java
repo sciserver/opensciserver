@@ -3,7 +3,6 @@ package org.sciserver.racm.jobm.model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.sciserver.racm.utils.model.RACMBaseModel;
 
 public class RDBComputeDomainModel extends RACMBaseModel {

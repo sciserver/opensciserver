@@ -1,8 +1,15 @@
 package org.sciserver.springapp.racm.storem.controller;
 
 import static org.sciserver.racm.storem.model.RegisterNewServiceVolumeModel.SERVICE_TOKEN_HEADER;
-import javax.servlet.http.HttpServletResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.servlet.http.HttpServletResponse;
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.storem.model.RegisterNewServiceVolumeModel;
 import org.sciserver.racm.storem.model.RegisteredServiceVolumeModel;
@@ -27,13 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Methods in this class require a fileservice serviceToken as well as a serviceToken for a 

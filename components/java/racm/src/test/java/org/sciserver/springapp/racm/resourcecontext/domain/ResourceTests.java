@@ -1,11 +1,9 @@
 package org.sciserver.springapp.racm.resourcecontext.domain;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import org.junit.jupiter.api.Test;
-import org.sciserver.springapp.racm.resourcecontext.domain.AssociatedSciserverEntity;
-import org.sciserver.springapp.racm.resourcecontext.domain.Resource;
 
 public class ResourceTests {
     private static final String SHARED_RESOURCE_CONTEXT_UUID = "xxxx-xxxx-xxxx-xxxx";

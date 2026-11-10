@@ -1,9 +1,11 @@
 package org.sciserver.springapp.racm.storem.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.sciserver.racm.storem.model.MinimalFileServiceModel;
 import org.sciserver.racm.storem.model.RegisterNewFileServiceModel;
 import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
@@ -22,10 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController

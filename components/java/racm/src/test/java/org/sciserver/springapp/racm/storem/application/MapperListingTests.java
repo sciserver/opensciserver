@@ -1,10 +1,10 @@
 package org.sciserver.springapp.racm.storem.application;
 
 import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_ROOTVOLUME_CREATE;
@@ -13,6 +13,14 @@ import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_READ;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_WRITE;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import edu.jhu.file.FileService;
+import edu.jhu.file.RootVolume;
+import edu.jhu.file.UserVolume;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.user.User;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -20,25 +28,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sciserver.racm.storem.model.FileServiceModel;
 import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.racm.storem.model.RootVolumeModel;
 import org.sciserver.racm.storem.model.UserVolumeModel;
-import org.sciserver.springapp.racm.storem.application.StoremMapper;
 import org.sciserver.springapp.racm.utils.RACMUtil;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import edu.jhu.file.FileService;
-import edu.jhu.file.RootVolume;
-import edu.jhu.file.UserVolume;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.user.User;
 
 public class MapperListingTests {
     private RACMUtil racmUtil = mock(RACMUtil.class);

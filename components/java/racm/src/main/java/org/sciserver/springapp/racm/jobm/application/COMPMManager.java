@@ -1,11 +1,11 @@
 package org.sciserver.springapp.racm.jobm.application;
 
+import edu.jhu.job.COMPM;
+import edu.jhu.job.DockerComputeDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.MetadataObject;
 import org.ivoa.dm.model.TransientObjectManager;
@@ -16,9 +16,6 @@ import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import edu.jhu.job.COMPM;
-import edu.jhu.job.DockerComputeDomain;
 
 @Service
 public class COMPMManager {

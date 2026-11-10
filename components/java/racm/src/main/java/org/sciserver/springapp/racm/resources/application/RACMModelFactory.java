@@ -1,12 +1,28 @@
 package org.sciserver.springapp.racm.resources.application;
 
+import edu.jhu.rac.AccessControl;
+import edu.jhu.rac.Action;
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.Privilege;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.rac.ResourceType;
+import edu.jhu.rac.Role;
+import edu.jhu.rac.RoleAction;
+import edu.jhu.rac.RoleAssignment;
+import edu.jhu.user.GroupAccessibility;
+import edu.jhu.user.GroupRole;
+import edu.jhu.user.Member;
+import edu.jhu.user.SciserverEntity;
+import edu.jhu.user.ServiceAccount;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.MetadataObject;
 import org.ivoa.dm.model.TransientObjectManager;
@@ -28,24 +44,6 @@ import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.RACMNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import edu.jhu.rac.AccessControl;
-import edu.jhu.rac.Action;
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.Privilege;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.rac.ResourceType;
-import edu.jhu.rac.Role;
-import edu.jhu.rac.RoleAction;
-import edu.jhu.rac.RoleAssignment;
-import edu.jhu.user.GroupAccessibility;
-import edu.jhu.user.GroupRole;
-import edu.jhu.user.Member;
-import edu.jhu.user.SciserverEntity;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 //In order to distribute racm model package to others without including vo-urp generated classes(domain model class),
 //use factory method instead of each racm model class having constructor with vo-urp generated classes as arguments.

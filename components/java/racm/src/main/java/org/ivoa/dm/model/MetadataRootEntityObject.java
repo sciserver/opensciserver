@@ -2,7 +2,6 @@ package org.ivoa.dm.model;
 
 import java.util.Date;
 import java.util.Map;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;

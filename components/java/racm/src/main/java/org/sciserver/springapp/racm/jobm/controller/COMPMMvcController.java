@@ -1,8 +1,8 @@
 package org.sciserver.springapp.racm.jobm.controller;
 
+import edu.jhu.job.COMPM;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.jobm.model.COMPMModel;
 import org.sciserver.springapp.racm.admin.controller.ForbiddenException;
@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import edu.jhu.job.COMPM;
 
 @Controller
 @RequestMapping("compm/mvc")

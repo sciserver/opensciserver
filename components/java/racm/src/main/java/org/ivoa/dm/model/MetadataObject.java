@@ -1,7 +1,6 @@
 package org.ivoa.dm.model;
 
 import java.util.concurrent.atomic.AtomicLong;
-
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.GeneratedValue;
@@ -16,7 +15,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-
 import org.ivoa.bean.Navigable;
 import org.ivoa.bean.Visitor;
 import org.ivoa.conf.Configuration;

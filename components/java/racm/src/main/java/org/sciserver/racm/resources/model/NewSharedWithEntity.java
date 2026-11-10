@@ -1,10 +1,9 @@
 package org.sciserver.racm.resources.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NewSharedWithEntity {
     private final String name;

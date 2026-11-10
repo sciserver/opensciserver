@@ -3,7 +3,6 @@ package org.sciserver.racm.storem.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
-import java.util.Optional;
 
 public final class RegisteredServiceVolumeModel {
     private final Long id;

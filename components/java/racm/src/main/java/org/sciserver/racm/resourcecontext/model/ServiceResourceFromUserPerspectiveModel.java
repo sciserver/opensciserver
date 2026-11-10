@@ -1,13 +1,8 @@
 package org.sciserver.racm.resourcecontext.model;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.sciserver.racm.utils.model.NativeQueryResult;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Set;
 
 public class ServiceResourceFromUserPerspectiveModel {
     private long id;

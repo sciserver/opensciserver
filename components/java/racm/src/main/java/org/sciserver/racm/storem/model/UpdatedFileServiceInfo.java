@@ -1,10 +1,9 @@
 package org.sciserver.racm.storem.model;
 
-import java.util.Objects;
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
+import java.util.Optional;
 
 public class UpdatedFileServiceInfo {
     private final Optional<String> name;

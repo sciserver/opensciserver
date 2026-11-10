@@ -1,9 +1,7 @@
 package org.sciserver.springapp.racm.utils.logging;
 
 import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 import org.sciserver.springapp.loginterceptor.Log;
@@ -11,7 +9,6 @@ import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.ControllerMethodLogger;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import sciserver.logging.Logger;
 import sciserver.logging.Message;
 

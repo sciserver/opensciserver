@@ -2,10 +2,6 @@ package org.ivoa.dm.model;
 
 import java.sql.Timestamp;
 import java.util.Date;
-
-import javax.persistence.EntityManager;
-
-import org.eclipse.persistence.jpa.JpaEntityManager;
 import org.eclipse.persistence.sessions.changesets.ObjectChangeSet;
 import org.eclipse.persistence.sessions.changesets.UnitOfWorkChangeSet;
 

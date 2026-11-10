@@ -1,11 +1,10 @@
 package org.sciserver.springapp.racm.storem.application;
 
-import java.util.Objects;
-
 import edu.jhu.file.DataVolume;
 import edu.jhu.file.UserVolume;
 import edu.jhu.rac.Resource;
 import edu.jhu.user.SciserverEntity;
+import java.util.Objects;
 
 public interface VOURPEntityWithResource {
     Resource getResource();

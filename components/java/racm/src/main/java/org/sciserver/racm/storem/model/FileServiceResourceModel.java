@@ -3,7 +3,6 @@ package org.sciserver.racm.storem.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.sciserver.racm.resources.model.SharedWithEntity;
 
 public abstract class FileServiceResourceModel {

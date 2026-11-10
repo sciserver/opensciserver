@@ -3,7 +3,6 @@ package org.sciserver.racm.collaboration.model;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import org.springframework.hateoas.RepresentationModel;
 
 public class Collaboration extends RepresentationModel {

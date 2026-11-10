@@ -1,24 +1,21 @@
 package org.sciserver.springapp.racm.ugm.domain;
 
+import edu.jhu.user.GroupRole;
+import edu.jhu.user.Member;
+import edu.jhu.user.MemberStatus;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.springapp.racm.utils.RACMNames;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import edu.jhu.user.GroupRole;
-import edu.jhu.user.Member;
-import edu.jhu.user.MemberStatus;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 public class UserProfile implements UserDetails {
     private static final long serialVersionUID = 1L;

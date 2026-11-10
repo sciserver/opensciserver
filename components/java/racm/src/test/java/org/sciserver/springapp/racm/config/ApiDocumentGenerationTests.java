@@ -3,13 +3,16 @@ package org.sciserver.springapp.racm.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
+import org.sciserver.springapp.racm.storem.application.FileServiceManager;
+import org.sciserver.springapp.racm.storem.controller.FileServiceLinkedServiceController;
+import org.sciserver.springapp.racm.storem.controller.FileServiceTokenRequiredController;
+import org.sciserver.springapp.racm.storem.controller.FileServiceUserRequiredController;
 import org.springdoc.core.SpringDocConfigProperties;
 import org.springdoc.core.SpringDocConfiguration;
 import org.springdoc.webmvc.api.OpenApiWebMvcResource;
@@ -19,15 +22,9 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import org.sciserver.springapp.racm.storem.application.FileServiceManager;
-import org.sciserver.springapp.racm.storem.controller.FileServiceLinkedServiceController;
-import org.sciserver.springapp.racm.storem.controller.FileServiceTokenRequiredController;
-import org.sciserver.springapp.racm.storem.controller.FileServiceUserRequiredController;
 
 /**
  * Generates the API document the way the running service does, and fails if springdoc cannot.

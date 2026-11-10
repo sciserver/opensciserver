@@ -3,40 +3,6 @@ package org.sciserver.springapp.racm.collaboration.application;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.persistence.Query;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
-import org.ivoa.dm.VOURPException;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.TransientObjectManager;
-import org.sciserver.racm.collaboration.model.Collaboration;
-import org.sciserver.racm.collaboration.model.CollaborationMember;
-import org.sciserver.racm.collaboration.model.ResourceFacade;
-import org.sciserver.racm.collaboration.model.ResourceOwnedGroup;
-import org.sciserver.racm.collaboration.model.ResourceWithAnyType;
-import org.sciserver.racm.collaboration.model.User;
-import org.sciserver.racm.utils.model.NativeQueryResult;
-import org.sciserver.springapp.racm.ugm.controller.UserManagementRESTController;
-import org.sciserver.springapp.racm.ugm.domain.UserProfile;
-import org.sciserver.springapp.racm.utils.RACMNames;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.RepresentationModel;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.ModelAttribute;
-
 import edu.jhu.file.DataVolume;
 import edu.jhu.file.UserVolume;
 import edu.jhu.job.DatabaseContext;
@@ -52,6 +18,36 @@ import edu.jhu.user.Member;
 import edu.jhu.user.MemberStatus;
 import edu.jhu.user.SciserverEntity;
 import edu.jhu.user.UserGroup;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.persistence.Query;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.ivoa.dm.VOURPException;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.sciserver.racm.collaboration.model.Collaboration;
+import org.sciserver.racm.collaboration.model.CollaborationMember;
+import org.sciserver.racm.collaboration.model.ResourceFacade;
+import org.sciserver.racm.collaboration.model.ResourceOwnedGroup;
+import org.sciserver.racm.collaboration.model.ResourceWithAnyType;
+import org.sciserver.racm.collaboration.model.User;
+import org.sciserver.springapp.racm.ugm.controller.UserManagementRESTController;
+import org.sciserver.springapp.racm.ugm.domain.UserProfile;
+import org.sciserver.springapp.racm.utils.RACMNames;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Repository
 public class CollaborationManager {

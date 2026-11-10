@@ -9,17 +9,14 @@ of its origins when interpreting it.
 
 package edu.jhu.user;
 
-import java.util.Date;
-import java.util.List;
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.MetadataRootEntityObject;
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object UserGroup :

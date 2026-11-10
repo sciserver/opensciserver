@@ -1,9 +1,8 @@
 package org.sciserver.racm.resources.v2.model;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import java.util.List;
 
 abstract class AbstractResourceModel implements ResourceModel {
     private final long entityId;

@@ -1,8 +1,5 @@
 package org.sciserver.racm.ugm.model;
 
-import edu.jhu.user.Party;
-import edu.jhu.user.User;
-
 public class UserInfo {
     private Long id;
     private String username;

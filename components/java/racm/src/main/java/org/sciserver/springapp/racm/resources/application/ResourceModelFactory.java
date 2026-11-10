@@ -1,20 +1,5 @@
 package org.sciserver.springapp.racm.resources.application;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.sciserver.racm.resources.v2.model.ActionModel;
-import org.sciserver.racm.resources.v2.model.DataVolumeResource;
-import org.sciserver.racm.resources.v2.model.DatabaseResource;
-import org.sciserver.racm.resources.v2.model.DockerComputeDomainForResources;
-import org.sciserver.racm.resources.v2.model.DockerImageResource;
-import org.sciserver.racm.resources.v2.model.GenericResource;
-import org.sciserver.racm.resources.v2.model.ResourceModel;
-import org.sciserver.racm.resources.v2.model.UserVolumeResource;
-import org.sciserver.racm.resources.v2.model.VolumeContainerResource;
-import org.springframework.stereotype.Component;
-
 import edu.jhu.file.DataVolume;
 import edu.jhu.file.FileService;
 import edu.jhu.file.RootVolume;
@@ -29,6 +14,19 @@ import edu.jhu.rac.ActionCategory;
 import edu.jhu.rac.ContextClass;
 import edu.jhu.rac.Resource;
 import edu.jhu.rac.ResourceContext;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.sciserver.racm.resources.v2.model.ActionModel;
+import org.sciserver.racm.resources.v2.model.DataVolumeResource;
+import org.sciserver.racm.resources.v2.model.DatabaseResource;
+import org.sciserver.racm.resources.v2.model.DockerComputeDomainForResources;
+import org.sciserver.racm.resources.v2.model.DockerImageResource;
+import org.sciserver.racm.resources.v2.model.GenericResource;
+import org.sciserver.racm.resources.v2.model.ResourceModel;
+import org.sciserver.racm.resources.v2.model.UserVolumeResource;
+import org.sciserver.racm.resources.v2.model.VolumeContainerResource;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ResourceModelFactory {

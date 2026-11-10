@@ -1,9 +1,8 @@
 package org.sciserver.racm.storem.model;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
 
 public class RegisterNewDataVolumeModel {
     private final String name;

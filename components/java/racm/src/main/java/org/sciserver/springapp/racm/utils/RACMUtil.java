@@ -1,21 +1,7 @@
 package org.sciserver.springapp.racm.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.Query;
-
-import org.ivoa.dm.VOURPException;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.TransientObjectManager;
-import org.sciserver.racm.resources.model.NewSharedWithEntity;
-import org.sciserver.racm.resources.model.SciServerEntityType;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.jhu.rac.AccessControl;
 import edu.jhu.rac.Action;
 import edu.jhu.rac.ContextClass;
@@ -28,6 +14,15 @@ import edu.jhu.rac.RoleAction;
 import edu.jhu.rac.RoleAssignment;
 import edu.jhu.user.SciserverEntity;
 import edu.jhu.user.ServiceAccount;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.persistence.Query;
+import org.ivoa.dm.VOURPException;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.sciserver.racm.resources.model.SciServerEntityType;
+import org.springframework.stereotype.Component;
 
 /* Don't add to this class unless you can give it a clear purpose
  * (and then rename the class to reflect that purpose).

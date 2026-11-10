@@ -3,7 +3,6 @@ package org.sciserver.racm.jobm.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.sciserver.racm.utils.model.RACMBaseModel;
 
 public class UserDockerComputeDomainModel extends RACMBaseModel {

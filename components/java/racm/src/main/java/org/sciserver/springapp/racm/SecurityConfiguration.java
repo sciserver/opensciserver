@@ -2,13 +2,12 @@ package org.sciserver.springapp.racm;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.sciserver.springapp.racm.auth.HeaderAuthenticationAuthorizationHandlers.ReturnUnauthenticatedJsonMessage;
+import org.sciserver.springapp.racm.auth.HeaderAuthenticationAuthorizationHandlers.ReturnUnauthorizedJsonMessage;
 import org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverCookieAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverQueryParamAuthenticationFilter;
 import org.sciserver.springapp.racm.auth.SciserverUserDetailsService;
-import org.sciserver.springapp.racm.auth.HeaderAuthenticationAuthorizationHandlers.ReturnUnauthenticatedJsonMessage;
-import org.sciserver.springapp.racm.auth.HeaderAuthenticationAuthorizationHandlers.ReturnUnauthorizedJsonMessage;
 import org.sciserver.springapp.racm.auth.WebAuthenticationAuthorizationHandlers.RedirectToLoginPortal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;

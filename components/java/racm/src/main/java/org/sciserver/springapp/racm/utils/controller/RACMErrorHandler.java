@@ -1,9 +1,8 @@
 package org.sciserver.springapp.racm.utils.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.sciserver.springapp.racm.login.InsufficientPermissionsException;
 import org.sciserver.springapp.racm.storem.application.DuplicateIdentifierException;
 import org.sciserver.springapp.racm.storem.application.RegistrationInvalidException;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 @ControllerAdvice
 public class RACMErrorHandler extends ResponseEntityExceptionHandler {

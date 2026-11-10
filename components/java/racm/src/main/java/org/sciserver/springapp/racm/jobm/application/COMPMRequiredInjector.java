@@ -1,8 +1,9 @@
 package org.sciserver.springapp.racm.jobm.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import edu.jhu.job.COMPM;
 import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
-
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.springapp.racm.login.NotAuthorizedException;
 import org.sciserver.springapp.racm.utils.VOURPContext;
@@ -17,10 +18,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
-import edu.jhu.job.COMPM;
 
 @ControllerAdvice(annotations = { COMPMRequired.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)

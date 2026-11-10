@@ -7,11 +7,9 @@ import static java.util.stream.Collectors.toSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-
 import org.sciserver.springapp.racm.resourcecontext.domain.Action;
 import org.springframework.stereotype.Service;
 

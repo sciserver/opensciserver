@@ -2,13 +2,7 @@ package org.sciserver.racm.ugm.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.sciserver.racm.resourcecontext.model.RegisteredResourceModel;
 import org.sciserver.racm.utils.model.RACMBaseModel;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import edu.jhu.rac.OwnershipCategory;
 
 public class CreateLinkedGroupModel extends RACMBaseModel {
 

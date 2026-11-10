@@ -2,7 +2,6 @@ package org.sciserver.racm.collaboration.model;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.sciserver.racm.collaboration.model.ResourceWithAnyType.ResourceContextInfo;
 import org.springframework.hateoas.RepresentationModel;
 

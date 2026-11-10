@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.ivoa.bean.LogSupport;
 
 /**

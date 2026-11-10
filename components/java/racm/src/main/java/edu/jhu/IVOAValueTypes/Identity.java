@@ -9,14 +9,11 @@ of its origins when interpreting it.
 
 package edu.jhu.IVOAValueTypes;
 
-import java.util.Date;
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 import java.util.Map;
-import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.MetadataDataType;
-
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import org.ivoa.dm.model.MetadataElement;
 
 /**
  * UML DataType Identity :

@@ -1,9 +1,8 @@
 package org.sciserver.racm.collaboration.model;
 
-import java.util.Objects;
-
 import edu.jhu.user.GroupRole;
 import edu.jhu.user.MemberStatus;
+import java.util.Objects;
 
 public class CollaborationMember {
     private final long id;

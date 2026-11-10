@@ -1,14 +1,14 @@
 package org.sciserver.springapp.racm.storem.application;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -16,25 +16,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.UUID;
-
-import org.ivoa.dm.VOURPException;
-import org.ivoa.dm.model.TransientObjectManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.sciserver.racm.storem.model.RegisterNewFileServiceModel;
-import org.sciserver.racm.storem.model.RegisterNewRootVolumeModel;
-import org.sciserver.racm.storem.model.RegisterNewUserVolumeModel;
-import org.sciserver.racm.storem.model.RegisterNewUserVolumeWithOwnerModel;
-import org.sciserver.springapp.racm.storem.application.STOREMConstants;
-import org.sciserver.springapp.racm.storem.application.StoremMapper;
-import org.sciserver.springapp.racm.utils.RACMUtil;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
 import edu.jhu.file.FileService;
 import edu.jhu.file.RootVolume;
 import edu.jhu.file.UserVolume;
@@ -42,6 +25,17 @@ import edu.jhu.rac.ContextClass;
 import edu.jhu.rac.ResourceContext;
 import edu.jhu.rac.ResourceType;
 import edu.jhu.user.User;
+import java.io.IOException;
+import java.net.URL;
+import java.util.UUID;
+import org.ivoa.dm.VOURPException;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.junit.jupiter.api.Test;
+import org.sciserver.racm.storem.model.RegisterNewFileServiceModel;
+import org.sciserver.racm.storem.model.RegisterNewRootVolumeModel;
+import org.sciserver.racm.storem.model.RegisterNewUserVolumeModel;
+import org.sciserver.racm.storem.model.RegisterNewUserVolumeWithOwnerModel;
+import org.sciserver.springapp.racm.utils.RACMUtil;
 
 public class MapperRegisteringTests {
     private StoremMapper mapper;

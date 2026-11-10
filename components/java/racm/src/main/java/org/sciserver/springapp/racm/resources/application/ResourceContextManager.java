@@ -1,11 +1,13 @@
 package org.sciserver.springapp.racm.resources.application;
 
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.user.ServiceAccount;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
 import javax.persistence.EntityManager;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.racm.rctree.model.ResourceContextMVCModel;
@@ -15,12 +17,6 @@ import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
 
 /**
  * Main class that should control whether a user is allowed to perform certain action on some resource.<br/>

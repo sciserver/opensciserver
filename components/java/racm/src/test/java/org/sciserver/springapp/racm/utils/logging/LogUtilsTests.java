@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import sciserver.logging.Logger;
 import sciserver.logging.Message;
 import sciserver.logging.MessageType;

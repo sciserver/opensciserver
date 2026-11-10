@@ -1,6 +1,5 @@
 package org.ivoa.util;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 

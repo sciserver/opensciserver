@@ -1,7 +1,6 @@
 package org.sciserver.springapp.racm.jobm.application;
 
 import java.io.IOException;
-
 import org.sciserver.racm.jobm.model.COMPMJobModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

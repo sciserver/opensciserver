@@ -6,6 +6,20 @@ import static org.sciserver.springapp.racm.storem.application.STOREMConstants.RT
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.RT_FILESERVICE_ROOTVOLUME;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.RT_FILESERVICE_USERVOLUME;
 
+import edu.jhu.file.DataVolume;
+import edu.jhu.file.FileService;
+import edu.jhu.file.RootVolume;
+import edu.jhu.file.UserVolume;
+import edu.jhu.rac.AssociatedResource;
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.Privilege;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.rac.ResourceType;
+import edu.jhu.user.SciserverEntity;
+import edu.jhu.user.ServiceAccount;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +31,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.racm.resources.model.SciServerEntityType;
@@ -41,24 +54,6 @@ import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import edu.jhu.file.DataVolume;
-import edu.jhu.file.FileService;
-import edu.jhu.file.RootVolume;
-import edu.jhu.file.UserVolume;
-import edu.jhu.rac.AssociatedResource;
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.OwnershipCategory;
-import edu.jhu.rac.Privilege;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.rac.ResourceType;
-import edu.jhu.user.SciserverEntity;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 /*
  * Helper class for converting to/from vo-urp objects and DTOs.

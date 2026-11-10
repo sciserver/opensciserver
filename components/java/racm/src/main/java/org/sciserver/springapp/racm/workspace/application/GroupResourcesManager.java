@@ -3,9 +3,7 @@ package org.sciserver.springapp.racm.workspace.application;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.persistence.Query;
-
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.racm.workspace.model.WorkspaceGroupModel;
 import org.sciserver.racm.workspace.model.WorkspaceGroupsModel;

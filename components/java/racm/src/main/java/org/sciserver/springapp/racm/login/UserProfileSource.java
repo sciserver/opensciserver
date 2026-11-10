@@ -1,5 +1,8 @@
 package org.sciserver.springapp.racm.login;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import edu.jhu.user.User;
+import edu.jhu.user.UserVisibility;
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.springapp.racm.ugm.application.UsersAndGroupsManager;
@@ -8,11 +11,6 @@ import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
-import edu.jhu.user.User;
-import edu.jhu.user.UserVisibility;
 
 @Service
 public class UserProfileSource {

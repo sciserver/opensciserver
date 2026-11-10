@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-
 import org.ivoa.dm.api.IIdentity;
 import org.ivoa.util.JavaUtils;
 

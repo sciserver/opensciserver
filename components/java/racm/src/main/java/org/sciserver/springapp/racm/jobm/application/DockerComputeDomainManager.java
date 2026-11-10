@@ -1,5 +1,17 @@
 package org.sciserver.springapp.racm.jobm.application;
 
+import edu.jhu.job.ComputeResource;
+import edu.jhu.job.DockerComputeDomain;
+import edu.jhu.job.DockerImage;
+import edu.jhu.job.RootVolumeOnComputeDomain;
+import edu.jhu.job.VolumeContainer;
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceContext;
+import edu.jhu.rac.ResourceType;
+import edu.jhu.rac.Role;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,18 +39,6 @@ import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import edu.jhu.job.ComputeResource;
-import edu.jhu.job.DockerComputeDomain;
-import edu.jhu.job.DockerImage;
-import edu.jhu.job.RootVolumeOnComputeDomain;
-import edu.jhu.job.VolumeContainer;
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.rac.ResourceType;
-import edu.jhu.rac.Role;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 @Service
 public class DockerComputeDomainManager {

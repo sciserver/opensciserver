@@ -3,7 +3,6 @@ package org.sciserver.springapp.racm.storem.controller;
 import static org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter.SERVICE_TOKEN_HEADER;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
 import org.sciserver.springapp.racm.login.InsufficientPermissionsException;
 import org.sciserver.springapp.racm.storem.application.FileServiceManager;

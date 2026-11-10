@@ -1,5 +1,8 @@
 package org.sciserver.springapp;
 
+import io.github.mweirauch.micrometer.jvm.extras.ProcessMemoryMetrics;
+import io.github.mweirauch.micrometer.jvm.extras.ProcessThreadMetrics;
+import io.micrometer.core.instrument.binder.MeterBinder;
 import org.sciserver.springapp.racm.config.LoginConfig;
 import org.sciserver.springapp.racm.login.LoginPortalService;
 import org.sciserver.springapp.racm.utils.ControllerMethodLogger;
@@ -15,10 +18,6 @@ import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import io.github.mweirauch.micrometer.jvm.extras.ProcessMemoryMetrics;
-import io.github.mweirauch.micrometer.jvm.extras.ProcessThreadMetrics;
-import io.micrometer.core.instrument.binder.MeterBinder;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 

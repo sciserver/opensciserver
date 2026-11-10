@@ -3,7 +3,6 @@ package org.sciserver.racm.ugm.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.sciserver.racm.resources.model.ResourceModel;
 import org.sciserver.racm.utils.model.RACMBaseModel;
 

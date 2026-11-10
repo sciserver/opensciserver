@@ -1,12 +1,13 @@
 package org.sciserver.springapp.racm.admin.controller;
 
+import edu.jhu.rac.Action;
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.ResourceType;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.cctree.model.ActionModel;
 import org.sciserver.racm.cctree.model.ContextClassModel;
@@ -29,10 +30,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import edu.jhu.rac.Action;
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.ResourceType;
 
 @Controller
 @RequestMapping("cctree")

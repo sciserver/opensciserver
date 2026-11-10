@@ -2,7 +2,6 @@ package org.sciserver.racm.workspace.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sciserver.racm.utils.model.RACMBaseModel;
 
 public class WorkspaceGroupModel extends RACMBaseModel {

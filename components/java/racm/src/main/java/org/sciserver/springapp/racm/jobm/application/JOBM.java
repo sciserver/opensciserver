@@ -3,6 +3,12 @@ package org.sciserver.springapp.racm.jobm.application;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
+import edu.jhu.job.DockerJob;
+import edu.jhu.job.Job;
+import edu.jhu.job.JobMessage;
+import edu.jhu.job.MessageType;
+import edu.jhu.job.RDBJob;
+import edu.jhu.user.User;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,7 +27,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.persistence.config.QueryHints;
 import org.ivoa.dm.VOURPException;
@@ -44,13 +48,6 @@ import org.sciserver.springapp.racm.utils.RACMException;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import edu.jhu.job.DockerJob;
-import edu.jhu.job.Job;
-import edu.jhu.job.JobMessage;
-import edu.jhu.job.MessageType;
-import edu.jhu.job.RDBJob;
-import edu.jhu.user.User;
 
 @Service
 public class JOBM {

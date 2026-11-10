@@ -3,8 +3,6 @@ package org.sciserver.springapp.racm.resourcecontext.domain;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 public final class AssociatedResource {
     private final String resourceUUID;
     private final String usage;

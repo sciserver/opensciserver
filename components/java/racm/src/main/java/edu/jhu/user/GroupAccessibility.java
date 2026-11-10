@@ -8,8 +8,6 @@ of its origins when interpreting the code
 **/
 package edu.jhu.user;
 
-import javax.xml.bind.annotation.*;
-
 /**
  * UML Enumeration GroupAccessibility.
  *

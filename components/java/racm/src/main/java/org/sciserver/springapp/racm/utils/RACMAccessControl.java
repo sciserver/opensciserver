@@ -1,5 +1,15 @@
 package org.sciserver.springapp.racm.utils;
 
+import edu.jhu.file.DataVolume;
+import edu.jhu.file.UserVolume;
+import edu.jhu.job.DatabaseContext;
+import edu.jhu.job.DockerImage;
+import edu.jhu.job.VolumeContainer;
+import edu.jhu.rac.Action;
+import edu.jhu.rac.ContextClass;
+import edu.jhu.rac.Resource;
+import edu.jhu.rac.ResourceType;
+import edu.jhu.user.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,9 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.persistence.Query;
-
 import org.eclipse.persistence.config.QueryHints;
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
@@ -26,17 +34,6 @@ import org.sciserver.springapp.racm.resources.application.ResourceModelFactory;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import edu.jhu.file.DataVolume;
-import edu.jhu.file.UserVolume;
-import edu.jhu.job.DatabaseContext;
-import edu.jhu.job.DockerImage;
-import edu.jhu.job.VolumeContainer;
-import edu.jhu.rac.Action;
-import edu.jhu.rac.ContextClass;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceType;
-import edu.jhu.user.User;
 
 @Service
 public class RACMAccessControl {

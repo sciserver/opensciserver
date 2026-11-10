@@ -1,7 +1,6 @@
 package org.sciserver.racm.rctree.model;
 
 import java.util.List;
-
 import org.sciserver.racm.cctree.model.ContextClassModel;
 import org.sciserver.racm.utils.model.RACMMVCBaseModel;
 

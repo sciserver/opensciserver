@@ -1,17 +1,15 @@
 package org.sciserver.springapp.racm.config;
 
 import java.util.List;
-
+import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
+import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector;
+import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.SpringDocUtils;
 import org.springdoc.core.SwaggerUiConfigProperties;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.sciserver.racm.storem.model.RegisteredFileServiceModel;
-import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector;
-import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 
 /**
  * Beans shaping the generated API document and the Swagger UI that serves it.

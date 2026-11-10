@@ -1,5 +1,29 @@
 package org.sciserver.springapp.racm.jobm.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import edu.jhu.file.RootVolume;
+import edu.jhu.file.UserVolume;
+import edu.jhu.job.COMPM;
+import edu.jhu.job.ComputeDomain;
+import edu.jhu.job.ComputeResource;
+import edu.jhu.job.DatabaseContext;
+import edu.jhu.job.DockerComputeDomain;
+import edu.jhu.job.DockerImage;
+import edu.jhu.job.DockerJob;
+import edu.jhu.job.Job;
+import edu.jhu.job.JobMessage;
+import edu.jhu.job.MessageType;
+import edu.jhu.job.RDBComputeDomain;
+import edu.jhu.job.RDBJob;
+import edu.jhu.job.RDBJobTarget;
+import edu.jhu.job.RDBTargetType;
+import edu.jhu.job.RequiredUserVolume;
+import edu.jhu.job.RequiredVolume;
+import edu.jhu.job.RootVolumeOnComputeDomain;
+import edu.jhu.job.VolumeContainer;
+import edu.jhu.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,9 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.persistence.Query;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ivoa.dm.VOURPException;
@@ -43,32 +65,6 @@ import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import edu.jhu.file.RootVolume;
-import edu.jhu.file.UserVolume;
-import edu.jhu.job.COMPM;
-import edu.jhu.job.ComputeDomain;
-import edu.jhu.job.ComputeResource;
-import edu.jhu.job.DatabaseContext;
-import edu.jhu.job.DockerComputeDomain;
-import edu.jhu.job.DockerImage;
-import edu.jhu.job.DockerJob;
-import edu.jhu.job.Job;
-import edu.jhu.job.JobMessage;
-import edu.jhu.job.MessageType;
-import edu.jhu.job.RDBComputeDomain;
-import edu.jhu.job.RDBJob;
-import edu.jhu.job.RDBJobTarget;
-import edu.jhu.job.RDBTargetType;
-import edu.jhu.job.RequiredUserVolume;
-import edu.jhu.job.RequiredVolume;
-import edu.jhu.job.RootVolumeOnComputeDomain;
-import edu.jhu.job.VolumeContainer;
-import edu.jhu.user.User;
 
 @Component
 public class JOBMModelFactory {

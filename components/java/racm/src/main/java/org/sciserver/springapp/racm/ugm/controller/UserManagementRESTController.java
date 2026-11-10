@@ -3,15 +3,27 @@ package org.sciserver.springapp.racm.ugm.controller;
 import static java.util.stream.Collectors.toList;
 import static org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter.SERVICE_TOKEN_HEADER;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.jhu.rac.AssociatedSciEntity;
+import edu.jhu.rac.OwnershipCategory;
+import edu.jhu.rac.Resource;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.resourcecontext.model.AssociatedSciserverEntityModel;
 import org.sciserver.racm.resourcecontext.model.AssociatedSciserverEntityModel.EntityType;
@@ -50,24 +62,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import edu.jhu.rac.AssociatedSciEntity;
-import edu.jhu.rac.OwnershipCategory;
-import edu.jhu.rac.Resource;
-import edu.jhu.rac.ResourceContext;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @CrossOrigin

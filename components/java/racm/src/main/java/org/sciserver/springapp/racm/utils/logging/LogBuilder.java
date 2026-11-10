@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.json.JSONObject;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 

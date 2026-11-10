@@ -1,10 +1,9 @@
 package org.sciserver.springapp.racm.admin.controller;
 
+import edu.jhu.rac.ResourceContext;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.rctree.model.ResourceContextMVCModel;
 import org.sciserver.racm.rctree.model.ResourceMVCModel;
@@ -24,8 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import edu.jhu.rac.ResourceContext;
 
 @Controller
 @RequestMapping("rctree")

@@ -1,9 +1,7 @@
 package org.sciserver.springapp.racm.utils;
 
 import java.util.List;
-
 import javax.persistence.Query;
-
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.springframework.beans.factory.annotation.Autowired;

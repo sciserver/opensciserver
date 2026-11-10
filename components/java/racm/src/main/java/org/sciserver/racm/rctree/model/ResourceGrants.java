@@ -2,7 +2,6 @@ package org.sciserver.racm.rctree.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sciserver.racm.cctree.model.ResourceTypeModel;
 import org.sciserver.racm.utils.model.VOURPBaseModel;
 

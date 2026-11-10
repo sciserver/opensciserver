@@ -1,7 +1,6 @@
 package org.sciserver.racm.jobm.model;
 
 import java.util.List;
-
 import org.sciserver.racm.utils.model.RACMBaseModel;
 
 /**

@@ -1,11 +1,22 @@
 package org.sciserver.springapp.racm.jobm.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.jhu.job.COMPM;
+import edu.jhu.job.Job;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ivoa.dm.VOURPException;
@@ -14,10 +25,10 @@ import org.sciserver.racm.jobm.model.COMPMDockerJobModel;
 import org.sciserver.racm.jobm.model.COMPMJobModel;
 import org.sciserver.racm.jobm.model.JobStatus;
 import org.sciserver.springapp.racm.jobm.application.COMPMRequired;
+import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector.COMPMInfo;
 import org.sciserver.springapp.racm.jobm.application.COMPMTokenUtils;
 import org.sciserver.springapp.racm.jobm.application.JOBM;
 import org.sciserver.springapp.racm.jobm.application.JOBMModelFactory;
-import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector.COMPMInfo;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.sciserver.springapp.racm.utils.controller.JsonAPIHelper;
@@ -35,20 +46,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import edu.jhu.job.COMPM;
-import edu.jhu.job.Job;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin
 @RestController

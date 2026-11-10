@@ -3,11 +3,9 @@ package org.sciserver.springapp.racm.admin.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.MetadataObject;
 import org.ivoa.dm.model.TransientObjectManager;

@@ -14,24 +14,31 @@ import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_WRITE;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.R_FILESERVICE_ADMIN;
 
+import edu.jhu.file.DataVolume;
+import edu.jhu.file.FileService;
+import edu.jhu.file.RootVolume;
+import edu.jhu.file.UserVolume;
+import edu.jhu.rac.AssociatedResource;
+import edu.jhu.rac.OwnershipCategory;
+import edu.jhu.rac.Privilege;
+import edu.jhu.rac.Resource;
+import edu.jhu.user.SciserverEntity;
+import edu.jhu.user.ServiceAccount;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.SharedCacheMode;
 import javax.persistence.TypedQuery;
-
 import org.eclipse.persistence.config.QueryHints;
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.InvalidTOMException;
@@ -65,31 +72,15 @@ import org.sciserver.racm.storem.model.UpdatedUserVolumeInfo;
 import org.sciserver.racm.storem.model.UserVolumeModel;
 import org.sciserver.racm.utils.model.NativeQueryResult;
 import org.sciserver.springapp.racm.login.InsufficientPermissionsException;
-import org.sciserver.springapp.racm.login.NotAuthorizedException;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
-import org.sciserver.springapp.racm.utils.RACMAccessControl;
 import org.sciserver.springapp.racm.utils.RACMNames;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.VOURPContext;
 import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
-import org.sciserver.springapp.racm.utils.logging.LogUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import edu.jhu.file.DataVolume;
-import edu.jhu.file.FileService;
-import edu.jhu.file.RootVolume;
-import edu.jhu.file.UserVolume;
-import edu.jhu.rac.AssociatedResource;
-import edu.jhu.rac.OwnershipCategory;
-import edu.jhu.rac.Privilege;
-import edu.jhu.rac.Resource;
-import edu.jhu.user.SciserverEntity;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
 
 /*
  * Repository to obtain or register file service-related objects from a database

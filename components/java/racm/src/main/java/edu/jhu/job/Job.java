@@ -9,19 +9,17 @@ of its origins when interpreting it.
 
 package edu.jhu.job;
 
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+
+import edu.jhu.user.User;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.IMetadataObjectContainer;
+import org.ivoa.dm.model.MetadataRootEntityObject;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.MetadataRootEntityObject;
-import edu.jhu.user.User;
-
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object Job :

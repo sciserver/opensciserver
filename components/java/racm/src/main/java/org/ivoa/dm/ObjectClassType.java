@@ -2,7 +2,6 @@ package org.ivoa.dm;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.ivoa.metamodel.Attribute;
 import org.ivoa.metamodel.Collection;
 import org.ivoa.metamodel.DataType;

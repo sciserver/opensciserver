@@ -1,15 +1,13 @@
 package org.sciserver.springapp.racm.ugm.domain;
 
-import java.util.List;
-
-import org.ivoa.dm.model.MetadataObject;
-
 import edu.jhu.file.DataVolume;
 import edu.jhu.file.UserVolume;
 import edu.jhu.job.DatabaseContext;
 import edu.jhu.job.DockerImage;
 import edu.jhu.job.VolumeContainer;
 import edu.jhu.rac.Resource;
+import java.util.List;
+import org.ivoa.dm.model.MetadataObject;
 
 public class ActionsOnResource {
     private final long entityId;

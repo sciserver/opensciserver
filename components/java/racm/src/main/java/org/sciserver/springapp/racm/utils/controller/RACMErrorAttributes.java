@@ -2,7 +2,6 @@ package org.sciserver.springapp.racm.utils.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.context.annotation.Primary;

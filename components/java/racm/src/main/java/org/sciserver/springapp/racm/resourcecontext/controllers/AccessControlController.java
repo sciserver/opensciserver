@@ -2,9 +2,17 @@ package org.sciserver.springapp.racm.resourcecontext.controllers;
 
 import static org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter.SERVICE_TOKEN_HEADER;
 
+import edu.jhu.rac.Privilege;
+import edu.jhu.rac.Resource;
+import edu.jhu.user.SciserverEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import java.util.List;
-
 import org.ivoa.dm.model.InvalidTOMException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.sciserver.racm.resourcecontext.model.PrivilegeModel;
@@ -19,16 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import edu.jhu.rac.Privilege;
-import edu.jhu.rac.Resource;
-import edu.jhu.user.SciserverEntity;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("rc/{resourceContextUUID}/resource/{resourceUUID}")

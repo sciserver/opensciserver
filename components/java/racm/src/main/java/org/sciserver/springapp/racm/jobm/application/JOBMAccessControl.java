@@ -1,16 +1,15 @@
 package org.sciserver.springapp.racm.jobm.application;
 
+import edu.jhu.job.ComputeDomain;
+import edu.jhu.job.DockerImage;
+import edu.jhu.job.VolumeContainer;
+import edu.jhu.user.User;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.RACM;
 import org.sciserver.springapp.racm.utils.RACMException;
 import org.sciserver.springapp.racm.utils.RACMNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import edu.jhu.job.ComputeDomain;
-import edu.jhu.job.DockerImage;
-import edu.jhu.job.VolumeContainer;
-import edu.jhu.user.User;
 
 /**
  * This class defines utility methods to allow JOBM functions to check whether a user is allowed to do particular things.<br/>

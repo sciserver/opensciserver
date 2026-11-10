@@ -1,17 +1,5 @@
 package org.sciserver.springapp.racm.jobm.application;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.ivoa.dm.VOURPException;
-import org.ivoa.dm.model.TransientObjectManager;
-import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
-import org.sciserver.springapp.racm.utils.RACMNames;
-import org.sciserver.springapp.racm.utils.RACMUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import edu.jhu.job.ComputeDomain;
 import edu.jhu.job.RootVolumeOnComputeDomain;
 import edu.jhu.rac.Action;
@@ -20,6 +8,16 @@ import edu.jhu.rac.ContextClass;
 import edu.jhu.rac.ResourceType;
 import edu.jhu.rac.Role;
 import edu.jhu.user.User;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.ivoa.dm.VOURPException;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
+import org.sciserver.springapp.racm.utils.RACMNames;
+import org.sciserver.springapp.racm.utils.RACMUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ComputeDomainManager {

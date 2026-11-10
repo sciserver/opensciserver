@@ -2,12 +2,8 @@ package org.sciserver.racm.storem.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-
 import org.sciserver.racm.resources.model.NewSharedWithEntity;
 
 /**

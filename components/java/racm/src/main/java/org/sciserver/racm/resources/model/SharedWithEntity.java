@@ -1,9 +1,8 @@
 package org.sciserver.racm.resources.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SharedWithEntity extends NewSharedWithEntity {
     private final long id;

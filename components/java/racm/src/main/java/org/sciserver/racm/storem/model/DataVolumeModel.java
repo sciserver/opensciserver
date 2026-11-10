@@ -1,13 +1,10 @@
 package org.sciserver.racm.storem.model;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import org.sciserver.racm.resources.model.SharedWithEntity;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import java.util.Objects;
+import org.sciserver.racm.resources.model.SharedWithEntity;
 
 public final class DataVolumeModel extends FileServiceResourceModel {
     private final String displayName;
