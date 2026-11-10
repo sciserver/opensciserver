@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
@@ -50,6 +53,7 @@
     "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@simbathesailor/use-what-changed": "^2.0.0",
     "@types/dompurify": "^2.4.0",
     "@types/js-cookie": "^3.0.2",
@@ -71,7 +75,9 @@
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unicorn": "^45.0.1",
-    "prettier": "^2.8.1"
+    "prettier": "^2.8.1",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
   },
   "resolutions": {
     "@types/react": "18.3.12",

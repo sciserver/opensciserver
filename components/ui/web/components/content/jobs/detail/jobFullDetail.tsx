@@ -27,7 +27,7 @@ import { CommandBox } from 'components/common/commandBox';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 import { jobStatusAllowRerun } from 'components/content/jobs/list/RerunJobAction';
 
-import { JobCreatedModalWording, ReRunJobModalWording, UnableToAddJobModalWording } from 'src/utils/swalWording';
+import { JobCreatedModalWording, ReRunJobModalWording, UnableToAddJobModalWording } from 'src/config/swalWording';
 
 const Styled = styled.div`
   .header {

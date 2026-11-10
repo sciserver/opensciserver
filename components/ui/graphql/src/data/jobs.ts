@@ -6,6 +6,7 @@ import { sortBy } from 'lodash';
 
 import { environment } from '../environment';
 import { VolumesAPI } from './volumes';
+import { FilesAPI } from './files';
 import { formatDate } from '../utils/date';
 import {
   CreateJobParams,
@@ -23,11 +24,13 @@ export class JobsAPI extends RESTDataSource {
 
   private token: string;
   private volumesAPI: VolumesAPI;
+  private filesAPI: FilesAPI;
 
-  constructor(options: { token: string; cache: KeyValueCache, volumesAPI: VolumesAPI }) {
+  constructor(options: { token: string; cache: KeyValueCache, volumesAPI: VolumesAPI, filesAPI: FilesAPI }) {
     super(options); // this sends our server's `cache` through
     this.token = options.token;
     this.volumesAPI = options.volumesAPI;
+    this.filesAPI = options.filesAPI;
   }
 
   override willSendRequest(path: string, request: AugmentedRequest) {
@@ -71,7 +74,7 @@ export class JobsAPI extends RESTDataSource {
     // here, which was silently emptying this view.
     if (job.resultsFolderURI.length) {
       const sanitizedURI = job.resultsFolderURI.replace('/home/idies/workspace/', '');
-      const jobJsontree = await this.volumesAPI.getFilesByVolume(sanitizedURI);
+      const jobJsontree = await this.filesAPI.getJsonTreeByPath(sanitizedURI);
       files = jobJsontree?.root?.files || [];
       summary = await this.get(`${this.filesURL}file/${sanitizedURI}/README.md`) || summary;
     }

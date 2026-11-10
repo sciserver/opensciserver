@@ -98,7 +98,7 @@ export type DataVolume = {
   publisherDID: Scalars['String'];
   racmUUID: Scalars['String'];
   resourceUUID?: Maybe<Scalars['ID']>;
-  sharedWith: Array<Maybe<Scalars['String']>>;
+  sharedWith: Array<SharedWith>;
   url?: Maybe<Scalars['URL']>;
   writable: Scalars['Boolean'];
 };
@@ -145,6 +145,11 @@ export type File = {
   size: Scalars['Float'];
 };
 
+export type FileLocationInput = {
+  path: Scalars['String'];
+  volume: VolumeRefInput;
+};
+
 export type FileService = {
   __typename?: 'FileService';
   apiEndpoint?: Maybe<Scalars['URL']>;
@@ -153,6 +158,16 @@ export type FileService = {
   identifier: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   rootVolumes?: Maybe<Array<RootVolume>>;
+};
+
+export type FileUsage = {
+  __typename?: 'FileUsage';
+  numberOfBytesQuota: Scalars['Float'];
+  numberOfBytesUsed: Scalars['Float'];
+  rootVolumeId?: Maybe<Scalars['ID']>;
+  type?: Maybe<Scalars['String']>;
+  userVolumeId?: Maybe<Scalars['ID']>;
+  username?: Maybe<Scalars['String']>;
 };
 
 export type Folder = {
@@ -251,10 +266,19 @@ export type JobsResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   cancelJob: Scalars['Boolean'];
+  copyFile: Scalars['Boolean'];
+  createFolder: Scalars['Boolean'];
   createJob: Job;
+  createUserVolume: Scalars['Boolean'];
   deleteContainer: Scalars['Boolean'];
+  deleteFile: Scalars['Boolean'];
+  deleteUserVolume: Scalars['Boolean'];
   login: Scalars['String'];
+  moveFile: Scalars['Boolean'];
+  renameFile: Scalars['Boolean'];
   root?: Maybe<Scalars['String']>;
+  shareUserVolume: Scalars['Boolean'];
+  updateUserVolume: Scalars['Boolean'];
 };
 
 
@@ -263,8 +287,31 @@ export type MutationCancelJobArgs = {
 };
 
 
+export type MutationCopyFileArgs = {
+  destination: FileLocationInput;
+  name: Scalars['String'];
+  newName?: InputMaybe<Scalars['String']>;
+  source: FileLocationInput;
+};
+
+
+export type MutationCreateFolderArgs = {
+  name: Scalars['String'];
+  path: Scalars['String'];
+  volume: VolumeRefInput;
+};
+
+
 export type MutationCreateJobArgs = {
   createJobParams: CreateJobParams;
+};
+
+
+export type MutationCreateUserVolumeArgs = {
+  description?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+  owner: Scalars['String'];
+  rootVolumeName: Scalars['String'];
 };
 
 
@@ -274,10 +321,62 @@ export type MutationDeleteContainerArgs = {
 };
 
 
+export type MutationDeleteFileArgs = {
+  name: Scalars['String'];
+  path: Scalars['String'];
+  volume: VolumeRefInput;
+};
+
+
+export type MutationDeleteUserVolumeArgs = {
+  name: Scalars['String'];
+  owner: Scalars['String'];
+  rootVolumeName: Scalars['String'];
+};
+
+
 export type MutationLoginArgs = {
   password: Scalars['String'];
   username: Scalars['String'];
 };
+
+
+export type MutationMoveFileArgs = {
+  destination: FileLocationInput;
+  name: Scalars['String'];
+  newName?: InputMaybe<Scalars['String']>;
+  source: FileLocationInput;
+};
+
+
+export type MutationRenameFileArgs = {
+  name: Scalars['String'];
+  newName: Scalars['String'];
+  path: Scalars['String'];
+  volume: VolumeRefInput;
+};
+
+
+export type MutationShareUserVolumeArgs = {
+  name: Scalars['String'];
+  owner: Scalars['String'];
+  rootVolumeName: Scalars['String'];
+  sharedWith: Array<SharedWithInput>;
+};
+
+
+export type MutationUpdateUserVolumeArgs = {
+  description?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+  newName: Scalars['String'];
+  owner: Scalars['String'];
+  rootVolumeName: Scalars['String'];
+};
+
+export enum PrincipalType {
+  Group = 'GROUP',
+  User = 'USER'
+}
 
 export type Query = {
   __typename?: 'Query';
@@ -288,9 +387,11 @@ export type Query = {
   getDatasets: Array<Dataset>;
   getDomainByID?: Maybe<Domain>;
   getDomains: Array<Domain>;
+  getFileUsage: Array<FileUsage>;
   getJobDetails: JobDetails;
   getJobs: JobsResponse;
   getJsonTree: JsonTree;
+  getPublicUsersAndGroups: Array<SharePrincipal>;
   getUser: User;
   getVolumes?: Maybe<FileService>;
   pingContainer?: Maybe<Scalars['Boolean']>;
@@ -341,7 +442,8 @@ export type QueryGetJobsArgs = {
 
 
 export type QueryGetJsonTreeArgs = {
-  volumeName: Scalars['String'];
+  path?: InputMaybe<Scalars['String']>;
+  volume: VolumeRefInput;
 };
 
 
@@ -376,8 +478,30 @@ export type RootVolume = {
   owningResourceId?: Maybe<Scalars['ID']>;
   pathOnFileSystem?: Maybe<Scalars['String']>;
   resourceUUID: Scalars['ID'];
-  sharedWith: Array<Maybe<Scalars['String']>>;
+  sharedWith: Array<SharedWith>;
   userVolumes: Array<UserVolume>;
+};
+
+export type SharePrincipal = {
+  __typename?: 'SharePrincipal';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  type: PrincipalType;
+};
+
+export type SharedWith = {
+  __typename?: 'SharedWith';
+  allowedActions: Array<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  type: PrincipalType;
+};
+
+export type SharedWithInput = {
+  allowedActions: Array<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  type: PrincipalType;
 };
 
 export type Subscription = {
@@ -409,7 +533,14 @@ export type UserVolume = {
   relativePath?: Maybe<Scalars['String']>;
   resourceUUID: Scalars['ID'];
   rootVolumeName: Scalars['String'];
-  sharedWith: Array<Maybe<Scalars['String']>>;
+  sharedWith: Array<SharedWith>;
+};
+
+export type VolumeRefInput = {
+  owner?: InputMaybe<Scalars['String']>;
+  rootVolumeName?: InputMaybe<Scalars['String']>;
+  volumeName: Scalars['String'];
+  volumeType: VolumeType;
 };
 
 export enum VolumeType {
@@ -501,7 +632,9 @@ export type ResolversTypes = {
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   Domain: ResolverTypeWrapper<Domain>;
   File: ResolverTypeWrapper<File>;
+  FileLocationInput: FileLocationInput;
   FileService: ResolverTypeWrapper<FileService>;
+  FileUsage: ResolverTypeWrapper<FileUsage>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Folder: ResolverTypeWrapper<Folder>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
@@ -517,10 +650,14 @@ export type ResolversTypes = {
   JobUserVolume: ResolverTypeWrapper<JobUserVolume>;
   JobsResponse: ResolverTypeWrapper<JobsResponse>;
   Mutation: ResolverTypeWrapper<{}>;
+  PrincipalType: PrincipalType;
   Query: ResolverTypeWrapper<{}>;
   Resource: ResolverTypeWrapper<Resource>;
   Root: ResolverTypeWrapper<Root>;
   RootVolume: ResolverTypeWrapper<RootVolume>;
+  SharePrincipal: ResolverTypeWrapper<SharePrincipal>;
+  SharedWith: ResolverTypeWrapper<SharedWith>;
+  SharedWithInput: SharedWithInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   URL: ResolverTypeWrapper<Scalars['URL']>;
@@ -528,6 +665,7 @@ export type ResolversTypes = {
   User: ResolverTypeWrapper<User>;
   UserVolInput: UserVolInput;
   UserVolume: ResolverTypeWrapper<UserVolume>;
+  VolumeRefInput: VolumeRefInput;
   VolumeType: VolumeType;
 };
 
@@ -547,7 +685,9 @@ export type ResolversParentTypes = {
   DateTime: Scalars['DateTime'];
   Domain: Domain;
   File: File;
+  FileLocationInput: FileLocationInput;
   FileService: FileService;
+  FileUsage: FileUsage;
   Float: Scalars['Float'];
   Folder: Folder;
   ID: Scalars['ID'];
@@ -566,6 +706,9 @@ export type ResolversParentTypes = {
   Resource: Resource;
   Root: Root;
   RootVolume: RootVolume;
+  SharePrincipal: SharePrincipal;
+  SharedWith: SharedWith;
+  SharedWithInput: SharedWithInput;
   String: Scalars['String'];
   Subscription: {};
   URL: Scalars['URL'];
@@ -573,6 +716,7 @@ export type ResolversParentTypes = {
   User: User;
   UserVolInput: UserVolInput;
   UserVolume: UserVolume;
+  VolumeRefInput: VolumeRefInput;
 };
 
 export type ComputeDataVolumeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ComputeDataVolume'] = ResolversParentTypes['ComputeDataVolume']> = {
@@ -619,7 +763,7 @@ export type DataVolumeResolvers<ContextType = Context, ParentType extends Resolv
   publisherDID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   racmUUID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   resourceUUID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  sharedWith?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
+  sharedWith?: Resolver<Array<ResolversTypes['SharedWith']>, ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
   writable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -671,6 +815,16 @@ export type FileServiceResolvers<ContextType = Context, ParentType extends Resol
   identifier?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   rootVolumes?: Resolver<Maybe<Array<ResolversTypes['RootVolume']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FileUsageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FileUsage'] = ResolversParentTypes['FileUsage']> = {
+  numberOfBytesQuota?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  numberOfBytesUsed?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  rootVolumeId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userVolumeId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -757,10 +911,19 @@ export type JobsResponseResolvers<ContextType = Context, ParentType extends Reso
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   cancelJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCancelJobArgs, 'jobId'>>;
+  copyFile?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCopyFileArgs, 'destination' | 'name' | 'source'>>;
+  createFolder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCreateFolderArgs, 'name' | 'path' | 'volume'>>;
   createJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationCreateJobArgs, 'createJobParams'>>;
+  createUserVolume?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCreateUserVolumeArgs, 'name' | 'owner' | 'rootVolumeName'>>;
   deleteContainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContainerArgs, 'containerId' | 'domainId'>>;
+  deleteFile?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFileArgs, 'name' | 'path' | 'volume'>>;
+  deleteUserVolume?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserVolumeArgs, 'name' | 'owner' | 'rootVolumeName'>>;
   login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'password' | 'username'>>;
+  moveFile?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveFileArgs, 'destination' | 'name' | 'source'>>;
+  renameFile?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRenameFileArgs, 'name' | 'newName' | 'path' | 'volume'>>;
   root?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  shareUserVolume?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationShareUserVolumeArgs, 'name' | 'owner' | 'rootVolumeName' | 'sharedWith'>>;
+  updateUserVolume?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUpdateUserVolumeArgs, 'name' | 'newName' | 'owner' | 'rootVolumeName'>>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -771,9 +934,11 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDatasets?: Resolver<Array<ResolversTypes['Dataset']>, ParentType, ContextType, RequireFields<QueryGetDatasetsArgs, 'volumeType'>>;
   getDomainByID?: Resolver<Maybe<ResolversTypes['Domain']>, ParentType, ContextType, RequireFields<QueryGetDomainByIdArgs, 'id'>>;
   getDomains?: Resolver<Array<ResolversTypes['Domain']>, ParentType, ContextType, Partial<QueryGetDomainsArgs>>;
+  getFileUsage?: Resolver<Array<ResolversTypes['FileUsage']>, ParentType, ContextType>;
   getJobDetails?: Resolver<ResolversTypes['JobDetails'], ParentType, ContextType, RequireFields<QueryGetJobDetailsArgs, 'jobId'>>;
   getJobs?: Resolver<ResolversTypes['JobsResponse'], ParentType, ContextType, Partial<QueryGetJobsArgs>>;
-  getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volumeName'>>;
+  getJsonTree?: Resolver<ResolversTypes['JSONTree'], ParentType, ContextType, RequireFields<QueryGetJsonTreeArgs, 'volume'>>;
+  getPublicUsersAndGroups?: Resolver<Array<ResolversTypes['SharePrincipal']>, ParentType, ContextType>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   getVolumes?: Resolver<Maybe<ResolversTypes['FileService']>, ParentType, ContextType>;
   pingContainer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<QueryPingContainerArgs, 'containerId'>>;
@@ -806,8 +971,23 @@ export type RootVolumeResolvers<ContextType = Context, ParentType extends Resolv
   owningResourceId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   pathOnFileSystem?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   resourceUUID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sharedWith?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
+  sharedWith?: Resolver<Array<ResolversTypes['SharedWith']>, ParentType, ContextType>;
   userVolumes?: Resolver<Array<ResolversTypes['UserVolume']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SharePrincipalResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SharePrincipal'] = ResolversParentTypes['SharePrincipal']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['PrincipalType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SharedWithResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SharedWith'] = ResolversParentTypes['SharedWith']> = {
+  allowedActions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['PrincipalType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -841,7 +1021,7 @@ export type UserVolumeResolvers<ContextType = Context, ParentType extends Resolv
   relativePath?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   resourceUUID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   rootVolumeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sharedWith?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
+  sharedWith?: Resolver<Array<ResolversTypes['SharedWith']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -855,6 +1035,7 @@ export type Resolvers<ContextType = Context> = {
   Domain?: DomainResolvers<ContextType>;
   File?: FileResolvers<ContextType>;
   FileService?: FileServiceResolvers<ContextType>;
+  FileUsage?: FileUsageResolvers<ContextType>;
   Folder?: FolderResolvers<ContextType>;
   Image?: ImageResolvers<ContextType>;
   JSONObject?: GraphQLScalarType;
@@ -869,6 +1050,8 @@ export type Resolvers<ContextType = Context> = {
   Resource?: ResourceResolvers<ContextType>;
   Root?: RootResolvers<ContextType>;
   RootVolume?: RootVolumeResolvers<ContextType>;
+  SharePrincipal?: SharePrincipalResolvers<ContextType>;
+  SharedWith?: SharedWithResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   URL?: GraphQLScalarType;
   UUID?: GraphQLScalarType;

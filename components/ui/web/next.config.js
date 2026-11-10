@@ -8,17 +8,19 @@ module.exports = {
   reactStrictMode: true,
   agentRules: false,
   basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+  // The e2e suite builds into its own folder so it never fights a running `next dev` over .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   output: 'standalone',
   transpilePackages: ['@mui/material', '@mui/system', '@mui/icons-material'],
   turbopack: {
     resolveAlias: {
-      '@mui/styled-engine': './src/utils/muiStyledEngine.js'
+      '@mui/styled-engine': './muiStyledEngine.js'
     }
   },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@mui/styled-engine': path.resolve(__dirname, 'src/utils/muiStyledEngine.js')
+      '@mui/styled-engine': path.resolve(__dirname, 'muiStyledEngine.js')
     };
     return config;
   },

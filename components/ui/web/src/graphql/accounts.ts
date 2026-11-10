@@ -17,3 +17,14 @@ export const GET_USER = gql`
   } 
 `;
 
+
+/** Every user and group a volume can be shared with. Large, so only loaded when the sharing dialog opens. */
+export const PUBLIC_USERS_AND_GROUPS = gql`
+  query publicUsersAndGroups {
+    getPublicUsersAndGroups {
+      id
+      name
+      type
+    }
+  }
+`;
