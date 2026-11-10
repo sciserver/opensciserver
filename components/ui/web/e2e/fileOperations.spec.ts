@@ -81,7 +81,7 @@ test('moves a file to another folder', async ({ page, backend }) => {
   await page.getByRole('menuitem', { name: /Move to/ }).click();
 
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('row', { name: /notebooks/ }).dblclick();
+  await dialog.getByRole('row', { name: /notebooks/ }).click();
   await dialog.getByRole('button', { name: 'Move here' }).click();
 
   await expect(page.getByText('Moved “a.txt”')).toBeVisible();
@@ -125,7 +125,7 @@ test.describe('copy and move dialog', () => {
     expect(backend.called('moveFile')).toHaveLength(0);
 
     // pick another folder in the same dialog and carry on
-    await dialog.getByRole('row', { name: /notebooks/ }).dblclick();
+    await dialog.getByRole('row', { name: /notebooks/ }).click();
     await dialog.getByRole('button', { name: 'Move here' }).click();
     await expect(page.getByText('Moved “a.txt”')).toBeVisible();
   });
@@ -134,7 +134,7 @@ test.describe('copy and move dialog', () => {
     await page.getByRole('button', { name: 'More actions for data' }).click();
     await page.getByRole('menuitem', { name: /Copy to/ }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByRole('row', { name: /data/ }).dblclick();
+    await dialog.getByRole('row', { name: /data/ }).click();
     await dialog.getByRole('button', { name: 'Copy here' }).click();
 
     await expect(dialog).toContainText('can’t be copied into itself');
@@ -146,12 +146,67 @@ test.describe('copy and move dialog', () => {
     await page.getByRole('button', { name: 'More actions for a.txt' }).click();
     await page.getByRole('menuitem', { name: /Copy to/ }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByRole('row', { name: /notebooks/ }).dblclick();
+    await dialog.getByRole('row', { name: /notebooks/ }).click();
     await dialog.getByRole('button', { name: 'Copy here' }).click();
 
     await expect(dialog).toContainText('Could not copy “a.txt”: Missing required permissions on volume');
     // the dialog is still usable: trying again works
     await dialog.getByRole('button', { name: 'Copy here' }).click();
     await expect(page.getByText('Copied “a.txt”')).toBeVisible();
+  });
+});
+
+test.describe('pick mode (the copy and move dialog)', () => {
+  test('clicking a folder opens it and the circle chooses it, like the checkbox and click in the main view', async ({ page, backend }) => {
+    await page.getByRole('button', { name: 'More actions for a.txt' }).click();
+    await page.getByRole('menuitem', { name: /Copy to/ }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText('/home/idies/workspace/Storage/ana/persistent', { exact: true })).toBeVisible();
+
+    // choosing a folder with the circle does not open it, and points the footer at it
+    await dialog.getByRole('button', { name: 'Select notebooks' }).click();
+    await expect(dialog.getByText('/home/idies/workspace/Storage/ana/persistent/notebooks', { exact: true })).toBeVisible();
+    await expect(dialog.getByRole('row', { name: /results\.csv/ })).toBeVisible();
+
+    // clicking the folder itself opens it
+    await dialog.getByRole('row', { name: /data/ }).click();
+    await expect(dialog.getByRole('row', { name: /cutout\.fits/ })).toBeVisible();
+    await dialog.getByRole('button', { name: 'Copy here' }).click();
+    await expect(page.getByText('Copied “a.txt”')).toBeVisible();
+    expect(backend.called('copyFile')[0].variables.destination.path).toBe('/data');
+  });
+
+  test('files are greyed out and cannot be chosen', async ({ page }) => {
+    await page.getByRole('button', { name: 'More actions for a.txt' }).click();
+    await page.getByRole('menuitem', { name: /Move to/ }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('row', { name: /results\.csv/ })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Select results.csv' })).toHaveCount(0);
+  });
+});
+
+test.describe('names', () => {
+  test('keeps whitespace exactly as typed and only warns about it', async ({ page, backend }) => {
+    await page.getByRole('button', { name: /New folder/ }).click();
+    const name = page.getByLabel('Name');
+    await name.fill(' spaced ');
+    await expect(page.getByText(/starts or ends with a space/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+    await name.press('Enter');
+
+    await expect(page.getByText('Created “ spaced ”')).toBeVisible();
+    expect(backend.called('createFolder')[0].variables.name).toBe(' spaced ');
+  });
+
+  test('allows a name made only of spaces, but not an empty one', async ({ page, backend }) => {
+    await page.getByRole('button', { name: /New folder/ }).click();
+    const name = page.getByLabel('Name');
+    await name.fill('');
+    await expect(page.getByText('Name can’t be empty')).toBeVisible();
+    await name.fill('   ');
+    await expect(page.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+    await name.press('Enter');
+    await expect(page.getByText(/Created/)).toBeVisible();
+    expect(backend.called('createFolder')[0].variables.name).toBe('   ');
   });
 });

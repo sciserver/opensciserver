@@ -1,8 +1,11 @@
 import { FC } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ButtonBase, Menu, MenuItem } from '@mui/material';
 
-import { Icon, MUTED } from './filesStyles';
+import { VOLUME_ACTION_DISPLAY } from 'src/config/files';
+import { VolumeAction } from 'src/types/sharing';
+
+import { DANGER, Icon, MUTED, SoftIcon } from './filesStyles';
 
 /** Pieces shared by the volume list and the folder list. */
 
@@ -31,7 +34,7 @@ export const SortHeader: FC<SortHeaderProps> = ({ label, active, direction, onCl
   </SortButton>
 );
 
-export type MenuAction = { label: string; icon: string; color?: string; run: () => void };
+export type MenuAction = { label: string; icon: string; danger?: boolean; run: () => void };
 
 type RowMenuProps = {
   anchor: HTMLElement | null;
@@ -40,11 +43,11 @@ type RowMenuProps = {
 };
 
 // The menu is rendered in a portal, so it is styled directly rather than from a parent wrapper.
-const Item = styled(MenuItem)<{ $color?: string }>`
+const Item = styled(MenuItem)<{ $danger?: boolean }>`
   && {
     gap: 12px;
     font-size: 14px;
-    ${({ $color }) => $color && `color: ${$color};`}
+    ${({ $danger }) => $danger && css`color: ${DANGER};`}
   }
 `;
 
@@ -54,7 +57,7 @@ export const RowMenu: FC<RowMenuProps> = ({ anchor, items, onClose }) => (
     {items.map((item) => (
       <Item
         key={item.label}
-        $color={item.color}
+        $danger={item.danger}
         onClick={() => {
           onClose();
           item.run();
@@ -88,8 +91,24 @@ const Empty = styled.div`
 
 export const EmptyMessage: FC<{ icon: string; title: string; hint?: string }> = ({ icon, title, hint }) => (
   <Empty>
-    <Icon $size={36} $color="#B0C1D9">{icon}</Icon>
+    <SoftIcon $size={36}>{icon}</SoftIcon>
     <div className="title">{title}</div>
     {hint && <div className="hint">{hint}</div>}
   </Empty>
+);
+
+const Access = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: ${MUTED};
+`;
+
+/** What the user may do with a volume, as small icons (Read, Write, Grant, Delete) that name themselves on hover. */
+export const AccessIcons: FC<{ actions: VolumeAction[] }> = ({ actions }) => (
+  <Access role="img" aria-label={actions.length ? `Access: ${actions.map((action) => VOLUME_ACTION_DISPLAY[action].label).join(', ')}` : 'No access'}>
+    {actions.map((action) => (
+      <Icon key={action} $size={18} title={VOLUME_ACTION_DISPLAY[action].label}>{VOLUME_ACTION_DISPLAY[action].icon}</Icon>
+    ))}
+  </Access>
 );

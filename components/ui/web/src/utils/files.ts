@@ -1,4 +1,5 @@
 import { VolumeRefInput, VolumeType } from '../graphql/typings';
+import { PathSegment } from '../types/files';
 
 /** Builds the GraphQL volume reference. User volumes need rootVolumeName and owner. */
 export const toVolumeRef = (volume: VolumeRefInput): VolumeRefInput => ({
@@ -23,9 +24,27 @@ export const parentPath = (path: string): string => {
 };
 
 /** One entry per path segment, for breadcrumbs. */
-export const pathSegments = (path: string): { name: string; path: string }[] => {
+export const pathSegments = (path: string): PathSegment[] => {
   const parts = normalizePath(path).split('/').filter(Boolean);
   return parts.map((name, index) => ({ name, path: `/${parts.slice(0, index + 1).join('/')}` }));
+};
+
+/**
+ * The last segments of a path that fit in `maxChars` characters of folder names (the last one is always kept, however
+ * long). `collapsedTo` is the path of the nearest segment that was left out, for an ellipsis crumb to go to.
+ */
+export const fitPathSegments = (segments: PathSegment[], maxChars: number): { visible: PathSegment[]; collapsedTo?: string } => {
+  let start = segments.length;
+  let used = 0;
+  while (start > 0) {
+    const length = segments[start - 1].name.length;
+    if (start < segments.length && used + length > maxChars) {
+      break;
+    }
+    used += length;
+    start -= 1;
+  }
+  return { visible: segments.slice(start), collapsedTo: start > 0 ? segments[start - 1].path : undefined };
 };
 
 /**

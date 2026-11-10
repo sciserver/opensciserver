@@ -14,13 +14,34 @@ test.describe('volume list', () => {
     await expect(page.getByRole('tab', { name: /Data volumes\s*4/ })).toBeVisible();
 
     await expect(page.getByRole('row', { name: /FESS/ })).toContainText('Shared');
-    await expect(page.getByRole('row', { name: /NotebookExamples/ })).toContainText('Read-only');
-    await expect(page.getByRole('row', { name: /persistent/ })).not.toContainText('Read-only');
+    await expect(page.getByRole('row', { name: /FESS/ })).not.toContainText('Shared with you');
+    await expect(page.getByRole('row', { name: /NotebookExamples/ })).toContainText('Shared with you');
+    await expect(page.getByRole('row', { name: /persistent/ })).not.toContainText('Shared');
 
     await page.getByRole('tab', { name: /Data volumes/ }).click();
     await expect(page.getByRole('row', { name: /SDSS DAS/ })).toContainText('Sloan Digital Sky Survey data');
     await expect(page.getByRole('button', { name: /Create user volume/ })).toHaveCount(0);
     expect(backend.called('fileVolumes')).toHaveLength(1);
+  });
+
+  test('shows each volume\'s description and what the user may do with it', async ({ page }) => {
+    await open(page);
+    const fess = page.getByRole('row', { name: /FESS/ });
+    await expect(fess).toContainText('Shared project');
+    await expect(fess.getByRole('img', { name: 'Access: Read, Write, Grant, Delete' })).toBeVisible();
+    await expect(page.getByRole('row', { name: /NotebookExamples/ }).getByRole('img', { name: 'Access: Read' })).toBeVisible();
+    await expect(page.getByRole('row', { name: /persistent/ }).getByRole('img', { name: 'Access: Read, Write' })).toBeVisible();
+
+    await page.getByRole('tab', { name: /Data volumes/ }).click();
+    await expect(page.getByRole('row', { name: /SDSS DAS/ }).getByRole('img', { name: 'Access: Read' })).toBeVisible();
+    await expect(page.getByRole('row', { name: /Gaia DR3/ }).getByRole('img', { name: 'Access: Read, Write' })).toBeVisible();
+  });
+
+  test('puts the row menu next to the checkbox, ahead of the information', async ({ page }) => {
+    await open(page);
+    const menu = await page.getByRole('button', { name: 'More actions for FESS' }).boundingBox();
+    const name = await page.getByRole('row', { name: /FESS/ }).locator('.name-text').boundingBox();
+    expect(menu!.x + menu!.width).toBeLessThanOrEqual(name!.x);
   });
 
   test('switching tabs after filtering does not carry data volumes into the user list', async ({ page }) => {
@@ -101,14 +122,15 @@ test.describe('browsing', () => {
 
   test('shows a pointer to the README and jumps to it', async ({ page }) => {
     await open(page, PERSISTENT);
-    await expect(page.getByText('It is shown at the bottom of the list.')).toBeVisible();
-    await page.getByRole('button', { name: /Jump to README/ }).click();
+    const link = page.getByRole('button', { name: /^README/ });
+    await expect(link).toBeVisible();
+    await link.click();
     await expect(page.getByText('Hello from the README.')).toBeInViewport();
 
     // a folder without a README has no pointer
     await open(page, '?type=user&volume=FESS&root=Storage&owner=ana');
     await expect(page.getByRole('row', { name: /persistent/ })).toHaveCount(0);
-    await expect(page.getByText('It is shown at the bottom of the list.')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^README/ })).toHaveCount(0);
   });
 
   test('offers Download only when every selected item is a file', async ({ page }) => {
@@ -122,6 +144,48 @@ test.describe('browsing', () => {
     await expect(page.getByRole('button', { name: /^download\s*Download$/ })).toHaveCount(0);
     // the other actions are still there
     await expect(page.getByRole('button', { name: /Copy/ })).toBeVisible();
+  });
+
+  test('selecting rows does not move the list', async ({ page }) => {
+    await open(page, PERSISTENT);
+    const row = page.getByRole('row', { name: /results\.csv/ });
+    const before = await row.boundingBox();
+    await page.getByRole('button', { name: 'Select a.txt' }).click();
+    await expect(page.getByRole('toolbar', { name: /selected items/ })).toBeVisible();
+    const after = await row.boundingBox();
+    expect(after!.y).toBe(before!.y);
+    // the actions sit on the left, the count on the right
+    const copy = await page.getByRole('button', { name: /^content_copy\s*Copy$/ }).boundingBox();
+    const count = await page.getByText('1 selected').boundingBox();
+    expect(copy!.x).toBeLessThan(count!.x);
+  });
+
+  test('hides hidden files until asked to show them', async ({ page }) => {
+    await open(page, PERSISTENT);
+    await expect(page.getByRole('row', { name: /results\.csv/ })).toBeVisible();
+    await expect(page.getByRole('row', { name: /\.hidden\.txt/ })).toHaveCount(0);
+    await expect(page.getByRole('row', { name: /\.sciserver/ })).toHaveCount(0);
+
+    await page.getByLabel('Show hidden files').check();
+    await expect(page.getByRole('row', { name: /\.hidden\.txt/ })).toBeVisible();
+    await expect(page.getByRole('row', { name: /\.sciserver/ })).toBeVisible();
+
+    await page.getByLabel('Show hidden files').uncheck();
+    await expect(page.getByRole('row', { name: /\.hidden\.txt/ })).toHaveCount(0);
+  });
+
+  test('collapses a long path in the breadcrumb by how long it is, and the ellipsis goes up to the folder it hides', async ({ page }) => {
+    const deep = '/deep/aaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/cccccccccccccccc/dddddddddddddddd/eeeeeeeeeeeeeeee';
+    await open(page, `${PERSISTENT}&path=${encodeURIComponent(deep)}`);
+    await expect(page.getByRole('row', { name: /bottom\.txt/ })).toBeVisible();
+
+    const crumbs = page.getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(crumbs.getByRole('button', { name: 'eeeeeeeeeeeeeeee' })).toBeVisible();
+    await expect(crumbs.getByRole('button', { name: 'cccccccccccccccc' })).toBeVisible();
+    await expect(crumbs.getByRole('button', { name: 'aaaaaaaaaaaaaaaa' })).toHaveCount(0);
+
+    await crumbs.getByRole('button', { name: '…' }).click();
+    await expect(page).toHaveURL(/path=%2Fde{2}p%2Fa{16}%2Fb{16}$/);
   });
 
   test('selecting rows shows the bulk bar', async ({ page }) => {
@@ -154,8 +218,8 @@ test.describe('permissions', () => {
 
   test('data volumes follow their own allowedActions', async ({ page }) => {
     await open(page, '?type=data');
-    await expect(page.getByRole('row', { name: /SDSS DAS/ })).toContainText('Read-only');
-    await expect(page.getByRole('row', { name: /Gaia DR3/ })).toContainText('Read/write');
+    await expect(page.getByRole('row', { name: /SDSS DAS/ }).getByRole('img', { name: 'Access: Read' })).toBeVisible();
+    await expect(page.getByRole('row', { name: /Gaia DR3/ }).getByRole('img', { name: 'Access: Read, Write' })).toBeVisible();
 
     // a data volume with write access offers the write actions
     await open(page, '?type=data&volume=gaia_dr3');

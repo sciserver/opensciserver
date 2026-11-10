@@ -8,9 +8,9 @@ import { SHARE_USER_VOLUME, SHARING_DETAILS } from 'src/graphql/volumes';
 import { FileService, PrincipalType, SharedWith, SharePrincipal } from 'src/graphql/typings';
 import { VolumeRow } from 'src/types/files';
 import { addMember, buildSharePayload, principalKey, removeMember, searchPrincipals, sharingChanged, toggleAction } from 'src/utils/sharing';
-import { SHARE_ACTIONS } from 'src/config/files';
+import { VOLUME_ACTIONS } from 'src/config/files';
 
-import { BORDER, CircleButton, Icon, MUTED, ROW_BORDER, ROW_HOVER } from './filesStyles';
+import { BORDER, CircleButton, Icon, MUTED, MutedIcon, ROW_BORDER, ROW_HOVER } from './filesStyles';
 
 type Props = {
   volume: VolumeRow;
@@ -31,8 +31,8 @@ const TypeChip = styled(Chip)<{ $group: boolean }>`
     flex: none;
     font-size: 11px;
     font-weight: 600;
-    background: ${({ $group }) => ($group ? 'rgba(32,161,131,0.14)' : 'rgba(57,140,191,0.14)')};
-    color: ${({ $group }) => ($group ? '#157A63' : '#1F6A96')};
+    background: ${({ theme, $group }) => theme.palette.chips[$group ? 'group' : 'user'].background};
+    color: ${({ theme, $group }) => theme.palette.chips[$group ? 'group' : 'user'].color};
   }
 `;
 
@@ -263,7 +263,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
                 <PrincipalIcon>{ICON[principal.type]}</PrincipalIcon>
                 <span className="name">{principal.name}</span>
                 <TypeChip size="small" label={LABEL[principal.type]} $group={principal.type === PrincipalType.Group} />
-                <Icon $color={MUTED}>add</Icon>
+                <MutedIcon>add</MutedIcon>
               </Candidate>
             ))}
             {directory && shown.length === 0 && <div className="hint">No users or groups match.</div>}
@@ -285,7 +285,7 @@ export const ShareDialog: FC<Props> = ({ volume, onClose, onDone }) => {
                   </CircleButton>
                 </div>
                 <div className="actions">
-                  {SHARE_ACTIONS.map((action) => (
+                  {VOLUME_ACTIONS.map((action) => (
                     <FormControlLabel
                       key={action}
                       label={action[0].toUpperCase() + action.slice(1)}

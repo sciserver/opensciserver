@@ -1,24 +1,68 @@
 import styled, { css } from 'styled-components';
 import { ButtonBase } from '@mui/material';
 
-/** Colours and small building blocks shared by the Files components. Theme colours come from the styled-components theme. */
-export const BORDER = '#e6e9ed';
-export const ROW_BORDER = '#f0f2f4';
-export const MUTED = 'rgba(0,0,0,0.6)';
-export const ROW_HOVER = 'rgba(57,140,191,0.08)';
-export const ROW_SELECTED = 'rgba(57,140,191,0.16)';
-export const DANGER = '#C62828';
+type Themed = { theme: { palette: Record<string, Record<string, string>> } };
 
-type IconProps = { $size?: number; $color?: string; $filled?: boolean };
+/** A colour from the theme (theme.json). Use it in a styled template: `color: ${MUTED};`. */
+const token = (group: string, key: string) => ({ theme }: Themed): string => theme.palette[group][key];
+
+/** Colours of the Files screens, all from the `neutral` group of the theme except the ones named after a palette entry. */
+export const BORDER = token('neutral', 'border');
+export const ROW_BORDER = token('neutral', 'borderLight');
+export const MUTED = token('neutral', 'muted');
+export const MUTED_LIGHT = token('neutral', 'mutedLight');
+export const FAINT = token('neutral', 'faint');
+export const SURFACE = token('neutral', 'surface');
+export const SURFACE_ALT = token('neutral', 'surfaceAlt');
+export const SURFACE_SUBTLE = token('neutral', 'surfaceSubtle');
+export const CHIP = token('neutral', 'chip');
+export const SELECTION_BAR = token('neutral', 'selectionBar');
+export const DROP_ZONE = token('neutral', 'dropZone');
+export const INPUT_BORDER = token('neutral', 'inputBorder');
+export const CARD_BORDER = token('neutral', 'borderStrong');
+export const ROW_HOVER = token('neutral', 'rowHover');
+export const ROW_SELECTED = token('neutral', 'rowSelected');
+export const ACCENT_WASH = token('neutral', 'accentWash');
+export const FOCUS_RING = token('neutral', 'focusRing');
+export const DANGER = token('error', 'dark');
+export const ACCENT = token('secondary', 'main');
+export const PRIMARY = token('primary', 'main');
+export const SUCCESS = token('contrast2', 'main');
+export const PAPER = token('background', 'paper');
+export const TEXT = token('text', 'primary');
+export const SOFT = token('contrast1', 'main');
+
+type IconProps = { $size?: number; $filled?: boolean };
 
 /** A Material Symbols icon. Pass the icon name as the child. */
 export const Icon = styled.span.attrs({ className: 'material-symbols-outlined' })<IconProps>`
   /* Raised specificity: MUI sizes the icon inside a Button's startIcon with a selector that would otherwise win. */
   &&& {
     font-size: ${({ $size }) => $size ?? 20}px;
+    /* One em square, clipped: before the icon font has loaded (or if it never does) the icon name would otherwise
+       print as text and spill over its neighbours. */
+    width: 1em;
+    height: 1em;
+    overflow: hidden;
   }
-  ${({ $color }) => $color && `color: ${$color};`}
   ${({ $filled }) => $filled && 'font-variation-settings: \'FILL\' 1;'}
+`;
+
+/** Icons in the colours the Files screens use. */
+export const AccentIcon = styled(Icon)`
+  color: ${ACCENT};
+`;
+export const MutedIcon = styled(Icon)`
+  color: ${MUTED};
+`;
+export const MutedLightIcon = styled(Icon)`
+  color: ${MUTED_LIGHT};
+`;
+export const FaintIcon = styled(Icon)`
+  color: ${FAINT};
+`;
+export const SoftIcon = styled(Icon)`
+  color: ${SOFT};
 `;
 
 /** A round icon-only button. */
@@ -37,8 +81,8 @@ export const Tag = styled.span`
   font-size: 11px;
   padding: 1px 6px;
   border-radius: 3px;
-  background: #eef1f4;
-  color: rgba(0, 0, 0, 0.62);
+  background: ${CHIP};
+  color: ${MUTED};
 `;
 
 /**
@@ -51,7 +95,7 @@ export const listStyles = (columns: string) => css`
     grid-template-columns: ${columns};
     align-items: center;
     padding: 0 8px;
-    height: 34px;
+    height: 40px;
     border-bottom: 1px solid ${BORDER};
     flex: none;
   }
@@ -82,7 +126,7 @@ export const listStyles = (columns: string) => css`
   }
 
   .list-row.checked {
-    background: rgba(57, 140, 191, 0.07);
+    background: ${ROW_HOVER};
   }
 
   .list-row.selected {
@@ -105,7 +149,7 @@ export const listStyles = (columns: string) => css`
 
   .text-cell {
     font-size: 13px;
-    color: rgba(0, 0, 0, 0.62);
+    color: ${MUTED};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -113,5 +157,12 @@ export const listStyles = (columns: string) => css`
 
   .dim {
     opacity: 0.42;
+  }
+
+  .header-label {
+    justify-self: start;
+    font-size: 12px;
+    font-weight: 600;
+    color: ${MUTED};
   }
 `;

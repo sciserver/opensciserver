@@ -56,8 +56,8 @@ describe('volume rows', () => {
       { ...base, id: '1', name: 'sdss', displayName: 'SDSS', allowedActions: ['read'] },
       { ...base, id: '2', name: 'gaia', displayName: 'Gaia', allowedActions: ['read', 'write'] }
     ]);
-    expect(readOnly).toMatchObject({ name: 'SDSS', rootVolume: 'Read-only', writable: false });
-    expect(readWrite).toMatchObject({ name: 'Gaia', rootVolume: 'Read/write', writable: true });
+    expect(readOnly).toMatchObject({ name: 'SDSS', writable: false, actions: ['read'] });
+    expect(readWrite).toMatchObject({ name: 'Gaia', writable: true, actions: ['read', 'write'] });
   });
 
   it('gives data volumes that share a name different keys', () => {
@@ -107,6 +107,31 @@ describe('volume management helpers', () => {
     expect(validateVolumeName('a/b')).toMatch(/contain/);
     expect(validateVolumeName('x', ['x'])).toMatch(/already/);
     expect(validateVolumeName('x', ['x'], 'x')).toBe('');
+  });
+});
+
+describe('volume rows: access and sharing', () => {
+  it('lists the actions the user has, in a fixed order, for user and data volumes', () => {
+    const [volume] = userVolumeRows([{ userVolumes: [userVolume('v', 'me', 'Storage', ['delete', 'READ', 'write'])] }], 'me');
+    expect(volume.actions).toEqual(['read', 'write', 'delete']);
+  });
+
+  it('marks volumes someone else shared with the user, not the user\'s own', () => {
+    const rows = userVolumeRows([{ userVolumes: [userVolume('mine', 'me', 'Storage', ['read']), userVolume('theirs', 'other', 'Storage', ['read'])] }], 'me');
+    expect(rows.map((r) => [r.name, r.sharedWithMe])).toEqual([['mine', false], ['theirs', true]]);
+  });
+
+  it('keeps the user\'s own persistent and scratch volumes private: no sharing', () => {
+    const rows = userVolumeRows([{
+      userVolumes: [
+        userVolume('persistent', 'me', 'Storage', ['read', 'write', 'grant']),
+        userVolume('scratch', 'me', 'Temporary', ['read', 'write', 'grant']),
+        userVolume('project', 'me', 'Storage', ['read', 'write', 'grant']),
+        // someone else's persistent volume that was shared with grant rights is not the user's private default
+        userVolume('persistent', 'other', 'Storage', ['read', 'grant'])
+      ] 
+    }], 'me');
+    expect(rows.map((r) => [r.name, r.canShare])).toEqual([['persistent', false], ['scratch', false], ['project', true], ['persistent', true]]);
   });
 });
 

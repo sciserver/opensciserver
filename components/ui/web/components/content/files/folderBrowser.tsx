@@ -7,7 +7,7 @@ import { Alert, Button, ButtonBase, Dialog, DialogActions, DialogContent, Dialog
 import { UserContext } from 'context';
 import { CREATE_FOLDER, DELETE_FILE, JSON_TREE, RENAME_FILE } from 'src/graphql/files';
 import { JsonTree } from 'src/graphql/typings';
-import { buildEntries, defaultFolderName, filterAndSortEntries, formatBytes, formatModified, validateEntryName } from 'src/utils/fileEntries';
+import { buildEntries, defaultFolderName, filterAndSortEntries, formatBytes, formatModified, validateEntryName, warnEntryName } from 'src/utils/fileEntries';
 import { EntrySortKey, FileEntry } from 'src/types/files';
 import { FilesRoute } from 'src/types/files';
 import { fetchText, fileServiceUrl, fileUrl, startDownload, toArray } from 'src/utils/fileTransfer';
@@ -15,7 +15,7 @@ import { FILE_SERVICE_NOT_CONFIGURED } from 'src/config/files';
 import { joinPath, toVolumeRef } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
-import { BORDER, CircleButton, DANGER, Icon, listStyles, MUTED } from './filesStyles';
+import { ACCENT, ACCENT_WASH, BORDER, CircleButton, DANGER, DROP_ZONE, FAINT, FOCUS_RING, Icon, listStyles, MUTED, MUTED_LIGHT, PRIMARY, SELECTION_BAR, SUCCESS, SURFACE_SUBTLE } from './filesStyles';
 import { EmptyMessage, MenuAction, RowMenu, SortHeader } from './listParts';
 
 type Props = {
@@ -34,13 +34,17 @@ type Props = {
   /** Files dropped onto the list (manage mode only). */
   onDropFiles: (files: File[]) => void;
   notify: (message: string, severity?: 'success' | 'error') => void;
-  /** Pick mode: files are greyed out, a click selects a folder and a double click opens it. */
+  /** Show entries whose name starts with a dot. */
+  showHidden: boolean;
+  /** Pick mode: files are greyed out, the circle in front of a folder selects it, and clicking a folder opens it. */
   pick?: { selectedName: string | null; onSelect: (name: string) => void };
 };
 
-const COLUMNS = '36px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 36px';
+// Controls (select, actions) come first, on the left next to where the pointer starts; information follows on the right.
+const MANAGE_COLUMNS = '36px 36px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)';
+const PICK_COLUMNS = '36px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)';
 
-const Styled = styled.div<{ $busy: boolean }>`
+const Styled = styled.div<{ $busy: boolean; $pick: boolean }>`
   position: relative;
   flex: 1;
   min-height: 0;
@@ -49,7 +53,7 @@ const Styled = styled.div<{ $busy: boolean }>`
   opacity: ${({ $busy }) => ($busy ? 0.7 : 1)};
   pointer-events: ${({ $busy }) => ($busy ? 'none' : 'auto')};
 
-  ${listStyles(COLUMNS)}
+  ${({ $pick }) => listStyles($pick ? PICK_COLUMNS : MANAGE_COLUMNS)}
 
   .list-row.disabled {
     cursor: default;
@@ -59,24 +63,35 @@ const Styled = styled.div<{ $busy: boolean }>`
     flex: none;
   }
 
+  /* Takes the place of the column header while rows are selected, so nothing moves when the first row is ticked. */
   .selection-bar {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center;
+    padding: 0 8px;
+    height: 40px;
+    background: ${SELECTION_BAR};
+    border-bottom: 1px solid ${BORDER};
+    flex: none;
+    color: ${PRIMARY};
+  }
+
+  .selection-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 12px 0 6px;
-    min-height: 52px;
-    background: #e8f1f8;
-    flex: none;
-    color: ${({ theme }) => theme.palette.primary.main};
+    gap: 4px;
+    min-width: 0;
   }
 
   .selection-count {
     font-weight: 600;
-    margin-right: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
   .list-row.creating {
-    background: rgba(57, 140, 191, 0.1);
+    background: ${ACCENT_WASH};
   }
 
   .name-cell {
@@ -100,11 +115,11 @@ const Styled = styled.div<{ $busy: boolean }>`
     min-width: 0;
     height: 28px;
     padding: 0 8px;
-    border: 1px solid ${({ theme }) => theme.palette.secondary.main};
+    border: 1px solid ${ACCENT};
     border-radius: 4px;
     outline: none;
     font: 500 14px 'Noto Sans', sans-serif;
-    box-shadow: 0 0 0 2px rgba(57, 140, 191, 0.18);
+    box-shadow: 0 0 0 2px ${FOCUS_RING};
   }
 
   .name-editor input[aria-invalid='true'] {
@@ -112,7 +127,7 @@ const Styled = styled.div<{ $busy: boolean }>`
   }
 
   .name-hint {
-    grid-column: 3 / 6;
+    grid-column: -3 / -1;
     font-size: 12px;
     padding-left: 12px;
     color: ${MUTED};
@@ -122,16 +137,16 @@ const Styled = styled.div<{ $busy: boolean }>`
     color: ${DANGER};
   }
 
-  .readme-hint {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px;
-    min-height: 36px;
-    font-size: 13px;
-    background: rgba(57, 140, 191, 0.08);
-    border-bottom: 1px solid ${BORDER};
-    flex: none;
+  .name-hint.warning {
+    color: ${({ theme }) => theme.palette.warning.dark};
+  }
+
+  /* Floats over the list, so announcing the README does not take any space from it. */
+  .readme-link {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 10;
   }
 
   .readme {
@@ -139,7 +154,7 @@ const Styled = styled.div<{ $busy: boolean }>`
     padding: 16px;
     border: 1px solid ${BORDER};
     border-radius: 4px;
-    background: #fbfcfd;
+    background: ${SURFACE_SUBTLE};
     font-size: 14px;
   }
 
@@ -159,7 +174,7 @@ const Styled = styled.div<{ $busy: boolean }>`
     z-index: 35;
     border: 2px dashed ${({ theme }) => theme.palette.secondary.main};
     border-radius: 6px;
-    background: rgba(232, 241, 248, 0.94);
+    background: ${DROP_ZONE};
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -180,19 +195,24 @@ const Styled = styled.div<{ $busy: boolean }>`
   }
 `;
 
-const CheckIcon = styled(Icon)<{ $active?: boolean; $dim?: boolean }>`
-  color: ${({ theme, $active }) => ($active ? theme.palette.secondary.main : 'rgba(0,0,0,0.5)')};
-  ${({ $dim }) => $dim && 'opacity: 0.42;'}
+const CheckIcon = styled(Icon)<{ $active?: boolean }>`
+  color: ${({ $active }) => ($active ? ACCENT : MUTED_LIGHT)};
+`;
+
+const CheckButton = styled(ButtonBase)`
+  && {
+    justify-self: start;
+  }
 `;
 
 const EntryIcon = styled(Icon)<{ $folder: boolean }>`
   flex: none;
-  color: ${({ theme, $folder }) => ($folder ? theme.palette.secondary.main : 'rgba(0,0,0,0.55)')};
+  color: ${({ $folder }) => ($folder ? ACCENT : MUTED)};
 `;
 
 const ConfirmButton = styled(CircleButton)<{ $invalid: boolean }>`
   && {
-    color: ${({ theme, $invalid }) => ($invalid ? 'rgba(0,0,0,0.26)' : theme.palette.contrast2.main)};
+    color: ${({ $invalid }) => ($invalid ? FAINT : SUCCESS)};
   }
 `;
 
@@ -214,10 +234,11 @@ const NameInput: FC<NameInputProps> = ({ initial, existingNames, own, icon, hint
   // The editor only appears after the user asks for it, so take focus right away.
   useEffect(() => inputRef.current?.focus(), []);
   const error = validateEntryName(value, existingNames, own);
+  const warning = warnEntryName(value);
 
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && !error) {
-      onCommit(value.trim());
+      onCommit(value);
     }
     else if (event.key === 'Escape') {
       onCancel();
@@ -238,19 +259,19 @@ const NameInput: FC<NameInputProps> = ({ initial, existingNames, own, icon, hint
           onFocus={(event) => event.target.select()}
           onKeyDown={onKeyDown}
         />
-        <ConfirmButton aria-label="Confirm" disabled={!!error} $invalid={!!error} onClick={() => onCommit(value.trim())}>
+        <ConfirmButton aria-label="Confirm" disabled={!!error} $invalid={!!error} onClick={() => onCommit(value)}>
           <Icon>check</Icon>
         </ConfirmButton>
         <CircleButton aria-label="Cancel" onClick={onCancel}>
           <Icon>close</Icon>
         </CircleButton>
       </div>
-      <div className={`name-hint${error ? ' invalid' : ''}`}>{error || hint}</div>
+      <div className={`name-hint${error ? ' invalid' : warning ? ' warning' : ''}`}>{error || warning || hint}</div>
     </>
   );
 };
 
-export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSignal, creating, onCreatingDone, onOpenFolder, onTransfer, onDropFiles, notify, pick }) => {
+export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSignal, creating, onCreatingDone, onOpenFolder, onTransfer, onDropFiles, notify, showHidden, pick }) => {
   const { volume, volumeType, path } = route;
   const volumeRef = useMemo(() => toVolumeRef({ volumeType, ...volume }), [volumeType, volume.volumeName, volume.owner, volume.rootVolumeName]);
   const { data, loading, error, refetch } = useQuery<{ getJsonTree: JsonTree }>(JSON_TREE, {
@@ -327,7 +348,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
     }
   };
 
-  const entries = useMemo(() => filterAndSortEntries(all, filter, sortKey, direction), [all, filter, sortKey, direction]);
+  const entries = useMemo(() => filterAndSortEntries(all, filter, sortKey, direction, showHidden), [all, filter, sortKey, direction, showHidden]);
 
   // Drop selections that a filter or reload removed.
   const selected = entries.filter((entry) => checked.has(entry.name));
@@ -415,13 +436,13 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   const showError = !!error && !data;
 
   const menuItems = (entry: FileEntry): MenuAction[] => [
-    ...(entry.isFolder ? [{ label: 'Open', icon: 'folder_open', color: 'text.primary', run: () => open(entry) }] : []),
-    ...(entry.isFolder ? [] : [{ label: 'Download', icon: 'download', color: 'text.primary', run: () => download(entry) }]),
-    { label: 'Copy to…', icon: 'content_copy', color: 'text.primary', run: () => onTransfer('copy', [entry.name]) },
+    ...(entry.isFolder ? [{ label: 'Open', icon: 'folder_open', run: () => open(entry) }] : []),
+    ...(entry.isFolder ? [] : [{ label: 'Download', icon: 'download', run: () => download(entry) }]),
+    { label: 'Copy to…', icon: 'content_copy', run: () => onTransfer('copy', [entry.name]) },
     ...(writable ? [
-      { label: 'Move to…', icon: 'drive_file_move', color: 'text.primary', run: () => onTransfer('move', [entry.name]) },
-      { label: 'Rename', icon: 'edit', color: 'text.primary', run: () => setRenaming(entry.name) },
-      { label: 'Delete', icon: 'delete', color: '#C62828', run: () => setConfirmDelete([entry.name]) }
+      { label: 'Move to…', icon: 'drive_file_move', run: () => onTransfer('move', [entry.name]) },
+      { label: 'Rename', icon: 'edit', run: () => setRenaming(entry.name) },
+      { label: 'Delete', icon: 'delete', danger: true, run: () => setConfirmDelete([entry.name]) }
     ] : [])
   ];
 
@@ -436,46 +457,10 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
   }
 
   return (
-    <Styled $busy={busy} onDragEnter={onDragOver} onDragOver={onDragOver}>
+    <Styled $busy={busy} $pick={!!pick} onDragEnter={onDragOver} onDragOver={onDragOver}>
       {(busy || (loading && !!data)) && <LinearProgress className="progress" aria-label="Working" />}
-      {readme && (
-        <div className="readme-hint">
-          <Icon $size={18} $color="#398CBF">article</Icon>
-          <span>This folder has a README. It is shown at the bottom of the list.</span>
-          <Button size="small" endIcon={<Icon $size={18}>arrow_downward</Icon>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-            Jump to README
-          </Button>
-        </div>
-      )}
-      {selected.length > 0 && !pick && (
-        <div className="selection-bar">
-          <CircleButton $size={36} aria-label="Clear selection" onClick={() => setChecked(new Set())}>
-            <Icon>close</Icon>
-          </CircleButton>
-          <span className="selection-count">{selected.length} selected</span>
-          {/* Folders can't be downloaded, so Download is only offered when every selected item is a file. */}
-          {selected.every((entry) => !entry.isFolder) && (
-            <Button startIcon={<Icon $size={18}>download</Icon>} onClick={() => downloadMany(selected)}>
-              Download
-            </Button>
-          )}
-          <Button startIcon={<Icon $size={18}>content_copy</Icon>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
-            Copy
-          </Button>
-          {writable && (
-            <Button startIcon={<Icon $size={18}>drive_file_move</Icon>} onClick={() => onTransfer('move', selected.map((entry) => entry.name))}>
-              Move
-            </Button>
-          )}
-          {writable && (
-            <Button color="error" startIcon={<Icon $size={18}>delete</Icon>} onClick={() => setConfirmDelete(selected.map((entry) => entry.name))}>
-              Delete
-            </Button>
-          )}
-        </div>
-      )}
-      <div className="list-header" role="row">
-        {pick ? <span /> : (
+      {selected.length > 0 && !pick ? (
+        <div className="selection-bar" role="toolbar" aria-label="Actions for the selected items">
           <ButtonBase
             aria-label={allSelected ? 'Deselect all' : 'Select all'}
             disabled={entries.length === 0}
@@ -483,12 +468,51 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           >
             <CheckIcon $active={selected.length > 0}>{allSelected ? 'check_box' : selected.length ? 'indeterminate_check_box' : 'check_box_outline_blank'}</CheckIcon>
           </ButtonBase>
-        )}
-        {headers.map(({ key, label }) => (
-          <SortHeader key={key} label={label} active={sortKey === key} direction={direction} onClick={() => onSort(key)} />
-        ))}
-        <span />
-      </div>
+          <div className="selection-actions">
+            {/* Folders can't be downloaded, so Download is only offered when every selected item is a file. */}
+            {selected.every((entry) => !entry.isFolder) && (
+              <Button size="small" startIcon={<Icon $size={18}>download</Icon>} onClick={() => downloadMany(selected)}>
+                Download
+              </Button>
+            )}
+            <Button size="small" startIcon={<Icon $size={18}>content_copy</Icon>} onClick={() => onTransfer('copy', selected.map((entry) => entry.name))}>
+              Copy
+            </Button>
+            {writable && (
+              <Button size="small" startIcon={<Icon $size={18}>drive_file_move</Icon>} onClick={() => onTransfer('move', selected.map((entry) => entry.name))}>
+                Move
+              </Button>
+            )}
+            {writable && (
+              <Button size="small" color="error" startIcon={<Icon $size={18}>delete</Icon>} onClick={() => setConfirmDelete(selected.map((entry) => entry.name))}>
+                Delete
+              </Button>
+            )}
+          </div>
+          <span className="selection-count">
+            {selected.length} selected
+            <CircleButton $size={32} aria-label="Clear selection" onClick={() => setChecked(new Set())}>
+              <Icon>close</Icon>
+            </CircleButton>
+          </span>
+        </div>
+      ) : (
+        <div className="list-header" role="row">
+          {pick ? <span /> : (
+            <ButtonBase
+              aria-label={allSelected ? 'Deselect all' : 'Select all'}
+              disabled={entries.length === 0}
+              onClick={() => setChecked(allSelected ? new Set() : new Set(entries.map((entry) => entry.name)))}
+            >
+              <CheckIcon $active={selected.length > 0}>{allSelected ? 'check_box' : selected.length ? 'indeterminate_check_box' : 'check_box_outline_blank'}</CheckIcon>
+            </ButtonBase>
+          )}
+          {!pick && <span />}
+          {headers.map(({ key, label }) => (
+            <SortHeader key={key} label={label} active={sortKey === key} direction={direction} onClick={() => onSort(key)} />
+          ))}
+        </div>
+      )}
       <div className="list-body">
         {showLoading && <LoadingAnimation backDropIsOpen />}
         {showError && (
@@ -499,6 +523,7 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
         {creating && writable && (
           <div className="list-row creating">
             <span />
+            {!pick && <span />}
             <NameInput
               initial={defaultFolderName(names)}
               existingNames={names}
@@ -513,43 +538,62 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           const isChecked = checked.has(entry.name);
           const disabled = !!pick && !entry.isFolder;
           const picked = !!pick && pick.selectedName === entry.name;
-          const clickable = !disabled && (!!pick || entry.isFolder);
+          const clickable = entry.isFolder && renaming !== entry.name;
           const dim = disabled ? ' dim' : '';
           const items = pick ? [] : menuItems(entry);
-          const onClick = () => {
-            if (pick) {
-              if (!disabled) {
-                pick.onSelect(entry.name);
-              }
-            }
-            else if (entry.isFolder) {
-              open(entry);
-            }
-          };
+          // Clicking a folder opens it, in both modes; selecting is always the explicit box (manage) or circle (pick).
+          const onClick = () => entry.isFolder && open(entry);
           const isRenaming = renaming === entry.name;
           return (
             <div
               key={entry.name}
               role="row"
-              className={`list-row${clickable ? ' clickable' : ''}${disabled ? ' disabled' : ''}${picked ? ' selected' : ''}${isChecked && !picked ? ' checked' : ''}`}
+              className={`list-row${clickable ? ' clickable' : ''}${picked ? ' selected' : ''}${isChecked && !picked ? ' checked' : ''}`}
               tabIndex={clickable ? 0 : -1}
               onClick={onClick}
               onKeyDown={(event) => event.key === 'Enter' && event.target === event.currentTarget && onClick()}
-              onDoubleClick={() => pick && !disabled && open(entry)}
             >
               {pick ? (
-                <CheckIcon $dim={disabled} $active={picked}>{disabled ? '' : picked ? 'radio_button_checked' : 'radio_button_unchecked'}</CheckIcon>
+                <div className="icon-cell">
+                  {!disabled && (
+                    <CheckButton
+                      aria-label={`Select ${entry.name}`}
+                      aria-pressed={picked}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        pick.onSelect(entry.name);
+                      }}
+                    >
+                      <CheckIcon $active={picked}>{picked ? 'radio_button_checked' : 'radio_button_unchecked'}</CheckIcon>
+                    </CheckButton>
+                  )}
+                </div>
               ) : (
-                <ButtonBase
-                  aria-label={`Select ${entry.name}`}
-                  aria-pressed={isChecked}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggle(entry.name);
-                  }}
-                >
-                  <CheckIcon $active={isChecked}>{isChecked ? 'check_box' : 'check_box_outline_blank'}</CheckIcon>
-                </ButtonBase>
+                <>
+                  <ButtonBase
+                    aria-label={`Select ${entry.name}`}
+                    aria-pressed={isChecked}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggle(entry.name);
+                    }}
+                  >
+                    <CheckIcon $active={isChecked}>{isChecked ? 'check_box' : 'check_box_outline_blank'}</CheckIcon>
+                  </ButtonBase>
+                  <div className="icon-cell">
+                    {items.length > 0 && !isRenaming && (
+                      <CircleButton
+                        aria-label={`More actions for ${entry.name}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setMenu({ anchor: event.currentTarget, entry });
+                        }}
+                      >
+                        <Icon>more_vert</Icon>
+                      </CircleButton>
+                    )}
+                  </div>
+                </>
               )}
               {isRenaming ? (
                 <NameInput
@@ -569,28 +613,6 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
                   </div>
                   <span className={`text-cell${dim}`}>{formatModified(entry.modified)}</span>
                   <span className={`text-cell${dim}`}>{entry.isFolder ? '—' : formatBytes(entry.size)}</span>
-                  {pick && !disabled && (
-                    <CircleButton
-                      aria-label={`Open ${entry.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        open(entry);
-                      }}
-                    >
-                      <Icon>chevron_right</Icon>
-                    </CircleButton>
-                  )}
-                  {!pick && items.length > 0 && (
-                    <CircleButton
-                      aria-label={`More actions for ${entry.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setMenu({ anchor: event.currentTarget, entry });
-                      }}
-                    >
-                      <Icon>more_vert</Icon>
-                    </CircleButton>
-                  )}
                 </>
               )}
             </div>
@@ -610,6 +632,11 @@ export const FolderBrowser: FC<Props> = ({ route, filter, writable, refreshSigna
           <EmptyMessage icon="search_off" title={`No matches for “${filter.trim()}”`} hint="Try a different name." />
         )}
       </div>
+      {readme && (
+        <Button className="readme-link" size="small" variant="contained" endIcon={<Icon $size={18}>arrow_downward</Icon>} onClick={() => readmeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+          README
+        </Button>
+      )}
       {dragging && (
         <div
           className="drop-overlay"

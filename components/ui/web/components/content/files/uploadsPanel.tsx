@@ -2,7 +2,7 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { LinearProgress } from '@mui/material';
 
-import { CircleButton, DANGER, Icon, MUTED, ROW_BORDER } from './filesStyles';
+import { CircleButton, DANGER, Icon, MUTED, PAPER, ROW_BORDER } from './filesStyles';
 
 export type UploadItem = {
   id: number;
@@ -31,9 +31,9 @@ const Styled = styled.div`
   width: 320px;
   max-height: 240px;
   overflow: auto;
-  background: #fff;
+  background: ${PAPER};
   border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: ${({ theme }) => theme.shadows[8]};
 
   .upload {
     display: flex;

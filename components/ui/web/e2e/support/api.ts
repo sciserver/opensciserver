@@ -51,9 +51,17 @@ export class FakeBackend {
 
   private tree: Record<string, Folder> = {
     'USERVOLUME:Storage/ana/persistent': {
-      folders: ['data', 'notebooks'],
-      files: [{ name: 'README.md', size: 40 }, { name: 'results.csv', size: 2048 }, { name: 'a.txt', size: 5 }]
+      folders: ['data', 'notebooks', 'deep', '.sciserver'],
+      files: [{ name: 'README.md', size: 40 }, { name: 'results.csv', size: 2048 }, { name: 'a.txt', size: 5 }, { name: '.hidden.txt', size: 3 }]
     },
+    'USERVOLUME:Storage/ana/persistent/.sciserver': { folders: [], files: [] },
+    // A path long enough for the breadcrumb to collapse (five 16-character folders under "deep")
+    'USERVOLUME:Storage/ana/persistent/deep': { folders: ['aaaaaaaaaaaaaaaa'], files: [] },
+    'USERVOLUME:Storage/ana/persistent/deep/aaaaaaaaaaaaaaaa': { folders: ['bbbbbbbbbbbbbbbb'], files: [] },
+    'USERVOLUME:Storage/ana/persistent/deep/aaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb': { folders: ['cccccccccccccccc'], files: [] },
+    'USERVOLUME:Storage/ana/persistent/deep/aaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/cccccccccccccccc': { folders: ['dddddddddddddddd'], files: [] },
+    'USERVOLUME:Storage/ana/persistent/deep/aaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/cccccccccccccccc/dddddddddddddddd': { folders: ['eeeeeeeeeeeeeeee'], files: [] },
+    'USERVOLUME:Storage/ana/persistent/deep/aaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/cccccccccccccccc/dddddddddddddddd/eeeeeeeeeeeeeeee': { folders: [], files: [{ name: 'bottom.txt', size: 1 }] },
     'USERVOLUME:Storage/ana/persistent/data': { folders: [], files: [{ name: 'cutout.fits', size: 8_100_000 }] },
     'USERVOLUME:Storage/ana/persistent/notebooks': { folders: [], files: [] },
     'USERVOLUME:Storage/ana/FESS': { folders: [], files: [] },

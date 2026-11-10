@@ -1,7 +1,9 @@
-import { DEFAULT_WORKSPACE_ROOT } from '../config/files';
+import { DEFAULT_WORKSPACE_ROOT, VOLUME_ACTIONS } from '../config/files';
 import { DataVolume, UserVolume, VolumeRefInput, VolumeType } from '../graphql/typings';
 import { FilesRoute, RouteQuery, SortKey, VolumeRow } from '../types/files';
+import { VolumeAction } from '../types/sharing';
 import { isMoveIntoItself, normalizePath } from './files';
+import { isDefaultUserVolume } from './userVolumes';
 
 const first = (value: string | string[] | undefined): string | undefined => (Array.isArray(value) ? value[0] : value);
 
@@ -47,42 +49,49 @@ export const isSharedByOwner = (volume: Pick<UserVolume, 'owner' | 'sharedWith'>
   !!userName && volume.owner === userName && volume.sharedWith.length > 0
 );
 
+const volumeActions = (allowedActions: (string | null)[]): VolumeAction[] => VOLUME_ACTIONS.filter((action) => hasAction(allowedActions, action));
+
 export const userVolumeRows = (rootVolumes: { userVolumes: UserVolume[] }[], userName?: string): VolumeRow[] => (
-  rootVolumes.flatMap((root) => root.userVolumes).map((volume) => ({
-    key: `${volume.rootVolumeName}/${volume.owner}/${volume.name}`,
-    route: { volumeType: VolumeType.Uservolume, volumeName: volume.name, rootVolumeName: volume.rootVolumeName, owner: volume.owner },
-    name: volume.name,
-    rootVolume: volume.rootVolumeName,
-    detail: volume.owner,
-    writable: isUserVolumeWritable(volume),
-    shared: isSharedByOwner(volume, userName),
-    description: volume.description || '',
-    owned: !!userName && volume.owner === userName,
-    canDelete: hasAction(volume.allowedActions, 'delete'),
-    canShare: hasAction(volume.allowedActions, 'grant') || (!!userName && volume.owner === userName)
-  }))
+  rootVolumes.flatMap((root) => root.userVolumes).map((volume) => {
+    const owned = !!userName && volume.owner === userName;
+    return {
+      key: `${volume.rootVolumeName}/${volume.owner}/${volume.name}`,
+      route: { volumeType: VolumeType.Uservolume, volumeName: volume.name, rootVolumeName: volume.rootVolumeName, owner: volume.owner },
+      name: volume.name,
+      rootVolume: volume.rootVolumeName,
+      owner: volume.owner,
+      description: volume.description || '',
+      actions: volumeActions(volume.allowedActions),
+      writable: isUserVolumeWritable(volume),
+      shared: isSharedByOwner(volume, userName),
+      sharedWithMe: !!userName && !owned,
+      owned,
+      canDelete: hasAction(volume.allowedActions, 'delete'),
+      // The user's own persistent and scratch volumes are private: sharing them is not offered.
+      canShare: (hasAction(volume.allowedActions, 'grant') || owned) && !isDefaultUserVolume(volume, userName || '')
+    };
+  })
 );
 
 /** Data volumes use the same allowedActions as user volumes: only some of them can be written to. */
 export const isDataVolumeWritable = (volume: Pick<DataVolume, 'allowedActions'>): boolean => hasAction(volume.allowedActions, 'write');
 
-export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVolumes.map((volume) => {
-  const writable = isDataVolumeWritable(volume);
-  return {
-    // Two data volumes can share a name (the API addresses them by name, but lists both), so the id keeps rows apart.
-    key: `data/${volume.id}`,
-    route: { volumeType: VolumeType.Datavolume, volumeName: volume.name },
-    name: volume.displayName || volume.name,
-    rootVolume: writable ? 'Read/write' : 'Read-only',
-    detail: volume.description,
-    writable,
-    shared: false,
-    description: volume.description,
-    owned: false,
-    canDelete: false,
-    canShare: false
-  };
-});
+export const dataVolumeRows = (dataVolumes: DataVolume[]): VolumeRow[] => dataVolumes.map((volume) => ({
+  // Two data volumes can share a name (the API addresses them by name, but lists both), so the id keeps rows apart.
+  key: `data/${volume.id}`,
+  route: { volumeType: VolumeType.Datavolume, volumeName: volume.name },
+  name: volume.displayName || volume.name,
+  rootVolume: '',
+  owner: '',
+  description: volume.description,
+  actions: volumeActions(volume.allowedActions),
+  writable: isDataVolumeWritable(volume),
+  shared: false,
+  sharedWithMe: false,
+  owned: false,
+  canDelete: false,
+  canShare: false
+}));
 
 export const filterAndSortRows = (rows: VolumeRow[], filter: string, sortKey: SortKey, direction: 1 | -1): VolumeRow[] => {
   const needle = filter.trim().toLowerCase();
