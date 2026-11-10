@@ -1,4 +1,5 @@
 import { VolumeRefInput } from '../graphql/typings';
+import { VolumeAction } from './sharing';
 
 /** Where the Files screen is: a volume type, optionally a volume in it, and a folder path inside. */
 export type FilesRoute = {
@@ -9,6 +10,9 @@ export type FilesRoute = {
 };
 
 /** A parsed URL query, as Next's router gives it. */
+/** One folder of a path, with the path that leads to it. */
+export type PathSegment = { name: string; path: string };
+
 export type RouteQuery = Record<string, string | string[] | undefined>;
 
 /** One row of the volume list: a user volume or a data volume with the flags the UI needs. */
@@ -16,13 +20,18 @@ export type VolumeRow = {
   key: string;
   route: VolumeRefInput;
   name: string;
-  /** "Storage" or "Temporary" for user volumes, the access ("Read-only" / "Read/write") for data volumes. */
+  /** "Storage" or "Temporary" for user volumes, '' for data volumes. */
   rootVolume: string;
-  /** Owner for user volumes, description for data volumes. */
-  detail: string;
-  writable: boolean;
-  shared: boolean;
+  /** The user volume's owner, '' for data volumes. */
+  owner: string;
   description: string;
+  /** What the user may do with the volume, from allowedActions, in VOLUME_ACTIONS order. */
+  actions: VolumeAction[];
+  writable: boolean;
+  /** A user volume the signed-in user owns and has shared with others. */
+  shared: boolean;
+  /** A user volume someone else owns and shared with the signed-in user. */
+  sharedWithMe: boolean;
   /** The signed-in user owns this user volume, so they can edit it. */
   owned: boolean;
   /** The server lets the user delete this volume. */
@@ -31,7 +40,7 @@ export type VolumeRow = {
   canShare: boolean;
 };
 
-export type SortKey = 'name' | 'rootVolume' | 'detail';
+export type SortKey = 'name' | 'rootVolume' | 'owner' | 'description';
 
 /** A folder or a file in a listing, in one sortable shape. */
 export type FileEntry = {

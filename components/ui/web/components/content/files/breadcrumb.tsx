@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import { ButtonBase } from '@mui/material';
 import { VolumeType } from 'src/graphql/typings';
 import { FilesRoute } from 'src/types/files';
-import { pathSegments } from 'src/utils/files';
+import { BREADCRUMB_MAX_CHARS } from 'src/config/files';
+import { fitPathSegments, pathSegments } from 'src/utils/files';
 
-import { Icon } from './filesStyles';
+import { ACCENT_WASH, AccentIcon, FaintIcon, TEXT, ACCENT } from './filesStyles';
 
 type Props = {
   route: FilesRoute;
@@ -14,8 +15,6 @@ type Props = {
   /** Go to a folder of the current volume ('' is the volume root). */
   onPath: (path: string) => void;
 };
-
-const MAX_FOLDER_CRUMBS = 3;
 
 type Crumb = { label: string; path?: string };
 
@@ -41,7 +40,7 @@ const CrumbButton = styled(ButtonBase)<{ $current?: boolean }>`
     border-radius: 4px;
     font-size: 13px;
     font-weight: ${({ $current }) => ($current ? 600 : 400)};
-    color: ${({ theme, $current }) => ($current ? theme.palette.text.primary : theme.palette.secondary.main)};
+    color: ${({ $current }) => ($current ? TEXT : ACCENT)};
     max-width: 220px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -50,7 +49,7 @@ const CrumbButton = styled(ButtonBase)<{ $current?: boolean }>`
   }
 
   &&:hover {
-    background: rgba(57, 140, 191, 0.1);
+    background: ${ACCENT_WASH};
   }
 `;
 
@@ -68,24 +67,26 @@ export const Breadcrumb: FC<Props> = ({ route, onRoot, onPath }) => {
   const typeLabel = route.volumeType === VolumeType.Datavolume ? 'Data volumes' : 'User volumes';
   const typeIcon = route.volumeType === VolumeType.Datavolume ? 'database' : 'folder';
 
-  const folders = pathSegments(route.path);
-  const collapsed = folders.length > MAX_FOLDER_CRUMBS + 1;
-  const visibleFolders: Crumb[] = collapsed
-    ? [{ label: '…', path: folders[folders.length - MAX_FOLDER_CRUMBS - 1].path }, ...folders.slice(-MAX_FOLDER_CRUMBS).map((f) => ({ label: f.name, path: f.path }))]
-    : folders.map((f) => ({ label: f.name, path: f.path }));
+  // The volume name always shows, so it counts against the budget of characters for the folders.
+  const budget = Math.max(BREADCRUMB_MAX_CHARS - (route.volume?.volumeName.length ?? 0), 0);
+  const { visible, collapsedTo } = fitPathSegments(pathSegments(route.path), budget);
+  const visibleFolders: Crumb[] = [
+    ...(collapsedTo === undefined ? [] : [{ label: '…', path: collapsedTo }]),
+    ...visible.map((folder) => ({ label: folder.name, path: folder.path }))
+  ];
   const crumbs: Crumb[] = route.volume ? [{ label: route.volume.volumeName, path: '' }, ...visibleFolders] : [];
 
   return (
     <Styled aria-label="Breadcrumb">
       <RootButton onClick={onRoot} disabled={!route.volume} $current={!route.volume}>
-        <Icon $size={17} $filled $color="#398CBF">{typeIcon}</Icon>
+        <AccentIcon $size={17} $filled>{typeIcon}</AccentIcon>
         {typeLabel}
       </RootButton>
       {crumbs.map((crumb, index) => {
         const last = index === crumbs.length - 1;
         return (
           <span key={`${index}-${crumb.label}`} className="crumb">
-            <Icon $size={18} $color="rgba(0,0,0,0.38)">chevron_right</Icon>
+            <FaintIcon $size={18}>chevron_right</FaintIcon>
             <CrumbButton onClick={() => onPath(crumb.path ?? '')} disabled={last} aria-current={last ? 'page' : undefined} $current={last}>
               {crumb.label}
             </CrumbButton>

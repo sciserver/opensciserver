@@ -9,7 +9,7 @@ import { FileService, FileUsage } from 'src/graphql/typings';
 import { formatBytes } from 'src/utils/fileEntries';
 import { groupQuotas } from 'src/utils/quotas';
 
-import { BORDER, MUTED, ROW_BORDER } from './filesStyles';
+import { BORDER, MUTED, ROW_BORDER, SURFACE } from './filesStyles';
 
 const Content = styled(DialogContent)`
   && {
@@ -42,7 +42,7 @@ const Content = styled(DialogContent)`
 
   .group-title {
     padding: 8px 16px;
-    background: #f4f6f8;
+    background: ${SURFACE};
     font-weight: 600;
     font-size: 14px;
   }

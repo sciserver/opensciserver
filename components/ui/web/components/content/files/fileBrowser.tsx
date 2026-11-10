@@ -1,7 +1,7 @@
 import { FC, useContext, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import styled from 'styled-components';
-import { Alert, Button, LinearProgress, Snackbar } from '@mui/material';
+import { Alert, Button, Checkbox, FormControlLabel, LinearProgress, Snackbar } from '@mui/material';
 
 import { UserContext } from 'context';
 import { FILE_VOLUMES } from 'src/graphql/volumes';
@@ -14,7 +14,7 @@ import { joinPath } from 'src/utils/files';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
 
 import { Breadcrumb } from './breadcrumb';
-import { BORDER, CircleButton, Icon, MUTED } from './filesStyles';
+import { AccentIcon, BORDER, CARD_BORDER, CircleButton, Icon, INPUT_BORDER, MUTED, MUTED_LIGHT, MutedLightIcon, PAPER, SURFACE, SURFACE_ALT } from './filesStyles';
 import { FolderBrowser } from './folderBrowser';
 import { TransferDialog } from './transferDialog';
 import { QuotasDialog } from './quotasDialog';
@@ -53,7 +53,7 @@ const Styled = styled.div`
   height: 100%;
   min-height: 320px;
   background: ${({ theme }) => theme.palette.background.paper};
-  border: 1px solid #dde2e7;
+  border: 1px solid ${CARD_BORDER};
   border-radius: 6px;
   overflow: hidden;
 
@@ -78,6 +78,11 @@ const Styled = styled.div`
     color: ${MUTED};
   }
 
+  .hidden-toggle .MuiFormControlLabel-label {
+    font-size: 13px;
+    color: ${MUTED};
+  }
+
   .filter {
     display: flex;
     align-items: center;
@@ -85,9 +90,9 @@ const Styled = styled.div`
     height: 32px;
     padding: 0 10px;
     width: 200px;
-    border: 1px solid #d5dae0;
+    border: 1px solid ${INPUT_BORDER};
     border-radius: 4px;
-    background: #fff;
+    background: ${PAPER};
   }
 
   .filter input {
@@ -105,7 +110,7 @@ const Styled = styled.div`
     gap: 12px;
     padding: 6px 12px;
     min-height: 42px;
-    background: #f4f6f8;
+    background: ${SURFACE};
     border-top: 1px solid ${BORDER};
     border-bottom: 1px solid ${BORDER};
     flex: none;
@@ -133,7 +138,7 @@ const Styled = styled.div`
     gap: 12px;
     padding: 10px 12px 10px 16px;
     border-top: 1px solid ${BORDER};
-    background: #f7f9fb;
+    background: ${SURFACE_ALT};
     flex: none;
   }
 
@@ -159,7 +164,7 @@ const Styled = styled.div`
   }
 
   .pick-path.empty {
-    color: rgba(0, 0, 0, 0.5);
+    color: ${MUTED_LIGHT};
   }
 `;
 
@@ -193,6 +198,8 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const [pickedFolder, setPickedFolder] = useState<string | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [creating, setCreating] = useState(false);
+  // Dot files are hidden by default, like in a terminal; the toggle shows them.
+  const [showHidden, setShowHidden] = useState(false);
   const [volumeDialog, setVolumeDialog] = useState<{ kind: 'create' } | { kind: 'quotas' } | { kind: 'edit' | 'delete' | 'share'; row: VolumeRow } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [transfer, setTransfer] = useState<{ kind: 'copy' | 'move'; names: string[] } | null>(null);
@@ -243,7 +250,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
   const volumeMenu = (row: VolumeRow) => [
     ...(row.canShare ? [{ label: 'Sharing', icon: 'group', run: () => setVolumeDialog({ kind: 'share', row }) }] : []),
     ...(row.owned ? [{ label: 'Edit', icon: 'edit', run: () => setVolumeDialog({ kind: 'edit', row }) }] : []),
-    ...(row.canDelete ? [{ label: 'Delete', icon: 'delete', color: '#C62828', run: () => setVolumeDialog({ kind: 'delete', row }) }] : [])
+    ...(row.canDelete ? [{ label: 'Delete', icon: 'delete', danger: true, run: () => setVolumeDialog({ kind: 'delete', row }) }] : [])
   ];
 
   // Dialogs report success only; a failure stays inside the dialog.
@@ -305,10 +312,17 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
             {isData ? 'Read-only: you can only read this data volume' : 'Read-only: shared with you'}
           </span>
         )}
-        {pick && <span className="note">Click to select · double-click to open</span>}
+        {pick && <span className="note">Use the circle to choose a folder. Click a folder to open it.</span>}
         <span className="spacer" />
+        {route.volume && (
+          <FormControlLabel
+            className="hidden-toggle"
+            label="Show hidden files"
+            control={<Checkbox size="small" checked={showHidden} onChange={(event) => setShowHidden(event.target.checked)} />}
+          />
+        )}
         <label className="filter">
-          <Icon $size={18} $color="rgba(0,0,0,0.5)">search</Icon>
+          <MutedLightIcon $size={18}>search</MutedLightIcon>
           <input
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
@@ -366,6 +380,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
           notify={(message, severity = 'success') => setToast({ message, severity })}
           onTransfer={(kind, names) => setTransfer({ kind, names })}
           onDropFiles={upload}
+          showHidden={showHidden}
           onOpenFolder={(path) => go({ ...route, path })}
           pick={pick ? { selectedName: pickedFolder, onSelect: setPickedFolder } : undefined}
         />
@@ -410,7 +425,7 @@ export const FileBrowser: FC<FileBrowserProps> = ({ mode = 'manage', location, i
       </Snackbar>
       {pick && (
         <div className="pick-footer">
-          <Icon $size={22} $filled $color="#398CBF">folder_open</Icon>
+          <AccentIcon $size={22} $filled>folder_open</AccentIcon>
           <div className="pick-target">
             <div className="pick-label">{pickLabel}</div>
             <div className={`pick-path${targetPath ? '' : ' empty'}`} title={targetPath}>

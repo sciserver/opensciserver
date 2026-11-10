@@ -26,6 +26,8 @@ test('edits and deletes a volume, only where the server allows', async ({ page, 
   await page.getByRole('button', { name: 'More actions for persistent' }).click();
   await expect(page.getByRole('menuitem', { name: /Edit/ })).toBeVisible();
   await expect(page.getByRole('menuitem', { name: /Delete/ })).toHaveCount(0);
+  // the user's own persistent volume is private, so sharing is not offered even though they hold grant rights
+  await expect(page.getByRole('menuitem', { name: /Sharing/ })).toHaveCount(0);
   await page.keyboard.press('Escape');
 
   await page.getByRole('button', { name: 'More actions for FESS' }).click();
@@ -129,4 +131,14 @@ test('says so when the volume to share has disappeared since the list loaded', a
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('can no longer be found');
   await expect(dialog.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+});
+
+test('does not offer sharing for the private persistent and scratch volumes, but does for others', async ({ page }) => {
+  await page.getByRole('button', { name: 'More actions for scratch' }).click();
+  await expect(page.getByRole('menuitem', { name: /Edit/ })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: /Sharing/ })).toHaveCount(0);
+  await page.keyboard.press('Escape');
+
+  await page.getByRole('button', { name: 'More actions for FESS' }).click();
+  await expect(page.getByRole('menuitem', { name: /Sharing/ })).toBeVisible();
 });

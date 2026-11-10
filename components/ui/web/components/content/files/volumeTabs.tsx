@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ButtonBase } from '@mui/material';
 import { VolumeType } from 'src/graphql/typings';
 
-import { BORDER, MUTED } from './filesStyles';
+import { ACCENT, BORDER, CHIP, MUTED, PRIMARY } from './filesStyles';
 
 type Props = {
   value: VolumeType;
@@ -31,14 +31,14 @@ const Tab = styled(ButtonBase)<{ $selected: boolean }>`
     font-size: 14px;
     font-weight: 500;
     border-radius: 0;
-    color: ${({ theme, $selected }) => ($selected ? theme.palette.secondary.main : 'rgba(0,0,0,0.7)')};
-    border-bottom: 2px solid ${({ theme, $selected }) => ($selected ? theme.palette.primary.main : 'transparent')};
+    color: ${({ $selected }) => ($selected ? ACCENT : MUTED)};
+    border-bottom: 2px solid ${({ $selected }) => ($selected ? PRIMARY : 'transparent')};
   }
 
   .count {
     font-size: 12px;
     color: ${MUTED};
-    background: #eef1f4;
+    background: ${CHIP};
     border-radius: 10px;
     padding: 1px 7px;
   }

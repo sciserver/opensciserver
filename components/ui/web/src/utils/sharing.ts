@@ -1,5 +1,5 @@
 import { PrincipalType, SharePrincipal } from '../graphql/typings';
-import { ShareAction, ShareMember } from '../types/sharing';
+import { VolumeAction, ShareMember } from '../types/sharing';
 
 /** User and group ids can collide, so a principal is identified by type and id together. */
 export const principalKey = (principal: { id: string | number; type: PrincipalType }): string => `${principal.type}:${principal.id}`;
@@ -15,7 +15,7 @@ export const removeMember = (members: ShareMember[], target: Pick<ShareMember, '
   members.filter((member) => principalKey(member) !== principalKey(target))
 );
 
-export const toggleAction = (members: ShareMember[], target: Pick<ShareMember, 'id' | 'type'>, action: ShareAction): ShareMember[] => (
+export const toggleAction = (members: ShareMember[], target: Pick<ShareMember, 'id' | 'type'>, action: VolumeAction): ShareMember[] => (
   members.map((member) => {
     if (principalKey(member) !== principalKey(target)) {
       return member;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VolumeType } from '../graphql/typings';
-import { isMoveIntoItself, joinPath, normalizePath, parentPath, pathSegments, planTransferNames, resolveFreeName, toVolumeRef } from '../utils/files';
+import { isMoveIntoItself, joinPath, normalizePath, parentPath, pathSegments, planTransferNames, resolveFreeName, toVolumeRef, fitPathSegments } from '../utils/files';
 
 describe('toVolumeRef', () => {
   it('keeps root volume and owner for user volumes', () => {
@@ -62,5 +62,31 @@ describe('isMoveIntoItself', () => {
     expect(isMoveIntoItself('/a', 'b', '/a/b/c')).toBe(true);
     expect(isMoveIntoItself('/a', 'b', '/a/bc')).toBe(false);
     expect(isMoveIntoItself('', 'b', '/a')).toBe(false);
+  });
+});
+
+describe('fitPathSegments', () => {
+  const segments = pathSegments('/alpha/beta/gamma/delta');
+
+  it('keeps everything when it fits', () => {
+    expect(fitPathSegments(segments, 100)).toEqual({ visible: segments, collapsedTo: undefined });
+  });
+
+  it('drops the oldest folders first and points the ellipsis at the nearest dropped one', () => {
+    // delta(5) + gamma(5) fit in 10; beta would make 14
+    const result = fitPathSegments(segments, 10);
+    expect(result.visible.map((s) => s.name)).toEqual(['gamma', 'delta']);
+    expect(result.collapsedTo).toBe('/alpha/beta');
+  });
+
+  it('always keeps the last folder, however long its name is', () => {
+    const result = fitPathSegments(pathSegments('/a/a-very-long-folder-name'), 4);
+    expect(result.visible.map((s) => s.name)).toEqual(['a-very-long-folder-name']);
+    expect(result.collapsedTo).toBe('/a');
+  });
+
+  it('copes with short names and with no folders', () => {
+    expect(fitPathSegments(pathSegments('/a/b/c/d/e/f'), 5).visible).toHaveLength(5);
+    expect(fitPathSegments([], 10)).toEqual({ visible: [], collapsedTo: undefined });
   });
 });
