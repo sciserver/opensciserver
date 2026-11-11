@@ -99,8 +99,8 @@ public class RDBJobForCOMPMController {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "Invalid Json posted to /rdbjob endpoint");
             }
             if (jobModel != null) {
-                String token = jobModel.getSubmitterToken(); // need to remember this, for VO-URP JOb does not have a
-                                                             // token, but COMPM needs it still
+                // need to remember this, for VO-URP JOb does not have a token, but COMPM needs it still
+                String token = jobModel.getSubmitterToken();
                 RDBJobModel newJobModel = jobmModelFactory.updateRDBJob(jobModel, compm.id());
                 if (LOG.isInfoEnabled()) {
                     LOG.info(String.format("JobStatus updated to '%s' for jobid %d", newJobModel.getStatus(),

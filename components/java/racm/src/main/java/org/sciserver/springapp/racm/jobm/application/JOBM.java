@@ -644,8 +644,9 @@ public class JOBM {
         ArrayList<Object> pars = new ArrayList<Object>();
         if (labelReg != null && labelReg.trim().length() > 0) {
             labelReg = "%" + labelReg + "%";
-            where.append(" and j.submitterDID like ? "); // UNCLEAR whether this works, or how parameter should be set.
-                                                         // seems unsafe for sql injection to
+            // UNCLEAR whether this works, or how parameter should be set.
+            // seems unsafe for sql injection to
+            where.append(" and j.submitterDID like ? ");
             pars.add(labelReg);
         }
         if (open) {

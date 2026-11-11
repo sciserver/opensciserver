@@ -121,8 +121,8 @@ public class JOBMForCOMPMController {
                         "Invalid Json posted to /compmdockerjob endpoint");
             }
             if (jobModel != null) {
-                String token = jobModel.getSubmitterToken(); // need to remember this, for VO-URP JOb does not have a
-                                                             // token, but COMPM needs it still
+                // need to remember this, for VO-URP JOb does not have a token, but COMPM needs it still
+                String token = jobModel.getSubmitterToken();
                 COMPMDockerJobModel newJobModel = jobmModelFactory.updateDockerJob(jobModel, compm.id());
                 LOG.info("JobStatus updated to '{}' for jobid {}", newJobModel.getStatus(), newJobModel.getId());
                 tokenUtils.checkSubmitterToken(token, jobModel);
@@ -227,8 +227,9 @@ public class JOBMForCOMPMController {
             @ModelAttribute COMPMInfo compm) {
         try {
             if (jobModel != null) {
-                String token = jobModel.getSubmitterToken(); // need to remember this before the next line, for VO-URP
-                                                             // Job does not have a token, but COMPM needs it still
+                // need to remember this before the next line, for VO-URP Job does not have a token, but COMPM needs it
+                // still
+                String token = jobModel.getSubmitterToken();
                 jobModel = jobmModelFactory.updateJob(jobModel, compm.id());
                 tokenUtils.checkSubmitterToken(token, jobModel);
             }

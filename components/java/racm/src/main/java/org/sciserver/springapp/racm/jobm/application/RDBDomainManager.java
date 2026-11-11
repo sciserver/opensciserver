@@ -163,8 +163,8 @@ public class RDBDomainManager {
         RDBComputeDomain rcd = new RDBComputeDomain(tom);
         rcd.setName(model.getName());
         rcd.setDescription(model.getDescription());
-        rcd.setVendor(RDBVendor.fromValue(model.getVendor())); // TODO do we really care about this? Should be at
-                                                               // DBContext level I think
+        // TODO do we really care about this? Should be at DBContext level I think
+        rcd.setVendor(RDBVendor.fromValue(model.getVendor()));
         rcd.setPublisherDID(model.getPublisherDID()); // TODO check whether publisherDID unique if not null
         rcd.setApiEndpoint(model.getApiEndpoint());
 

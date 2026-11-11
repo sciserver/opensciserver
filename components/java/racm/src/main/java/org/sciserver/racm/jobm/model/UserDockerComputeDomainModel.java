@@ -11,8 +11,8 @@ public class UserDockerComputeDomainModel extends RACMBaseModel {
     private String description;
     private List<VolumeContainerModel> volumes;
     private List<DockerImageModel> images;
-    private List<ComputeDomainUserVolumeModel> userVolumes; // these must be included when returning visible components
-                                                            // for the user
+    // these must be included when returning visible components for the user
+    private List<ComputeDomainUserVolumeModel> userVolumes;
 
     public UserDockerComputeDomainModel() {
     }

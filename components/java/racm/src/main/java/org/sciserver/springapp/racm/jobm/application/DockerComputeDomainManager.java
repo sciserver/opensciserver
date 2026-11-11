@@ -512,8 +512,8 @@ public class DockerComputeDomainManager {
                     throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                             String.format("DockerImageModel '%s' does not exist in repository", dim.getRacmUUID()));
                 } else if (cr instanceof DockerImage) {
-                    crs.remove(cr.getId()); // remove from hashtable so it won't be
-                                            // deleted in the end
+                    // remove from hashtable so it won't be deleted in the end
+                    crs.remove(cr.getId());
                     updateComputeResource(cr, dim);
                 } else {
                     throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
