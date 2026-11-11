@@ -39,8 +39,9 @@ public class LogBuilder {
     }
 
     public LogBuilder forJOBM(boolean condition) {
-        if (condition)
+        if (condition) {
             type = LogMessageType.JOBM;
+        }
         return this;
     }
 
@@ -55,8 +56,9 @@ public class LogBuilder {
     }
 
     public LogBuilder user(Optional<UserProfile> up) {
-        if (up.isPresent())
+        if (up.isPresent()) {
             userProfile = up.get();
+        }
         return this;
     }
 

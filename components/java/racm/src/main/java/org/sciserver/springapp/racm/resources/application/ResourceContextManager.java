@@ -33,10 +33,11 @@ public class ResourceContextManager {
     }
 
     public ResourceContextMVCModel editResourceContext(UserProfile up, ResourceContextMVCModel resourceContextModel) {
-        if (resourceContextModel.getId() == null)
+        if (resourceContextModel.getId() == null) {
             return createResourceContext(up, resourceContextModel);
-        else
+        } else {
             return updateResourceContext(up, resourceContextModel);
+        }
     }
 
     private ResourceContextMVCModel createResourceContext(UserProfile up,
@@ -81,9 +82,10 @@ public class ResourceContextManager {
         TransientObjectManager tom = up.getTom();
         ResourceContext rc = queryResourceContext(rcm.getId(), tom);
         List<ContextClass> ccs = null;
-        if (rc == null)
+        if (rc == null) {
             throw new IllegalArgumentException(
                     String.format("Cannot update non-existent ResourceContext with ID = '%s'", rcm.getId()));
+        }
 
         try {
             ccs = ContextClassManager.queryContextClasses(tom);
@@ -94,11 +96,12 @@ public class ResourceContextManager {
             // first save any change in the container of the Resource marked deleted
             // and delete the marked Resource instance from the container's resource collection.
             if (resourceToBeDeleted != null && resourceToBeDeleted > 0) {
-                for (Resource r : rc.getResource())
+                for (Resource r : rc.getResource()) {
                     if (r.getId().equals(resourceToBeDeleted)) {
                         rc.getResource().remove(r);
                         break;
                     }
+                }
             }
             tom.persist();
 
@@ -119,14 +122,17 @@ public class ResourceContextManager {
         String trimeduuid = (null == rcm.getUuid()) ? null : rcm.getUuid().trim();
         String uuid = (null == trimeduuid || "".equals(trimeduuid)) ? null : trimeduuid;
         if (null != rc) {
-            if (rc.isPurelyTransient() && uuid != null)
+            if (rc.isPurelyTransient() && uuid != null) {
                 throw new IllegalArgumentException("ResourceContext's uuid must be set by the system.");
+            }
 
-            if (!rc.isPurelyTransient() && uuid == null)
+            if (!rc.isPurelyTransient() && uuid == null) {
                 throw new IllegalArgumentException("ResourceContext must have uuid.");
+            }
         }
-        if (rcm.getContextClassModel() == null)
+        if (rcm.getContextClassModel() == null) {
             throw new IllegalArgumentException("A ResourceContext MUST have a context class");
+        }
     }
 
     /**
@@ -138,8 +144,9 @@ public class ResourceContextManager {
         rc.setLabel(rcm.getLabel().trim());
         rc.setDescription(rcm.getDescription());
         rc.setRacmEndpoint(rcm.getEndpoint());
-        if (rc.isPurelyTransient())
+        if (rc.isPurelyTransient()) {
             rc.setUuid(UUID.randomUUID().toString());
+        }
         if (!StringUtils.isEmpty(rcm.getSecretToken())) {
             if (rc.getAccount() == null) {
                 ServiceAccount account = new ServiceAccount(rc.getTom());
@@ -159,8 +166,9 @@ public class ResourceContextManager {
             }
         }
 
-        if (null == rc.getContextClass())
+        if (null == rc.getContextClass()) {
             throw new IllegalArgumentException("Referred context class " + ccName + " is not found in the database.");
+        }
     }
 
     /**

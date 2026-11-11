@@ -15,8 +15,9 @@ public class NativeQueryResult {
     }
 
     public NativeQueryResult(String columnsCSV, List<?> rows) {
-        if (columnsCSV != null)
+        if (columnsCSV != null) {
             this.setColumns(columnsCSV);
+        }
         this.setRows(rows);
     }
 

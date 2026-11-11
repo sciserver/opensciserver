@@ -87,8 +87,9 @@ public final class ComputeDomainUserVolumeModel extends RACMBaseModel {
     }
 
     public void addAllowedAction(String action) {
-        if (allowedActions == null)
+        if (allowedActions == null) {
             allowedActions = new ArrayList<>();
+        }
         allowedActions.add(action);
     }
 

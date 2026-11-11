@@ -12,8 +12,9 @@ public class SciEntityOwningResource {
     }
 
     public SciEntityOwningResource(RegisteredResourceModel _resource, AssociatedSciserverEntityModel _association) {
-        if (_resource == null || _association == null)
+        if (_resource == null || _association == null) {
             throw new IllegalArgumentException("SciEntityOwningResource must have non null attributes");
+        }
         this.resource = _resource;
         this.association = _association;
     }

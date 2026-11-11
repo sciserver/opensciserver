@@ -38,8 +38,9 @@ public final class ValidatorVisitor extends MetaDataObjectVisitor {
      */
     @Override
     public void process(final MetadataObject object, final Object argument) {
-        if (!object.isValid())
+        if (!object.isValid()) {
             invalidObjects.add(object);
+        }
     }
 
     public boolean foundErrors() {

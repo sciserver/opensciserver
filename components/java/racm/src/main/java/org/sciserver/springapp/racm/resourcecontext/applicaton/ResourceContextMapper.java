@@ -82,8 +82,9 @@ public class ResourceContextMapper {
     public Set<ResourceFromUserPerspectiveModel> getResourcesWithActions(String username, String resourceContextUUID) {
         Map<String, Set<Action>> resourceActions =
                 resourcePermissionProvider.getActionsAllowedInResourceContext(username, resourceContextUUID);
-        if (resourceActions.isEmpty())
+        if (resourceActions.isEmpty()) {
             return null;
+        }
         return resourceRepository.getByUUIDs(resourceActions.keySet()).stream()
                 .map(resource -> toResourceFromUserPerspectiveModel(resource, resourceActions.get(resource.uuid())))
                 .collect(toSet());
@@ -104,8 +105,9 @@ public class ResourceContextMapper {
 
     public ResourceFromUserPerspectiveModel getResourceWithActions(String username, String resourceUUID) {
         Resource r = resourceRepository.get(resourceUUID);
-        if (r == null)
+        if (r == null) {
             return null;
+        }
         return toResourceFromUserPerspectiveModel(r,
                 resourcePermissionProvider.getActionsForResource(username, resourceUUID));
     }

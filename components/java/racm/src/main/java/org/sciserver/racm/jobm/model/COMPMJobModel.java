@@ -100,10 +100,11 @@ public class COMPMJobModel extends RACMBaseModel {
     }
 
     public void setMessages(List<JobMessageModel> messages) {
-        if (messages != null)
+        if (messages != null) {
             this.messages = messages;
-        else
+        } else {
             this.messages = new ArrayList<>();
+        }
     }
 
     public String getRunByUUID() {

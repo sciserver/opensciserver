@@ -32,8 +32,9 @@ public class COMPMManager {
     }
 
     public COMPMModel createCOMPM(COMPMModel compmModel, UserProfile up) throws VOURPException {
-        if (!jobmAccessControl.canRegisterCOMPM(up))
+        if (!jobmAccessControl.canRegisterCOMPM(up)) {
             throw new InsufficientPermissionsException("register a COMPM");
+        }
 
         TransientObjectManager tom = up.getTom();
         COMPM compm = new COMPM(tom);
@@ -78,12 +79,14 @@ public class COMPMManager {
     public COMPMModel updateCOMPM(COMPMModel compmModel, UserProfile up) throws VOURPException {
         TransientObjectManager tom = up.getTom();
         COMPM compm = find(compmModel.getUuid(), tom);
-        if (compm == null)
+        if (compm == null) {
             throw new VOURPException("Unable to find COMPM with uuid = " + compmModel.getUuid());
+        }
 
-        if (!up.getUser().getUserId().equals(compm.getCreatorUserid()))
+        if (!up.getUser().getUserId().equals(compm.getCreatorUserid())) {
             throw new VOURPException(
                     String.format("Only creator is allowed to update COMPM with uuid = '%s'", compmModel.getUuid()));
+        }
 
         compm.setLabel(compmModel.getLabel());
         compm.setDescription(compmModel.getDescription());
@@ -105,8 +108,9 @@ public class COMPMManager {
                 user.getUserid());
         List<MetadataObject> l = user.getTom().queryJPA(q, false);
         List<COMPM> compms = new ArrayList<>();
-        for (MetadataObject o : l)
+        for (MetadataObject o : l) {
             compms.add((COMPM) o);
+        }
         return compms;
     }
 

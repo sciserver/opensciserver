@@ -118,9 +118,10 @@ public class RDBJobRESTController {
             }
             // TODO decide whether the rdbcomputedomainid should even be provided by the jobs submission. the
             // serviceaccount should suffice.
-            if (rdbcd == null || !rdbcd.getId().equals(jobModel.getRdbDomainId()))
+            if (rdbcd == null || !rdbcd.getId().equals(jobModel.getRdbDomainId())) {
                 throw new VOURPException(VOURPException.UNAUTHORIZED,
                         "This job must have a service account corresponding to the domain that is targeted");
+            }
 
             RDBJob job = jobm.newRDBJob(jobModel, up);
             COMPMJobModel jm = jobmModelFactory.newCOMPMJobModel(job, true);
@@ -318,9 +319,10 @@ public class RDBJobRESTController {
 
         try {
             RDBComputeDomain rdbcd = rdbDomainManager.getRDBComputeDomain(serviceAccountToken);
-            if (rdbcd == null || !rdbcd.getId().equals(domainId))
+            if (rdbcd == null || !rdbcd.getId().equals(domainId)) {
                 throw new VOURPException(VOURPException.UNAUTHORIZED,
                         "This request must have a service account corresponding to the domain that is targeted");
+            }
 
             jobm.buildTrustIfNeeded(up.getUser(), up.getToken());
             ObjectMapper mapper = RACMUtil.newObjectMapper();

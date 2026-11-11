@@ -80,8 +80,9 @@ public class UsersAndGroupsManager {
      */
     public User newUser(String userName, String userId, String contactEmail, TransientObjectManager tom) {
         User user = queryUserByName(userName, tom);
-        if (user != null)
+        if (user != null) {
             throw new IllegalArgumentException(String.format("User with userName '%s' already exists", userName));
+        }
         user = new User(tom);
         user.setUserId(userId);
         user.setUsername(userName);
@@ -148,17 +149,19 @@ public class UsersAndGroupsManager {
         UserGroup ug = queryGroup(groupId, up.getTom());
         boolean ok = false;
         if (ug != null) {
-            if (ug.getAccessibility() != GroupAccessibility.PUBLIC)
+            if (ug.getAccessibility() != GroupAccessibility.PUBLIC) {
                 throw new VOURPException(VOURPException.UNAUTHORIZED, String
                         .format("User %s tried to join a non-public UserGroup with ID %d", up.getUsername(), groupId));
+            }
             for (Member i : ug.getMember()) {
                 if (i.getScisEntity() == up.getUser()) {
                     if (i.getStatus() == MemberStatus.INVITED || i.getStatus() == MemberStatus.DECLINED
                             || i.getStatus() == MemberStatus.WITHDRAWN) {
                         ok = true;
                         i.setStatus(MemberStatus.ACCEPTED);
-                    } else
+                    } else {
                         return true;
+                    }
 
                 }
             }
@@ -169,12 +172,14 @@ public class UsersAndGroupsManager {
                 i.setScisEntity(up.getUser());
                 ok = true;
             }
-            if (ok)
+            if (ok) {
                 up.getTom().persist();
+            }
             return true;
-        } else
+        } else {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String
                     .format("User %s tried to join a non-existing USerGroup with ID %d", up.getUsername(), groupId));
+        }
     }
 
     /**
@@ -191,9 +196,10 @@ public class UsersAndGroupsManager {
         Resource owningResource = checkGroupOwningResource(groupId, serviceToken, up.getTom());
 
         UserGroup ug = queryGroup(groupId, up.getTom());
-        if (ug != null && RACMNames.USERGROUP_PUBLIC.equals(ug.getName()))
+        if (ug != null && RACMNames.USERGROUP_PUBLIC.equals(ug.getName())) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("Illegal attempt made to remove user %s from public group", up.getUsername()));
+        }
 
         if (ug != null) {
             for (Member i : ug.getMember()) {
@@ -214,14 +220,16 @@ public class UsersAndGroupsManager {
      */
     private Member checkMembership(UserGroup ug, String username) {
         // check invitee is not already member or was already invited
-        if (ug.getMember() == null)
+        if (ug.getMember() == null) {
             return null;
+        }
         for (Member i : ug.getMember()) {
             SciserverEntity s = i.getScisEntity();
             if (s instanceof User) {
                 User u = (User) s;
-                if (u.getUsername().equals(username))
+                if (u.getUsername().equals(username)) {
                     return i;
+                }
             }
         }
         return null;
@@ -247,18 +255,21 @@ public class UsersAndGroupsManager {
         boolean canAdd = user.isAdmin();
         try {
             Resource owningResource = checkGroupOwningResource(m.getContainer().getId(), serviceToken, user.getTom());
-            if (owningResource != null)
+            if (owningResource != null) {
                 canAdd = true; // services can ADD users as members if they want
+            }
         } catch (VOURPException e) {
             // TODO can we swallow exception???
         }
 
         MemberStatus mumStatus = MemberStatus.fromValue(mum.getStatus().value());
-        if (m.getStatus() == MemberStatus.OWNER)
+        if (m.getStatus() == MemberStatus.OWNER) {
             return false; // don't even try to change the existing owner
+        }
 
-        if (mumRole == GroupRole.OWNER || mumStatus == MemberStatus.OWNER)
+        if (mumRole == GroupRole.OWNER || mumStatus == MemberStatus.OWNER) {
             throw new IllegalArgumentException("Attempted to set a user to an owner state or role");
+        }
 
         switch (m.getMemberRole()) {
             case OWNER:
@@ -452,9 +463,10 @@ public class UsersAndGroupsManager {
             return member;
         }
         User u = queryUserByName(invite.getUsername(), ug.getTom());
-        if (u == null)
+        if (u == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("Cannot find user with username=%s", invite.getUsername()));
+        }
         member = new Member(ug);
         member.setScisEntity(u);
         // default role (INVITED), unless serviceToken != null in which case the actual role the service requests is
@@ -478,11 +490,13 @@ public class UsersAndGroupsManager {
         Query q = tom.createQuery("select u from User u where u.username=:username").setParameter("username",
                 member.getUsername());
         User u = tom.queryOne(q, User.class);
-        if (u == null)
+        if (u == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("Cannot find user with username=%s", member.getUsername()));
-        if (u == ug.getOwner())
+        }
+        if (u == ug.getOwner()) {
             return null;
+        }
         i = new Member(ug);
         i.setMemberRole(GroupRole.fromValue(member.getRole().value()));
         i.setStatus(MemberStatus.INVITED);
@@ -513,10 +527,11 @@ public class UsersAndGroupsManager {
                 RACMNames.USERGROUP_PUBLIC);
         UserGroup ug = user.getTom().queryOne(q, UserGroup.class);
 
-        if (ug == null)
+        if (ug == null) {
             throw new IllegalStateException(
                     String.format("Public group cannot be found. First initialize RACM database before adding user %s",
                             user.getUsername()));
+        }
         Member m = new Member(ug);
         m.setScisEntity(user);
         m.setStatus(MemberStatus.ACCEPTED);
@@ -605,8 +620,9 @@ public class UsersAndGroupsManager {
                 pgm.setUserRole((String) row[i++]);
                 pgm.setUserStatus((String) row[i++]);
                 groups.put(id, pgm);
-            } else
+            } else {
                 i = 5;
+            }
             PublicGroupModel.Admin admin = new PublicGroupModel.Admin((Long) row[i++]);
             admin.setRole(org.sciserver.racm.ugm.model.GroupRole.valueOf((String) row[i++]));
             admin.setUsername((String) row[i++]);
@@ -624,8 +640,9 @@ public class UsersAndGroupsManager {
             int i = 0;
             Object[] row = (Object[]) o;
             PublicGroupModel pgm = groups.get((Long) row[i++]);
-            if (pgm == null) // RUNTIME ERROR
+            if (pgm == null) { // RUNTIME ERROR
                 continue;
+            }
             Long resourceId = (Long) row[i++];
             String publisherDID = (String) row[i++];
             String uuid = (String) row[i++];
@@ -671,8 +688,9 @@ public class UsersAndGroupsManager {
             UserGroup ug = null;
             if (sa != null && sa.getServiceToken().equals(serviceToken)) {
                 ug = queryGroup(groupId, tom);
-                if (ug != null)
+                if (ug != null) {
                     return UGMModelsMapper.map(ug, true);
+                }
             }
         }
         return null;
@@ -696,8 +714,9 @@ public class UsersAndGroupsManager {
         List<UserGroup> ugs = tom.queryJPA(q, UserGroup.class);
         ArrayList<GroupInfo> gis = new ArrayList<GroupInfo>();
         if (ugs != null) {
-            for (UserGroup ug : ugs)
+            for (UserGroup ug : ugs) {
                 gis.add(UGMModelsMapper.map(ug));
+            }
         }
         return gis;
     }
@@ -797,10 +816,12 @@ public class UsersAndGroupsManager {
     public Optional<UserGroup> queryGroup(String name, TransientObjectManager tom) {
         Query q = tom.createQuery("select g from UserGroup g where g.name=:name").setParameter("name", name);
         List<MetadataObject> l = tom.queryJPA(q, false);
-        if (l.size() == 1)
+        if (l.size() == 1) {
             return Optional.of((UserGroup) l.get(0));
-        if (l.isEmpty())
+        }
+        if (l.isEmpty()) {
             return Optional.empty();
+        }
         throw new IllegalStateException(String.format("Found > 1 groups with name '%s'", name));
     }
 
@@ -808,24 +829,28 @@ public class UsersAndGroupsManager {
         Query q = tom.createQuery("select sa from ServiceAccount sa where sa.identity.publisherDID=:name")
                 .setParameter("name", name);
         List<MetadataObject> l = tom.queryJPA(q, false);
-        if (l.size() == 1)
+        if (l.size() == 1) {
             return Optional.of((ServiceAccount) l.get(0));
-        if (l.isEmpty())
+        }
+        if (l.isEmpty()) {
             return Optional.empty();
+        }
         throw new IllegalStateException(String.format("Found > 1 service accounts with publisherDID '%s'", name));
     }
 
     public UserGroup manageGroup(GroupInfo gi, UserProfile creator, String serviceToken) throws VOURPException {
-        if (gi.getId() == null)
+        if (gi.getId() == null) {
             return createGroup(gi, creator, serviceToken);
-        else
+        } else {
             return updateGroup(gi, creator, serviceToken);
+        }
     }
 
     public PersonalUserInfo manageUserProfile(PersonalUserInfo ui, UserProfile up) throws VOURPException {
         User u = up.getUser();
-        if (ui.getUsername() != null && !u.getUsername().equals(ui.getUsername()))
+        if (ui.getUsername() != null && !u.getUsername().equals(ui.getUsername())) {
             throw new VOURPException("Cannot change username");
+        }
         if (ui.getContactEmail() != null && !u.getContactEmail().equals(ui.getContactEmail())) {
             throw new VOURPException("Cannot change email");
         }
@@ -839,8 +864,9 @@ public class UsersAndGroupsManager {
             p = new Party(up.getTom());
             u.setParty(p);
         }
-        if (p.getTom() == null)
+        if (p.getTom() == null) {
             p.setTom(u.getTom());
+        }
         p.setAffiliation(ui.getAffiliation());
         p.setFullName(ui.getFullname() == null ? "" : ui.getFullname());
         u.getTom().persist();
@@ -874,8 +900,9 @@ public class UsersAndGroupsManager {
         }
 
         String name = gi.getGroupName();
-        if (name == null || name.trim().length() == 0)
+        if (name == null || name.trim().length() == 0) {
             throw new VOURPException("Name of group must not be empty");
+        }
 
         if (gi.getAccessibility() == org.sciserver.racm.ugm.model.GroupAccessibility.PUBLIC) {
             if (!racm.canUserDoRootAction(creator.getUsername(), RACMNames.A_CREATE_PUBLIC_GROUP)) {
@@ -903,10 +930,11 @@ public class UsersAndGroupsManager {
         for (MemberUserModel im : gi.getMemberUsers()) {
             MemberStatus imStatus = MemberStatus.fromValue(im.getStatus().value());
             if (!im.getUsername().equals(creator.getUsername())) {
-                if (imStatus == MemberStatus.INVITED)
+                if (imStatus == MemberStatus.INVITED) {
                     inviteGroupMember(ug, creator, im, serviceToken);
-                else if (imStatus == MemberStatus.ACCEPTED)
+                } else if (imStatus == MemberStatus.ACCEPTED) {
                     addGroupMember(ug, creator, im, serviceToken);
+                }
                 // no other legal options
             }
         }
@@ -919,9 +947,10 @@ public class UsersAndGroupsManager {
             String serviceToken) throws VOURPException {
         // check name. Must not be null and be unique.
         Resource linkingResource = queryResourceForServiceAccount(serviceToken, resourceUUID, creator.getTom());
-        if (linkingResource == null)
+        if (linkingResource == null) {
             throw new VOURPException(VOURPException.UNAUTHORIZED,
                     "when creating a Group that should be owned by a Resource, the service token correspond nto the resource's resourcecontext service account ");
+        }
 
         if (gi.getAccessibility() == org.sciserver.racm.ugm.model.GroupAccessibility.PUBLIC) {
             if (!racm.canUserDoRootAction(creator.getUsername(), RACMNames.A_CREATE_PUBLIC_GROUP)) {
@@ -932,8 +961,9 @@ public class UsersAndGroupsManager {
         }
 
         String name = gi.getGroupName();
-        if (name == null || name.trim().length() == 0)
+        if (name == null || name.trim().length() == 0) {
             throw new VOURPException("Name of group must not be empty");
+        }
 
         TransientObjectManager tom = creator.getTom();
         UserGroup ug = newGroup(creator, gi.getGroupName());
@@ -949,10 +979,11 @@ public class UsersAndGroupsManager {
         for (MemberUserModel im : gi.getMemberUsers()) {
             MemberStatus imStatus = MemberStatus.fromValue(im.getStatus().value());
             if (!im.getUsername().equals(creator.getUsername())) {
-                if (imStatus == MemberStatus.INVITED)
+                if (imStatus == MemberStatus.INVITED) {
                     inviteGroupMember(ug, creator, im, serviceToken);
-                else if (imStatus == MemberStatus.ACCEPTED)
+                } else if (imStatus == MemberStatus.ACCEPTED) {
                     addGroupMember(ug, creator, im, serviceToken);
+                }
                 // no other legal options
             }
         }
@@ -1026,9 +1057,10 @@ public class UsersAndGroupsManager {
         Resource owningResource = queryGroupOwningResource(tom, groupId);
         if (owningResource != null) {
             ServiceAccount serviceAccount = owningResource.getContainer().getAccount();
-            if (serviceAccount == null || !serviceAccount.getServiceToken().equals(serviceToken))
+            if (serviceAccount == null || !serviceAccount.getServiceToken().equals(serviceToken)) {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         "A group owned by a resource can only be edited by its service");
+            }
         }
         return owningResource;
     }
@@ -1048,21 +1080,24 @@ public class UsersAndGroupsManager {
         // check if group is owned, which also checks if it is owned by the identified serviceToken
         checkGroupOwningResource(groupId, serviceToken, up.getTom());
 
-        if (ug == null)
+        if (ug == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("A group with id '%s' does not exist or " + "cannot be edited by user '%s'", groupId,
                             up.getUsername()));
+        }
 
-        if (RACMNames.USERGROUP_PUBLIC.equals(ug.getName()) || RACMNames.USERGROUP_ADMIN.equals(ug.getName()))
+        if (RACMNames.USERGROUP_PUBLIC.equals(ug.getName()) || RACMNames.USERGROUP_ADMIN.equals(ug.getName())) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "Illegal attempt made to edit the 'public' or 'admin' groups.");
+        }
 
         if (input.getName() != null) {
             validateGroupName(tom, input.getName(), ug.getId());
             ug.setName(input.getName());
         }
-        if (input.getDescription() != null)
+        if (input.getDescription() != null) {
             ug.setDescription(input.getDescription());
+        }
 
         updateAccessibility(ug, input.getAccessibility(), up.getUser());
 
@@ -1072,22 +1107,26 @@ public class UsersAndGroupsManager {
 
     private void updateAccessibility(UserGroup ug, org.sciserver.racm.ugm.model.GroupAccessibility updateAcc, User user)
             throws VOURPException {
-        if (updateAcc == null)
+        if (updateAcc == null) {
             return;
+        }
         GroupAccessibility newAcc = GroupAccessibility.valueOf(updateAcc.name());
         if (newAcc != ug.getAccessibility()) {
             // Not allowed to change a group to or from SYSTEM!!!
-            if (ug.getAccessibility() == GroupAccessibility.SYSTEM)
+            if (ug.getAccessibility() == GroupAccessibility.SYSTEM) {
                 throw new VOURPException(VOURPException.UNAUTHORIZED,
                         "No user is allowed to change accessibility of SYSTEM group");
-            if (newAcc == GroupAccessibility.SYSTEM)
+            }
+            if (newAcc == GroupAccessibility.SYSTEM) {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         "Illegal attempt made to change group to SYSTEM group");
+            }
 
             // only privileged users can make a group PUBLIC
-            if (newAcc == GroupAccessibility.PUBLIC && !canUserCreatePublicGroup(user))
+            if (newAcc == GroupAccessibility.PUBLIC && !canUserCreatePublicGroup(user)) {
                 throw new VOURPException(VOURPException.UNAUTHORIZED,
                         "User is not allowed to make a PRIVATE group PUBLIC");
+            }
             // assuming that if an attempt is made to make a group PRIVATE from PUBLIC and the oser has such privileges,
             // this is ok, not test necessray.
             ug.setAccessibility(newAcc);
@@ -1168,8 +1207,9 @@ public class UsersAndGroupsManager {
      * @return
      */
     private <T extends MetadataObject> Resource getResourceFromVOURPObject(T obj) {
-        if (obj instanceof Resource)
+        if (obj instanceof Resource) {
             return (Resource) obj;
+        }
         Method getResource;
         try {
             getResource = obj.getClass().getMethod("getResource");
@@ -1190,16 +1230,18 @@ public class UsersAndGroupsManager {
      */
     private UserGroup updateGroup(GroupInfo gi, UserProfile user, String serviceToken) throws VOURPException {
         // check name, 'public' group may not be edited through this method.
-        if (RACMNames.USERGROUP_PUBLIC.equals(gi.getGroupName()))
+        if (RACMNames.USERGROUP_PUBLIC.equals(gi.getGroupName())) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "Illegal attempt made to edit the 'public' group.");
+        }
 
         TransientObjectManager tom = user.getTom();
         UserGroup ug = queryEditableGroup(user, gi.getId());
-        if (ug == null)
+        if (ug == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("A group with id '%s' does not exist or cannot be edited by user '%s'", gi.getId(),
                             user.getUsername()));
+        }
 
         // check whether a resource exists owning this group. checks also whether the specified service owns that
         // resource.
@@ -1213,19 +1255,20 @@ public class UsersAndGroupsManager {
         ug.setDescription(gi.getDescription());
         for (MemberUserModel im : gi.getMemberUsers()) {
             MemberStatus imStatus = MemberStatus.fromValue(im.getStatus().value());
-            if (MemberStatus.INVITED == imStatus) // do we want this test?
+            if (MemberStatus.INVITED == imStatus) { // do we want this test?
                 inviteGroupMember(ug, user, im, serviceToken); // no-op if user has already been invited or is already a
                                                                // member. Will re-invite users who declined an
                                                                // invitation in the past.
-            else if (MemberStatus.ACCEPTED == imStatus) // do we want this test? only allowed if user is an admin
+            } else if (MemberStatus.ACCEPTED == imStatus) { // do we want this test? only allowed if user is an admin
                 addGroupMember(ug, user, im, serviceToken); // no-op if user has already been invited or is already a
                                                             // member. Will re-invite users who declined an invitation
                                                             // in the past.
-            else if (MemberStatus.WITHDRAWN == imStatus) {
+            } else if (MemberStatus.WITHDRAWN == imStatus) {
                 // check membership - if membership = null do nothing, else set status = "WITHDRAWN"
                 Member rm = removeGroupMember(ug, user, im, serviceToken);
-                if (rm != null && rm.getStatus() == MemberStatus.WITHDRAWN)
+                if (rm != null && rm.getStatus() == MemberStatus.WITHDRAWN) {
                     ug.getMember().remove(rm);
+                }
             }
         }
 
@@ -1252,20 +1295,24 @@ public class UsersAndGroupsManager {
         TransientObjectManager tom = user.getTom();
         UserGroup ug = queryEditableGroup(user, groupid);
 
-        if (ug == null)
+        if (ug == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("A group with id '%d' does not exist or cannot be edited by user '%s'", groupid,
                             user.getUsername()));
+        }
 
-        if (ug.getOwner() != user.getUser())
+        if (ug.getOwner() != user.getUser()) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "Only owner is allowed to delete a group");
+        }
 
-        if (RACMNames.USERGROUP_PUBLIC.equals(ug.getName()))
+        if (RACMNames.USERGROUP_PUBLIC.equals(ug.getName())) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "Illegal attempt made to delete the 'public' group.");
-        if (RACMNames.USERGROUP_ADMIN.equals(ug.getName()))
+        }
+        if (RACMNames.USERGROUP_ADMIN.equals(ug.getName())) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "Illegal attempt made to delete the 'admin' group.");
+        }
 
         tom.remove(ug);
         tom.persist();
@@ -1283,14 +1330,16 @@ public class UsersAndGroupsManager {
      */
     public UserGroup[] findGroups(String commaSeperatedGroups, TransientObjectManager tom) throws VOURPException {
         Map<String, UserGroup> ugs = new HashMap<>();
-        if (commaSeperatedGroups == null || commaSeperatedGroups.trim().length() == 0)
+        if (commaSeperatedGroups == null || commaSeperatedGroups.trim().length() == 0) {
             return new UserGroup[] {};
+        }
         String[] groups = commaSeperatedGroups.split("[,]");
         for (String rawGroupName : groups) {
             String group = rawGroupName.trim();
             if (group.length() > 0) {
-                if (ugs.get(group) != null)
+                if (ugs.get(group) != null) {
                     continue;
+                }
                 UserGroup ug = queryGroup(group, tom)
                         .orElseThrow(() -> new VOURPException(String.format("Group %s not found", group)));
                 ugs.put(group, ug);
@@ -1309,10 +1358,11 @@ public class UsersAndGroupsManager {
         }
         User u = queryUserByName(userName, tom);
         UserProfile up;
-        if (u == null)
+        if (u == null) {
             up = registerUser(userName, userId, contactEmail, tom);
-        else
+        } else {
             up = new UserProfile(u);
+        }
         return up;
     }
 

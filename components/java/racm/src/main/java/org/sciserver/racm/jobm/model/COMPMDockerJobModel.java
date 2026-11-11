@@ -34,10 +34,11 @@ public class COMPMDockerJobModel extends COMPMJobModel {
     }
 
     public void setVolumeContainers(List<VolumeContainerModel> volumeContainers) {
-        if (volumeContainers != null)
+        if (volumeContainers != null) {
             this.volumeContainers = volumeContainers;
-        else
+        } else {
             this.volumeContainers = new ArrayList<>();
+        }
     }
 
     public String getDockerComputeEndpoint() {

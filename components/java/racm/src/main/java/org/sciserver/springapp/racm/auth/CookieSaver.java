@@ -15,8 +15,9 @@ public class CookieSaver extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws ServletException, IOException {
-        if (!(authentication instanceof PreAuthenticatedAuthenticationToken))
+        if (!(authentication instanceof PreAuthenticatedAuthenticationToken)) {
             return;
+        }
 
         Cookie sessionCookie = new Cookie("portalCookie", authentication.getCredentials().toString());
         sessionCookie.setSecure(request.isSecure());

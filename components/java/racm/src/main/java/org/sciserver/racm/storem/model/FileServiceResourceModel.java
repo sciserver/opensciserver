@@ -80,10 +80,12 @@ public abstract class FileServiceResourceModel {
 
     @Override
     public boolean equals(Object other) {
-        if (other == this)
+        if (other == this) {
             return true;
-        if (!(other instanceof FileServiceResourceModel))
+        }
+        if (!(other instanceof FileServiceResourceModel)) {
             return false;
+        }
         FileServiceResourceModel castOther = (FileServiceResourceModel) other;
         return Objects.equals(name, castOther.name) && Objects.equals(description, castOther.description)
                 && Objects.equals(resourceUUID, castOther.resourceUUID)

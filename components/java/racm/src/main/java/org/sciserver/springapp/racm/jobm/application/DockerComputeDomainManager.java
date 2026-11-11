@@ -57,9 +57,10 @@ public class DockerComputeDomainManager {
     private DockerComputeDomain createDockerComputeDomain(DockerComputeDomainModel model, UserProfile up,
             UserGroup[] admins) throws VOURPException {
         TransientObjectManager tom = up.getTom();
-        if (!jobmAccessControl.canRegisterComputeDomain(up.getUser()))
+        if (!jobmAccessControl.canRegisterComputeDomain(up.getUser())) {
             throw new VOURPException(VOURPException.UNAUTHORIZED,
                     String.format("User %s is not authorized to register a ComputeDomain", up.getUsername()));
+        }
 
         DockerComputeDomain dcd = queryDockerComputeDomainForEndpoint(model.getApiEndpoint(), tom);
         if (dcd != null) {
@@ -72,16 +73,19 @@ public class DockerComputeDomainManager {
         dcd.setDescription(model.getDescription());
         dcd.setPublisherDID(model.getPublisherDID());
         if (model.getImages() != null) {
-            for (DockerImageModel dim : model.getImages())
+            for (DockerImageModel dim : model.getImages()) {
                 jobmModelFactory.newDockerImage(dim, dcd);
+            }
         }
         if (model.getVolumes() != null) {
-            for (VolumeContainerModel vcm : model.getVolumes())
+            for (VolumeContainerModel vcm : model.getVolumes()) {
                 jobmModelFactory.newVolumeContainer(vcm, dcd);
+            }
         }
         if (model.getRootVolumes() != null) {
-            for (RootVolumeOnComputeDomainModel rvm : model.getRootVolumes())
+            for (RootVolumeOnComputeDomainModel rvm : model.getRootVolumes()) {
                 jobmModelFactory.newRootVolumeOnComputeDomain(rvm, dcd);
+            }
         }
         // register with RACM
         defineResourceContext(dcd, up.getUser(), admins);
@@ -99,10 +103,11 @@ public class DockerComputeDomainManager {
      */
     public DockerComputeDomain manageDockerComputeDomain(DockerComputeDomainModel model, UserProfile up,
             UserGroup[] admins) throws VOURPException {
-        if (model.getId() != null)
+        if (model.getId() != null) {
             return updateDockerComputeDomain(model, up, admins);
-        else
+        } else {
             return createDockerComputeDomain(model, up, admins);
+        }
     }
 
     /**
@@ -121,13 +126,15 @@ public class DockerComputeDomainManager {
         TransientObjectManager tom = up.getTom();
 
         DockerComputeDomain dcd = queryDockerComputeDomainForUUID(racmUUID, tom);
-        if (dcd == null)
+        if (dcd == null) {
             throw new ResourceNotFoundException(String.format("No docker compute domain with racmUUID %s", racmUUID));
+        }
 
-        if (!jobmAccessControl.canAddRootVolume(up, dcd))
+        if (!jobmAccessControl.canAddRootVolume(up, dcd)) {
             throw new VOURPException(VOURPException.UNAUTHORIZED, String.format(
                     "User %s is not authorized to add a root volume to the compute domain with apiEndpoint '%s'",
                     up.getUsername(), dcd.getApiEndpoint()));
+        }
 
         validateNewRootVolume(dcd, rvm);
 
@@ -137,10 +144,11 @@ public class DockerComputeDomainManager {
     private void validateNewRootVolume(DockerComputeDomain dcd, RootVolumeOnComputeDomainModel rvm)
             throws VOURPException {
         // id is assigned by RACM; supplying one is a client error, not something to ignore
-        if (rvm.getId() != null)
+        if (rvm.getId() != null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "id must not be supplied when creating a root volume on a compute domain; "
                             + "it is assigned by RACM");
+        }
 
         // check whether required attributes are set.
         // collect those that are not before possibly throwing an exception
@@ -163,25 +171,29 @@ public class DockerComputeDomainManager {
         // looks this entity up by it, and duplicates may be intentional.
 
         // getRootVolume() returns null, not an empty list, when nothing was ever attached
-        if (dcd.getRootVolume() == null)
+        if (dcd.getRootVolume() == null) {
             return;
+        }
 
         String path = rvm.getPathOnCD().trim();
         String displayName = rvm.getDisplayName().trim();
 
         for (RootVolumeOnComputeDomain existing : dcd.getRootVolume()) {
-            if (existing.getRootVolume() != null && rvm.getRootVolumeId().equals(existing.getRootVolume().getId()))
+            if (existing.getRootVolume() != null && rvm.getRootVolumeId().equals(existing.getRootVolume().getId())) {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         String.format("Root volume %d is already mounted on this compute domain at '%s'",
                                 rvm.getRootVolumeId(), existing.getPath()));
+            }
 
-            if (path.equals(trimOrNull(existing.getPath())))
+            if (path.equals(trimOrNull(existing.getPath()))) {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         String.format("Path '%s' is already in use on this compute domain", path));
+            }
 
-            if (displayName.equalsIgnoreCase(trimOrNull(existing.getDisplayName())))
+            if (displayName.equalsIgnoreCase(trimOrNull(existing.getDisplayName()))) {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         String.format("Display name '%s' is already in use on this compute domain", displayName));
+            }
         }
     }
 
@@ -216,8 +228,9 @@ public class DockerComputeDomainManager {
 
     public List<DockerComputeDomainModel> queryDockerComputeDomains(UserProfile user) throws VOURPException {
         // only admins are allowed to see all docker compute domains
-        if (!user.isAdmin())
+        if (!user.isAdmin()) {
             throw new InsufficientPermissionsException("query docker compute domains");
+        }
 
         TransientObjectManager tom = user.getTom();
         Query q = tom.createQuery("select dcd from DockerComputeDomain dcd ");
@@ -246,15 +259,16 @@ public class DockerComputeDomainManager {
         TransientObjectManager tom = user.getTom();
         String jpaq = null;
         if (includeBatch) {
-            if (includeInteractive)
+            if (includeInteractive) {
                 jpaq = "select dcd from DockerComputeDomain dcd ";
-            else
+            } else {
                 /*
                  * This is equivalent to selecting the c.computeDomain from COMPM c, but that doesn't work with joins in
                  * eclipse link. Doing it this way requires extra matching between compms and compute domains in the
                  * database layer, but avoids having to do n+1 queries due to every resource within a compute domain.
                  */
                 jpaq = "select dcd from DockerComputeDomain dcd where exists (select c from COMPM c where c.computeDomain=dcd)";
+            }
         } else { // includeInteractive is assumed
             jpaq = "select dcd from DockerComputeDomain dcd where not exists (select c from COMPM c where c.computeDomain=dcd)";
         }
@@ -296,8 +310,9 @@ public class DockerComputeDomainManager {
                             } else if (cr instanceof VolumeContainer) {
                                 VolumeContainer vc = (VolumeContainer) cr;
                                 VolumeContainerModel vcm = jobmModelFactory.newVolumeContainerModel(vc);
-                                if (dictWritableVCs.containsKey(vcm.getId()))
+                                if (dictWritableVCs.containsKey(vcm.getId())) {
                                     vcm.setWritable(true);
+                                }
 
                                 dcdm.getVolumes().add(vcm);
                             }
@@ -312,8 +327,9 @@ public class DockerComputeDomainManager {
 
         for (Map.Entry<Long, UserDockerComputeDomainModel> entry : jms.entrySet()) {
             Map<Long, ComputeDomainUserVolumeModel> cduvms = cds.get(entry.getKey());
-            if (cduvms == null)
+            if (cduvms == null) {
                 continue;
+            }
             UserDockerComputeDomainModel ucdm = entry.getValue();
             for (ComputeDomainUserVolumeModel cduvm : cduvms.values()) {
                 ucdm.addUserVolume(cduvm);
@@ -342,8 +358,9 @@ public class DockerComputeDomainManager {
 
     // ~~~ methods dealing with RACM resources
     private Resource defineComputeResourceResource(ComputeResource cr, ResourceContext rc, ResourceType rt) {
-        if (rc.getContextClass() != rt.getContainer())
+        if (rc.getContextClass() != rt.getContainer()) {
             return null;
+        }
         Resource r = RACMUtil.newResource(rc);
         r.setPublisherDID(cr.getPublisherDID());
         r.setResourceType(rt);
@@ -383,13 +400,15 @@ public class DockerComputeDomainManager {
                 if (cr instanceof VolumeContainer) {
                     Resource r = defineComputeResourceResource(cr, rc, volumeContainerResourceType);
                     RACMUtil.assignRole(adminRoleOnVolumeContainer, r, u);
-                    for (UserGroup ug : admins)
+                    for (UserGroup ug : admins) {
                         RACMUtil.assignRole(adminRoleOnVolumeContainer, r, ug);
+                    }
                 } else if (cr instanceof DockerImage) {
                     Resource r = defineComputeResourceResource(cr, rc, dockerImageResourceType);
                     RACMUtil.assignRole(adminRoleOnDockerImage, r, u);
-                    for (UserGroup ug : admins)
+                    for (UserGroup ug : admins) {
                         RACMUtil.assignRole(adminRoleOnDockerImage, r, ug);
+                    }
                 }
             }
         }
@@ -409,8 +428,9 @@ public class DockerComputeDomainManager {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "A DockerComputeDomain's apiendpint can not be updated.");
         }
-        if (dcd.getName() != null && !dcd.getName().equals(rc.getLabel()))
+        if (dcd.getName() != null && !dcd.getName().equals(rc.getLabel())) {
             rc.setLabel(dcd.getName());
+        }
 
         ResourceType volumeContainerResourceType =
                 ContextClassManager.getResourceType(RACMNames.RT_VOLUME_CONTAINER, rc.getContextClass());
@@ -450,38 +470,43 @@ public class DockerComputeDomainManager {
     private DockerComputeDomain updateDockerComputeDomain(DockerComputeDomainModel dcdm, UserProfile up,
             UserGroup[] admins) throws VOURPException {
         TransientObjectManager tom = up.getTom();
-        if (admins == null)
+        if (admins == null) {
             admins = new UserGroup[] {};
+        }
 
-        if (dcdm.getRacmUUID() == null || dcdm.getRacmUUID().trim().length() == 0)
+        if (dcdm.getRacmUUID() == null || dcdm.getRacmUUID().trim().length() == 0) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "When updating a docker compute domain, specifiy both id and racmUUID");
+        }
         DockerComputeDomain dcd = queryDockerComputeDomainForUUID(dcdm.getRacmUUID(), tom);
         if (dcd == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("No docker compute domain with id=%s and racmUUID=%s exists", dcdm.getId().toString(),
                             dcdm.getRacmUUID()));
         }
-        if (!jobmAccessControl.canEditComputeDomain(up.getUser(), dcd))
+        if (!jobmAccessControl.canEditComputeDomain(up.getUser(), dcd)) {
             throw new VOURPException(VOURPException.UNAUTHORIZED,
                     String.format("User %s is not authorized to update the ComputeDomain with apiEndpoint '%s'",
                             up.getUsername(), dcd.getApiEndpoint()));
+        }
 
         // TBD can a computedomain change its apiendpoint? NO
         // Can only add/remove containers and images and rootvolumes, update
         // description and name.
         dcd.setDescription(dcdm.getDescription());
-        if (dcdm.getName() != null)
+        if (dcdm.getName() != null) {
             dcd.setName(dcdm.getName());
+        }
 
         Map<Long, ComputeResource> crs = new HashMap<>();
-        for (ComputeResource cr : dcd.getComputeResource())
+        for (ComputeResource cr : dcd.getComputeResource()) {
             crs.put(cr.getId(), cr);
+        }
 
         for (DockerImageModel dim : dcdm.getImages()) {
-            if (dim.getRacmUUID() == null)
+            if (dim.getRacmUUID() == null) {
                 jobmModelFactory.newDockerImage(dim, dcd);
-            else {
+            } else {
                 ComputeResource cr = crs.get(dim.getId());
                 if (cr == null) {
                     throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
@@ -498,9 +523,9 @@ public class DockerComputeDomainManager {
             }
         }
         for (VolumeContainerModel vcm : dcdm.getVolumes()) {
-            if (vcm.getRacmUUID() == null)
+            if (vcm.getRacmUUID() == null) {
                 jobmModelFactory.newVolumeContainer(vcm, dcd);
-            else {
+            } else {
                 ComputeResource cr = crs.get(vcm.getId());
                 if (cr == null) {
                     throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
@@ -589,10 +614,11 @@ public class DockerComputeDomainManager {
                 cduvm.setIsShareable((Boolean) row[i++]);
                 String p1 = ((String) row[i++]).trim();
                 String p2 = ((String) row[i++]).trim();
-                if (p1.endsWith("/") || p2.startsWith("/"))
+                if (p1.endsWith("/") || p2.startsWith("/")) {
                     cduvm.setFullPath(p1 + p2);
-                else
+                } else {
                     cduvm.setFullPath(p1 + "/" + p2);
+                }
                 cduvm.setName((String) row[i++]);
                 cduvm.setPublisherDID((String) row[i++]);
                 cduvm.setOwner((String) row[i++]);

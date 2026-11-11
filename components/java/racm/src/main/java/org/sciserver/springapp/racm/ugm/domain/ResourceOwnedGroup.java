@@ -8,8 +8,9 @@ public class ResourceOwnedGroup {
     private final Long groupId;
 
     public ResourceOwnedGroup(Resource resource, Long groupId) {
-        if (resource == null || groupId == null)
+        if (resource == null || groupId == null) {
             throw new NullPointerException("Neither resource nore groupId can be null in ResourceOwnedGroup");
+        }
         this.resource = resource;
         this.groupId = groupId;
     }

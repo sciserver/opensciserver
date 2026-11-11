@@ -37,8 +37,9 @@ public class COMPMRequiredInjector {
         TransientObjectManager tom = vourpContext.newTOM();
         Query q = tom.createQuery("select c from COMPM c where c.uuid=:uuid").setParameter("uuid", compmId);
         COMPM compm = tom.queryOne(q, COMPM.class);
-        if (compm == null)
+        if (compm == null) {
             throw new NotAuthorizedException();
+        }
 
         return new COMPMInfo(compm.getUuid(), compm.getId(), compm.getDefaultJobTimeout(),
                 compm.getDefaultJobsPerUser());

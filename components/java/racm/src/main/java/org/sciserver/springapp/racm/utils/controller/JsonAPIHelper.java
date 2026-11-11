@@ -47,16 +47,20 @@ public class JsonAPIHelper {
      * @return the HTTP status to report
      */
     static HttpStatus statusFor(Exception e) {
-        if (e instanceof RACMException)
+        if (e instanceof RACMException) {
             return HttpStatus.UNAUTHORIZED;
-        if (e instanceof InsufficientPermissionsException)
+        }
+        if (e instanceof InsufficientPermissionsException) {
             return HttpStatus.FORBIDDEN;
+        }
         if (e instanceof VOURPException) {
             int error = ((VOURPException) e).getErrorCode();
-            if (error == VOURPException.ILLEGAL_ARGUMENT)
+            if (error == VOURPException.ILLEGAL_ARGUMENT) {
                 return HttpStatus.BAD_REQUEST;
-            if (error == VOURPException.UNAUTHORIZED)
+            }
+            if (error == VOURPException.UNAUTHORIZED) {
                 return HttpStatus.FORBIDDEN;
+            }
         }
         return HttpStatus.INTERNAL_SERVER_ERROR;
     }

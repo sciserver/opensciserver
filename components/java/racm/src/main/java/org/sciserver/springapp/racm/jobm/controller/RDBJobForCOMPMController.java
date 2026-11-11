@@ -102,9 +102,10 @@ public class RDBJobForCOMPMController {
                 String token = jobModel.getSubmitterToken(); // need to remember this, for VO-URP JOb does not have a
                                                              // token, but COMPM needs it still
                 RDBJobModel newJobModel = jobmModelFactory.updateRDBJob(jobModel, compm.id());
-                if (LOG.isInfoEnabled())
+                if (LOG.isInfoEnabled()) {
                     LOG.info(String.format("JobStatus updated to '%s' for jobid %d", newJobModel.getStatus(),
                             newJobModel.getId()));
+                }
                 compmTokenUtils.checkSubmitterToken(token, jobModel);
             }
         } catch (Exception e) {

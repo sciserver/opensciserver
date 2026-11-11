@@ -32,8 +32,9 @@ public class ComputeDomainManager {
         TransientObjectManager tom = sysUser.getTom();
         String name = RACMNames.RDB_COMPUTE_DOMAIN_CC_NAME;
         ContextClass cc = RACMUtil.queryContextClass(name, tom);
-        if (cc != null)
+        if (cc != null) {
             return null;
+        }
         cc = new ContextClass(tom);
         cc.setName(name);
         cc.setDescription("Represents SciServer RDB Compute Domains.");
@@ -98,8 +99,9 @@ public class ComputeDomainManager {
         TransientObjectManager tom = sysUser.getTom();
         String name = RACMNames.DOCKER_COMPUTE_DOMAIN_CC_NAME;
         ContextClass cc = RACMUtil.queryContextClass(name, tom);
-        if (cc != null)
+        if (cc != null) {
             return null;
+        }
         cc = new ContextClass(tom);
         cc.setName(name);
         cc.setDescription("Represents SciServer Compute Domains.");
@@ -246,17 +248,19 @@ public class ComputeDomainManager {
 
     void synchronizeRootVolumes(ComputeDomain cd, List<RootVolumeOnComputeDomainModel> rvms) throws VOURPException {
         Map<Long, RootVolumeOnComputeDomain> rvs = new HashMap<>();
-        for (RootVolumeOnComputeDomain rv : cd.getRootVolume())
+        for (RootVolumeOnComputeDomain rv : cd.getRootVolume()) {
             rvs.put(rv.getId(), rv);
+        }
 
         for (RootVolumeOnComputeDomainModel rvm : rvms) {
-            if (rvm.getId() == null)
+            if (rvm.getId() == null) {
                 jobmModelFactory.newRootVolumeOnComputeDomain(rvm, cd);
-            else {
+            } else {
                 RootVolumeOnComputeDomain rv = rvs.get(rvm.getId());
-                if (rv == null)
+                if (rv == null) {
                     throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, String.format(
                             "RootVolumeOnComputeDomain '%s' does not exist on compute domain repository", rvm.getId()));
+                }
                 rvs.remove(rv.getId());
             }
         }

@@ -31,8 +31,9 @@ public class FileServiceAuthenticationInjector {
             throw new InsufficientPermissionsException("access this API without valid service token");
         }
         String requestedPath = new UrlPathHelper().getPathWithinApplication(request);
-        if (!requestedPath.startsWith("/storem/fileservice/" + fs.getIdentifier()))
+        if (!requestedPath.startsWith("/storem/fileservice/" + fs.getIdentifier())) {
             throw new InsufficientPermissionsException("access this API without valid service token");
+        }
         return fs;
     }
 }

@@ -24,10 +24,11 @@ public class ResourceManager {
     }
 
     public ResourceMVCModel editResource(UserProfile up, ResourceMVCModel resourceModel) {
-        if (resourceModel.getId() == null)
+        if (resourceModel.getId() == null) {
             return createResource(up, resourceModel);
-        else
+        } else {
             return updateResource(up, resourceModel);
+        }
     }
 
     private ResourceMVCModel createResource(UserProfile up, ResourceMVCModel resourceModel) {
@@ -38,9 +39,10 @@ public class ResourceManager {
             rts = RACMModelFactory.queryResourceTypes(resourceModel, tom);
 
             ResourceContext rc = ResourceContextManager.queryResourceContext(resourceModel.getContainerId(), tom);
-            if (rc == null)
+            if (rc == null) {
                 throw new IllegalStateException(
                         "Cannot create new Resource when parent ResourceContext cannot be found");
+            }
 
             validate(resourceModel, null);
             r = RACMUtil.newResource(rc);
@@ -68,14 +70,17 @@ public class ResourceManager {
      */
     public void editResourceMetadata(String resourceUUID, String name, String description, TransientObjectManager tom)
             throws VOURPException {
-        if (name == null && description == null)
+        if (name == null && description == null) {
             return;
+        }
         Query q = tom.createQuery("select r from Resource r where r.uuid=:uuid").setParameter("uuid", resourceUUID);
         Resource r = tom.queryOne(q, Resource.class);
-        if (r != null)
+        if (r != null) {
             r.setName(name);
-        if (description != null)
+        }
+        if (description != null) {
             r.setDescription(description);
+        }
         tom.persist();
     }
 
@@ -86,9 +91,10 @@ public class ResourceManager {
         try {
             rts = RACMModelFactory.queryResourceTypes(resourceModel, tom);
             r = queryResource(resourceModel.getId(), tom);
-            if (r == null)
+            if (r == null) {
                 throw new IllegalArgumentException(
                         String.format("Cannot change non-existent Resource with ID = '%s'", resourceModel.getId()));
+            }
 
             validate(resourceModel, r);
             fill(r, resourceModel, rts);
@@ -102,8 +108,9 @@ public class ResourceManager {
             r = queryResource(resourceModel.getId(), tom);
             resourceModel = RACMModelFactory.newResourceModel(r, rts);
         } catch (Exception e) {
-            if (r == null)
+            if (r == null) {
                 throw new IllegalArgumentException("Trying to update non-existent resource type");
+            }
             resourceModel = RACMModelFactory.newResourceModel(r, rts);
             resourceModel.setException(e);
         }
@@ -122,8 +129,9 @@ public class ResourceManager {
     public ResourceMVCModel getModel(TransientObjectManager tom, long id) {
         Resource r = queryResource(id, vourpContext.newTOM());
 
-        if (r == null)
+        if (r == null) {
             return null;
+        }
         return RACMModelFactory.newResourceModel(r, tom);
     }
 
@@ -146,8 +154,9 @@ public class ResourceManager {
             }
         }
 
-        if (null == r.getResourceType())
+        if (null == r.getResourceType()) {
             throw new IllegalArgumentException("Referred ResourceType " + rcName + " is not found in the database.");
+        }
     }
 
     private void validate(ResourceMVCModel rm, Resource r) {
@@ -155,14 +164,17 @@ public class ResourceManager {
         String uuid = (null == trimeduuid || "".equals(trimeduuid)) ? null : trimeduuid;
 
         if (null != r) {
-            if (r.isPurelyTransient() && uuid != null)
+            if (r.isPurelyTransient() && uuid != null) {
                 throw new IllegalArgumentException("Resource's uuid must be set by the system.");
+            }
 
-            if (!r.isPurelyTransient() && uuid == null)
+            if (!r.isPurelyTransient() && uuid == null) {
                 throw new IllegalArgumentException("Resource must have uuid.");
+            }
         }
-        if (rm.getResourceTypeModel() == null)
+        if (rm.getResourceTypeModel() == null) {
             throw new IllegalArgumentException("A Resource MUST have a resource type");
+        }
     }
 
 }

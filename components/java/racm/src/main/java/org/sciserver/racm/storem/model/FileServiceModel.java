@@ -60,12 +60,15 @@ public final class FileServiceModel {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         FileServiceModel other = (FileServiceModel) obj;
         return Objects.equals(apiEndpoint, other.apiEndpoint) && Objects.equals(dataVolumes, other.dataVolumes)
                 && Objects.equals(description, other.description) && Objects.equals(identifier, other.identifier)

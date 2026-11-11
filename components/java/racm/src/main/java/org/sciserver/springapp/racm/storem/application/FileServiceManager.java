@@ -133,8 +133,9 @@ public class FileServiceManager {
 
     public void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
             String userVolumeOwnerName, String userVolumeName, UpdateSharedWithEntry[] updatedEntries) {
-        for (UpdateSharedWithEntry updatedEntry : updatedEntries)
+        for (UpdateSharedWithEntry updatedEntry : updatedEntries) {
             updateSharing(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, updatedEntry);
+        }
     }
 
     private void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
@@ -144,8 +145,9 @@ public class FileServiceManager {
 
     public void updateSharingOfDataVolumes(UserProfile up, String fileServiceIdentifer, String dataVolumeName,
             UpdateSharedWithEntry[] updatedEntries) {
-        for (UpdateSharedWithEntry updatedEntry : updatedEntries)
+        for (UpdateSharedWithEntry updatedEntry : updatedEntries) {
             updateSharingOfDataVolumes(up, fileServiceIdentifer, dataVolumeName, updatedEntry);
+        }
     }
 
     private void updateSharingOfDataVolumes(UserProfile up, String fileServiceIdentifer, String dataVolumeName,
@@ -154,9 +156,10 @@ public class FileServiceManager {
     }
 
     private void validateUserVolume(RegisterNewUserVolumeModel userVolume) {
-        if (userVolume.getName().isEmpty() || userVolume.getName().contains("/"))
+        if (userVolume.getName().isEmpty() || userVolume.getName().contains("/")) {
             throw new RegistrationInvalidException(
                     "User volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
     }
 
     public void deleteUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
@@ -205,26 +208,30 @@ public class FileServiceManager {
     }
 
     private void validateRootVolume(RegisterNewRootVolumeModel rootVolume) {
-        if (rootVolume.getName().isEmpty() || rootVolume.getName().contains("/"))
+        if (rootVolume.getName().isEmpty() || rootVolume.getName().contains("/")) {
             throw new RegistrationInvalidException(
                     "Root volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
     }
 
     private void validateDataVolume(RegisterNewDataVolumeModel dataVolume) {
-        if (dataVolume.getName().isEmpty() || dataVolume.getName().contains("/"))
+        if (dataVolume.getName().isEmpty() || dataVolume.getName().contains("/")) {
             throw new RegistrationInvalidException(
                     "Root volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
     }
 
     private void validateFileService(RegisterNewFileServiceModel fileService) {
-        if (!anyURLValidator.isValid(fileService.getApiEndpoint()))
+        if (!anyURLValidator.isValid(fileService.getApiEndpoint())) {
             throw new RegistrationInvalidException("File service must be a valid https URL.");
+        }
     }
 
     private void validateServiceVolume(RegisterNewServiceVolumeModel serviceVolume) {
-        if (serviceVolume.getName().isEmpty() || serviceVolume.getName().contains("/"))
+        if (serviceVolume.getName().isEmpty() || serviceVolume.getName().contains("/")) {
             throw new RegistrationInvalidException(
                     "Service volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
     }
 
     public RegisteredServiceVolumeModel registerServiceVolume(UserProfile owner, String fileServiceIdentifer,

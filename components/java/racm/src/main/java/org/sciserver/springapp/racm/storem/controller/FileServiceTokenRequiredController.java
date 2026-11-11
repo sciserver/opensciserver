@@ -32,8 +32,9 @@ public class FileServiceTokenRequiredController {
     @GetMapping(value = "/fileservice/{fileServiceIdentifer}", headers = "!" + AUTH_HEADER)
     public RegisteredFileServiceModel getDetailsOfFileService(@PathVariable String fileServiceIdentifer,
             RegisteredFileServiceModel fileService) {
-        if (!fileService.getIdentifier().equals(fileServiceIdentifer))
+        if (!fileService.getIdentifier().equals(fileServiceIdentifer)) {
             throw new ResourceNotFoundException("Couldn't find identifier");
+        }
 
         return fileService;
     }

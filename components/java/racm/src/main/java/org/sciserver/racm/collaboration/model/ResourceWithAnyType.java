@@ -32,12 +32,15 @@ public class ResourceWithAnyType extends ResourceFacade {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ResourceWithAnyType other = (ResourceWithAnyType) obj;
         return Objects.equals(resourceContext, other.resourceContext)
                 && Objects.equals(resourceType, other.resourceType);
@@ -73,12 +76,15 @@ public class ResourceWithAnyType extends ResourceFacade {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             ResourceContextInfo other = (ResourceContextInfo) obj;
             return Objects.equals(contextClassName, other.contextClassName)
                     && Objects.equals(description, other.description) && Objects.equals(name, other.name);

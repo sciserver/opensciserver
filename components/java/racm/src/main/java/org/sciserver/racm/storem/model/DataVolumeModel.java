@@ -18,8 +18,9 @@ public final class DataVolumeModel extends FileServiceResourceModel {
             @JsonProperty("url") String url, @JsonProperty("allowedActions") List<String> allowedActions,
             @JsonProperty("sharedWith") List<SharedWithEntity> sharedWith) {
         this(id, resourceUUID, name, description, displayName, pathOnFileSystem, url, allowedActions);
-        if (sharedWith != null)
+        if (sharedWith != null) {
             this.addSharedWith(sharedWith);
+        }
     }
 
     public DataVolumeModel(Long id, String resourceUUID, String name, String description, String displayName,
@@ -50,8 +51,9 @@ public final class DataVolumeModel extends FileServiceResourceModel {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof DataVolumeModel))
+        if (!(obj instanceof DataVolumeModel)) {
             return false;
+        }
         DataVolumeModel other = (DataVolumeModel) obj;
         return super.equals(other) && Objects.equals(displayName, other.displayName) && Objects.equals(url, other.url)
                 && Objects.equals(pathOnFileSystem, other.pathOnFileSystem);

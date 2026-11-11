@@ -40,8 +40,9 @@ public class QueryMvcController {
     @GetMapping("/jpql")
     public ModelAndView jpqlQuery(@AuthenticationPrincipal UserProfile up) throws VOURPException {
 
-        if (!rac.canUserQueryJOQL(up.getUser()))
+        if (!rac.canUserQueryJOQL(up.getUser())) {
             throw new VOURPException(VOURPException.UNAUTHORIZED, "User not allowed to submit JOQL queries");
+        }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("jpqlQueryModel", new JPQLQueryModel());
@@ -52,8 +53,9 @@ public class QueryMvcController {
     @PostMapping("/jpql")
     public ModelAndView executeJpqlQuery(JPQLQueryModel query, @AuthenticationPrincipal UserProfile up)
             throws VOURPException {
-        if (!rac.canUserQueryJOQL(up.getUser()))
+        if (!rac.canUserQueryJOQL(up.getUser())) {
             throw new VOURPException(VOURPException.UNAUTHORIZED, "User not allowed to submit JOQL queries");
+        }
 
         TransientObjectManager tom = vourpContext.newTOM();
 
@@ -62,12 +64,13 @@ public class QueryMvcController {
             List<?> l = tom.customJPQL(q, false);
             List<String> rows = new ArrayList<>();
             for (Object o : l) {
-                if (o instanceof MetadataObject)
+                if (o instanceof MetadataObject) {
                     rows.add(((MetadataObject) o).deepToString());
-                else if (o instanceof Object[])
+                } else if (o instanceof Object[]) {
                     rows.add(Arrays.deepToString((Object[]) o));
-                else
+                } else {
                     rows.add(o != null ? o.toString() : null);
+                }
             }
             query.setRows(rows);
         } catch (Exception e) {

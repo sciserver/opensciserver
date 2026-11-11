@@ -15,8 +15,9 @@ public class VOURPContext {
     private TransientObjectManager currentTom;
 
     public TransientObjectManager newTOM() {
-        if (currentTom == null)
+        if (currentTom == null) {
             currentTom = new TransientObjectManager(em);
+        }
         return currentTom;
     }
 }

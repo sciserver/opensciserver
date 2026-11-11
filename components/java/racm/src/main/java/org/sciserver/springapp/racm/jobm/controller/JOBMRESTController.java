@@ -247,8 +247,9 @@ public class JOBMRESTController {
     public ResponseEntity<JsonNode> queryUserJobsStats(@RequestParam(required = false) Integer since,
             @AuthenticationPrincipal UserProfile up) {
         try {
-            if (since == null || since < 0)
+            if (since == null || since < 0) {
                 since = 24;
+            }
             Map<Integer, Integer> js = jobm.queryUserJobsStats(up, since);
             return jsonAPIHelper.success(js);
         } catch (Exception e) {
@@ -560,9 +561,10 @@ public class JOBMRESTController {
     @GetMapping("/dockercomputedomains")
     public ResponseEntity<JsonNode> queryDockerComputeDomains(@AuthenticationPrincipal UserProfile up) {
         try {
-            if (!up.isAdmin())
+            if (!up.isAdmin()) {
                 throw new InsufficientPermissionsException(
                         "Illegal request made for admin information about Docker Compute Domains.");
+            }
             List<DockerComputeDomainModel> dcdms = dockerComputeDomainManager.queryDockerComputeDomains(up);
 
             JsonNode json = om.valueToTree(dcdms);
@@ -878,8 +880,9 @@ public class JOBMRESTController {
             } else {
                 ObjectNode on = om.createObjectNode();
                 on.put("status", "error");
-                if (casJobsResult != null)
+                if (casJobsResult != null) {
                     on.put("error", casJobsResult.getMessage());
+                }
                 return new ResponseEntity<>(on,
                         casJobsResult != null ? HttpStatus.valueOf(casJobsResult.getResponseCode())
                                 : HttpStatus.NOT_FOUND);

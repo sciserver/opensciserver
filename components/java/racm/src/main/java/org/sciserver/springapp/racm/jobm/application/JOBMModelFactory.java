@@ -89,12 +89,13 @@ public class JOBMModelFactory {
 
     public COMPMJobModel newCOMPMJobModel(Job job, boolean fillDetails) {
         COMPMJobModel jm;
-        if (job instanceof DockerJob)
+        if (job instanceof DockerJob) {
             jm = newDockerJobModel((DockerJob) job, fillDetails);
-        else if (job instanceof RDBJob)
+        } else if (job instanceof RDBJob) {
             jm = newRDBJobModel((RDBJob) job, fillDetails);
-        else
+        } else {
             jm = new COMPMJobModel(job.getId());
+        }
 
         jm.setSubmitterTrustId(job.getSubmitter().getTrustId());
         // only full jobtype model needed if also details of job need to be filled in
@@ -108,16 +109,18 @@ public class JOBMModelFactory {
         jm.setResultsFolderURI(job.getResultsFolderURI());
         jm.setTimeout(job.getTimeout());
 
-        if (job.getDuration() != null)
+        if (job.getDuration() != null) {
             jm.setDuration(job.getDuration());
+        }
         jm.setRunByUUID(job.getRunBy() != null ? job.getRunBy().getUuid() : null);
 
         if (fillDetails) {
             List<JobMessage> msgs = job.getMessage();
             if (msgs != null && !msgs.isEmpty()) {
                 List<JobMessageModel> jmsgs = new ArrayList<>();
-                for (JobMessage m : msgs)
+                for (JobMessage m : msgs) {
                     jmsgs.add(newJobMessageModel(m));
+                }
                 jm.setMessages(jmsgs);
             }
         }
@@ -149,9 +152,9 @@ public class JOBMModelFactory {
         initializeJob(job, jobModel);
 
         DockerComputeDomain cd = findDockerComputeDomainForAPIEndpoint(jobModel.getDockerComputeEndpoint(), tom);
-        if (cd != null)
+        if (cd != null) {
             job.setComputeDomain(cd);
-        else {
+        } else {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "A docker job must reference a dockercomputedomain");
         }
@@ -168,8 +171,9 @@ public class JOBMModelFactory {
                 break;
             }
         }
-        if (job.getImage() == null)
+        if (job.getImage() == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "No valid Docker image on submitted job model");
+        }
 
         // TODO optimize next from nested loop?
         if (jobModel.getVolumeContainers() != null) {
@@ -177,8 +181,9 @@ public class JOBMModelFactory {
                 for (ComputeResource cs : cd.getComputeResource()) {
                     if (cs instanceof VolumeContainer && cs.getName().equals(vcm.getName())) {
                         jobmAccessControl.tryUseVolumeContainer(up, (VolumeContainer) cs);
-                        if (vcm.isWritable()) // must check whether user is allowed to write, if not throw exception
+                        if (vcm.isWritable()) { // must check whether user is allowed to write, if not throw exception
                             jobmAccessControl.tryWriteVolumeContainer(up, (VolumeContainer) cs);
+                        }
                         RequiredVolume rv = new RequiredVolume(job);
                         rv.setVolume((VolumeContainer) cs);
                         rv.setNeedsWriteAccess(vcm.isWritable());
@@ -195,11 +200,13 @@ public class JOBMModelFactory {
                     dockerComputeDomainManager.queryMountableUserVolumes(up, cd.getId());
             for (RequiredUserVolumeModel vcm : jobModel.getUserVolumes()) {
                 ComputeDomainUserVolumeModel cduvm = cduvms.get(vcm.getUserVolumeId());
-                if (cduvm == null)
+                if (cduvm == null) {
                     continue; // this is expected if mulitple requests for the same volume, see next comment
-                else
-                    cduvms.remove(vcm.getUserVolumeId()); // this ensures that a volume will be registered to be mounted
-                                                          // only once, even if request has mistake
+                } else {
+                    // this ensures that a volume will be registered to be mounted
+                    // only once, even if request has mistake
+                    cduvms.remove(vcm.getUserVolumeId());
+                }
                 boolean canRead = cduvm.getAllowedActions().contains(STOREMConstants.A_FILESERVICE_USERVOLUME_READ);
                 boolean canWrite = cduvm.getAllowedActions().contains(STOREMConstants.A_FILESERVICE_USERVOLUME_WRITE);
                 if (canRead || canWrite) {
@@ -222,9 +229,9 @@ public class JOBMModelFactory {
         initializeJob(job, jobModel);
 
         RDBComputeDomain cd = findRDBComputeDomain(jobModel.getRdbDomainId(), tom);
-        if (cd != null)
+        if (cd != null) {
             job.setComputeDomain(cd);
-        else {
+        } else {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "An RDB job must reference an rdbcomputedomain");
         }
 
@@ -236,10 +243,11 @@ public class JOBMModelFactory {
             DatabaseContext dbContext =
                     queryDatabaseContextForName(jobModel.getRdbDomainId(), jobModel.getDatabaseContextName(), tom);
             job.setDatabaseContext(dbContext);
-            if (job.getDatabaseContext() == null)
+            if (job.getDatabaseContext() == null) {
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         String.format("'%s' is not an existing database context on RDB Compute Domain '%s'",
                                 jobModel.getDatabaseContextName(), jobModel.getRdbDomainName()));
+            }
         } else {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "RDB Job MUST be given a database context name");
         }
@@ -255,9 +263,10 @@ public class JOBMModelFactory {
 
     private void updateJobContent(COMPMJobModel jobModel, Job job) throws VOURPException {
 
-        if (JobStatus.isCompleted(job.getStatus()))
+        if (JobStatus.isCompleted(job.getStatus())) {
             throw new VOURPException(VOURPException.ILLEGAL_STATE,
                     "Illegal attempt made to update job whose status is already COMPLETED");
+        }
         // if change from not-yet-started to started, set startedTime
         if (JobStatus.isStarted(jobModel.getStatus()) && job.getStatus() < JobStatus.STATUS_STARTED) {
             job.setStartedTime(new Date());
@@ -276,9 +285,10 @@ public class JOBMModelFactory {
 
         job.setStatus(jobModel.getStatus());
 
-        if (job.getExcutorDID() != null && !job.getExcutorDID().equals(jobModel.getExecutorDID()))
+        if (job.getExcutorDID() != null && !job.getExcutorDID().equals(jobModel.getExecutorDID())) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "Illegal attempt made to update executorDID of job");
+        }
         job.setExcutorDID(jobModel.getExecutorDID());
 
         // merge Results
@@ -294,9 +304,10 @@ public class JOBMModelFactory {
                             existingRUV -> existingRUV.getUserVolume().getId().equals(newRUV.getUserVolumeId())))
                     .forEach(newRUV -> {
                         ComputeDomainUserVolumeModel cduvm = cduvms.get(newRUV.getUserVolumeId());
-                        if (cduvm == null)
+                        if (cduvm == null) {
                             throw new RegistrationInvalidException(
                                     "User does not have access to the user volume specified");
+                        }
 
                         RequiredUserVolume rv = new RequiredUserVolume(job);
                         UserVolume uv = job.getTom().find(UserVolume.class, newRUV.getUserVolumeId());
@@ -314,14 +325,16 @@ public class JOBMModelFactory {
             JobMessageModel timeoutMessage = null;
             for (JobMessageModel jmm : jobModel.getMessages()) {
                 if (JobMessageModel.TIMEOUT.equals(jmm.getLabel())) {
-                    if (timeoutMessage == null || jmm.getId() != null)
+                    if (timeoutMessage == null || jmm.getId() != null) {
                         timeoutMessage = jmm;
+                    }
                 } else {
                     cleanedMessages.add(jmm);
                 }
             }
-            if (timeoutMessage != null)
+            if (timeoutMessage != null) {
                 cleanedMessages.add(timeoutMessage);
+            }
             jobModel.setMessages(cleanedMessages);
         }
 
@@ -329,15 +342,17 @@ public class JOBMModelFactory {
         // to true.
         CollectionMerger<JobMessage, JobMessageModel> messages =
                 new CollectionMerger<>(job.getMessage(), jobModel.getMessages(), true);
-        for (JobMessage r : messages.getRemove())
+        for (JobMessage r : messages.getRemove()) {
             job.getMessage().remove(r);
+        }
         for (JobMessageModel jrm : messages.getInsert()) {
             JobMessage r = new JobMessage(job);
             updateMessage(r, jrm);
         }
         int i = 0;
-        for (JobMessage r : messages.getUpdateD())
+        for (JobMessage r : messages.getUpdateD()) {
             updateMessage(r, messages.getUpdateM().get(i++));
+        }
 
     }
 
@@ -396,9 +411,10 @@ public class JOBMModelFactory {
         Query q = tom.createQuery("select j from Job j where j.id=:id and j.runBy.id=:compmid")
                 .setParameter("id", jobId).setParameter("compmid", compmId);
         T job = tom.queryOne(q, jobType);
-        if (job == null)
+        if (job == null) {
             throw new IllegalStateException(
                     String.format("No job found with id '%d' for compm with id '%s'", jobId, compmId));
+        }
         return job;
     }
 
@@ -412,23 +428,26 @@ public class JOBMModelFactory {
         j.setSql(jm.getSql());
 
         Map<Long, RDBJobTarget> jts = new HashMap<>();
-        for (RDBJobTarget t : j.getTarget())
+        for (RDBJobTarget t : j.getTarget()) {
             jts.put(t.getId(), t);
+        }
 
         for (RDBTargetModel tm : jm.getTargets()) {
             Long id = tm.getId();
             if (id != null) {
                 RDBJobTarget t = jts.get(id);
-                if (t == null)
+                if (t == null) {
                     throw new VOURPException(VOURPException.ILLEGAL_STATE,
                             "RDBJobModel expects RDBJobTarget that does not exist on RDBJob");
+                }
                 // ONLY location may be updated
                 t.setLocation(tm.getLocation());
             } else {
                 RDBJobTarget t = new RDBJobTarget(j);
                 t.setLocation(tm.getLocation());
-                if (tm.getType() != null)
+                if (tm.getType() != null) {
                     t.setTargetType(RDBTargetType.fromValue(tm.getType()));
+                }
                 t.setResultNumber(tm.getResultNumber());
             }
         }
@@ -436,8 +455,9 @@ public class JOBMModelFactory {
 
     private void updateMessage(JobMessage r, JobMessageModel jrm) {
         r.setContent(jrm.getContent());
-        if (jrm.getLabel() != null)
+        if (jrm.getLabel() != null) {
             r.setLabel(MessageType.valueOf(jrm.getLabel()));
+        }
     }
 
     private DockerComputeDomain findDockerComputeDomainForAPIEndpoint(String endpoint, TransientObjectManager tom) {
@@ -553,8 +573,9 @@ public class JOBMModelFactory {
         jm.setDatabaseContextName(job.getDatabaseContext().getName());
         jm.setRdbDomainId(job.getComputeDomain().getId());
         jm.setRdbDomainName(job.getComputeDomain().getName());
-        if (job.getComputeDomain().getResourceContext() != null)
+        if (job.getComputeDomain().getResourceContext() != null) {
             jm.setRdbResourceContextUUID(job.getComputeDomain().getResourceContext().getUuid());
+        }
 
         if (fillDetails) {
             List<RDBJobTarget> targets = job.getTarget();
@@ -579,8 +600,9 @@ public class JOBMModelFactory {
      * exceptions since these were previously allowed, and Postel's law)
      */
     private String[] dockerCommand2Array(String c) {
-        if (StringUtils.isEmpty(c))
+        if (StringUtils.isEmpty(c)) {
             return EMPTY_STRING_ARRAY;
+        }
 
         ObjectMapper om = RACMUtil.newObjectMapper();
         JsonNode json;
@@ -594,8 +616,9 @@ public class JOBMModelFactory {
         if (json instanceof ArrayNode) {
             List<String> strings = new ArrayList<>();
             Iterator<JsonNode> nodes = ((ArrayNode) json).elements();
-            while (nodes.hasNext())
+            while (nodes.hasNext()) {
                 strings.add(nodes.next().asText());
+            }
             return strings.toArray(new String[] {});
         } else {
             logger.error("Expected dockerCommand to parse as an array, instead it is: " + c);
@@ -604,8 +627,9 @@ public class JOBMModelFactory {
     }
 
     private String dockerCommandFromArray(String[] c) {
-        if (c == null)
+        if (c == null) {
             return null;
+        }
         ObjectMapper om = RACMUtil.newObjectMapper();
 
         JsonNode json = om.valueToTree(c);
@@ -632,9 +656,10 @@ public class JOBMModelFactory {
     RootVolumeOnComputeDomain newRootVolumeOnComputeDomain(RootVolumeOnComputeDomainModel rvm, ComputeDomain cd)
             throws VOURPException {
         RootVolume rv = queryRootVolume(cd.getTom(), rvm.getRootVolumeId());
-        if (rv == null)
+        if (rv == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     String.format("%d does not identify an existing RootVolume", rvm.getRootVolumeId()));
+        }
         RootVolumeOnComputeDomain rvcd = new RootVolumeOnComputeDomain(cd);
         rvcd.setDisplayName(rvm.getDisplayName());
         rvcd.setPath(rvm.getPathOnCD());
@@ -668,13 +693,15 @@ public class JOBMModelFactory {
         m.setRootVolumes(rootvolumes);
         if (doRecurse) {
             for (ComputeResource r : o.getComputeResource()) {
-                if (r instanceof DockerImage)
+                if (r instanceof DockerImage) {
                     images.add(newDockerImageModel((DockerImage) r));
-                else if (r instanceof VolumeContainer)
+                } else if (r instanceof VolumeContainer) {
                     volumes.add(newVolumeContainerModel((VolumeContainer) r));
+                }
             }
-            for (RootVolumeOnComputeDomain rv : o.getRootVolume())
+            for (RootVolumeOnComputeDomain rv : o.getRootVolume()) {
                 rootvolumes.add(newRootVolumeOnComputeDomainModel(rv));
+            }
         }
         return m;
     }
@@ -700,10 +727,11 @@ public class JOBMModelFactory {
         m.setUserVolumes(userVolumes);
         if (doRecurse) {
             for (ComputeResource r : o.getComputeResource()) {
-                if (r instanceof DockerImage)
+                if (r instanceof DockerImage) {
                     images.add(newDockerImageModel((DockerImage) r));
-                else if (r instanceof VolumeContainer)
+                } else if (r instanceof VolumeContainer) {
                     volumes.add(newVolumeContainerModel((VolumeContainer) r));
+                }
             }
         }
         return m;

@@ -140,10 +140,11 @@ public class FileServiceUserRequiredController {
             @PathVariable String rootVolumeName, @AuthenticationPrincipal UserProfile up) {
 
         Set<String> allowedActions = fsManager.getRootVolumeActions(up, fileServiceIdentifer, rootVolumeName);
-        if (allowedActions.isEmpty())
+        if (allowedActions.isEmpty()) {
             throw new ResourceNotFoundException();
-        else
+        } else {
             return allowedActions;
+        }
     }
 
     @Operation(summary = "List the actions the caller may perform on a data volume.",

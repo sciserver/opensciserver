@@ -27,10 +27,11 @@ public final class RegisterNewFileServiceModel {
         this.serviceToken = serviceToken;
         this.identifier = identifier;
 
-        if (rootVolumes == null)
+        if (rootVolumes == null) {
             this.rootVolumes = Collections.emptyList();
-        else
+        } else {
             this.rootVolumes = Collections.unmodifiableList(rootVolumes);
+        }
     }
 
     public String getName() {

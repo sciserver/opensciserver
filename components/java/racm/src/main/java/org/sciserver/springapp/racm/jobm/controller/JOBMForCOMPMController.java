@@ -321,8 +321,9 @@ public class JOBMForCOMPMController {
     public ResponseEntity<JsonNode> nextJob(@RequestParam(required = false) Short maxNumberOfJobs,
             @ModelAttribute COMPMInfo compm) throws VOURPException {
         TransientObjectManager tom = vourpContext.newTOM();
-        if (maxNumberOfJobs == null || maxNumberOfJobs < 1)
+        if (maxNumberOfJobs == null || maxNumberOfJobs < 1) {
             maxNumberOfJobs = 1;
+        }
         List<Job> js = jobm.nextJobs(compm.uuid(), compm.defaultJobTimeout(), compm.defaultJobsPerUser(),
                 maxNumberOfJobs.shortValue());
         List<COMPMJobModel> jms = new ArrayList<>();
@@ -351,8 +352,9 @@ public class JOBMForCOMPMController {
                 jms.add(jm);
             }
             try {
-                if (!js.isEmpty())
+                if (!js.isEmpty()) {
                     tom.persist();
+                }
             } catch (Exception e) {
                 return jsonAPIHelper.logAndReturnJsonExceptionEntity(
                         "Error when saving changes to jobs in nextJob call", Optional.empty(), new Exception(), true);

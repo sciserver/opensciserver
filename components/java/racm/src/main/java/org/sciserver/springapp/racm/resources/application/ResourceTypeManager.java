@@ -22,10 +22,11 @@ public class ResourceTypeManager {
     }
 
     public ResourceTypeModel editResourceType(ResourceTypeModel resourceTypeModel) {
-        if (resourceTypeModel.getId() == null)
+        if (resourceTypeModel.getId() == null) {
             return createResourceType(resourceTypeModel);
-        else
+        } else {
             return updateResourceType(resourceTypeModel);
+        }
     }
 
     private ResourceTypeModel createResourceType(ResourceTypeModel resourceTypeModel) {
@@ -33,9 +34,10 @@ public class ResourceTypeManager {
         ResourceType rt = null;
         try {
             ContextClass cc = ContextClassManager.queryContextClass(resourceTypeModel.getContextClassId(), tom);
-            if (cc == null)
+            if (cc == null) {
                 throw new IllegalStateException(
                         "Cannot create new ResourceType when parent ContextClass cannot be found");
+            }
 
             validate(resourceTypeModel, cc, null);
             rt = new ResourceType(cc);
@@ -67,9 +69,10 @@ public class ResourceTypeManager {
         ResourceType rt = null;
         try {
             rt = queryResourceType(resourceTypeModel.getId(), tom);
-            if (rt == null)
+            if (rt == null) {
                 throw new IllegalArgumentException(String
                         .format("Cannot change non-existent ResourceType with ID = '%s'", resourceTypeModel.getId()));
+            }
 
             ContextClass cc = rt.getContainer();
             validate(resourceTypeModel, cc, rt);
@@ -112,8 +115,9 @@ public class ResourceTypeManager {
 
     public ResourceTypeModel getModel(long id) {
         ResourceType rt = queryResourceType(id, vourpContext.newTOM());
-        if (rt == null)
+        if (rt == null) {
             return null;
+        }
         return RACMModelFactory.newResourceTypeModel(rt);
     }
 
@@ -131,8 +135,9 @@ public class ResourceTypeManager {
 
     private boolean existResourceType(ContextClass cc, String name) {
         for (ResourceType resourceType : cc.getResourceType()) {
-            if (resourceType.getName().equals(name))
+            if (resourceType.getName().equals(name)) {
                 return true;
+            }
         }
         return false;
     }

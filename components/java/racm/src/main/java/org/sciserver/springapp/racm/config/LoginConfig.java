@@ -69,7 +69,8 @@ public class LoginConfig {
             loginAdmin.setPassword(props.getProperty("login.admin.password").trim());
         }
 
-        if (loginPortalUrl.charAt(loginPortalUrl.length() - 1) != '/')
+        if (loginPortalUrl.charAt(loginPortalUrl.length() - 1) != '/') {
             loginPortalUrl = loginPortalUrl + '/';
+        }
     }
 }

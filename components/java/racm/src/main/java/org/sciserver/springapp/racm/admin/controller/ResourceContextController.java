@@ -92,10 +92,11 @@ public class ResourceContextController {
     private ModelAndView postResourceContext(UserProfile up, ResourceContextMVCModel resourceContextModel,
             String nextaction, long selectedResourceId) {
         ModelAndView mav = new ModelAndView();
-        if ("deleteresource".equals(nextaction))
+        if ("deleteresource".equals(nextaction)) {
             resourceContextModel = rcm.updateResourceContext(up, resourceContextModel, selectedResourceId);
-        else
+        } else {
             resourceContextModel = rcm.editResourceContext(up, resourceContextModel);
+        }
 
         mav.setViewName(VIEW_RESOURCE_CONTEXT);
         mav.addObject(MODEL_RESOURCE_CONTEXT, resourceContextModel);
@@ -163,8 +164,9 @@ public class ResourceContextController {
     @GetMapping("/resource/{resourceId}")
     public ModelAndView resourceEditForm(@PathVariable long resourceId, @AuthenticationPrincipal UserProfile up) {
         ResourceMVCModel resourceModel = rm.getModel(up.getTom(), resourceId);
-        if (resourceModel == null)
+        if (resourceModel == null) {
             throw new ResourceNotFoundException("No Resource exists with id = " + resourceId);
+        }
         ModelAndView mav = new ModelAndView();
         mav.addObject(MODEL_RESOURCE, resourceModel);
         mav.setViewName(VIEW_RESOURCE);
@@ -174,8 +176,9 @@ public class ResourceContextController {
     @PostMapping("/resource")
     public ModelAndView resourceCreateSubmit(ResourceMVCModel resourceModel,
             @RequestParam(required = false) String nextaction, @AuthenticationPrincipal UserProfile up) {
-        if (!rac.canUserCreateResource(up.getUser(), resourceModel.getContextUUID()))
+        if (!rac.canUserCreateResource(up.getUser(), resourceModel.getContextUUID())) {
             throw new ForbiddenException();
+        }
         return postResource(up, resourceModel, nextaction);
     }
 

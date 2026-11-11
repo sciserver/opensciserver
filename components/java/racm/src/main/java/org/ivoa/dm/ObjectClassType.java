@@ -336,9 +336,11 @@ public final class ObjectClassType extends ClassType {
      * @return
      */
     public final Attribute getAttributeForUtype(String utype) {
-        for (Attribute atr : this.getAttributeList())
-            if (atr.getUtype().equals(utype))
+        for (Attribute atr : this.getAttributeList()) {
+            if (atr.getUtype().equals(utype)) {
                 return atr;
+            }
+        }
         return null;
     }
 

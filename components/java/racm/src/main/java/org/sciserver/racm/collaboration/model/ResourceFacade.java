@@ -71,12 +71,15 @@ public class ResourceFacade extends RepresentationModel {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ResourceFacade other = (ResourceFacade) obj;
         return Objects.equals(actions, other.actions) && Objects.equals(description, other.description)
                 && entityId == other.entityId && Objects.equals(name, other.name) && resourceId == other.resourceId

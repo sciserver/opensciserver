@@ -13,8 +13,9 @@ public class NewSharedWithEntity {
     public NewSharedWithEntity(@JsonProperty("name") String name, @JsonProperty("type") SciServerEntityType type,
             @JsonProperty("allowedActions") List<String> allowedActions) {
         this(name, type);
-        if (allowedActions != null)
+        if (allowedActions != null) {
             this.allowedActions.addAll(allowedActions);
+        }
     }
 
     public NewSharedWithEntity(String name, SciServerEntityType type) {

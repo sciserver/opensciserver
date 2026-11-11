@@ -162,8 +162,9 @@ public class LoginPortalAccess {
                     int size = 0;
                     while (it.hasNext()) {
                         size++;
-                        if (size > 1)
+                        if (size > 1) {
                             throw new IllegalStateException("Multiple users in LoginPortal with name " + userName);
+                        }
                         e = it.next();
                     }
                 }

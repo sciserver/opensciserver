@@ -78,8 +78,9 @@ public class LogUtils {
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
         String clientIp = request.getHeader("X-FORWARDED-FOR");
-        if (clientIp == null)
+        if (clientIp == null) {
             clientIp = request.getRemoteAddr();
+        }
         if (request.getAttribute(ControllerMethodLogger.METHOD_NAME_ATTRIBUTE) != null) {
             message.Method = request.getAttribute(ControllerMethodLogger.METHOD_NAME_ATTRIBUTE).toString();
         }

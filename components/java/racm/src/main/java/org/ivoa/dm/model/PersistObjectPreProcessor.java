@@ -52,8 +52,9 @@ public final class PersistObjectPreProcessor extends MetaDataObjectVisitor {
             final MetadataRootEntityObject root = (MetadataRootEntityObject) object;
             // TODO only set modifiedDate if object has been modified.
             final ObjectChangeSet objectChangeSet = changeSet.getObjectChangeSetForClone(root);
-            if (objectChangeSet != null && objectChangeSet.hasChanges())
+            if (objectChangeSet != null && objectChangeSet.hasChanges()) {
                 root.setModificationDate(now); //
+            }
             if (root.isPurelyTransient()) {
                 root.setCreationDate(now);
             }

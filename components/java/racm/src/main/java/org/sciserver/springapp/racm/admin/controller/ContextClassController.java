@@ -76,8 +76,9 @@ public class ContextClassController {
 
     @PostMapping("/contextClass/{id}/delete")
     public ModelAndView deleteContextClasSubmit(@PathVariable("id") long id, @AuthenticationPrincipal UserProfile up) {
-        if (!rac.canUserEditContextClass(up.getUser(), id))
+        if (!rac.canUserEditContextClass(up.getUser(), id)) {
             throw new ForbiddenException();
+        }
 
         ccm.deleteContextClass(id);
         ModelAndView mav = new ModelAndView();
@@ -99,8 +100,9 @@ public class ContextClassController {
     public ModelAndView contextClassCreateSubmit(ContextClassModel contextClassModel,
             @RequestParam(required = true) String nextaction, @RequestParam(required = false) long selectedRTId,
             @AuthenticationPrincipal UserProfile up) {
-        if (!rac.canUserCreateContextClass(up.getUser()))
+        if (!rac.canUserCreateContextClass(up.getUser())) {
             throw new ForbiddenException();
+        }
 
         return postContextClass(contextClassModel, nextaction, selectedRTId, up);
     }
@@ -120,8 +122,9 @@ public class ContextClassController {
             @RequestParam(required = false) String nextaction, @RequestParam(required = false) long selectedRTId,
             @PathVariable("contextClassId") long contextClassId, @AuthenticationPrincipal UserProfile up) {
 
-        if (!rac.canUserEditContextClass(up.getUser(), contextClassId))
+        if (!rac.canUserEditContextClass(up.getUser(), contextClassId)) {
             throw new ForbiddenException();
+        }
 
         return postContextClass(contextClassModel, nextaction, selectedRTId, up);
     }
@@ -129,16 +132,18 @@ public class ContextClassController {
     private ModelAndView postContextClass(ContextClassModel contextClassModel, String nextaction, long selectedRTId,
             UserProfile user) {
         ModelAndView mav = new ModelAndView();
-        if ("deleteresourcetype".equals(nextaction))
+        if ("deleteresourcetype".equals(nextaction)) {
             contextClassModel = ccm.updateContextClass(contextClassModel, selectedRTId, user);
-        else
+        } else {
             contextClassModel = ccm.editContextClass(contextClassModel, user);
+        }
 
         mav.addObject(MODEL_CONTEXT_CLASS, contextClassModel);
         mav.setViewName(VIEW_CONTEXT_CLASS);
 
-        if (!contextClassModel.isValid())
+        if (!contextClassModel.isValid()) {
             return mav;
+        }
 
         if ("back".equals(nextaction)) {
             mav.setViewName("redirect:/cctree/contextClassList");
@@ -153,11 +158,12 @@ public class ContextClassController {
     private ModelAndView postResourceType(ResourceTypeModel resourceTypeModel, String nextaction, Long selectedRoleId,
             long selectedActionId) {
         ModelAndView mav = new ModelAndView();
-        if ("deleterole".equals(nextaction) || "deleteaction".equals(nextaction))
+        if ("deleterole".equals(nextaction) || "deleteaction".equals(nextaction)) {
             resourceTypeModel =
                     resourceTypeManager.updateResourceType(resourceTypeModel, selectedRoleId, selectedActionId);
-        else
+        } else {
             resourceTypeModel = resourceTypeManager.editResourceType(resourceTypeModel);
+        }
 
         mav.setViewName(VIEW_RESOURCE_TYPE);
         mav.addObject(MODEL_RESOURCE_TYPE, resourceTypeModel);
@@ -184,8 +190,9 @@ public class ContextClassController {
     public ModelAndView deleteResourceTypeSubmit(@RequestParam(required = true) long containerId,
             @PathVariable("id") long id, @AuthenticationPrincipal UserProfile up) throws VOURPException {
 
-        if (!rac.canUserEditContextClass(up.getUser(), containerId))
+        if (!rac.canUserEditContextClass(up.getUser(), containerId)) {
             throw new ForbiddenException();
+        }
 
         resourceTypeManager.deleteResourceType(id);
         ModelAndView mav = new ModelAndView();
@@ -211,8 +218,9 @@ public class ContextClassController {
             @AuthenticationPrincipal UserProfile up) {
 
         ResourceTypeModel resourceTypeModel = resourceTypeManager.getModel(resourceTypeId);
-        if (resourceTypeModel == null)
+        if (resourceTypeModel == null) {
             throw new IllegalArgumentException("No ResourceType exists with id = " + resourceTypeId);
+        }
         ModelAndView mav = new ModelAndView();
         mav.addObject(MODEL_RESOURCE_TYPE, resourceTypeModel);
         mav.setViewName(VIEW_RESOURCE_TYPE);
@@ -237,8 +245,9 @@ public class ContextClassController {
             @RequestParam(required = false) String nextaction, @RequestParam(required = false) Long selectedRoleId,
             @RequestParam(required = false) long selectedActionId, @AuthenticationPrincipal UserProfile up) {
 
-        if (!rac.canUserEditContextClass(up.getUser(), resourceTypeModel.getContextClassId()))
+        if (!rac.canUserEditContextClass(up.getUser(), resourceTypeModel.getContextClassId())) {
             throw new ForbiddenException();
+        }
 
         return postResourceType(resourceTypeModel, nextaction, selectedRoleId, selectedActionId);
     }
@@ -248,8 +257,9 @@ public class ContextClassController {
             @RequestParam(required = false) String nextaction, @RequestParam(required = false) long selectedRoleId,
             @RequestParam(required = false) long selectedActionId, @AuthenticationPrincipal UserProfile up) {
 
-        if (!rac.canUserEditResourceType(up.getUser(), resourceTypeId))
+        if (!rac.canUserEditResourceType(up.getUser(), resourceTypeId)) {
             throw new ForbiddenException();
+        }
 
         return postResourceType(resourceTypeModel, nextaction, selectedRoleId, selectedActionId);
     }
@@ -258,8 +268,9 @@ public class ContextClassController {
     public ModelAndView deleteRoleSubmit(@RequestParam(required = true) long containerId, @PathVariable("id") long id,
             @AuthenticationPrincipal UserProfile up) throws VOURPException {
 
-        if (!rac.canUserEditResourceType(up.getUser(), containerId))
+        if (!rac.canUserEditResourceType(up.getUser(), containerId)) {
             throw new ForbiddenException();
+        }
 
         rm.deleteRole(id);
         ModelAndView mav = new ModelAndView();
@@ -273,8 +284,9 @@ public class ContextClassController {
             @AuthenticationPrincipal UserProfile up) {
 
         ResourceType rt = resourceTypeManager.queryResourceType(containerId, up.getTom());
-        if (rt == null)
+        if (rt == null) {
             throw new IllegalArgumentException("Cannot find ResourceType for Role::containerId = " + containerId);
+        }
 
         RoleModel roleModel = RACMModelFactory.newRoleModel(rt);
         roleModel.setResourceTypeId(containerId);
@@ -288,8 +300,9 @@ public class ContextClassController {
     public ModelAndView roleEditForm(@PathVariable long roleId) {
 
         RoleModel roleModel = rm.getModel(roleId);
-        if (roleModel == null)
+        if (roleModel == null) {
             throw new IllegalArgumentException("No Role exists with id = " + roleId);
+        }
         ModelAndView mav = new ModelAndView();
         mav.addObject(MODEL_ROLE, roleModel);
         mav.setViewName(VIEW_ROLE);
@@ -302,8 +315,9 @@ public class ContextClassController {
         if (!roleModel.isValid()) {
             mav.setViewName(VIEW_ROLE);
             mav.addObject(MODEL_ROLE, roleModel);
-        } else
+        } else {
             mav.setViewName(REDIRECT_RESOURCE_TYPE_PREFIX + roleModel.getResourceTypeId());
+        }
         return mav;
     }
 
@@ -311,8 +325,9 @@ public class ContextClassController {
     public ModelAndView roleCreateOrEditSubmit(RoleModel roleModel, @PathVariable(required = false) Long roleId,
             @AuthenticationPrincipal UserProfile up) {
 
-        if (!rac.canUserEditResourceType(up.getUser(), roleModel.getResourceTypeId()))
+        if (!rac.canUserEditResourceType(up.getUser(), roleModel.getResourceTypeId())) {
             throw new ForbiddenException();
+        }
 
         return postRole(roleModel);
     }
@@ -343,8 +358,9 @@ public class ContextClassController {
     @GetMapping("/action/{actionId}")
     public ModelAndView actionEditForm(@PathVariable long actionId, @AuthenticationPrincipal UserProfile up) {
         Action action = am.queryAction(actionId, up.getTom());
-        if (action == null)
+        if (action == null) {
             throw new IllegalArgumentException("No Action exists with id = " + actionId);
+        }
         ModelAndView mav = new ModelAndView();
         mav.addObject(MODEL_ACTION, RACMModelFactory.newActionModel(action));
         mav.setViewName(VIEW_ACTION);
@@ -357,8 +373,9 @@ public class ContextClassController {
         if (!actionModel.isValid()) {
             mav.setViewName(VIEW_ACTION);
             mav.addObject(MODEL_ACTION, actionModel);
-        } else
+        } else {
             mav.setViewName(REDIRECT_RESOURCE_TYPE_PREFIX + actionModel.getResourceTypeId());
+        }
         return mav;
     }
 

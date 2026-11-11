@@ -82,8 +82,9 @@ class StoremMapper {
                                 .map(UserVolumeModel::getAllowedActions))
                 .flatMap(x -> x).flatMap(Collection::stream).count();
 
-        if (numberOfActions == 0)
+        if (numberOfActions == 0) {
             return Optional.empty();
+        }
 
         return Optional.of(model);
     }
@@ -98,8 +99,9 @@ class StoremMapper {
         long numberOfActions = Stream.concat(actions.stream(),
                 userVolumes.stream().map(UserVolumeModel::getAllowedActions).flatMap(List::stream)).count();
 
-        if (numberOfActions == 0)
+        if (numberOfActions == 0) {
             return Optional.empty();
+        }
         return Optional.of(new RootVolumeModel(source.getId(), source.getResource().getUuid(), source.getName(),
                 source.getDescription(), source.getPathOnFileSystem(), source.getContainsSharedVolumes(), userVolumes,
                 allowedActions.getOrDefault(source.getResource().getId(), Collections.emptyList())));
@@ -111,8 +113,9 @@ class StoremMapper {
         Map<SciserverEntity, List<Privilege>> sharedWithForThisUserVolume =
                 sharedWithInfo.getOrDefault(VOURPEntityWithResource.wrap(source), Collections.emptyMap());
 
-        if (actions.isEmpty())
+        if (actions.isEmpty()) {
             return Optional.empty();
+        }
 
         return Optional.of(new UserVolumeModel(source.getId(), source.getResource().getUuid(), source.getName(),
                 source.getDescription(), source.getRelativePath(), source.getOwner().getUsername(), actions,
@@ -125,8 +128,9 @@ class StoremMapper {
         Map<SciserverEntity, List<Privilege>> sharedWithForThisDataVolume =
                 sharedWithInfo.getOrDefault(VOURPEntityWithResource.wrap(source), Collections.emptyMap());
 
-        if (actions.isEmpty())
+        if (actions.isEmpty()) {
             return Optional.empty();
+        }
 
         return Optional.of(new DataVolumeModel(source.getId(), source.getResource().getUuid(), source.getName(),
                 source.getDescription(), source.getDisplayName(), source.getPathOnFileSystem(), source.getUrl(),
@@ -311,8 +315,9 @@ class StoremMapper {
      * describes these and some of the design problems.
      */
     private <T, E> List<T> mapOptionals(Collection<E> collection, Function<E, Optional<T>> func, Predicate<E> filter) {
-        if (collection == null)
+        if (collection == null) {
             return Collections.emptyList();
+        }
         return new ArrayList<>(collection).stream().filter(filter).map(func).filter(Optional::isPresent)
                 .map(Optional::get).collect(Collectors.toList());
     }
@@ -322,8 +327,9 @@ class StoremMapper {
     }
 
     private <T, E> List<T> map(Collection<E> collection, Function<E, T> func, Predicate<E> filter) {
-        if (collection == null)
+        if (collection == null) {
             return Collections.emptyList();
+        }
         return new ArrayList<>(collection).stream().filter(filter).map(func).collect(Collectors.toList());
     }
 

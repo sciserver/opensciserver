@@ -53,8 +53,9 @@ public class User {
         User u = new User();
         u.setUserId(json.get("user_id").textValue());
         u.setUserName(json.get("username").textValue());
-        if (json.get("password") != null)
+        if (json.get("password") != null) {
             u.setPassword(json.get("password").textValue());
+        }
         u.setEmail(json.get("email").textValue());
         return u;
     }

@@ -42,10 +42,11 @@ public class RDBJobModel extends COMPMJobModel {
     }
 
     public void setTargets(List<RDBTargetModel> targets) {
-        if (targets != null)
+        if (targets != null) {
             this.targets = targets;
-        else
+        } else {
             this.targets = new ArrayList<>();
+        }
     }
 
     public String getDatabaseContextName() {

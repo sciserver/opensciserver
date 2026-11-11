@@ -64,8 +64,9 @@ public class GroupResourcesManager {
             int i = 0;
             Long groupId = (Long) row[i++];
             WorkspaceGroupModel wgm = dict.get(groupId);
-            if (wgm == null)
+            if (wgm == null) {
                 continue; // TODO log error and throw exception,
+            }
             Long rid = (Long) row[i++];
             String action = (String) row[i++];
             if (resourceId == null || !resourceId.equals(rid)) {
@@ -95,8 +96,9 @@ public class GroupResourcesManager {
             int i = 0;
             Long gid = (Long) row[i++];
             WorkspaceGroupModel wgm = wgsm.get(gid);
-            if (wgm == null)
+            if (wgm == null) {
                 continue; // TODO LOG and throw error
+            }
             WorkspaceUserModel m = new WorkspaceUserModel();
             wgm.addMember(m);
             m.setUserid((Long) row[i++]);

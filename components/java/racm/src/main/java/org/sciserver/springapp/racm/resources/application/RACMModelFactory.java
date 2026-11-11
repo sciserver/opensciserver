@@ -64,16 +64,18 @@ public class RACMModelFactory {
     }
 
     static ContextClassModel newContextClassModel(ContextClass contextClass) {
-        if (contextClass == null)
+        if (contextClass == null) {
             return null;
+        }
         ContextClassModel ccm = new ContextClassModel();
         ccm.setId((contextClass.getId() == null ? null : contextClass.getId()));
         ccm.setName(contextClass.getName());
         ccm.setDescription(contextClass.getDescription());
         ccm.setRelease(contextClass.getRelease());
 
-        if (contextClass.getResourceType() != null)
+        if (contextClass.getResourceType() != null) {
             fillResourceTypeCollections(ccm, contextClass);
+        }
         return ccm;
     }
 
@@ -94,18 +96,21 @@ public class RACMModelFactory {
     }
 
     static ResourceTypeModel newResourceTypeModel(ResourceType resourceType) {
-        if (resourceType == null)
+        if (resourceType == null) {
             return null;
+        }
         ResourceTypeModel rtm = new ResourceTypeModel();
         rtm.setId(resourceType.getId());
         rtm.setName(resourceType.getName());
         rtm.setDescription(resourceType.getDescription());
         rtm.setContextClassId(resourceType.getContainer().getId());
 
-        if (resourceType.getAction() != null)
+        if (resourceType.getAction() != null) {
             fillActionCollections(rtm, resourceType);
-        if (resourceType.getRole() != null)
+        }
+        if (resourceType.getRole() != null) {
             fillRoleCollections(rtm, resourceType);
+        }
         return rtm;
     }
 
@@ -131,16 +136,18 @@ public class RACMModelFactory {
         am.setName(action.getName());
         am.setDescription(action.getDescription());
         am.setResourceTypeId(action.getContainer().getId());
-        if (action.getCategory() != null)
+        if (action.getCategory() != null) {
             am.setCategory(action.getCategory().value());
-        else
+        } else {
             am.setCategory("Z");
+        }
         return am;
     }
 
     static RoleModel newRoleModel(Role role) {
-        if (role == null)
+        if (role == null) {
             return null;
+        }
         RoleModel rm = new RoleModel();
         rm.setId(role.getId());
         rm.setName(role.getName());
@@ -161,8 +168,9 @@ public class RACMModelFactory {
      * @return
      */
     public static RoleModel newRoleModel(ResourceType rt) {
-        if (rt == null)
+        if (rt == null) {
             return null;
+        }
         RoleModel rm = new RoleModel();
         rm.setResourceTypeId(rt.getId());
         fillAvailableActions(rm, rt, null);
@@ -201,8 +209,9 @@ public class RACMModelFactory {
         List<ActionModel> ams = new ArrayList<>();
         rm.setAvailableActions(ams);
         for (Action a : rt.getAction()) {
-            if (ht == null || ht.get(a.getId()) == null)
+            if (ht == null || ht.get(a.getId()) == null) {
                 ams.add(newActionModel(a));
+            }
         }
     }
 
@@ -215,20 +224,23 @@ public class RACMModelFactory {
 
     static ResourceContextMVCModel newResourceContextModel(ResourceContext resourceContext, List<ContextClass> ccs,
             TransientObjectManager tom) {
-        if (resourceContext == null)
+        if (resourceContext == null) {
             return null;
+        }
         ResourceContextMVCModel rcm = new ResourceContextMVCModel();
         rcm.setId((resourceContext.getId() == null ? null : resourceContext.getId()));
         rcm.setLabel(resourceContext.getLabel());
         rcm.setDescription(resourceContext.getDescription());
         rcm.setEndpoint(resourceContext.getRacmEndpoint());
         rcm.setUuid(resourceContext.getUuid());
-        if (resourceContext.getAccount() != null)
+        if (resourceContext.getAccount() != null) {
             rcm.setSecretToken(resourceContext.getAccount().getServiceToken());
+        }
         rcm.setContextClassModel(newContextClassModel(resourceContext.getContextClass()));
 
-        if (resourceContext.getResource() != null)
+        if (resourceContext.getResource() != null) {
             fillResourceCollections(tom, rcm, resourceContext);
+        }
 
         // To populate the Context Class list in the UI
         fillAvailableContextClassModelCollection(rcm, ccs);
@@ -276,15 +288,17 @@ public class RACMModelFactory {
 
         List<ResourceType> rts = queryResourceTypes(rm, tom);
         List<ResourceTypeModel> rtms = new ArrayList<>();
-        for (ResourceType rt : rts)
+        for (ResourceType rt : rts) {
             rtms.add(newResourceTypeModel(rt));
+        }
         rm.setAvailableResourceTypeModels(rtms);
         return rm;
     }
 
     static ResourceMVCModel newResourceModel(Resource resource, List<ResourceType> rts) {
-        if (resource == null)
+        if (resource == null) {
             return null;
+        }
         ResourceMVCModel rm = new ResourceMVCModel();
         rm.setId(resource.getId());
         rm.setName(resource.getName());
@@ -370,9 +384,10 @@ public class RACMModelFactory {
         rg.setContextClass(resource.getResourceType().getContainer().getName());
         rg.setRtm(RACMModelFactory.newResourceTypeModel(resource.getResourceType()));
         for (AccessControl ac : resource.getAccesControl()) {
-            if (ac.getScisEntity() instanceof ServiceAccount && !up.isAdmin()) // admins are allowed to see
-                                                                               // ServiceAccounts
+            if (ac.getScisEntity() instanceof ServiceAccount && !up.isAdmin()) {
+                // admins are allowed to see ServiceAccounts
                 continue;
+            }
             if (ac instanceof Privilege) {
                 rg.getPrivileges().add(RACMModelFactory.newPrivilegeModel((Privilege) ac));
             } else { // if ac instanceof RoleAssignment
@@ -512,8 +527,9 @@ public class RACMModelFactory {
         // remove access controls that are not in rg
         ArrayList<MetadataObject> removed =
                 removeAccessControlsFromResource(r, originalAccessControls, existingPrivs.keySet(), up);
-        for (MetadataObject o : removed)
+        for (MetadataObject o : removed) {
             changeSet.delete(o);
+        }
 
         return changeSet;
     }
@@ -555,8 +571,9 @@ public class RACMModelFactory {
     private boolean canUserEditGroup(UserGroup ug, User u) {
         for (Member m : ug.getMember()) {
             if (m.getScisEntity() == u
-                    && (m.getMemberRole() == GroupRole.ADMIN || m.getMemberRole() == GroupRole.OWNER))
+                    && (m.getMemberRole() == GroupRole.ADMIN || m.getMemberRole() == GroupRole.OWNER)) {
                 return true;
+            }
         }
         return false;
     }

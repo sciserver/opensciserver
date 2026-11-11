@@ -27,10 +27,11 @@ public class RoleManager {
     }
 
     public org.sciserver.racm.cctree.model.RoleModel editRole(RoleModel roleModel) {
-        if (roleModel.getId() == null)
+        if (roleModel.getId() == null) {
             return createRole(roleModel);
-        else
+        } else {
             return updateRole(roleModel);
+        }
     }
 
     public void deleteRole(long id) throws VOURPException {
@@ -48,8 +49,9 @@ public class RoleManager {
         ResourceType rt = null;
         try {
             rt = rtm.queryResourceType(roleModel.getResourceTypeId(), tom);
-            if (rt == null)
+            if (rt == null) {
                 throw new IllegalStateException("Cannot create new Role when parent ResourceType cannot be found");
+            }
 
             validate(roleModel, rt, null);
             Role role = new Role(rt);
@@ -60,11 +62,12 @@ public class RoleManager {
             roleModel = RACMModelFactory.newRoleModel(role);
             roleModel.setValid(true);
         } catch (Exception e) {
-            if (rt != null)
+            if (rt != null) {
                 roleModel = RACMModelFactory.newRoleModel(rt);
-            else
+            } else {
                 throw new IllegalArgumentException(
                         "Illegal argument: try to post a new role for a non-existent resource type");
+            }
             roleModel.setException(e);
             roleModel.setValid(false);
         }
@@ -76,9 +79,10 @@ public class RoleManager {
         Role role = null;
         try {
             role = tom.find(Role.class, roleModel.getId());
-            if (role == null)
+            if (role == null) {
                 throw new IllegalArgumentException(
                         String.format("Cannot change non-existent Role with ID = '%s'", roleModel.getId()));
+            }
 
             ResourceType rt = rtm.queryResourceType(roleModel.getResourceTypeId(), tom);
 
@@ -89,8 +93,9 @@ public class RoleManager {
             tom.persist();
             roleModel = RACMModelFactory.newRoleModel(role);
         } catch (Exception e) {
-            if (role == null)
+            if (role == null) {
                 throw new IllegalArgumentException("Trying to update non-existent role");
+            }
             roleModel = RACMModelFactory.newRoleModel(role);
             roleModel.setException(e);
         }
@@ -109,8 +114,9 @@ public class RoleManager {
         // step 1. build map of assignedActions from RoleModel
         Map<Long, ActionModel> assActions = new HashMap<>();
         if (roleModel.getAssignedActions() != null) {
-            for (ActionModel actionModel : roleModel.getAssignedActions())
+            for (ActionModel actionModel : roleModel.getAssignedActions()) {
                 assActions.put(actionModel.getId(), actionModel);
+            }
         }
 
         // step 2. Walk through RoleAction collection of Role domain object.
@@ -124,10 +130,11 @@ public class RoleManager {
             int l = actions.size() - 1;
             for (int i = l; i >= 0; i--) {
                 RoleAction ra = actions.get(i);
-                if (!assActions.containsKey(ra.getAction().getId()))
+                if (!assActions.containsKey(ra.getAction().getId())) {
                     actions.remove(ra);
-                else
+                } else {
                     assActions.remove(ra.getAction().getId());
+                }
             }
         }
 
@@ -155,15 +162,17 @@ public class RoleManager {
 
     public RoleModel getModel(long id) {
         Role rt = vourpContext.newTOM().find(Role.class, id);
-        if (rt == null)
+        if (rt == null) {
             return null;
+        }
         return RACMModelFactory.newRoleModel(rt);
     }
 
     private boolean existRole(ResourceType rt, String name) {
         for (Role role : rt.getRole()) {
-            if (role.getName().equals(name))
+            if (role.getName().equals(name)) {
                 return true;
+            }
         }
         return false;
     }

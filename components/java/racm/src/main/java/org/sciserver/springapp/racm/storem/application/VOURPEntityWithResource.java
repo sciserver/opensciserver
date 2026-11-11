@@ -43,12 +43,15 @@ public interface VOURPEntityWithResource {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             WrappedDataVolume other = (WrappedDataVolume) obj;
             return Objects.equals(dataVolume, other.dataVolume);
         }
@@ -78,12 +81,15 @@ public interface VOURPEntityWithResource {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             WrappedUserVolume other = (WrappedUserVolume) obj;
             return Objects.equals(userVolume, other.userVolume);
         }

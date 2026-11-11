@@ -23,11 +23,12 @@ public class RACMErrorAttributes extends DefaultErrorAttributes {
         Map<String, Object> defaultAttributes = null;
         // Map<String, Object> defaultAttributes = super.getErrorAttributes(webRequest, includeStackTrace);
         // TODO test whether next replaces this properly
-        if (includeStackTrace)
+        if (includeStackTrace) {
             defaultAttributes = super.getErrorAttributes(webRequest,
                     ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
-        else
+        } else {
             defaultAttributes = super.getErrorAttributes(webRequest, ErrorAttributeOptions.defaults());
+        }
         Map<String, Object> output = new HashMap<>(2);
 
         output.put("status", "error");

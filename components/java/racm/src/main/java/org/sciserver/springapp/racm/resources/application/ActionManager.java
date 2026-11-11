@@ -22,18 +22,20 @@ public class ActionManager {
     }
 
     public ActionModel editAction(ActionModel actionModel) {
-        if (actionModel.getId() == null || actionModel.getId() == 0)
+        if (actionModel.getId() == null || actionModel.getId() == 0) {
             return createAction(actionModel);
-        else
+        } else {
             return updateAction(actionModel);
+        }
     }
 
     private ActionModel createAction(ActionModel actionModel) {
         TransientObjectManager tom = vourpContext.newTOM();
         try {
             ResourceType rt = rtm.queryResourceType(actionModel.getResourceTypeId(), tom);
-            if (rt == null)
+            if (rt == null) {
                 throw new IllegalStateException("Cannot create new Action when parent ResourceType cannot be found");
+            }
 
             validate(actionModel, rt, null);
             Action action = new Action(rt);
@@ -54,9 +56,10 @@ public class ActionManager {
         Action action = null;
         try {
             action = queryAction(actionModel.getId(), tom);
-            if (action == null)
+            if (action == null) {
                 throw new IllegalArgumentException(
                         String.format("Cannot change non-existent Action with ID = '%s'", actionModel.getId()));
+            }
 
             ResourceType rt = action.getContainer();
             validate(actionModel, rt, action);
@@ -91,8 +94,9 @@ public class ActionManager {
 
     private boolean existAction(ResourceType rt, String name) {
         for (Action action : rt.getAction()) {
-            if (action.getName().equals(name))
+            if (action.getName().equals(name)) {
                 return true;
+            }
         }
         return false;
     }

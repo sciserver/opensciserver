@@ -231,8 +231,9 @@ public class CollaborationManager {
     }
 
     private Map<UserGroup, List<ResourceFacade>> getAllResources(UserProfile up, Collection<UserGroup> userGroups) {
-        if (userGroups.isEmpty())
+        if (userGroups.isEmpty()) {
             return new HashMap<>();
+        }
 
         return Stream
                 .of(getAnyResourcesSharedWith(up, userGroups).entrySet().stream(),

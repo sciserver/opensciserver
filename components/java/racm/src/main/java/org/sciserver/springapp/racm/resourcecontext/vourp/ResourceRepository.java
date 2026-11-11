@@ -94,8 +94,9 @@ public class ResourceRepository {
             if (e.getOwnership() == OwnershipCategory.OWNED) {
                 if (e.getSciEntity() instanceof UserGroup) {
                     UserGroup ug = (UserGroup) e.getSciEntity();
-                    if (ug.getTom() == null)
+                    if (ug.getTom() == null) {
                         ug.setTom(tom);
+                    }
                     tom.remove(ug);
                 }
             }
@@ -202,22 +203,28 @@ public class ResourceRepository {
     }
 
     private String convertEntityTypeToString(SciserverEntity entity) {
-        if (entity instanceof UserGroup)
+        if (entity instanceof UserGroup) {
             return "GROUP";
-        if (entity instanceof User)
+        }
+        if (entity instanceof User) {
             return "USER";
-        if (entity instanceof ServiceAccount)
+        }
+        if (entity instanceof ServiceAccount) {
             return "SERVICE";
+        }
         throw new IllegalStateException("Only associated with groups is currently supported");
     }
 
     private EntityType convertEntityType(SciserverEntity entity) {
-        if (entity instanceof UserGroup)
+        if (entity instanceof UserGroup) {
             return EntityType.GROUP;
-        if (entity instanceof User)
+        }
+        if (entity instanceof User) {
             return EntityType.USER;
-        if (entity instanceof ServiceAccount)
+        }
+        if (entity instanceof ServiceAccount) {
             return EntityType.SERVICE;
+        }
         throw new IllegalStateException("Only associated with groups is currently supported");
     }
 
@@ -247,16 +254,18 @@ public class ResourceRepository {
 
     public Resource get(String resourceUUID) {
         edu.jhu.rac.Resource databaseResource = getFromDatabase(resourceUUID);
-        if (databaseResource == null)
+        if (databaseResource == null) {
             return null;
+        }
         return convertFromDatabase(databaseResource);
     }
 
     public ServiceResourceFromUserPerspectiveModel toServiceResourceFromUserPerspectiveModel(String resourceUUID,
             String username, Set<ActionModel> actions) {
         edu.jhu.rac.Resource databaseResource = getFromDatabase(resourceUUID);
-        if (databaseResource == null)
+        if (databaseResource == null) {
             return null;
+        }
         ServiceResourceFromUserPerspectiveModel model =
                 convertServiceResourceFromDatabase(databaseResource, username, actions);
         return model;
@@ -276,8 +285,9 @@ public class ResourceRepository {
 
     private ResourceContext queryResourceContextCheckToken(String resourceContextUUID, String serviceToken) {
         edu.jhu.rac.ResourceContext rc = getResourceContext(resourceContextUUID);
-        if (rc.getAccount() != null && !rc.getAccount().getServiceToken().equals(serviceToken))
+        if (rc.getAccount() != null && !rc.getAccount().getServiceToken().equals(serviceToken)) {
             throw new NotAuthorizedException();
+        }
         return rc;
 
     }

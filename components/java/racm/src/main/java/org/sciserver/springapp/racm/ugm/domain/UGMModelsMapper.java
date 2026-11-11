@@ -38,8 +38,9 @@ public class UGMModelsMapper {
 
     public static MemberUserModel map(Member member) {
         MemberUserModel mum = new MemberUserModel();
-        if (member.getScisEntity() instanceof User)
+        if (member.getScisEntity() instanceof User) {
             mum.setUser(map((User) member.getScisEntity()));
+        }
         mum.setStatus(MemberStatus.fromValue(member.getStatus().value()));
         mum.setRole(GroupRole.valueOf(member.getMemberRole().value()));
         return mum;
@@ -133,8 +134,9 @@ public class UGMModelsMapper {
 
     private static String map(UserVisibility uv) {
         String visibility = uv.value();
-        if (!validVisibilities.contains(visibility))
+        if (!validVisibilities.contains(visibility)) {
             throw new IllegalStateException(String.format("Invalid visibility: %s", uv));
+        }
         return visibility;
     }
 

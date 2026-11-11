@@ -72,13 +72,15 @@ public class UserProfileSource {
             throw new VOURPException(e);
         }
         JsonNode jUserName = json.get("username");
-        if (jUserName != null)
+        if (jUserName != null) {
             user.setUsername(jUserName.asText());
-        else
+        } else {
             throw new VOURPException("Cannot find username for Keystone userid");
+        }
 
         JsonNode jEmail = json.get("email");
-        if (jEmail != null)
+        if (jEmail != null) {
             user.setContactEmail(jEmail.asText());
+        }
     }
 }

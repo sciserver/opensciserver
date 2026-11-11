@@ -29,10 +29,11 @@ public class TransientObjectManager implements IMetadataObjectContainer {
          * @param o
          */
         public boolean add(MetadataObject o) {
-            if (o.isPurelyTransient() && !added.contains(o))
+            if (o.isPurelyTransient() && !added.contains(o)) {
                 return added.add(o);
-            else
+            } else {
                 return false;
+            }
         }
 
         /**
@@ -42,10 +43,11 @@ public class TransientObjectManager implements IMetadataObjectContainer {
          * @return
          */
         public boolean update(MetadataObject o) {
-            if (o.isTransientCopy() && !updated.contains(o))
+            if (o.isTransientCopy() && !updated.contains(o)) {
                 return updated.add(o);
-            else
+            } else {
                 return false;
+            }
         }
 
         /**
@@ -55,10 +57,11 @@ public class TransientObjectManager implements IMetadataObjectContainer {
          * @return
          */
         public boolean delete(MetadataObject o) {
-            if (o.isTransientCopy() && !deleted.contains(o))
+            if (o.isTransientCopy() && !deleted.contains(o)) {
                 return deleted.add(o);
-            else
+            } else {
                 return false;
+            }
         }
 
         /**
@@ -67,12 +70,16 @@ public class TransientObjectManager implements IMetadataObjectContainer {
          */
         private ArrayList<MetadataObject> validate() {
             ArrayList<MetadataObject> invalidObjects = new ArrayList<>();
-            for (MetadataObject o : added)
-                if (!o.isValid())
+            for (MetadataObject o : added) {
+                if (!o.isValid()) {
                     invalidObjects.add(o);
-            for (MetadataObject o : updated)
-                if (!o.isValid())
+                }
+            }
+            for (MetadataObject o : updated) {
+                if (!o.isValid()) {
                     invalidObjects.add(o);
+                }
+            }
             return invalidObjects;
         }
 
@@ -87,19 +94,22 @@ public class TransientObjectManager implements IMetadataObjectContainer {
         private void persistChangeSet(Date currentTimestamp, boolean doValidate) throws InvalidTOMException {
             if (doValidate) {
                 ArrayList<MetadataObject> invalidObjects = validate();
-                if (invalidObjects.size() > 0)
+                if (invalidObjects.size() > 0) {
                     throw new InvalidTOMException(invalidObjects);
+                }
             }
             UnitOfWorkChangeSet changeSet = getUnitOfWorkChangeSet();
             if (added != null) {
                 for (MetadataObject o : added) {
                     if (o instanceof MetadataRootEntityObject) {
                         MetadataRootEntityObject root = (MetadataRootEntityObject) o;
-                        if (root.isPurelyTransient())
+                        if (root.isPurelyTransient()) {
                             root.setCreationDate(currentTimestamp);
+                        }
                         final ObjectChangeSet objectChangeSet = changeSet.getObjectChangeSetForClone(root);
-                        if (objectChangeSet != null && objectChangeSet.hasChanges())
+                        if (objectChangeSet != null && objectChangeSet.hasChanges()) {
                             root.setModificationDate(currentTimestamp); //
+                        }
                     }
                     em.persist(o);
                 }
@@ -117,8 +127,9 @@ public class TransientObjectManager implements IMetadataObjectContainer {
                 }
             }
             if (deleted != null) {
-                for (MetadataObject o : deleted)
+                for (MetadataObject o : deleted) {
                     em.remove(o);
+                }
             }
         }
     }
@@ -141,8 +152,9 @@ public class TransientObjectManager implements IMetadataObjectContainer {
     }
 
     protected void addEntity(MetadataRootEntityObject entity) {
-        if (!entities.contains(entity))
+        if (!entities.contains(entity)) {
             entities.add(entity);
+        }
     }
 
     public List<MetadataObject> queryJPA(String query, boolean doRefresh) {
@@ -178,8 +190,9 @@ public class TransientObjectManager implements IMetadataObjectContainer {
     @Transactional
     public boolean delete(final Collection<MetadataObject> removedObjects) {
         if (removedObjects != null) {
-            for (MetadataObject o : removedObjects)
+            for (MetadataObject o : removedObjects) {
                 em.remove(o);
+            }
         }
         return true;
     }
@@ -240,18 +253,21 @@ public class TransientObjectManager implements IMetadataObjectContainer {
 
         // now remove objects
         if (removedObjects != null) {
-            for (MetadataRootEntityObject o : removedObjects)
+            for (MetadataRootEntityObject o : removedObjects) {
                 em.remove(o);
+            }
         }
     }
 
     public List<MetadataObject> queryJPA(Query q, boolean doRefresh) {
-        if (doRefresh)
+        if (doRefresh) {
             q.setHint(QueryHints.REFRESH, HintValues.TRUE);
+        }
         List<?> list = q.getResultList();
         ArrayList<MetadataObject> r = new ArrayList<>();
-        for (Object o : list)
+        for (Object o : list) {
             r.add((MetadataObject) o);
+        }
         add(r);
         return r;
     }
@@ -264,8 +280,9 @@ public class TransientObjectManager implements IMetadataObjectContainer {
      * @return
      */
     public List<?> customJPQL(Query q, boolean doRefresh) {
-        if (doRefresh)
+        if (doRefresh) {
             q.setHint(QueryHints.REFRESH, HintValues.TRUE);
+        }
         return q.getResultList();
     }
 
@@ -273,8 +290,9 @@ public class TransientObjectManager implements IMetadataObjectContainer {
     public <T extends MetadataObject> T queryOne(Query q, Class<T> t) {
         q.setMaxResults(1);
         List<MetadataObject> l = this.queryJPA(q, false);
-        if (l.size() == 1)
+        if (l.size() == 1) {
             return (T) l.get(0);
+        }
         return null;
     }
 
@@ -299,14 +317,15 @@ public class TransientObjectManager implements IMetadataObjectContainer {
     }
 
     private void add(List<MetadataObject> l) {
-        for (MetadataObject o : l)
+        for (MetadataObject o : l) {
             add(o);
+        }
     }
 
     private void add(MetadataObject o) {
-        if (o.getTom() == null)
+        if (o.getTom() == null) {
             o.setTom(this);
-        else if (o.getTom() != this) {
+        } else if (o.getTom() != this) {
             throw new IllegalStateException();
         }
 
@@ -322,8 +341,9 @@ public class TransientObjectManager implements IMetadataObjectContainer {
     }
 
     public void visit(MetaDataObjectVisitor visitor) {
-        for (MetadataRootEntityObject o : this.entities)
+        for (MetadataRootEntityObject o : this.entities) {
             o.accept(visitor);
+        }
     }
 
     @Override

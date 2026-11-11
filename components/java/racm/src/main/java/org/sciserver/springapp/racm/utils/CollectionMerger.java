@@ -33,27 +33,30 @@ public class CollectionMerger<D extends MetadataObject, M extends RACMBaseModel>
      */
     public CollectionMerger(List<D> ds, List<M> ms, boolean addOnly) {
         Map<Long, D> dd = new HashMap<>();
-        for (D d : ds)
+        for (D d : ds) {
             dd.put(d.getId(), d);
+        }
 
         if (ms != null) {
             for (M m : ms) {
-                if (m.getId() == null)
+                if (m.getId() == null) {
                     insert.add(m);
-                else {
+                } else {
                     D d = dd.get(m.getId());
-                    if (d == null)
+                    if (d == null) {
                         throw new IllegalStateException("Cannot find Object with id=%d from input collection");
+                    }
                     updateD.add(d);
                     updateM.add(m);
                     dd.remove(m.getId());
                 }
             }
         }
-        if (addOnly)
+        if (addOnly) {
             remove = new ArrayList<>();
-        else
+        } else {
             remove = dd.values();
+        }
     }
 
     public Collection<D> getRemove() {

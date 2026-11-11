@@ -70,10 +70,11 @@ public class RDBDomainManager {
 
     public RDBComputeDomain manageRDBComputeDomain(RDBComputeDomainModel model, UserProfile up, UserGroup[] admins)
             throws VOURPException {
-        if (model.getId() != null)
+        if (model.getId() != null) {
             return updateRDBComputeDomain(model, up, admins);
-        else
+        } else {
             return createRDBComputeDomain(model, up, admins);
+        }
     }
 
     public COMPM manageDBCOMPM(String uuid, DBCOMPMModel model, UserProfile up) throws VOURPException {
@@ -81,13 +82,15 @@ public class RDBDomainManager {
         COMPM compm = null;
         TransientObjectManager tom = up.getTom();
         if (uuid == null) { // create
-            if (!jobmAccessControl.canRegisterCOMPM(up))
+            if (!jobmAccessControl.canRegisterCOMPM(up)) {
                 throw new VOURPException(VOURPException.UNAUTHORIZED,
                         String.format("User %s is not authorized to register a COMPM", up.getUsername()));
+            }
             RDBComputeDomain rdbcd = queryRDBComputeDomainForId(model.getRdbComputeDomainId(), up);
-            if (rdbcd == null) // TODO, check that there is not already a COMPM for the domain
+            if (rdbcd == null) { // TODO, check that there is not already a COMPM for the domain
                 throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                         String.format("Cannot find RDBComputeDomain for id=%d", model.getRdbComputeDomainId()));
+            }
 
             compm = new COMPM(tom);
             uuid = UUID.randomUUID().toString();
@@ -96,8 +99,9 @@ public class RDBDomainManager {
             compm.setCreatorUserid(up.getUserid());
         } else { // retrieve (assumes model==null) and update
             compm = findCOMPM(uuid, tom);
-            if (compm == null)
+            if (compm == null) {
                 throw new IllegalArgumentException("The UUID specified for registering a COMPM is not known");
+            }
         }
         compm.setLabel(model.getLabel());
         compm.setDescription(model.getDescription());
@@ -259,9 +263,10 @@ public class RDBDomainManager {
             admins = new UserGroup[] {};
         }
 
-        if (rdbcdm.getRacmUUID() == null || rdbcdm.getRacmUUID().trim().length() == 0)
+        if (rdbcdm.getRacmUUID() == null || rdbcdm.getRacmUUID().trim().length() == 0) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,
                     "When updating an RDB compute domain, specifiy both id and racmUUID");
+        }
         RDBComputeDomain rdbcd = queryRDBComputeDomainForId(rdbcdm.getId(), up);
         if (rdbcd == null) {
             throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT,

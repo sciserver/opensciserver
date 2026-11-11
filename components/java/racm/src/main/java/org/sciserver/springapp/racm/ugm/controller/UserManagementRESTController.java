@@ -732,8 +732,9 @@ public class UserManagementRESTController extends RACMController {
         try {
             List<User> users = usersAndGroupsManager.queryPublicUsers(up, usersFilter);
             List<UserInfo> uis = new ArrayList<>();
-            for (User u : users)
+            for (User u : users) {
                 uis.add(UGMModelsMapper.map(u));
+            }
 
             SciServerEntities ents = new SciServerEntities();
             ents.setUsers(uis);
@@ -743,9 +744,10 @@ public class UserManagementRESTController extends RACMController {
                         .map(ug -> UGMModelsMapper.map(ug, false)).collect(toList()));
             }
 
-            if (up.isAdmin())
+            if (up.isAdmin()) {
                 ents.setServices(usersAndGroupsManager.queryAllServiceAccounts(up.getTom()).stream()
                         .map(sa -> UGMModelsMapper.map(sa)).collect(toList()));
+            }
 
             JsonNode json = om.valueToTree(ents);
             return new ResponseEntity<>(json, HttpStatus.OK);

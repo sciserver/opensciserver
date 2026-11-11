@@ -31,14 +31,16 @@ public class WorkspaceGroupModel extends RACMBaseModel {
     }
 
     public void addResource(WorkspaceResourceModel r) {
-        if (this.groupResources == null)
+        if (this.groupResources == null) {
             this.groupResources = new ArrayList<>();
+        }
         this.groupResources.add(r);
     }
 
     public void addMember(WorkspaceUserModel r) {
-        if (this.memberUsers == null)
+        if (this.memberUsers == null) {
             this.memberUsers = new ArrayList<>();
+        }
         this.memberUsers.add(r);
     }
 

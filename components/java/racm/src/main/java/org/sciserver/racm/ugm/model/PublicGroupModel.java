@@ -90,13 +90,15 @@ public class PublicGroupModel extends RACMBaseModel {
     }
 
     public void setAdmins(List<Admin> admins) {
-        for (Admin m : admins)
+        for (Admin m : admins) {
             addAdmin(m);
+        }
     }
 
     public void addAdmin(Admin admin) {
-        if (validRoles.contains(admin.getRole()))
+        if (validRoles.contains(admin.getRole())) {
             admins.add(admin);
+        }
     }
 
     public List<ResourceModel> getResources() {

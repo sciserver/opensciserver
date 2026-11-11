@@ -44,8 +44,9 @@ public class COMPMMvcController {
     public ModelAndView viewCompms(@AuthenticationPrincipal UserProfile user) {
         List<COMPM> compms = compmManager.queryCOMPMs(user);
         List<COMPMModel> cms = new ArrayList<>();
-        for (COMPM c : compms)
+        for (COMPM c : compms) {
             cms.add(jobmModelFactory.newCOMPMModel(c, user));
+        }
         LogUtils.buildLog().forJOBM().user(user).sentence().subject(user.getUsername()).verb("listed")
                 .predicate("all compms").log();
         ModelAndView mav = new ModelAndView();
@@ -81,8 +82,9 @@ public class COMPMMvcController {
     public ModelAndView createCompm(COMPMModel compmModel, @RequestParam(required = false) String nextPage,
             @AuthenticationPrincipal UserProfile user) throws VOURPException {
 
-        if (!racm.canUserDoRootAction(user.getUsername(), RACMNames.A_REGISTER_COMPMM))
+        if (!racm.canUserDoRootAction(user.getUsername(), RACMNames.A_REGISTER_COMPMM)) {
             throw new ForbiddenException();
+        }
 
         ModelAndView mav = new ModelAndView();
         compmManager.createCOMPM(compmModel, user);

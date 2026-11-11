@@ -78,14 +78,16 @@ public class UserProfile implements UserDetails {
      * For testing, we skip this step if the TransientObjectManager appears mocked.
      */
     public User getUser() {
-        if (user.getTom().getEntityManager() == null)
+        if (user.getTom().getEntityManager() == null) {
             return user;
+        }
 
         EntityManager em = user.getTom().getEntityManager();
-        if (!em.contains(user))
+        if (!em.contains(user)) {
             return em.merge(user);
-        else
+        } else {
             return user;
+        }
     }
 
     public String getUserid() {
@@ -110,12 +112,15 @@ public class UserProfile implements UserDetails {
      * @return
      */
     public boolean isGroupEditor(UserGroup ug) {
-        if (ug.getOwner().equals(user))
+        if (ug.getOwner().equals(user)) {
             return true;
-        for (Member m : ug.getMember())
+        }
+        for (Member m : ug.getMember()) {
             if (m.getScisEntity().equals(user) && m.getMemberRole() == GroupRole.ADMIN
-                    && m.getStatus() == MemberStatus.ACCEPTED)
+                    && m.getStatus() == MemberStatus.ACCEPTED) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -144,8 +149,9 @@ public class UserProfile implements UserDetails {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
-        if (isAdmin())
+        if (isAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
 
         return authorities;
     }

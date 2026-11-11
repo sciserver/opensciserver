@@ -40,27 +40,34 @@ public class ContextClassManager {
      * @throws Exception
      */
     public ContextClassModel editContextClass(ContextClassModel contextClassModel, UserProfile user) {
-        if (contextClassModel.getId() == null)
+        if (contextClassModel.getId() == null) {
             return createContextClass(contextClassModel, user);
-        else
+        } else {
             return updateContextClass(contextClassModel, user);
+        }
     }
 
     public static ResourceType getResourceType(String name, ContextClass cc) {
-        if (name == null)
+        if (name == null) {
             return null;
-        for (ResourceType rt : cc.getResourceType())
-            if (name.equals(rt.getName()))
+        }
+        for (ResourceType rt : cc.getResourceType()) {
+            if (name.equals(rt.getName())) {
                 return rt;
+            }
+        }
         return null;
     }
 
     public static Role getRole(String name, ResourceType rt) {
-        if (name == null)
+        if (name == null) {
             return null;
-        for (Role r : rt.getRole())
-            if (name.equals(r.getName()))
+        }
+        for (Role r : rt.getRole()) {
+            if (name.equals(r.getName())) {
                 return r;
+            }
+        }
         return null;
     }
 
@@ -106,12 +113,14 @@ public class ContextClassManager {
     public ContextClassModel updateContextClass(ContextClassModel ccm, Long resourceTypeToBeDeleted, UserProfile user) {
         TransientObjectManager tom = user.getTom();
         ContextClass cc = queryContextClass(ccm.getId(), tom);
-        if (cc == null)
+        if (cc == null) {
             throw new IllegalArgumentException(
                     String.format("Cannot update non-existent ContextClass with ID = '%s'", ccm.getId()));
-        if (cc.getCreator() != user.getUser())
+        }
+        if (cc.getCreator() != user.getUser()) {
             throw new InsufficientPermissionsException(
                     String.format("update ContextClass with ID = '%s'", ccm.getId()));
+        }
         try {
             validate(ccm, cc, tom);
             fill(cc, ccm);
@@ -120,11 +129,12 @@ public class ContextClassManager {
             // first save any change in the container of the ResourceType marked deleted
             // and delete the marked ResourceType instance from the container's resourceType collection.
             if (resourceTypeToBeDeleted != null && resourceTypeToBeDeleted > 0) {
-                for (ResourceType rt : cc.getResourceType())
+                for (ResourceType rt : cc.getResourceType()) {
                     if (rt.getId().equals(resourceTypeToBeDeleted)) {
                         cc.getResourceType().remove(rt);
                         break;
                     }
+                }
             }
             tom.persist();
 
@@ -160,8 +170,9 @@ public class ContextClassManager {
         if (null == name || "".equals(name.trim())) {
             throw new IllegalArgumentException("A ContextClass MUST have a name");
         }
-        if ((cc == null || !cc.getName().equals(name.trim())) && existContextClass(name, tom))
+        if ((cc == null || !cc.getName().equals(name.trim())) && existContextClass(name, tom)) {
             throw new IllegalStateException(String.format("A ContextClass with name '%s' already exists", name));
+        }
     }
 
     /**
@@ -222,8 +233,9 @@ public class ContextClassManager {
         String query = "select o from ContextClass o order by o.name";
 
         List<MetadataObject> os = tom.queryJPA(query, false);
-        for (MetadataObject o : os)
+        for (MetadataObject o : os) {
             cc.add((ContextClass) o);
+        }
         return cc;
     }
 

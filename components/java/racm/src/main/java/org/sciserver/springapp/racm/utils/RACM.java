@@ -96,8 +96,9 @@ public class RACM {
     }
 
     public void tryDoActionOnResource(UserProfile user, String resourceUUID, String action) throws RACMException {
-        if (!canUserDoActionOnResource(user.getUsername(), resourceUUID, action))
+        if (!canUserDoActionOnResource(user.getUsername(), resourceUUID, action)) {
             throw new RACMException(user.getUsername(), resourceUUID, action);
+        }
     }
 
     /**

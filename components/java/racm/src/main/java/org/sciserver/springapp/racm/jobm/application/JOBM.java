@@ -143,10 +143,11 @@ public class JOBM {
         // check whether user is allowed to connect to this database and query it
         boolean ok = rdbDomainManager.canUserQueryDatabaseContext(up, model.getRdbDomainId(),
                 model.getDatabaseContextName());
-        if (!ok)
+        if (!ok) {
             throw new VOURPException(VOURPException.UNAUTHORIZED,
                     String.format("User '%s' is not allowed to query database context '%s'", up.getUsername(),
                             model.getDatabaseContextName()));
+        }
 
         RDBJob job = jobmModelFactory.newRDBJob(model, up);
 
@@ -176,18 +177,21 @@ public class JOBM {
     public COMPMJobModel cancelUserJob(Long jobId, UserProfile up) throws VOURPException {
         TransientObjectManager tom = vourpContext.newTOM();
         Job job = getJobBySubmitter(tom, up.getId(), jobId);
-        if (job == null)
+        if (job == null) {
             throw new VOURPException(
                     String.format("User '%s' has no access to a job with id %d", up.getUsername(), jobId));
+        }
         if (job.getStatus() < JobStatus.STATUS_FINISHED) {
-            if (job.getStatus() == JobStatus.STATUS_PENDING)
+            if (job.getStatus() == JobStatus.STATUS_PENDING) {
                 job.setStatus(JobStatus.STATUS_CANCELED);
+            }
             boolean wasCancelled = false;
-            for (JobMessage m : job.getMessage())
+            for (JobMessage m : job.getMessage()) {
                 if (m.getLabel() == MessageType.CANCEL) {
                     wasCancelled = true;
                     break;
                 }
+            }
             if (!wasCancelled) {
                 JobMessage m = new JobMessage(job);
                 m.setLabel(MessageType.CANCEL);
@@ -222,8 +226,9 @@ public class JOBM {
      * @return
      */
     private static Date toDate(String sd) {
-        if (sd == null)
+        if (sd == null) {
             return null;
+        }
         SimpleDateFormat formatter = new SimpleDateFormat(DATETIME_FORMAT);
         try {
             return formatter.parse(sd);
@@ -252,8 +257,9 @@ public class JOBM {
         List<COMPMJobModel> jobs = CollectionUtils.collate(queryUserDockerJobs(user, open, -1, start, end),
                 queryUserRDBJobs(user, open, -1, start, end),
                 (dockerJob, rdbJob) -> -dockerJob.getSubmissionTime().compareTo(rdbJob.getSubmissionTime()));
-        if (top > 0 && top < jobs.size())
+        if (top > 0 && top < jobs.size()) {
             jobs = jobs.subList(0, top);
+        }
 
         return jobs;
     }
@@ -367,14 +373,17 @@ public class JOBM {
             String end) throws VOURPException {
         TransientObjectManager tom = vourpContext.newTOM();
         StringBuilder where = new StringBuilder();
-        if (open)
+        if (open) {
             where.append(" AND j.status <= :finished ");
+        }
         Date dstart = toDate(start);
-        if (dstart != null)
+        if (dstart != null) {
             where.append(" AND j.submitTime >= :start ");
+        }
         Date dend = toDate(end);
-        if (dend != null)
+        if (dend != null) {
             where.append(" AND j.submitTime < :end ");
+        }
 
         Query q = tom.createQuery("select j from DockerJob j where j.submitter.id=:id " + where.toString()
                 + " order by j.submitTime desc").setParameter("id", user.getId());
@@ -387,16 +396,20 @@ public class JOBM {
         q.setHint(QueryHints.LEFT_FETCH, "j.image");
         q.setHint(QueryHints.LEFT_FETCH, "j.requiredVolume.volume.resource");
 
-        if (open)
+        if (open) {
             q.setParameter("finished", JobStatus.STATUS_FINISHED);
-        if (dstart != null)
+        }
+        if (dstart != null) {
             q.setParameter("start", dstart);
-        if (dend != null)
+        }
+        if (dend != null) {
             q.setParameter("end", dend);
+        }
 
         List<DockerJob> l = tom.queryJPA(q, DockerJob.class);
-        if (top > 0 && top < l.size())
+        if (top > 0 && top < l.size()) {
             l = l.subList(0, top);
+        }
 
         List<COMPMDockerJobModel> jms = new ArrayList<>();
         if (l != null) {
@@ -461,14 +474,17 @@ public class JOBM {
             throws VOURPException {
         TransientObjectManager tom = vourpContext.newTOM();
         StringBuilder where = new StringBuilder();
-        if (open)
+        if (open) {
             where.append(" AND j.status <= :finished ");
+        }
         Date dstart = toDate(start);
-        if (dstart != null)
+        if (dstart != null) {
             where.append(" AND j.submitTime >= :start ");
+        }
         Date dend = toDate(end);
-        if (dend != null)
+        if (dend != null) {
             where.append(" AND j.submitTime < :end ");
+        }
 
         Query q = tom.createQuery(
                 "select j from RDBJob j where j.submitter.id=:id " + where.toString() + " order by j.submitTime desc")
@@ -482,16 +498,20 @@ public class JOBM {
         q.setHint(QueryHints.LEFT_FETCH, "j.databaseContext");
         q.setHint(QueryHints.LEFT_FETCH, "j.target");
 
-        if (open)
+        if (open) {
             q.setParameter("finished", JobStatus.STATUS_FINISHED);
-        if (dstart != null)
+        }
+        if (dstart != null) {
             q.setParameter("start", dstart);
-        if (dend != null)
+        }
+        if (dend != null) {
             q.setParameter("end", dend);
+        }
 
         List<RDBJob> l = tom.queryJPA(q, RDBJob.class);
-        if (top > 0 && top < l.size())
+        if (top > 0 && top < l.size()) {
             l = l.subList(0, top);
+        }
 
         List<RDBJobModel> jms = new ArrayList<>();
         if (l != null) {
@@ -537,8 +557,9 @@ public class JOBM {
         for (MetadataObject mo : l) {
             Job job = (Job) mo;
             COMPMJobModel jm = jobmModelFactory.newCOMPMJobModel(job, true);
-            if (jm != null)
+            if (jm != null) {
                 jms.add(jm);
+            }
         }
         return jms;
     }
@@ -570,15 +591,17 @@ public class JOBM {
     public List<Job> nextJobs(String compmUUID, long defaultJobTimeout, long defaultJobsPerUser, short maxResults)
             throws VOURPException {
         TransientObjectManager tom = vourpContext.newTOM();
-        if (maxResults < 1)
+        if (maxResults < 1) {
             maxResults = 1;
+        }
         Query jobIdQuery = tom
                 .createNativeQuery(String.format("SELECT jobId FROM racm.nextJobs('%s',%d,%d,%d,%d) order by ranking",
                         compmUUID, defaultJobTimeout, defaultJobTimeout, maxResults, defaultJobsPerUser));
         List<String> jobids = tom.executeNativeQuery(jobIdQuery).stream().map(Object::toString).collect(toList());
 
-        if (jobids.isEmpty())
+        if (jobids.isEmpty()) {
             return Collections.emptyList();
+        }
 
         Query jobQuery = tom.createQuery("SELECT j FROM Job j WHERE j.id IN :jobids").setParameter("jobids", jobids);
 
@@ -606,8 +629,9 @@ public class JOBM {
         r.setColumns(columns);
 
         String stop = "";
-        if (top > 0)
+        if (top > 0) {
             stop = String.format(" top %d ", top);
+        }
 
         String sql = String.format("select " + stop
                 + " j.id,j.status,j.publisherDID,j.submitterDID,j.submitTime,j.startedTime,j.finishedTime,j.duration,j.resultsFolderURI,j.command,j.scriptURI"
@@ -639,8 +663,9 @@ public class JOBM {
         }
 
         Query q = tom.createNativeQuery(sql + where.toString() + " order by j.submitTime desc");
-        for (int i = 0; i < pars.size(); i++)
+        for (int i = 0; i < pars.size(); i++) {
             q.setParameter(i + 1, pars.get(i));
+        }
 
         r.setRows(tom.executeNativeQuery(q));
         return r;
