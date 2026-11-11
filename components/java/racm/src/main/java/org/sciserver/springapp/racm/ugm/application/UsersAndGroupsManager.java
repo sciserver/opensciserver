@@ -280,10 +280,9 @@ public class UsersAndGroupsManager {
                         return false;
                     case INVITED:
                         // ACCEPT INVITATION
+                        // service account is allowed to do this as well
                         if (MemberStatus.ACCEPTED == mumStatus
-                                && (user.getUser() == m.getScisEntity() || serviceToken != null)) { // service account
-                                                                                                    // is allowed to do
-                                                                                                    // this as well
+                                && (user.getUser() == m.getScisEntity() || serviceToken != null)) {
                             m.setStatus(MemberStatus.ACCEPTED);
                             return true;
                         }
@@ -1256,13 +1255,13 @@ public class UsersAndGroupsManager {
         for (MemberUserModel im : gi.getMemberUsers()) {
             MemberStatus imStatus = MemberStatus.fromValue(im.getStatus().value());
             if (MemberStatus.INVITED == imStatus) { // do we want this test?
-                inviteGroupMember(ug, user, im, serviceToken); // no-op if user has already been invited or is already a
-                                                               // member. Will re-invite users who declined an
-                                                               // invitation in the past.
+                // no-op if user has already been invited or is already a member.
+                // Will re-invite users who declined an invitation in the past.
+                inviteGroupMember(ug, user, im, serviceToken);
             } else if (MemberStatus.ACCEPTED == imStatus) { // do we want this test? only allowed if user is an admin
-                addGroupMember(ug, user, im, serviceToken); // no-op if user has already been invited or is already a
-                                                            // member. Will re-invite users who declined an invitation
-                                                            // in the past.
+                // no-op if user has already been invited or is already a member.
+                // Will re-invite users who declined an invitation in the past.
+                addGroupMember(ug, user, im, serviceToken);
             } else if (MemberStatus.WITHDRAWN == imStatus) {
                 // check membership - if membership = null do nothing, else set status = "WITHDRAWN"
                 Member rm = removeGroupMember(ug, user, im, serviceToken);
