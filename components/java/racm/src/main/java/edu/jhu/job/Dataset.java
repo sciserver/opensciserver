@@ -9,12 +9,15 @@ of its origins when interpreting it.
 
 package edu.jhu.job;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import java.util.Date;
 
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.MetadataRootEntityObject;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.MetadataRootEntityObject;
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object Dataset :
@@ -27,17 +30,13 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_Dataset")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_Dataset")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "Dataset.findById", query = "SELECT o FROM Dataset o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "Dataset.findByPublisherDID",
-            query = "SELECT o FROM Dataset o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "Dataset.findById", query = "SELECT o FROM Dataset o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "Dataset.findByPublisherDID", query = "SELECT o FROM Dataset o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -47,8 +46,7 @@ public class Dataset extends MetadataRootEntityObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version()
-    @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**

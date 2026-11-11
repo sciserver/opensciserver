@@ -9,14 +9,19 @@ of its origins when interpreting it.
 
 package edu.jhu.file;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import java.util.Date;
+
+import java.util.Map;
+import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.IMetadataObjectContainer;
+import org.ivoa.dm.model.Reference;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 
 import edu.jhu.rac.Resource;
-import java.util.Map;
-import org.ivoa.dm.model.IMetadataObjectContainer;
-import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.Reference;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object RootVolume :
@@ -29,20 +34,16 @@ import org.ivoa.dm.model.Reference;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_RootVolume")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_RootVolume")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "RootVolume.findById", query = "SELECT o FROM RootVolume o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "RootVolume.findByPublisherDID",
-            query = "SELECT o FROM RootVolume o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "RootVolume.findById", query = "SELECT o FROM RootVolume o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "RootVolume.findByPublisherDID", query = "SELECT o FROM RootVolume o WHERE o.identity.publisherDID = :publisherDID")
 
-    , @javax.persistence.NamedQuery(name = "RootVolume.findByName",
-            query = "SELECT o FROM RootVolume o WHERE o.name = :name")
+        ,
+        @javax.persistence.NamedQuery(name = "RootVolume.findByName", query = "SELECT o FROM RootVolume o WHERE o.name = :name")
 
 })
 
@@ -52,14 +53,12 @@ public class RootVolume extends MetadataObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version()
-    @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /** container gives the parent entity which owns a collection containing instances of this class */
     @javax.persistence.ManyToOne(cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-        javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY)
-    @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
+            javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY) @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
     protected FileService container;
 
     /**
@@ -68,8 +67,7 @@ public class RootVolume extends MetadataObject {
      * differientate the volumes. ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "name", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "name", nullable = false)
 
     private String name;
 
@@ -78,9 +76,7 @@ public class RootVolume extends MetadataObject {
      * 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "description", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "description", nullable = true)
 
     private String description;
 
@@ -88,8 +84,7 @@ public class RootVolume extends MetadataObject {
      * Attribute pathOnFileSystem : The path of this volume on the file system of the FileService. ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "pathOnFileSystem", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "pathOnFileSystem", nullable = false)
 
     private String pathOnFileSystem;
 
@@ -101,8 +96,7 @@ public class RootVolume extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "containsSharedVolumes", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "containsSharedVolumes", nullable = false)
 
     private Boolean containsSharedVolumes;
 
@@ -114,10 +108,9 @@ public class RootVolume extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "resourceId", referencedColumnName = "id", nullable = false)
 
     private Resource resource = null;
     /**

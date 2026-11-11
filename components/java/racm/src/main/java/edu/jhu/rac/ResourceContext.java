@@ -9,16 +9,19 @@ of its origins when interpreting it.
 
 package edu.jhu.rac;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
-
-import edu.jhu.user.ServiceAccount;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.MetadataRootEntityObject;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.MetadataRootEntityObject;
+import edu.jhu.user.ServiceAccount;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object ResourceContext :
@@ -31,18 +34,13 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_ResourceContext")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_ResourceContext")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "ResourceContext.findById",
-            query = "SELECT o FROM ResourceContext o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "ResourceContext.findByPublisherDID",
-            query = "SELECT o FROM ResourceContext o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "ResourceContext.findById", query = "SELECT o FROM ResourceContext o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "ResourceContext.findByPublisherDID", query = "SELECT o FROM ResourceContext o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -52,8 +50,7 @@ public class ResourceContext extends MetadataRootEntityObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version()
-    @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**
@@ -64,8 +61,7 @@ public class ResourceContext extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "racmEndpoint", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "racmEndpoint", nullable = true)
 
     private String racmEndpoint;
 
@@ -76,8 +72,7 @@ public class ResourceContext extends MetadataRootEntityObject {
      * Maybe unique token as well? ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "uuid", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "uuid", nullable = false)
 
     private String uuid;
 
@@ -86,8 +81,7 @@ public class ResourceContext extends MetadataRootEntityObject {
      * token. ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "label", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "label", nullable = true)
 
     private String label;
 
@@ -99,9 +93,7 @@ public class ResourceContext extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "description", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "description", nullable = true)
 
     private String description;
 
@@ -113,8 +105,7 @@ public class ResourceContext extends MetadataRootEntityObject {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
-            mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
 
     private List<Resource> resource = null;
 
@@ -126,10 +117,9 @@ public class ResourceContext extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "contextClassId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "contextClassId", referencedColumnName = "id", nullable = false)
 
     private ContextClass contextClass = null;
     /**
@@ -149,10 +139,9 @@ public class ResourceContext extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "accountId", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "accountId", referencedColumnName = "id", nullable = true)
 
     private ServiceAccount account = null;
     /**

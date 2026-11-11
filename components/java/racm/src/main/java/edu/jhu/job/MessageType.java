@@ -8,6 +8,8 @@ of its origins when interpreting the code
 **/
 package edu.jhu.job;
 
+import javax.xml.bind.annotation.*;
+
 /**
  * UML Enumeration MessageType.
  *

@@ -9,14 +9,19 @@ of its origins when interpreting it.
 
 package edu.jhu.job;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import java.util.Date;
+
+import java.util.Map;
+import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.IMetadataObjectContainer;
+import org.ivoa.dm.model.Reference;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 
 import edu.jhu.file.RootVolume;
-import java.util.Map;
-import org.ivoa.dm.model.IMetadataObjectContainer;
-import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.Reference;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object RootVolumeOnComputeDomain :
@@ -29,18 +34,13 @@ import org.ivoa.dm.model.Reference;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_RootVolumeOnComputeDomain")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_RootVolumeOnComputeDomain")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "RootVolumeOnComputeDomain.findById",
-            query = "SELECT o FROM RootVolumeOnComputeDomain o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "RootVolumeOnComputeDomain.findByPublisherDID",
-            query = "SELECT o FROM RootVolumeOnComputeDomain o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "RootVolumeOnComputeDomain.findById", query = "SELECT o FROM RootVolumeOnComputeDomain o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "RootVolumeOnComputeDomain.findByPublisherDID", query = "SELECT o FROM RootVolumeOnComputeDomain o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -50,14 +50,12 @@ public class RootVolumeOnComputeDomain extends MetadataObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version()
-    @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /** container gives the parent entity which owns a collection containing instances of this class */
     @javax.persistence.ManyToOne(cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-        javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY)
-    @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
+            javax.persistence.CascadeType.REFRESH }, fetch = javax.persistence.FetchType.LAZY) @javax.persistence.JoinColumn(name = "containerId", referencedColumnName = "id", nullable = false)
     protected ComputeDomain container;
 
     /**
@@ -68,8 +66,7 @@ public class RootVolumeOnComputeDomain extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "path", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "path", nullable = false)
 
     private String path;
 
@@ -81,8 +78,7 @@ public class RootVolumeOnComputeDomain extends MetadataObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "displayName", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "displayName", nullable = true)
 
     private String displayName;
 
@@ -94,10 +90,9 @@ public class RootVolumeOnComputeDomain extends MetadataObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "rootVolumeId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "rootVolumeId", referencedColumnName = "id", nullable = false)
 
     private RootVolume rootVolume = null;
     /**

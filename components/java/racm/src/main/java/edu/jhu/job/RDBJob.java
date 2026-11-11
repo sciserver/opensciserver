@@ -9,14 +9,17 @@ of its origins when interpreting it.
 
 package edu.jhu.job;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
-
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.MetadataRootEntityObject;
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object RDBJob :
@@ -29,19 +32,15 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_RDBJob")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_RDBJob")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.DiscriminatorValue("RDBJob")
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "RDBJob.findById", query = "SELECT o FROM RDBJob o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "RDBJob.findByPublisherDID",
-            query = "SELECT o FROM RDBJob o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "RDBJob.findById", query = "SELECT o FROM RDBJob o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "RDBJob.findByPublisherDID", query = "SELECT o FROM RDBJob o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -58,9 +57,7 @@ public class RDBJob extends Job {
      * ( Multiplicity : 1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = false)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "inputSQL", nullable = false)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = false) @javax.persistence.Lob @javax.persistence.Column(name = "inputSQL", nullable = false)
 
     private String inputSQL;
 
@@ -69,9 +66,7 @@ public class RDBJob extends Job {
      * MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "sql", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "sql", nullable = true)
 
     private String sql;
 
@@ -83,8 +78,7 @@ public class RDBJob extends Job {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
-            mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
 
     private List<RDBJobTarget> target = null;
 
@@ -96,10 +90,9 @@ public class RDBJob extends Job {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "databaseContextId", referencedColumnName = "id", nullable = false)
+    @javax.persistence.ManyToOne(optional = false, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "databaseContextId", referencedColumnName = "id", nullable = false)
 
     private DatabaseContext databaseContext = null;
     /**

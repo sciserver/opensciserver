@@ -9,16 +9,19 @@ of its origins when interpreting it.
 
 package edu.jhu.rac;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
-
-import edu.jhu.user.User;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.MetadataRootEntityObject;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.MetadataRootEntityObject;
+import edu.jhu.user.User;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object ContextClass :
@@ -31,21 +34,16 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_ContextClass")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_ContextClass")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "ContextClass.findById",
-            query = "SELECT o FROM ContextClass o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "ContextClass.findByPublisherDID",
-            query = "SELECT o FROM ContextClass o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "ContextClass.findById", query = "SELECT o FROM ContextClass o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "ContextClass.findByPublisherDID", query = "SELECT o FROM ContextClass o WHERE o.identity.publisherDID = :publisherDID")
 
-    , @javax.persistence.NamedQuery(name = "ContextClass.findByName",
-            query = "SELECT o FROM ContextClass o WHERE o.name = :name")
+        ,
+        @javax.persistence.NamedQuery(name = "ContextClass.findByName", query = "SELECT o FROM ContextClass o WHERE o.name = :name")
 
 })
 
@@ -55,8 +53,7 @@ public class ContextClass extends MetadataRootEntityObject {
     private static final long serialVersionUID = LAST_MODIFICATION_DATE;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version()
-    @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**
@@ -67,8 +64,7 @@ public class ContextClass extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "name", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "name", nullable = false)
 
     private String name;
 
@@ -80,9 +76,7 @@ public class ContextClass extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "description", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "description", nullable = true)
 
     private String description;
 
@@ -90,8 +84,7 @@ public class ContextClass extends MetadataRootEntityObject {
      * Attribute release : INdicates the release of the application context. ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "release", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "release", nullable = true)
 
     private String release;
 
@@ -103,8 +96,7 @@ public class ContextClass extends MetadataRootEntityObject {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
-            mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
 
     private List<ResourceType> resourceType = null;
 
@@ -116,10 +108,9 @@ public class ContextClass extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "creatorId", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "creatorId", referencedColumnName = "id", nullable = true)
 
     private User creator = null;
     /**

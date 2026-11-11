@@ -9,11 +9,14 @@ of its origins when interpreting it.
 
 package edu.jhu.IVOAValueTypes;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import java.util.Date;
 
 import java.util.Map;
-import org.ivoa.dm.model.MetadataDataType;
 import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.IMetadataObjectContainer;
+import org.ivoa.dm.model.MetadataDataType;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML DataType Identity :
@@ -41,8 +44,7 @@ public class Identity extends MetadataDataType {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "id", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "id", nullable = true)
 
     private Long id;
 
@@ -54,8 +56,7 @@ public class Identity extends MetadataDataType {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "xmlId", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "xmlId", nullable = true)
 
     private String xmlId;
 
@@ -67,8 +68,7 @@ public class Identity extends MetadataDataType {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "ivoId", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "ivoId", nullable = true)
 
     private String ivoId;
 

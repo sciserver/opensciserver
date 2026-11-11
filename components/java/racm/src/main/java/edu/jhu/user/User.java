@@ -9,12 +9,16 @@ of its origins when interpreting it.
 
 package edu.jhu.user;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
+import java.util.Date;
 
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.MetadataRootEntityObject;
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object User :
@@ -27,19 +31,15 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_User")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_User")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.DiscriminatorValue("User")
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "User.findById", query = "SELECT o FROM User o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "User.findByPublisherDID",
-            query = "SELECT o FROM User o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "User.findById", query = "SELECT o FROM User o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "User.findByPublisherDID", query = "SELECT o FROM User o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -53,8 +53,7 @@ public class User extends SciserverEntity {
      * users/password, possibly single-sign-on etc. Currently this is keystone ( Multiplicity : 1 , MaxLength : 128 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "userId", nullable = false, length = 128)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "userId", nullable = false, length = 128)
 
     private String userId;
 
@@ -66,8 +65,7 @@ public class User extends SciserverEntity {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "username", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "username", nullable = false)
 
     private String username;
 
@@ -79,8 +77,7 @@ public class User extends SciserverEntity {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "contactEmail", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "contactEmail", nullable = true)
 
     private String contactEmail;
 
@@ -92,8 +89,7 @@ public class User extends SciserverEntity {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.Basic(optional = true)
-    @javax.persistence.Column(name = "trustId", nullable = true)
+    @javax.persistence.Basic(optional = true) @javax.persistence.Column(name = "trustId", nullable = true)
 
     private String trustId;
 
@@ -105,9 +101,7 @@ public class User extends SciserverEntity {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Enumerated(javax.persistence.EnumType.STRING)
-    @javax.persistence.Column(name = "visibility", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Enumerated(javax.persistence.EnumType.STRING) @javax.persistence.Column(name = "visibility", nullable = false)
 
     private UserVisibility visibility;
 
@@ -115,9 +109,7 @@ public class User extends SciserverEntity {
      * Attribute preferences : JSON string modified by dashboard UI ( Multiplicity : 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "preferences", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "preferences", nullable = true)
 
     private String preferences;
 
@@ -129,10 +121,9 @@ public class User extends SciserverEntity {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "partyId", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "partyId", referencedColumnName = "id", nullable = true)
 
     private Party party = null;
     /**

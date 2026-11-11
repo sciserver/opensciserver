@@ -9,16 +9,19 @@ of its origins when interpreting it.
 
 package edu.jhu.job;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
-
-import edu.jhu.rac.ResourceContext;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
-import org.ivoa.dm.model.MetadataRootEntityObject;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.Reference;
 import org.ivoa.dm.model.TransientObjectManager;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.MetadataRootEntityObject;
+import edu.jhu.rac.ResourceContext;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object ComputeDomain :
@@ -31,21 +34,16 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_ComputeDomain")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_ComputeDomain")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "ComputeDomain.findById",
-            query = "SELECT o FROM ComputeDomain o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "ComputeDomain.findByPublisherDID",
-            query = "SELECT o FROM ComputeDomain o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "ComputeDomain.findById", query = "SELECT o FROM ComputeDomain o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "ComputeDomain.findByPublisherDID", query = "SELECT o FROM ComputeDomain o WHERE o.identity.publisherDID = :publisherDID")
 
-    , @javax.persistence.NamedQuery(name = "ComputeDomain.findByName",
-            query = "SELECT o FROM ComputeDomain o WHERE o.name = :name")
+        ,
+        @javax.persistence.NamedQuery(name = "ComputeDomain.findByName", query = "SELECT o FROM ComputeDomain o WHERE o.name = :name")
 
 })
 
@@ -59,8 +57,7 @@ public abstract class ComputeDomain extends MetadataRootEntityObject {
     protected String classType;
 
     /** jpaVersion gives the current version number for that entity (used by pessimistic / optimistic locking in JPA) */
-    @javax.persistence.Version()
-    @javax.persistence.Column(name = "OPTLOCK")
+    @javax.persistence.Version() @javax.persistence.Column(name = "OPTLOCK")
     protected int jpaVersion;
 
     /**
@@ -71,8 +68,7 @@ public abstract class ComputeDomain extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "name", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "name", nullable = false)
 
     private String name;
 
@@ -84,9 +80,7 @@ public abstract class ComputeDomain extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 , MaxLength : -1 )
      */
 
-    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true)
-    @javax.persistence.Lob
-    @javax.persistence.Column(name = "description", nullable = true)
+    @javax.persistence.Basic(fetch = javax.persistence.FetchType.EAGER, optional = true) @javax.persistence.Lob @javax.persistence.Column(name = "description", nullable = true)
 
     private String description;
 
@@ -98,8 +92,7 @@ public abstract class ComputeDomain extends MetadataRootEntityObject {
      * ( Multiplicity : 1 )
      */
 
-    @javax.persistence.Basic(optional = false)
-    @javax.persistence.Column(name = "apiEndpoint", nullable = false)
+    @javax.persistence.Basic(optional = false) @javax.persistence.Column(name = "apiEndpoint", nullable = false)
 
     private String apiEndpoint;
 
@@ -111,8 +104,7 @@ public abstract class ComputeDomain extends MetadataRootEntityObject {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
-            mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
 
     private List<RootVolumeOnComputeDomain> rootVolume = null;
 
@@ -124,10 +116,9 @@ public abstract class ComputeDomain extends MetadataRootEntityObject {
      * ( Multiplicity : 0..1 )
      */
 
-    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY,
-            cascade = { javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
-                javax.persistence.CascadeType.REFRESH })
-    @javax.persistence.JoinColumn(name = "resourceContextId", referencedColumnName = "id", nullable = true)
+    @javax.persistence.ManyToOne(optional = true, fetch = javax.persistence.FetchType.LAZY, cascade = {
+            javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE,
+            javax.persistence.CascadeType.REFRESH }) @javax.persistence.JoinColumn(name = "resourceContextId", referencedColumnName = "id", nullable = true)
 
     private ResourceContext resourceContext = null;
     /**

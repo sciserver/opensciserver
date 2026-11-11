@@ -9,13 +9,15 @@ of its origins when interpreting it.
 
 package edu.jhu.job;
 
-import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
-
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import org.ivoa.dm.model.MetadataElement;
+import org.ivoa.dm.model.IMetadataObjectContainer;
 import org.ivoa.dm.model.TransientObjectManager;
+
+import static edu.jhu.ModelVersion.LAST_MODIFICATION_DATE;
 
 /**
  * UML Object DockerComputeDomain :
@@ -28,20 +30,15 @@ import org.ivoa.dm.model.TransientObjectManager;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "t_DockerComputeDomain")
+@javax.persistence.Entity @javax.persistence.Table(name = "t_DockerComputeDomain")
 
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED)
-@javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING,
-        length = 32)
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.JOINED) @javax.persistence.DiscriminatorColumn(name = "DTYPE", discriminatorType = javax.persistence.DiscriminatorType.STRING, length = 32)
 
 @javax.persistence.DiscriminatorValue("DockerComputeDomain")
 
 @javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = "DockerComputeDomain.findById",
-            query = "SELECT o FROM DockerComputeDomain o WHERE o.id = :id"),
-    @javax.persistence.NamedQuery(name = "DockerComputeDomain.findByPublisherDID",
-            query = "SELECT o FROM DockerComputeDomain o WHERE o.identity.publisherDID = :publisherDID")
+        @javax.persistence.NamedQuery(name = "DockerComputeDomain.findById", query = "SELECT o FROM DockerComputeDomain o WHERE o.id = :id"),
+        @javax.persistence.NamedQuery(name = "DockerComputeDomain.findByPublisherDID", query = "SELECT o FROM DockerComputeDomain o WHERE o.identity.publisherDID = :publisherDID")
 
 })
 
@@ -58,8 +55,7 @@ public class DockerComputeDomain extends ComputeDomain {
      * ( Multiplicity : 0..* )
      */
 
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY,
-            mappedBy = "container", orphanRemoval = true)
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY, mappedBy = "container", orphanRemoval = true)
 
     private List<ComputeResource> computeResource = null;
 
