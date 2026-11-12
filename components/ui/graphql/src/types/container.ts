@@ -10,6 +10,7 @@ export const typeDefs = gql`
     imageName: String!
     domainName: String!
     domainID: Int!
+    domainPublisherDID: String!
     createdAt: DateTime!
     accessedAt: DateTime!
     maxSecs: Int!
