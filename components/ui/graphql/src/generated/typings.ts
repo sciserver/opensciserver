@@ -34,6 +34,7 @@ export type Container = {
   displayName: Scalars['String'];
   domainID: Scalars['Int'];
   domainName: Scalars['String'];
+  domainPublisherDID: Scalars['String'];
   id: Scalars['ID'];
   imageName: Scalars['String'];
   json?: Maybe<Scalars['JSONObject']>;
@@ -589,6 +590,7 @@ export type ContainerResolvers<ContextType = Context, ParentType extends Resolve
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   domainID?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   domainName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  domainPublisherDID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   imageName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   json?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;

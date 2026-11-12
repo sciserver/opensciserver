@@ -11,6 +11,7 @@ type Container {
   displayName: String!
   domainID: Int!
   domainName: String!
+  domainPublisherDID: String!
   id: ID!
   imageName: String!
   json: JSONObject

@@ -75,7 +75,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
           getContainerDetail({
             variables: {
               containerDetailParams: {
-                domainId: params.row.domainID,
+                domainId: params.row.domainPublisherDID,
                 dataVolumeIds: dataVolumes.map(dv => dv.publisherDID),
                 userVolumeIds: userVolumes
               }
@@ -84,7 +84,7 @@ export const ContainerDataGrid: FC<Props> = ({ containerList, selectContainer })
           getUser()
         ]);
 
-        let url = `/compute/run?dom=${params.row.domainID}&img=${imageName}`;
+        let url = `/compute/run?dom=${params.row.domainPublisherDID}&img=${imageName}`;
         if (dataVolumes.length) {
           url += `&dvs=${dataVolumes.map(dv => dv.publisherDID)}`;
         }

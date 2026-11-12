@@ -20,6 +20,7 @@ export const GET_CONTAINERS = gql`
       maxSecs
       domainName
       domainID
+      domainPublisherDID
       imageName
       name
       id

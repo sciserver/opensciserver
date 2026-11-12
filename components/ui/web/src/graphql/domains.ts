@@ -5,6 +5,7 @@ export const GET_DOMAINS = gql`
     getDomains(jobs: $jobs) {
       name
       id
+      publisherDID
       apiEndpoint
       description
       images {
