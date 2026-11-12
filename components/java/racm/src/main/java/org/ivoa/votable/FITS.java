@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for FITS complex type.
  * 
@@ -31,9 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "FITS", propOrder = {
-    "stream"
-})
+@XmlType(name = "FITS", propOrder = { "stream" })
 public class FITS {
 
     @XmlElement(name = "STREAM", required = true)

@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
  * 
  *       Represent the root of a containment hierarchy. 
@@ -33,13 +32,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "MetadataRootEntityObject", propOrder = {
-    "creationDate",
-    "modificationDate"
-})
-public class MetadataRootEntityObject
-    extends MetadataObject
-{
+@XmlType(name = "MetadataRootEntityObject", propOrder = { "creationDate", "modificationDate" })
+public class MetadataRootEntityObject extends MetadataObject {
 
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar creationDate;

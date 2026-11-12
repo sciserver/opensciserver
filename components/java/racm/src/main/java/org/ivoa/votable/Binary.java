@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Binary complex type.
  * 
@@ -27,9 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Binary", propOrder = {
-    "stream"
-})
+@XmlType(name = "Binary", propOrder = { "stream" })
 public class Binary {
 
     @XmlElement(name = "STREAM", required = true)

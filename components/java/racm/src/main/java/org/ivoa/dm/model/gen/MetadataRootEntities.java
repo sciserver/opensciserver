@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for MetadataRootEntities complex type.
  * 
@@ -29,9 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "MetadataRootEntities", propOrder = {
-    "entity"
-})
+@XmlType(name = "MetadataRootEntities", propOrder = { "entity" })
 public class MetadataRootEntities {
 
     @XmlElement(required = true)

@@ -13,29 +13,6 @@ import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_DELETE;
 import static org.sciserver.springapp.racm.storem.application.STOREMConstants.A_FILESERVICE_USERVOLUME_GRANT;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Stream;
-
-import javax.persistence.Query;
-
-import org.ivoa.dm.model.TransientObjectManager;
-import org.sciserver.racm.utils.model.NativeQueryResult;
-import org.sciserver.springapp.racm.ugm.domain.UserProfile;
-import org.sciserver.springapp.racm.utils.RACM;
-import org.sciserver.springapp.racm.utils.RACMUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import edu.jhu.file.DataVolume;
 import edu.jhu.file.FileService;
 import edu.jhu.file.RootVolume;
@@ -48,6 +25,26 @@ import edu.jhu.rac.ResourceContext;
 import edu.jhu.rac.ResourceType;
 import edu.jhu.rac.RoleAssignment;
 import edu.jhu.user.SciserverEntity;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
+import javax.persistence.Query;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.sciserver.racm.utils.model.NativeQueryResult;
+import org.sciserver.springapp.racm.ugm.domain.UserProfile;
+import org.sciserver.springapp.racm.utils.RACM;
+import org.sciserver.springapp.racm.utils.RACMUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Class implementing methods to perform permission-related queries to the
@@ -126,13 +123,12 @@ public class STOREMAccessControl {
     }
 
     Map<Long, List<String>> getAllowedActions(UserProfile up, ResourceContext... resourceContexts) {
-        List<String> resourceContextUUIDsToSearch = Arrays.asList(resourceContexts).stream()
-                .map(ResourceContext::getUuid).collect(toList());
+        List<String> resourceContextUUIDsToSearch =
+                Arrays.asList(resourceContexts).stream().map(ResourceContext::getUuid).collect(toList());
 
         /*
-         * According to https://stackoverflow.com/a/21494273/239003 , collections are
-         * not allowed in native queries. This must be native since we use a table
-         * function, so we do some manual looping.
+         * According to https://stackoverflow.com/a/21494273/239003 , collections are not allowed in native queries.
+         * This must be native since we use a table function, so we do some manual looping.
          */
         String sql = "SELECT DISTINCT resourceId, action FROM racm.userActions(?) WHERE resourceContextUUID in ("
                 + String.join(",", Collections.nCopies(resourceContextUUIDsToSearch.size(), "?")) + ")";
@@ -154,8 +150,9 @@ public class STOREMAccessControl {
         String sql = "SELECT resourceId, action FROM racm.userResourceActionsOnContext(?,?)";
 
         TransientObjectManager tom = up.getTom();
-        Query nativeQuery = tom.createNativeQuery(sql).setParameter(1,resourceContextsUUID).setParameter(2, up.getUsername());
-        
+        Query nativeQuery =
+                tom.createNativeQuery(sql).setParameter(1, resourceContextsUUID).setParameter(2, up.getUsername());
+
         @SuppressWarnings("unchecked")
         Collection<Object[]> rawResults = (Collection<Object[]>) tom.executeNativeQuery(nativeQuery);
 
@@ -164,7 +161,8 @@ public class STOREMAccessControl {
     }
 
     Set<String> getAllowedActions(UserProfile up, String resourceContextUUID, String pubDID) {
-        String sql = "SELECT DISTINCT action FROM racm.userActions(?) WHERE resourcePubDID = (?) and resourceContextUUID = (?)";
+        String sql =
+                "SELECT DISTINCT action FROM racm.userActions(?) WHERE resourcePubDID = (?) and resourceContextUUID = (?)";
         TransientObjectManager tom = up.getTom();
         Query nativeQuery = tom.createNativeQuery(sql).setParameter(1, up.getUsername()).setParameter(2, pubDID)
                 .setParameter(3, resourceContextUUID);
@@ -238,9 +236,9 @@ public class STOREMAccessControl {
 
     @SuppressWarnings("unchecked")
     private List<Privilege> getAllEntitiesWithPrivilege(TransientObjectManager tom, Resource resource) {
-        Query privileges = tom
-                .createQuery("SELECT p FROM Privilege p join fetch p.scisEntity WHERE p.container = :resource")
-                .setParameter("resource", resource);
+        Query privileges =
+                tom.createQuery("SELECT p FROM Privilege p join fetch p.scisEntity WHERE p.container = :resource")
+                        .setParameter("resource", resource);
         List<Privilege> privs = privileges.getResultList();
         return privs;
     }
@@ -265,6 +263,7 @@ public class STOREMAccessControl {
             resource.getAccesControl().remove(p);
         }
     }
+
     void deleteAllRoles(TransientObjectManager tom, long entityId, Resource resource) {
         List<RoleAssignment> rolesToDelete = new ArrayList<>();
         for (AccessControl ac : resource.getAccesControl()) {
@@ -276,11 +275,11 @@ public class STOREMAccessControl {
             resource.getAccesControl().remove(p);
         }
     }
-    
+
     private Action findAction(TransientObjectManager tom, String name, ResourceType rt) {
-        Query actionQuery = tom
-                .createQuery("SELECT a FROM Action a WHERE a.name = :name AND a.container = :resourcetype")
-                .setParameter("name", name).setParameter("resourcetype", rt);
+        Query actionQuery =
+                tom.createQuery("SELECT a FROM Action a WHERE a.name = :name AND a.container = :resourcetype")
+                        .setParameter("name", name).setParameter("resourcetype", rt);
         return tom.queryOne(actionQuery, Action.class);
     }
 
@@ -293,8 +292,9 @@ public class STOREMAccessControl {
         BiConsumer<A, ? super U> acc = downstream.accumulator();
         return Collector.of(downstream.supplier(), (a, t) -> {
             try (Stream<? extends U> s = mapper.apply(t)) {
-                if (s != null)
+                if (s != null) {
                     s.forEachOrdered(u -> acc.accept(a, u));
+                }
             }
         }, downstream.combiner(), downstream.finisher(),
                 downstream.characteristics().stream().toArray(Collector.Characteristics[]::new));

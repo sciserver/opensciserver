@@ -1,10 +1,9 @@
 package org.sciserver.racm.resources.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NewSharedWithEntity {
     private final String name;
@@ -14,8 +13,9 @@ public class NewSharedWithEntity {
     public NewSharedWithEntity(@JsonProperty("name") String name, @JsonProperty("type") SciServerEntityType type,
             @JsonProperty("allowedActions") List<String> allowedActions) {
         this(name, type);
-        if (allowedActions != null)
+        if (allowedActions != null) {
             this.allowedActions.addAll(allowedActions);
+        }
     }
 
     public NewSharedWithEntity(String name, SciServerEntityType type) {

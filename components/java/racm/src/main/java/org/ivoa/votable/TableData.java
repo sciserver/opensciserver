@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for TableData complex type.
  * 
@@ -29,9 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TableData", propOrder = {
-    "trs"
-})
+@XmlType(name = "TableData", propOrder = { "trs" })
 public class TableData {
 
     @XmlElement(name = "TR")

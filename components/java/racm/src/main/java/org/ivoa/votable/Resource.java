@@ -20,7 +20,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 
-
 /**
  * 
  *      Added in Version 1.2: INFO for diagnostics in several places
@@ -72,24 +71,15 @@ import org.w3c.dom.Element;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Resource", propOrder = {
-    "description",
-    "infosAndCOOSYSAndGROUPS",
-    "anies"
-})
+@XmlType(name = "Resource", propOrder = { "description", "infosAndCOOSYSAndGROUPS", "anies" })
 public class Resource {
 
     @XmlElement(name = "DESCRIPTION")
     protected AnyTEXT description;
-    @XmlElements({
-        @XmlElement(name = "COOSYS", type = CoordinateSystem.class),
-        @XmlElement(name = "PARAM", type = Param.class),
-        @XmlElement(name = "GROUP", type = Group.class),
-        @XmlElement(name = "TABLE", type = Table.class),
-        @XmlElement(name = "RESOURCE", type = Resource.class),
-        @XmlElement(name = "LINK", type = Link.class),
-        @XmlElement(name = "INFO", type = Info.class)
-    })
+    @XmlElements({ @XmlElement(name = "COOSYS", type = CoordinateSystem.class),
+        @XmlElement(name = "PARAM", type = Param.class), @XmlElement(name = "GROUP", type = Group.class),
+        @XmlElement(name = "TABLE", type = Table.class), @XmlElement(name = "RESOURCE", type = Resource.class),
+        @XmlElement(name = "LINK", type = Link.class), @XmlElement(name = "INFO", type = Info.class) })
     protected List<Object> infosAndCOOSYSAndGROUPS;
     @XmlAnyElement
     protected List<Element> anies;

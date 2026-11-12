@@ -1,15 +1,24 @@
 package org.sciserver.springapp.racm.jobm.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.jobm.model.RDBJobModel;
 import org.sciserver.springapp.racm.jobm.application.COMPMRequired;
+import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector.COMPMInfo;
 import org.sciserver.springapp.racm.jobm.application.COMPMTokenUtils;
 import org.sciserver.springapp.racm.jobm.application.JOBMModelFactory;
-import org.sciserver.springapp.racm.jobm.application.COMPMRequiredInjector.COMPMInfo;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.sciserver.springapp.racm.utils.controller.JsonAPIHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,109 +31,88 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 @CrossOrigin
 @RestController
 @COMPMRequired
 @RequestMapping("jobm/rest")
 @Tag(name = "Database job manager integration",
-     description = "Called by a database COMPM to report on the SQL jobs it runs. Not an end-user "
-                 + "API.")
+        description = "Called by a database COMPM to report on the SQL jobs it runs. Not an end-user " + "API.")
 @SecurityRequirement(name = "serviceToken")
 public class RDBJobForCOMPMController {
-	private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-	private final JsonAPIHelper jsonAPIHelper;
-	private final COMPMTokenUtils compmTokenUtils;
-	private final JOBMModelFactory jobmModelFactory;
-	@Autowired
-	public RDBJobForCOMPMController(JsonAPIHelper jsonAPIHelper, COMPMTokenUtils compmTokenUtils,
-			JOBMModelFactory jobmModelFactory) {
-		this.jsonAPIHelper = jsonAPIHelper;
-		this.compmTokenUtils = compmTokenUtils;
-		this.jobmModelFactory = jobmModelFactory;
-	}
-	/**
-	 *
-	 * Status plus potentially messages goes into JSON body.
-	 *
-	 * @param jobId
-	 * @param request
-	 * @return
-	 */
-	@Operation(
-	    summary = "Report the progress of a relational database job.",
-	    description = "Called by the compute domain manager running the SQL job to record its new "
-	                  + "status, and any messages that go with it. Accepted only from the COMPM "
-	                  + "the job was handed to.",
-	    parameters = {
-	        @Parameter(name = "jobId", in = ParameterIn.PATH,
-	                   description = "Identifier of the database job being reported on.")
-	    },
-	    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-	                   description = "RDBJobModel as JSON, the model this COMPM was handed by "
-	                                 + "/compmjob/next, carrying the new status. The job updated "
-	                                 + "is the one the body names in id; the id in the path is "
-	                                 + "ignored. On a target that already exists only location "
-	                                 + "is updated; a target with no id is added."))
-	@ApiResponses({
-	    @ApiResponse(responseCode = "200",
-	                 description = "The relational database job as posted, echoed back once the update "
-	                               + "has been applied. The echo is the submitted body rather than the "
-	                               + "stored state."),
-	    @ApiResponse(responseCode = "400",
-	                 description = "The request is not valid; the response body carries the "
-	                               + "reason."),
-	    @ApiResponse(responseCode = "401",
-	                 description = "No service token was supplied, or it does not identify a "
-	                              + "registered COMPM."),
-	    @ApiResponse(responseCode = "500",
-	                 description = "Unexpected error. A job this COMPM was not given, and a job "
-	                               + "that has already completed, both arrive here rather than as "
-	                               + "a 4xx. The response body carries a message.")
-	})
-	@PostMapping("/rdbjob/{jobId}")
-	public ResponseEntity<JsonNode> updateRDBJobStatus(@PathVariable Long jobId,
-			@RequestBody String body,
-			@ModelAttribute COMPMInfo compm) {
-		RDBJobModel jobModel = null;
-		try {
-			ObjectMapper mapper = RACMUtil.newObjectMapper();
-			ObjectNode node = mapper.readValue(body, ObjectNode.class);
+    private final JsonAPIHelper jsonAPIHelper;
+    private final COMPMTokenUtils compmTokenUtils;
+    private final JOBMModelFactory jobmModelFactory;
 
-			if (node != null) {
-				jobModel = mapper.convertValue(node, RDBJobModel.class);
-			} else {
-				throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "Invalid Json posted to /rdbjob endpoint");
-			}
-			if (jobModel != null) {
-				String token = jobModel.getSubmitterToken(); // need to remember this, for VO-URP JOb does not have a
-																// token, but COMPM needs it still
-				RDBJobModel newJobModel = jobmModelFactory.updateRDBJob(jobModel, compm.id());
-				if (LOG.isInfoEnabled())
-					LOG.info(String.format("JobStatus updated to '%s' for jobid %d", newJobModel.getStatus(),
-							newJobModel.getId()));
-				compmTokenUtils.checkSubmitterToken(token, jobModel);
-			}
-		} catch (Exception e) {
-			return jsonAPIHelper.logAndReturnJsonExceptionEntity(
-					String.format(
-							"Failed to update JobStatus for jobid %s",
-							(jobModel == null ? "UNKNOWN" : jobModel.getId())),
-						Optional.empty(),
-						e, true
-			);
-		}
-		return jsonAPIHelper.success(jobModel);
-	}
+    @Autowired
+    public RDBJobForCOMPMController(JsonAPIHelper jsonAPIHelper, COMPMTokenUtils compmTokenUtils,
+            JOBMModelFactory jobmModelFactory) {
+        this.jsonAPIHelper = jsonAPIHelper;
+        this.compmTokenUtils = compmTokenUtils;
+        this.jobmModelFactory = jobmModelFactory;
+    }
+
+    /**
+     *
+     * Status plus potentially messages goes into JSON body.
+     *
+     * @param jobId
+     * @param request
+     * @return
+     */
+    @Operation(summary = "Report the progress of a relational database job.",
+            description = "Called by the compute domain manager running the SQL job to record its new "
+                    + "status, and any messages that go with it. Accepted only from the COMPM "
+                    + "the job was handed to.",
+            parameters = { @Parameter(name = "jobId", in = ParameterIn.PATH,
+                    description = "Identifier of the database job being reported on.") },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "RDBJobModel as JSON, the model this COMPM was handed by "
+                            + "/compmjob/next, carrying the new status. The job updated "
+                            + "is the one the body names in id; the id in the path is "
+                            + "ignored. On a target that already exists only location "
+                            + "is updated; a target with no id is added."))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "The relational database job as posted, echoed back once the update "
+                        + "has been applied. The echo is the submitted body rather than the " + "stored state."),
+        @ApiResponse(responseCode = "400",
+                description = "The request is not valid; the response body carries the " + "reason."),
+        @ApiResponse(responseCode = "401",
+                description = "No service token was supplied, or it does not identify a " + "registered COMPM."),
+        @ApiResponse(responseCode = "500",
+                description = "Unexpected error. A job this COMPM was not given, and a job "
+                        + "that has already completed, both arrive here rather than as "
+                        + "a 4xx. The response body carries a message.") })
+    @PostMapping("/rdbjob/{jobId}")
+    public ResponseEntity<JsonNode> updateRDBJobStatus(@PathVariable Long jobId, @RequestBody String body,
+            @ModelAttribute COMPMInfo compm) {
+        RDBJobModel jobModel = null;
+        try {
+            ObjectMapper mapper = RACMUtil.newObjectMapper();
+            ObjectNode node = mapper.readValue(body, ObjectNode.class);
+
+            if (node != null) {
+                jobModel = mapper.convertValue(node, RDBJobModel.class);
+            } else {
+                throw new VOURPException(VOURPException.ILLEGAL_ARGUMENT, "Invalid Json posted to /rdbjob endpoint");
+            }
+            if (jobModel != null) {
+                // need to remember this, for VO-URP JOb does not have a token, but COMPM needs it still
+                String token = jobModel.getSubmitterToken();
+                RDBJobModel newJobModel = jobmModelFactory.updateRDBJob(jobModel, compm.id());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info(String.format("JobStatus updated to '%s' for jobid %d", newJobModel.getStatus(),
+                            newJobModel.getId()));
+                }
+                compmTokenUtils.checkSubmitterToken(token, jobModel);
+            }
+        } catch (Exception e) {
+            return jsonAPIHelper
+                    .logAndReturnJsonExceptionEntity(String.format("Failed to update JobStatus for jobid %s",
+                            (jobModel == null ? "UNKNOWN" : jobModel.getId())), Optional.empty(), e, true);
+        }
+        return jsonAPIHelper.success(jobModel);
+    }
 }

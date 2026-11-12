@@ -2,13 +2,16 @@ package org.sciserver.springapp.racm.ugm.domain;
 
 import static java.util.stream.Collectors.collectingAndThen;
 
+import edu.jhu.user.Member;
+import edu.jhu.user.ServiceAccount;
+import edu.jhu.user.User;
+import edu.jhu.user.UserGroup;
+import edu.jhu.user.UserVisibility;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.sciserver.racm.resourcecontext.model.RegisteredResourceModel;
 import org.sciserver.racm.ugm.model.GroupAccessibility;
 import org.sciserver.racm.ugm.model.GroupInfo;
 import org.sciserver.racm.ugm.model.GroupRole;
@@ -18,15 +21,6 @@ import org.sciserver.racm.ugm.model.MemberUserModel;
 import org.sciserver.racm.ugm.model.PersonalUserInfo;
 import org.sciserver.racm.ugm.model.ServiceAccountModel;
 import org.sciserver.racm.ugm.model.UserInfo;
-
-import edu.jhu.rac.AssociatedSciEntity;
-import edu.jhu.rac.OwnershipCategory;
-import edu.jhu.rac.Resource;
-import edu.jhu.user.Member;
-import edu.jhu.user.ServiceAccount;
-import edu.jhu.user.User;
-import edu.jhu.user.UserGroup;
-import edu.jhu.user.UserVisibility;
 
 /**
  * This class has static methods to map between vo-urp generated classes and
@@ -44,8 +38,9 @@ public class UGMModelsMapper {
 
     public static MemberUserModel map(Member member) {
         MemberUserModel mum = new MemberUserModel();
-        if (member.getScisEntity() instanceof User)
+        if (member.getScisEntity() instanceof User) {
             mum.setUser(map((User) member.getScisEntity()));
+        }
         mum.setStatus(MemberStatus.fromValue(member.getStatus().value()));
         mum.setRole(GroupRole.valueOf(member.getMemberRole().value()));
         return mum;
@@ -139,8 +134,9 @@ public class UGMModelsMapper {
 
     private static String map(UserVisibility uv) {
         String visibility = uv.value();
-        if (!validVisibilities.contains(visibility))
+        if (!validVisibilities.contains(visibility)) {
             throw new IllegalStateException(String.format("Invalid visibility: %s", uv));
+        }
         return visibility;
     }
 

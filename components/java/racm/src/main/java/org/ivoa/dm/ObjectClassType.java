@@ -2,7 +2,6 @@ package org.ivoa.dm;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.ivoa.metamodel.Attribute;
 import org.ivoa.metamodel.Collection;
 import org.ivoa.metamodel.DataType;
@@ -337,9 +336,11 @@ public final class ObjectClassType extends ClassType {
      * @return
      */
     public final Attribute getAttributeForUtype(String utype) {
-        for (Attribute atr : this.getAttributeList())
-            if (atr.getUtype().equals(utype))
+        for (Attribute atr : this.getAttributeList()) {
+            if (atr.getUtype().equals(utype)) {
                 return atr;
+            }
+        }
         return null;
     }
 
@@ -411,4 +412,5 @@ public final class ObjectClassType extends ClassType {
         return subclasses.values();
     }
 }
-//~ End of file --------------------------------------------------------------------------------------------------------
+// ~ End of file
+// --------------------------------------------------------------------------------------------------------

@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for encodingType.
  * 
@@ -28,13 +27,11 @@ import javax.xml.bind.annotation.XmlType;
 public enum EncodingType {
 
     @XmlEnumValue("gzip")
-    GZIP("gzip"),
-    @XmlEnumValue("base64")
-    BASE_64("base64"),
-    @XmlEnumValue("dynamic")
-    DYNAMIC("dynamic"),
-    @XmlEnumValue("none")
+    GZIP("gzip"), @XmlEnumValue("base64")
+    BASE_64("base64"), @XmlEnumValue("dynamic")
+    DYNAMIC("dynamic"), @XmlEnumValue("none")
     NONE("none");
+
     private final String value;
 
     EncodingType(String v) {
@@ -46,7 +43,7 @@ public enum EncodingType {
     }
 
     public static EncodingType fromValue(String v) {
-        for (EncodingType c: EncodingType.values()) {
+        for (EncodingType c : EncodingType.values()) {
             if (c.value.equals(v)) {
                 return c;
             }

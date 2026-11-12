@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Relation complex type.
  * 
@@ -34,18 +33,9 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Relation", propOrder = {
-    "datatype",
-    "multiplicity",
-    "subsets"
-})
-@XmlSeeAlso({
-    Reference.class,
-    Collection.class
-})
-public abstract class Relation
-    extends Element
-{
+@XmlType(name = "Relation", propOrder = { "datatype", "multiplicity", "subsets" })
+@XmlSeeAlso({ Reference.class, Collection.class })
+public abstract class Relation extends Element {
 
     @XmlElement(required = true)
     protected TypeRef datatype;

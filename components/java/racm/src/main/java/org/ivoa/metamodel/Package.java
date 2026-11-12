@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Package complex type.
  * 
@@ -34,17 +33,9 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Package", propOrder = {
-    "depends",
-    "objectType",
-    "dataType",
-    "enumeration",
-    "primitiveType",
-    "_package"
-})
-public class Package
-    extends Element
-{
+@XmlType(name = "Package",
+        propOrder = { "depends", "objectType", "dataType", "enumeration", "primitiveType", "_package" })
+public class Package extends Element {
 
     protected List<PackageReference> depends;
     protected List<ObjectType> objectType;

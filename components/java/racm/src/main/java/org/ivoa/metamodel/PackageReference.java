@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for PackageReference complex type.
  * 
@@ -30,9 +29,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PackageReference", propOrder = {
-    "description"
-})
+@XmlType(name = "PackageReference", propOrder = { "description" })
 public class PackageReference {
 
     protected String description;
