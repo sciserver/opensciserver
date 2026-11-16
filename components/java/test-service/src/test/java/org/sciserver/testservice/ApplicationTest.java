@@ -1,6 +1,7 @@
 package org.sciserver.testservice;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -33,4 +34,14 @@ class ApplicationTest {
         mvc.perform(get("/api/runs").cookie(new javax.servlet.http.Cookie("portalCookie", "token")))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void brokerFrontDoorRequiresAdminSessionAndFixtureApiRequiresCapability() throws Exception {
+        mvc.perform(post("/api/broker/runs")).andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/broker/runs").header("Authorization", "Bearer fixture-capability"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/account-broker/12345678-1234-1234-1234-123456789012"))
+                .andExpect(status().isUnauthorized());
+    }
+
 }

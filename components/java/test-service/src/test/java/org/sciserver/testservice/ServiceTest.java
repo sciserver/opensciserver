@@ -46,6 +46,10 @@ class ServiceTest {
     @BeforeEach
     void setUp() {
         settings = new Settings(new MockEnvironment().withProperty("test.namespace", "sciserver")
+                .withProperty("test.account-broker-enabled", "true")
+                .withProperty("test.account-admin-user", "cleanup-admin")
+                .withProperty("test.account-admin-password", "never-in-pods")
+                .withProperty("test.account-keystone-url", "http://keystone/v3")
                 .withProperty("test.image", "registry/tests@sha256:fixed")
                 .withProperty("test.base-url", "http://example.test/sciserver")
                 .withProperty("test.racm-url", "http://racm/sciserver/racm")
@@ -114,8 +118,8 @@ class ServiceTest {
         JsonNode run = runs.create("run", List.of("fileservice.upload"), "admin-user");
         assertEquals("run", run.path("kind").asText());
         org.mockito.ArgumentCaptor<JsonNode> manifest = org.mockito.ArgumentCaptor.forClass(JsonNode.class);
-        verify(kube).json(eq("POST"), any(), manifest.capture());
-        JsonNode spec = manifest.getValue().path("spec");
+        verify(kube, org.mockito.Mockito.times(2)).json(eq("POST"), any(), manifest.capture());
+        JsonNode spec = manifest.getAllValues().get(1).path("spec");
         assertEquals(0, spec.path("backoffLimit").asInt());
         assertEquals(1860, spec.path("activeDeadlineSeconds").asInt());
         JsonNode pod = spec.path("template").path("spec");
@@ -127,6 +131,10 @@ class ServiceTest {
         assertTrue(pod.at("/volumes/0/emptyDir").isObject());
         assertFalse(pod.toString().contains("persistentVolumeClaim"));
         assertFalse(pod.toString().contains("X-Auth-Token"));
+        assertTrue(pod.at("/containers/0/env").toString().contains("TEST_ACCOUNT_BROKER_URL"));
+        assertTrue(pod.at("/containers/0/env").toString().contains("TEST_ACCOUNT_BROKER_TOKEN"));
+        assertFalse(pod.toString().contains("cleanup-admin"));
+        assertFalse(pod.toString().contains("never-in-pods"));
     }
 
     private ObjectNode job(String kind) {

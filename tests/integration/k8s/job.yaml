@@ -23,9 +23,11 @@ spec:
             - name: SCISERVER_BASE_URL
               value: "${SCISERVER_BASE_URL}"
             - name: TEST_RUN_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+              value: "${TEST_RUN_ID}"
+            - name: TEST_ACCOUNT_BROKER_URL
+              value: "${TEST_ACCOUNT_BROKER_URL}"
+            - name: TEST_ACCOUNT_BROKER_TOKEN
+              value: "${TEST_ACCOUNT_BROKER_TOKEN}"
             - name: TEST_REPORT_PATH
               value: /results/report.json
           volumeMounts:

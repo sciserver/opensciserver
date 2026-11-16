@@ -223,3 +223,63 @@ npm run check:integration-tests
 
 These compile the Vue template and check API routing, token handling, unavailable
 logs/results, and response/polling cleanup after navigation without live HTTP.
+
+
+## Account broker
+
+The broker is required for test execution from either CLI or web UI. It lives
+inside this service. Login-portal and other services are unchanged. Discovery
+and planning remain available without provisioning accounts.
+
+Configure the service with a **dedicated Keystone administrator account** for
+cleanup; RACM admin group membership alone is insufficient. Keep its credentials
+in a Kubernetes Secret. For example, create a protected local environment file
+containing only `TEST_ACCOUNT_ADMIN_USER=...` and `TEST_ACCOUNT_ADMIN_PASSWORD=...`,
+then configure the deployment:
+
+```sh
+kubectl -n YOUR_NAMESPACE create secret generic test-account-cleanup \
+  --from-env-file=/path/to/protected-cleanup.env
+kubectl -n YOUR_NAMESPACE set env deployment/YOUR_RELEASE-test-service \
+  --from=secret/test-account-cleanup
+kubectl -n YOUR_NAMESPACE set env deployment/YOUR_RELEASE-test-service \
+  TEST_ACCOUNT_BROKER_ENABLED=true \
+  TEST_ACCOUNT_KEYSTONE_URL=http://YOUR_RELEASE-keystone:5000/v3
+```
+
+The chart is unchanged; maintain these settings in deployment overlays/automation.
+The backend refuses to launch test execution until the broker is configured.
+Only this service holds cleanup admin credentials. Runners receive narrow run
+capabilities and temporary fixture credentials. No other service needs rebuilding;
+rebuild **test-service and integration-tests together** for the updated contract.
+
+Broker runs are independent of execution Jobs. Each owns a separate suspended
+`test-broker-<UUID>` Job as its durable ledger; it never starts a pod. Existing
+RBAC suffices and no database/PVC is required. Execution Job deletion does not
+remove ownership. Retain broker Jobs and the stable signing key until cleanup is
+resolved. Closed records remain for audit/retry, including late account creation.
+
+The shared runner reserves a run, acquires declared fixtures through the broker,
+exercises normal APIs, and releases all fixtures in `finally`. Ordinary API tests
+use a `session` account; registration and logout tests get isolated identities.
+Selecting one API test no longer executes registration/token tests as prerequisites.
+
+CLI users can execute locally without Kubernetes access:
+
+```sh
+TEST_REPORT_PATH=./results/report.json python3 tests/integration/runner.py \
+  --broker-url https://sciserver.example.org/test/test-service \
+  --admin-token-file /path/to/protected-session-token --test racm.user
+```
+
+The CLI authenticates once to `POST /api/broker/runs`; subsequent calls use only
+the returned capability. The web backend makes the same reservation and supplies
+it to the identical runner in a Job. Broker capabilities are distinct from report
+credentials and user sessions. The broker fixes the target deployment and run ID.
+Neither execution path may silently fall back to unmanaged account registration.
+
+See [the broker protocol](../../../tests/integration/contract/account-broker.md)
+and [runner documentation](../../../tests/integration/README.md) for lifecycle,
+authentication and configuration. RACM records/volumes remain outside this account
+broker's scope. Unverifiable projects from interrupted registration remain pending
+for ownership review; this is not yet a fully zero-impact suite.

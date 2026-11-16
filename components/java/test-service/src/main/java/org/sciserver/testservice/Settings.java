@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class Settings {
     final String namespace;
+    final boolean accountBrokerEnabled;
+    final String accountAdminUser;
+    final String accountAdminPassword;
+    final String accountKeystoneUrl;
     final String image;
     final String baseUrl;
     final String racmUrl;
@@ -28,6 +32,10 @@ public class Settings {
 
     /** Read and validate deployment-controlled configuration. */
     public Settings(Environment env) {
+        accountBrokerEnabled = env.getProperty("test.account-broker-enabled", Boolean.class, false);
+        accountAdminUser = env.getProperty("test.account-admin-user", "");
+        accountAdminPassword = env.getProperty("test.account-admin-password", "");
+        accountKeystoneUrl = env.getProperty("test.account-keystone-url", "").replaceAll("/+$", "");
         namespace = env.getRequiredProperty("test.namespace");
         image = env.getRequiredProperty("test.image");
         baseUrl = env.getRequiredProperty("test.base-url");
@@ -52,6 +60,17 @@ public class Settings {
                 || callbackWindow < 60 || callbackWindow > 300 || retainedReports < 1 || retainedReports > 100
                 || retentionSeconds < 1 || retentionSeconds > 86400) {
             throw new IllegalArgumentException("Invalid test-service configuration");
+        }
+        if (accountBrokerEnabled && (accountAdminUser.isBlank() || accountAdminPassword.isBlank())) {
+            throw new IllegalArgumentException("Account broker requires dedicated cleanup credentials");
+        }
+        if (accountBrokerEnabled) {
+            URI uri = URI.create(accountKeystoneUrl);
+            if (!("http".equals(uri.getScheme()) || "https".equals(uri.getScheme()))
+                    || uri.getHost() == null || uri.getUserInfo() != null
+                    || uri.getQuery() != null || uri.getFragment() != null || !uri.getPath().endsWith("/v3")) {
+                throw new IllegalArgumentException("Account broker requires a Keystone v3 URL");
+            }
         }
         for (String url : new String[] {baseUrl, racmUrl, callbackUrl}) {
             URI uri = URI.create(url);

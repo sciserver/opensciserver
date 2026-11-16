@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 import urllib.error
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from jsonschema import Draft202012Validator
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -17,6 +17,14 @@ import runner
 
 
 class ReportingChecks(unittest.TestCase):
+    def setUp(self):
+        fake = Mock(secrets=[])
+        fake.request.return_value = {'runId': '12345678-1234-1234-1234-123456789012',
+                                     'baseUrl': 'http://example.test'}
+        broker_patch = patch('broker.Broker.connect', return_value=fake)
+        broker_patch.start()
+        self.addCleanup(broker_patch.stop)
+
     def test_retry_sends_identical_payload_and_bearer_with_bounded_time(self):
         requests = []
         clock = [0]

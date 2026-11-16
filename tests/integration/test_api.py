@@ -1,7 +1,8 @@
 import unittest
 import requests
-import random
+import uuid
 from testutil import sciserverBase, tokenHeader, getUser, getEmail, getToken
+from testutil import deleteCreatedFile, deleteCreatedGroup, deleteCreatedContainer
 
 
 class TestApi(unittest.TestCase):
@@ -15,7 +16,9 @@ class TestApi(unittest.TestCase):
 
     def test_fileservice_upload_file(self):
         data = 'this is some test data'
-        url = f'{sciserverBase()}/fileservice/api/file/Storage/{getUser()}/persistent/testfile_{random.getrandbits(32)}'
+        path = f'Storage/{getUser()}/persistent/testfile_{uuid.uuid4().hex}'
+        self.addCleanup(deleteCreatedFile, path)
+        url = f'{sciserverBase()}/fileservice/api/file/{path}'
         r = requests.put(url, headers=tokenHeader(), data=data)
         assert(r.status_code == 200)
         r = requests.get(url, headers=tokenHeader())
@@ -38,10 +41,11 @@ class TestApi(unittest.TestCase):
         r = requests.get(f'{sciserverBase()}/racm/collaborations', headers=tokenHeader())
         glink = r.json()['_links']['createGroup']['href']
         group = {
-            'groupName': f'test_group_{random.getrandbits(32)}',
+            'groupName': f'test_group_{uuid.uuid4().hex}',
             'description': 'test',
             'memberUsers': []
         }
+        self.addCleanup(deleteCreatedGroup, group['groupName'])
         r = requests.post(glink, headers=tokenHeader(), json=group)
         assert(r.status_code == 200)
         r = requests.get(f'{sciserverBase()}/racm/collaborations', headers=tokenHeader())
@@ -107,5 +111,7 @@ class TestApi(unittest.TestCase):
         }
         url = f'{sciserverBase()}/compute/api/domains/{domainId}/containers'
         r = requests.post(url, json=payload, headers=headers)
+        if r.status_code == 200:
+            self.addCleanup(deleteCreatedContainer, int(r.text))
         assert(r.status_code == 200)
         int(r.text)  # the return value should be just container ID

@@ -57,6 +57,16 @@
           },
           "selected": {
             "type": "boolean"
+          },
+          "fixtures": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "session",
+                "logout"
+              ]
+            }
           }
         },
         "required": [
@@ -66,7 +76,8 @@
           "dependsOn",
           "after",
           "implementation",
-          "selected"
+          "selected",
+          "fixtures"
         ]
       }
     }

@@ -40,6 +40,16 @@
           },
           "implementation": {
             "type": "string"
+          },
+          "fixtures": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "session",
+                "logout"
+              ]
+            }
           }
         },
         "required": [
@@ -48,7 +58,8 @@
           "description",
           "dependsOn",
           "after",
-          "implementation"
+          "implementation",
+          "fixtures"
         ]
       }
     }

@@ -7,7 +7,8 @@
       "description": "Exercise preflight.login.",
       "dependsOn": [],
       "after": [],
-      "implementation": "test_preflight.TestPreflight.test_login_portal"
+      "implementation": "test_preflight.TestPreflight.test_login_portal",
+      "fixtures": []
     },
     {
       "id": "preflight.dashboard",
@@ -15,7 +16,8 @@
       "description": "Exercise preflight.dashboard.",
       "dependsOn": [],
       "after": [],
-      "implementation": "test_preflight.TestPreflight.test_dashboard"
+      "implementation": "test_preflight.TestPreflight.test_dashboard",
+      "fixtures": []
     },
     {
       "id": "preflight.compute",
@@ -23,37 +25,41 @@
       "description": "Exercise preflight.compute.",
       "dependsOn": [],
       "after": [],
-      "implementation": "test_preflight.TestPreflight.test_compute"
+      "implementation": "test_preflight.TestPreflight.test_compute",
+      "fixtures": []
     },
     {
       "id": "identity.register",
       "name": "identity / register",
-      "description": "Register a new user and save its session for this run.",
+      "description": "Exercise normal registration using a dedicated broker reservation.",
       "dependsOn": [
         "preflight.login"
       ],
       "after": [],
-      "implementation": "test_register.TestRegister.test_register"
+      "implementation": "test_register.TestRegister.test_register",
+      "fixtures": []
     },
     {
       "id": "identity.token",
       "name": "identity / token",
       "description": "Exercise identity.token.",
-      "dependsOn": [
-        "identity.register"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_register.TestRegister.test_token"
+      "implementation": "test_register.TestRegister.test_token",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "fileservice.volumes",
       "name": "fileservice / volumes",
       "description": "Verify Storage/persistent and Temporary/scratch volumes.",
-      "dependsOn": [
-        "identity.token"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_api.TestApi.test_fileservice_basic_volumes"
+      "implementation": "test_api.TestApi.test_fileservice_basic_volumes",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "fileservice.upload",
@@ -63,7 +69,10 @@
         "fileservice.volumes"
       ],
       "after": [],
-      "implementation": "test_api.TestApi.test_fileservice_upload_file"
+      "implementation": "test_api.TestApi.test_fileservice_upload_file",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "fileservice.tree",
@@ -73,93 +82,89 @@
         "fileservice.volumes"
       ],
       "after": [],
-      "implementation": "test_api.TestApi.test_fileservice_tree"
+      "implementation": "test_api.TestApi.test_fileservice_tree",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "racm.user",
       "name": "racm / user",
       "description": "Exercise racm.user.",
-      "dependsOn": [
-        "identity.token"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_api.TestApi.test_racm_user"
+      "implementation": "test_api.TestApi.test_racm_user",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "racm.create-group",
       "name": "racm / create group",
       "description": "Exercise racm.create-group.",
-      "dependsOn": [
-        "identity.token"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_api.TestApi.test_racm_create_group"
+      "implementation": "test_api.TestApi.test_racm_create_group",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "racm.public-privacy",
       "name": "racm / public privacy",
       "description": "Exercise racm.public-privacy.",
-      "dependsOn": [
-        "identity.token"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_api.TestApi.test_racm_public_no_info_leak"
+      "implementation": "test_api.TestApi.test_racm_public_no_info_leak",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "identity.public-privacy",
       "name": "identity / public privacy",
       "description": "Exercise identity.public-privacy.",
-      "dependsOn": [
-        "identity.register"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_api.TestApi.test_login_portal_public_user_endpoints_no_info_leak"
+      "implementation": "test_api.TestApi.test_login_portal_public_user_endpoints_no_info_leak",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "identity.validate",
       "name": "identity / validate",
       "description": "Exercise identity.validate.",
-      "dependsOn": [
-        "identity.token"
-      ],
+      "dependsOn": [],
       "after": [],
-      "implementation": "test_api.TestApi.test_token_validation"
+      "implementation": "test_api.TestApi.test_token_validation",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "compute.create-container",
       "name": "compute / create container",
       "description": "Create a notebook container in an accessible compute domain.",
       "dependsOn": [
-        "identity.token",
         "preflight.compute"
       ],
       "after": [],
-      "implementation": "test_api.TestApi.test_compute_create_container"
+      "implementation": "test_api.TestApi.test_compute_create_container",
+      "fixtures": [
+        "session"
+      ]
     },
     {
       "id": "identity.logout",
       "name": "identity / logout",
-      "description": "Exercise identity.logout.",
-      "dependsOn": [
-        "identity.register"
-      ],
-      "after": [
-        "preflight.login",
-        "preflight.dashboard",
-        "preflight.compute",
-        "identity.register",
-        "identity.token",
-        "fileservice.volumes",
-        "fileservice.upload",
-        "fileservice.tree",
-        "racm.user",
-        "racm.create-group",
-        "racm.public-privacy",
-        "identity.public-privacy",
-        "identity.validate",
-        "compute.create-container"
-      ],
-      "implementation": "test_logout.TestLogout.test_logout"
+      "description": "Log out an isolated brokered session.",
+      "dependsOn": [],
+      "after": [],
+      "implementation": "test_logout.TestLogout.test_logout",
+      "fixtures": [
+        "logout"
+      ]
     },
     {
       "id": "identity.revoked-token",
@@ -169,7 +174,10 @@
         "identity.logout"
       ],
       "after": [],
-      "implementation": "test_logout.TestLogout.test_post_logout_token"
+      "implementation": "test_logout.TestLogout.test_post_logout_token",
+      "fixtures": [
+        "logout"
+      ]
     }
   ]
 }

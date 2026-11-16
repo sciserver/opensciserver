@@ -177,6 +177,9 @@ public class Runs {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Active run limit reached");
         }
         String id = UUID.randomUUID().toString();
+        if ("run".equals(kind)) {
+            AccountBroker.createRun(settings, kube, mapper, id, requester);
+        }
         final Map<String, String> labels = Map.of("sciserver-test-owner", settings.owner,
                 "sciserver-test-run", id, "sciserver-test-kind", kind);
         List<String> args = new ArrayList<>();
@@ -217,6 +220,15 @@ public class Runs {
                         "runAsGroup", 10001, "fsGroup", 10001, "seccompProfile", Map.of("type", "RuntimeDefault")),
                 "volumes", List.of(Map.of("name", "results",
                         "emptyDir", Map.of("sizeLimit", "32Mi")))));
+        if ("run".equals(kind) && settings.accountBrokerEnabled) {
+            String root = settings.callbackUrl.substring(0, settings.callbackUrl.lastIndexOf('/'));
+            com.fasterxml.jackson.databind.node.ArrayNode env =
+                    (com.fasterxml.jackson.databind.node.ArrayNode) pod.at("/containers/0/env");
+            env.add(mapper.valueToTree(Map.of("name", "TEST_ACCOUNT_BROKER_URL", "value",
+                    root + "/account-broker/" + id)));
+            env.add(mapper.valueToTree(Map.of("name", "TEST_ACCOUNT_BROKER_TOKEN", "value",
+                    AccountBroker.capability(settings, id))));
+        }
         if (!settings.pullSecret.isBlank()) {
             pod.set("imagePullSecrets", mapper.valueToTree(List.of(Map.of("name", settings.pullSecret))));
         }

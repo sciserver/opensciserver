@@ -1,204 +1,118 @@
-Integration tests for sciserver.
+# SciServer integration tests
 
-## Provenance
+Imported from the SciServer integration-test repository. The runner exposes a
+versioned catalog, dependency plan, and structured JSON report for the CLI and
+administrator web UI. Both execute the **same tests, fixture setup, broker
+protocol and cleanup**. The UI only selects tests and orchestrates the runner.
 
-Imported from [sciserver/sciserver-integ-tests](https://github.com/sciserver/sciserver-integ-tests)
-at commit [`5c4a039a379a6e06ee752bcac04698599880b4e5`](https://github.com/sciserver/sciserver-integ-tests/commit/5c4a039a379a6e06ee752bcac04698599880b4e5).
-The import into `tests/integration/` preserves the original Git history and
-authorship through a non-squashed Git subtree merge.
+## Required test infrastructure
 
-## About
+A reachable test-service with its account broker configured is required for all
+execution. See [service setup](../../components/java/test-service/README.md#account-broker).
+There is no fallback that registers unmanaged accounts. Discovery and planning
+remain offline and need no broker or deployment credentials.
 
-These tests exercise a deployed SciServer through HTTP APIs. They can run
-manually, from CI, or as a Kubernetes Job; Jenkins is not required.
+Broker reservations are independent of execution Jobs. CLI execution stays on
+your machine and needs no Kubernetes access. The broker keeps durable ownership
+in separate suspended Jobs, which never run pods. It holds dedicated cleanup
+administrator credentials; runners receive only temporary account credentials
+and a run-scoped capability. Retain the broker records and stable signing key.
 
-The versioned runner interface is owned here: see [the contract](contract/README.md),
-[the test catalog](contract/catalog.json), and [the report schema](contract/report.schema.json).
-The runner expands selected tests' prerequisites, enforces dependencies, and orders
-logout after selected session consumers. Consumers do not need to know Python
-method names or nose2 ordering.
+The deployment must permit registration without email verification. Fileservice
+tests additionally expect Storage/persistent and Temporary/scratch user volumes;
+compute execution requires an accessible domain and notebook image. Missing
+capabilities produce failures rather than silently skipped tests.
 
-## Caveats
+## CLI
 
-* The registration tests do not support email verification in
-  registration, if that is required they will fail! No test presently
-  for logging in from supplied credentials
-
-* Tests presently do not excersize UIs, just a set of functional API
-  calls. Can consider adding Selenium tests for browser emulation
-  in the future.
-
-## Running tests
-
-Run these commands from `tests/integration/`. The requirements are listed in
-requirements.txt, so if needed first install via pip:
-
-```
-pip install -r requirements.txt
-```
-
-Use the contract runner for both full and individual runs:
+Install runner dependencies and discover tests:
 
 ```sh
-export SCISERVER_BASE_URL=https://kubetest.sciserver.org/ak-1
+python3 -m pip install -r tests/integration/requirements.txt
+python3 tests/integration/runner.py --list
+python3 tests/integration/runner.py --plan --test fileservice.upload
+```
+
+Put your current SciServer administrator session token in a protected file, then
+run locally against the same broker the UI uses:
+
+```sh
 export TEST_REPORT_PATH="$PWD/results/report.json"
-
-python runner.py --list
-python runner.py --plan --test fileservice.upload
-python runner.py --test fileservice.upload
-# Or run the full suite:
-python runner.py
+python3 tests/integration/runner.py \
+  --broker-url https://sciserver.example.org/test/test-service \
+  --admin-token-file /path/to/protected-session-token \
+  --test racm.user
 ```
 
-Selection can also be supplied as a JSON array in `TEST_IDS`, e.g.
-`TEST_IDS='["racm.user","identity.validate"]'`. Each run has fresh local state;
-authenticated selections automatically include registration and token checks.
-A failed prerequisite blocks its dependents while independent tests continue.
-The runner emits readable diagnostics and a structured JSON report. Exit codes
-are 0 (passed), 1 (failed/blocked), 2 (test or runner error), and 3 (callback/receipt failure). The direct nose2
-invocation is legacy and does not enforce this contract or produce its report.
+Omit `--test` for the full suite, or repeat it to select multiple cases. `TEST_IDS`
+is a JSON array alternative. An explicit empty selection is invalid. Use this
+runner rather than invoking nose2 directly: it owns fixtures, ordering and cleanup.
+The broker assigns the run ID and target base URL; an explicitly configured
+`SCISERVER_BASE_URL` must match it.
 
-## Running against a Helm deployment from Kubernetes
+## Dependencies and fixtures
 
-### 1. Check the deployment
+Catalog entries declare `fixtures` independently of `dependsOn`:
 
-After installing SciServer with Helm, wait for its workloads to become ready
-and verify its ingress URL. Substitute your release and namespace:
+- Ordinary authenticated tests use a brokered `session` fixture.
+- Registration tests reserve their own identity and exercise the normal API.
+- Logout/revoked-token tests use a separate `logout` fixture, preserving its
+  invalidated token without affecting other tests.
+- Fileservice upload/tree depend on volume discovery; revoked-token depends on
+  logout; compute creation also depends on compute preflight.
+
+Selecting `racm.user` runs that test with its fixture, without running registration
+or token tests first. Failed hard prerequisites block dependents; fixture errors
+are reported on tests that need them. Independent tests continue.
+
+## Pod execution
+
+The web backend creates the same broker reservation before starting the runner
+Job and supplies its URL/token. To launch the manual Job template, first reserve
+an independent run through the same admin API (requires curl, jq and envsubst):
 
 ```sh
-helm status YOUR_RELEASE -n YOUR_NAMESPACE
-kubectl get pods -n YOUR_NAMESPACE
-kubectl get ingress -n YOUR_NAMESPACE
+export BROKER_SERVICE_URL=https://sciserver.example.org/test/test-service
+reservation=$(curl --fail-with-body -sS -X POST \
+  -H "X-Auth-Token: $(cat /path/to/protected-session-token)" \
+  "$BROKER_SERVICE_URL/api/broker/runs")
+export TEST_RUN_ID=$(printf '%s' "$reservation" | jq -r .runId)
+export TEST_ACCOUNT_BROKER_TOKEN=$(printf '%s' "$reservation" | jq -r .token)
+export TEST_ACCOUNT_BROKER_URL="$BROKER_SERVICE_URL/account-broker/$TEST_RUN_ID"
+export SCISERVER_BASE_URL=$(printf '%s' "$reservation" | jq -r .baseUrl)
+export TEST_IMAGE=YOUR_REGISTRY/integration-tests:YOUR_TAG
+
+envsubst '${TEST_IMAGE} ${SCISERVER_BASE_URL} ${TEST_RUN_ID} ${TEST_ACCOUNT_BROKER_URL} ${TEST_ACCOUNT_BROKER_TOKEN}' \
+  < tests/integration/k8s/job.yaml | kubectl -n YOUR_NAMESPACE create -f -
 ```
 
-Use the deployment base URL, including any installation prefix and without a
-trailing slash. For example, `https://sciserver.example.org/test` makes the tests
-call `/test/racm/...`, `/test/fileservice/...`, etc. The hostname must resolve
-and be reachable from the Job's pod. Desktop `/etc/hosts` entries are not
-inherited by pods. HTTPS certificates must be trusted by the test container.
+The generated Job name is not the broker run ID. Pods need network access to the
+broker and deployment; desktop `/etc/hosts` entries are not inherited. HTTPS
+certificates must be trusted by both runner and service. Rebuild the runner and
+test-service images together when changing the contract. The root Makefile's
+`images` and `publish-images` targets include the runner image.
 
-The imported suite assumes more than a migrated RACM database:
+## Reports and cleanup
 
-- Registration is enabled without email verification.
-- New users receive the `Storage/persistent` and `Temporary/scratch` volumes
-  expected by `test_api.py`.
-- An accessible compute domain has an available notebook image.
+Reports default to `/results/report.json`. Exit codes: 0 passed, 1 test failure,
+2 test/runner/cleanup error, 3 reporting delivery failure. Optional callback
+reporting uses `TEST_REPORT_CALLBACK_URL` and `TEST_REPORT_CALLBACK_TOKEN`; it is
+independent of the required fixture broker and preserves the underlying outcome.
+See the [contract](contract/README.md) and [broker protocol](contract/account-broker.md).
 
-A Helm install alone does not guarantee those prerequisites. Run against a
-development/test deployment: the suite registers a user, uploads a file,
-creates a group, and starts a compute container. Logout invalidates the session
-but does not delete the user, file, or group. Automatic cleanup of that data
-is still future work.
+The runner releases all account reservations after execution, including failures.
+The broker retries abandoned/expired runs. Files, groups and containers have
+per-test cleanup hooks that also run on assertion failures. Forced pod termination
+can prevent those hooks. RACM records, provisioned volumes and audit history are
+not erased by account deletion; this is not yet a zero-impact suite. Partial
+registration that creates a project without a verifiable user remains pending
+for manual ownership review rather than risking deletion of unrelated resources.
 
-### 2. Build and publish the test image
-
-The root Makefile includes the test image in both `images` and
-`publish-images`. GitHub Actions therefore publishes it alongside the component
-images for pull requests, main-branch builds, and releases. To build and push
-it manually from the OpenSciServer root:
+## Focused checks
 
 ```sh
-export TEST_IMAGE=YOUR_REGISTRY/YOUR_PROJECT/integration-tests:YOUR_UNIQUE_TAG
-docker build --platform linux/amd64 -t "$TEST_IMAGE" tests/integration
-docker push "$TEST_IMAGE"
+python3 -m pip install -r tests/integration/runner_checks/requirements.txt
+python3 -m unittest discover -s tests/integration/runner_checks -p 'check_*.py'
 ```
 
-Or use the same Makefile target as CI:
-
-```sh
-make integration-tests.image REPO=YOUR_REGISTRY/YOUR_PROJECT VTAG=YOUR_UNIQUE_TAG
-make integration-tests.push REPO=YOUR_REGISTRY/YOUR_PROJECT VTAG=YOUR_UNIQUE_TAG
-```
-
-Authenticate to the registry first if required. Match the image architecture
-to your nodes; amd64 matches the project's current image builds. A desktop-only
-image is not automatically available on Kubernetes nodes in other VMs.
-For a private registry, create an image pull secret in the test namespace and
-reference it in the Job's `spec.template.spec.imagePullSecrets`.
-
-The same image can run directly from a terminal. Mount a writable results
-directory to retain its structured report:
-
-```sh
-mkdir -p results
-docker run --rm -v "$PWD/results:/results" \
-  -e SCISERVER_BASE_URL=https://sciserver.example.org/test \
-  "$TEST_IMAGE"
-```
-
-### 3. Launch a Job
-
-The checked-in `k8s/job.yaml` is a small `envsubst` template. It runs
-independently of Helm; rerunning tests does not require another upgrade.
-Set the image, deployment URL, and namespace, then render and create it:
-
-```sh
-export TEST_NAMESPACE=YOUR_NAMESPACE
-export TEST_IMAGE=YOUR_REGISTRY/YOUR_PROJECT/integration-tests:YOUR_UNIQUE_TAG
-export SCISERVER_BASE_URL=https://sciserver.example.org/test
-
-: "${TEST_NAMESPACE:?Set TEST_NAMESPACE}"
-: "${TEST_IMAGE:?Set TEST_IMAGE}"
-: "${SCISERVER_BASE_URL:?Set SCISERVER_BASE_URL}"
-
-test_job=$(
-  envsubst '${TEST_IMAGE} ${SCISERVER_BASE_URL}' < k8s/job.yaml |
-    kubectl -n "$TEST_NAMESPACE" create -f - -o name
-)
-kubectl -n "$TEST_NAMESPACE" wait --for=condition=Ready pod \
-  -l "job-name=${test_job#job.batch/}" --timeout=120s
-kubectl -n "$TEST_NAMESPACE" logs -f "$test_job" -c tests
-```
-
-Run these commands from `tests/integration/`. `envsubst` is provided by the
-`gettext-base` package on Ubuntu. If your registry is private, add the
-appropriate `imagePullSecrets` entry to `k8s/job.yaml` or patch the rendered
-manifest before creating the Job.
-
-If the pod is not created yet, retry the wait. Readiness may also time out if
-the pod finishes quickly or cannot start; inspect the Job and pod, and try the
-logs command regardless. `generateName` gives each run a distinct name; use
-`create`, not `apply`.
-
-The runner resolves the catalog dependency graph and executes the selected
-tests (the full suite by default). Set `TEST_IDS` in the Job environment to
-select individual IDs; merely exporting it locally does not change the template. Retries are disabled to avoid repeating mutations and
-registering more users. The 30-minute deadline bounds the run, including HTTP
-requests that currently have no explicit timeout.
-
-### 4. Inspect results and remove the Job
-
-The sample Job uses temporary local storage. Without a reporting callback, logs
-and exit status are available but its report file cannot be copied out after the
-container exits. The test service supplies a generic callback URL and temporary
-bearer token automatically; a CLI runner can optionally provide the same
-`TEST_REPORT_CALLBACK_URL` and `TEST_REPORT_CALLBACK_TOKEN` configuration. See
-[callback delivery](contract/README.md#optional-report-callback).
-
-Following logs does not establish success. Check Job conditions and the
-container exit code:
-
-```sh
-kubectl -n "$TEST_NAMESPACE" describe "$test_job"
-kubectl -n "$TEST_NAMESPACE" get pods \
-  -l "job-name=${test_job#job.batch/}" \
-  -o jsonpath='{range .items[*]}{.metadata.name}{": "}{.status.containerStatuses[0].state.terminated.exitCode}{"\n"}{end}'
-```
-
-Successful tests exit zero; failing tests exit nonzero. Scheduling, image-pull,
-and deadline failures are infrastructure failures and may not have a test
-exit code. Inspect pod events if the runner never starts.
-
-The contract runner writes JSON to `/results/report.json`, and a small delivery
-receipt to `/results/delivery.json`. It does not produce the legacy nose2 HTML
-report. A standalone Job without a callback supports console diagnostics and
-exit status; a configured callback delivers the JSON before the container exits.
-The private session file is temporary and must never be published as an artifact.
-
-Jobs are retained for log inspection. Remove this run when finished:
-
-```sh
-kubectl -n "$TEST_NAMESPACE" delete "$test_job"
-```
-
-Deleting the Job removes its pod, not the application data created by tests.
+These use fake APIs and never mutate a live deployment.

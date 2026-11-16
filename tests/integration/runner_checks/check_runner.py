@@ -8,7 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -24,6 +24,16 @@ def validate(report):
 
 
 class RunnerChecks(unittest.TestCase):
+    def setUp(self):
+        def connect(*args):
+            fake = Mock(secrets=[])
+            fake.request.return_value = {'runId': '12345678-1234-1234-1234-123456789012',
+                                         'baseUrl': os.environ.get('SCISERVER_BASE_URL', 'http://example.test')}
+            return fake
+        self.broker_patch = patch('broker.Broker.connect', side_effect=connect)
+        self.broker_patch.start()
+        self.addCleanup(self.broker_patch.stop)
+
     def test_examples_and_catalog(self):
         for path in (ROOT / 'contract/examples').glob('*.json'):
             validate(json.loads(path.read_text()))
@@ -33,7 +43,6 @@ class RunnerChecks(unittest.TestCase):
     def test_selection_expands_only_dependencies(self):
         plan = runner.resolve(runner.load_catalog(), ['fileservice.upload'])
         self.assertEqual([t['id'] for t in plan['tests']], [
-            'preflight.login', 'identity.register', 'identity.token',
             'fileservice.volumes', 'fileservice.upload'])
         self.assertEqual(sum(t['selected'] for t in plan['tests']), 1)
 
@@ -47,13 +56,13 @@ class RunnerChecks(unittest.TestCase):
         self.assertCountEqual(methods, [t['implementation'] for t in runner.load_catalog()['tests']])
 
     def test_skip_blocks_dependents_and_errors_continue(self):
-        plan = runner.resolve(runner.load_catalog(), ['identity.token', 'preflight.dashboard'])
+        plan = runner.resolve(runner.load_catalog(), ['fileservice.upload', 'preflight.dashboard'])
         def execute(entry):
-            if entry['id'] == 'preflight.login':
+            if entry['id'] == 'fileservice.volumes':
                 return 'skipped', 'Not applicable'
             raise RuntimeError('Independent runner failure')
         results = runner.run_plan(plan, execute)
-        self.assertEqual([r['status'] for r in results], ['skipped', 'error', 'blocked', 'blocked'])
+        self.assertEqual([r['status'] for r in results], ['error', 'skipped', 'blocked'])
 
     def test_session_diagnostics_redact_credentials(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -68,7 +77,7 @@ class RunnerChecks(unittest.TestCase):
     def test_logout_order_does_not_select_whole_suite(self):
         catalog = runner.load_catalog()
         plan = runner.resolve(catalog, ['identity.logout'])
-        self.assertEqual(len(plan['tests']), 3)
+        self.assertEqual(len(plan['tests']), 1)
         plan = runner.resolve(catalog, ['identity.revoked-token', 'fileservice.upload'])
         ids = [t['id'] for t in plan['tests']]
         self.assertLess(ids.index('fileservice.upload'), ids.index('identity.logout'))
@@ -94,9 +103,9 @@ class RunnerChecks(unittest.TestCase):
         called = []
         def execute(entry):
             called.append(entry['id'])
-            return ('failed', 'HTTP 503') if entry['id'] == 'preflight.login' else ('passed', None)
+            return ('failed', 'HTTP 503') if entry['id'] == 'fileservice.volumes' else ('passed', None)
         results = runner.run_plan(plan, execute)
-        self.assertEqual(called, ['preflight.login', 'preflight.dashboard'])
+        self.assertEqual(called, ['preflight.dashboard', 'fileservice.volumes'])
         self.assertEqual(results[-1]['blockedBy'], ['fileservice.volumes'])
 
     def test_real_unittest_results_and_reports(self):

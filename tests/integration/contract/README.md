@@ -29,30 +29,37 @@ fails, errors, skips, or is blocked, the dependent is `blocked`; `blockedBy`
 names the direct prerequisites that did not pass. Other tests continue.
 
 `after` is ordering only: it never adds tests to the selection and does not
-require success. Logout is ordered after all included session consumers so
-its token invalidation cannot disrupt them; it can still run after unrelated
-failures. Registration and token validation are hard prerequisites where
-needed. Upload and tree tests require volume discovery. Cycles, duplicate IDs,
-and missing dependencies are configuration errors, rejected before execution.
-Execution is sequential in v1. Catalog order breaks otherwise unconstrained
-ties; consumers must not rely on alphabetical Python test ordering.
+require success. `fixtures` separately declares brokered account/session setup:
+`session` for ordinary authenticated tests, `logout` for the isolated session
+used by logout and revoked-token tests. Fixture setup is not a test dependency.
+Registration is tested with its own `registration` reservation. Ordinary tests
+never select `identity.register` or `identity.token` just to obtain credentials.
+Only the revoked-token test requires logout; upload/tree require volume discovery.
+Cycles, duplicate IDs, missing dependencies, and unknown fixtures are configuration
+errors. Execution remains sequential; catalog order breaks unconstrained ties.
 
 ## Invocation and configuration
 
-The default image entrypoint performs one run and exits. It must not prompt or
-require stdin. `SCISERVER_BASE_URL` is required for execution: an HTTP(S) URL
-including the deployment prefix, without credentials, query, or fragment.
-`TEST_RUN_ID` is an optional nonempty opaque ID assigned by the caller; the
-runner generates one when absent. `TEST_REPORT_PATH` defaults to
-`/results/report.json` and must point to a writable file location. For a local
-Python invocation, set it to a suitable local path.
+Both CLI and pod execution require the same [broker protocol](account-broker.md).
+The runner takes `TEST_ACCOUNT_BROKER_URL` and `TEST_ACCOUNT_BROKER_TOKEN`, or
+`--broker-url <test-service root> --admin-token-file <file>` to authenticate and
+create an independent CLI reservation. Only the admin front door consumes that
+session token; fixture APIs consume a separate narrow capability.
 
-Each run uses fresh private temporary state. It never reuses a previous run's
-generated user or token. Tests may create remote users, files, groups, and
-compute containers; successful logout does not clean these up. Cleanup is
-still separate future work. Selecting one authenticated test therefore also
-creates a new user through its prerequisites. Logout runs only if selected
-explicitly or as a prerequisite, or as part of the default full suite.
+The broker assigns the run ID and deployment base URL. `TEST_RUN_ID` and
+`SCISERVER_BASE_URL`, if provided, must agree with that context. There is no
+unmanaged-account fallback. Discovery (`--list`) and planning (`--plan`) remain
+offline and credential-free. `TEST_REPORT_PATH` defaults to `/results/report.json`;
+set a writable local path for CLI use. The runner releases the broker reservation
+in `finally`, including setup and test failures. A cleanup failure produces a
+runner error and retains the service-side obligation for retry.
+
+Each run has private temporary state. Authenticated fixtures register through the
+normal deployment API using broker-issued credentials; tests then use the normal
+session token. The logout fixture is cached separately and is not reauthenticated
+between logout and revoked-token tests. Per-test hooks clean files/groups/containers.
+The account broker owns Keystone identities/projects only; full cross-service
+cleanup remains incomplete, and audit history remains.
 
 ## Results
 
@@ -175,5 +182,5 @@ python -m unittest discover -s runner_checks -p 'check_*.py' -v
 ```
 
 These checks use fake HTTP responses, not a live deployment, and cover graph
-validation, selection, blocking, logout ordering, real unittest adaptation,
+validation, selection, blocking, fixture isolation, real unittest adaptation,
 report schemas, and exit codes.

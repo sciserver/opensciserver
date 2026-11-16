@@ -1,21 +1,22 @@
 import unittest
 import requests
-import random
-from testutil import sciserverBase, writeUserInfo, tokenHeader
+from testutil import sciserverBase, writeUserInfo, tokenHeader, reserveAccount, recordAccount
 
 
 class TestRegister(unittest.TestCase):
 
     def test_register(self):
-        username = 'test_user_' + str(random.getrandbits(64))
-        password = '_#Aa.0283303932'
+        lease = reserveAccount()
+        username = lease['username']
+        password = lease['password']
         email = f'{username}@example.com'
-        data = f'username={username}&email={email}&password={password}&confirmPassword={password}'
+        data = {'username': username, 'email': email, 'password': password, 'confirmPassword': password}
         headers = {'content-type': 'application/x-www-form-urlencoded'}
         r = requests.post(f'{sciserverBase()}/login-portal/register', headers=headers, data=data, allow_redirects=False)
         token = r.cookies['portalCookie']
         assert(token != '')
         writeUserInfo({'username': username, 'email': email, 'password': password, 'token': token})
+        recordAccount()
         assert(r.status_code == 302)
 
     def test_token(self):

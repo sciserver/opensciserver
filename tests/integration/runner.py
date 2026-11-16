@@ -26,6 +26,9 @@ def resolve(catalog, selected):
     if len(entries) != len(catalog['tests']):
         raise ValueError('Duplicate test IDs')
     for entry in entries.values():
+        fixtures = entry.get('fixtures', [])
+        if not isinstance(fixtures, list) or any(f not in ('session', 'logout') for f in fixtures):
+            raise ValueError('Unknown fixture declaration')
         for dep in entry['dependsOn'] + entry.get('after', []):
             if dep not in entries:
                 raise ValueError(f'Unknown dependency {dep}')
@@ -66,12 +69,15 @@ def resolve(catalog, selected):
 
 
 def execute(entry):
+    import testutil
+    testutil.prepareFixtures(entry.get('fixtures', []))
     module, cls, method = entry['implementation'].rsplit('.', 2)
     case = getattr(importlib.import_module(module), cls)(method)
     result = unittest.TestResult()
     case.run(result)
     if result.errors:
-        return 'error', result.errors[0][1]
+        # Preserve both the original failure and any teardown failures.
+        return 'error', '\n'.join(detail for _, detail in result.failures + result.errors)
     if result.failures:
         return 'failed', result.failures[0][1]
     if result.skipped:
@@ -93,6 +99,16 @@ def redact(detail):
         for key in ('password', 'token'):
             if info.get(key):
                 detail = detail.replace(info[key], '[REDACTED]')
+    import testutil
+    if testutil.ACCOUNTLEASE:
+        if testutil.ACCOUNTLEASE.get('password'):
+            detail = detail.replace(testutil.ACCOUNTLEASE['password'], '[REDACTED]')
+    if testutil.BROKER is not None:
+        for secret in testutil.BROKER.secrets:
+            if secret:
+                detail = detail.replace(secret, '[REDACTED]')
+    if os.environ.get('TEST_ACCOUNT_BROKER_TOKEN'):
+        detail = detail.replace(os.environ['TEST_ACCOUNT_BROKER_TOKEN'], '[REDACTED]')
     return detail
 
 
@@ -138,6 +154,8 @@ def main(argv=None):
     parser.add_argument('--list', action='store_true', help='Print JSON catalog without running tests')
     parser.add_argument('--plan', action='store_true', help='Print resolved JSON selection without running')
     parser.add_argument('--test', action='append', help='Select a stable test ID; repeatable')
+    parser.add_argument('--broker-url', help='Test-service root URL; reserve an independent CLI run')
+    parser.add_argument('--admin-token-file', help='File containing the current SciServer administrator token')
     args = parser.parse_args(argv)
     if args.list:
         catalog = load_catalog()
@@ -149,6 +167,7 @@ def main(argv=None):
               'startedAt': now(), 'finishedAt': None, 'outcome': 'error',
               'requested': [], 'tests': [], 'counts': {}, 'runnerError': None}
     callback = None
+    connection = None
     try:
         if not args.plan:
             callback = reporting.configuration()
@@ -168,7 +187,17 @@ def main(argv=None):
         if args.plan:
             print(json.dumps(plan, indent=2))
             return 0
-        base = os.environ.get('SCISERVER_BASE_URL', '').rstrip('/')
+        from broker import Broker
+        import testutil
+        testutil.BROKER = Broker.connect(args.broker_url, args.admin_token_file)
+        connection = testutil.BROKER
+        context = testutil.BROKER.request('GET')
+        report['runId'] = context['runId']
+        if os.environ.get('TEST_RUN_ID') and os.environ['TEST_RUN_ID'] != report['runId']:
+            raise ValueError('Broker run ID does not match TEST_RUN_ID')
+        base = os.environ.get('SCISERVER_BASE_URL', context['baseUrl']).rstrip('/')
+        if base != context['baseUrl'].rstrip('/'):
+            raise ValueError('Test target must match the broker deployment')
         from urllib.parse import urlsplit
         url = urlsplit(base)
         if url.scheme not in ('http', 'https') or not url.hostname or url.username or url.password or url.query or url.fragment:
@@ -182,6 +211,8 @@ def main(argv=None):
                 import testutil
                 testutil.SCISERVERBASE = None
                 testutil.USERINFO = None
+                testutil.ACCOUNTLEASE = None
+                testutil.RUN_ID = report['runId']
                 report['tests'] = run_plan(plan)
             finally:
                 os.chdir(original)
@@ -192,6 +223,14 @@ def main(argv=None):
         # Configuration/import failures are runner errors, not assertion failures.
         report['runnerError'] = f'{type(exc).__name__}: {exc}'
         print(report['runnerError'], file=sys.stderr)
+    finally:
+        if connection is not None:
+            try:
+                connection.release()
+            except Exception:
+                report['outcome'] = 'error'
+                cleanup = 'Account cleanup failed; broker will retry'
+                report['runnerError'] = (report['runnerError'] + '; ' if report['runnerError'] else '') + cleanup
     report['counts'] = {s: sum(t['status'] == s for t in report['tests'])
                         for s in ('passed', 'failed', 'error', 'skipped', 'blocked')}
     report['finishedAt'] = now()
