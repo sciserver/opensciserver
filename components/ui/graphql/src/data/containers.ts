@@ -52,13 +52,9 @@ export class ContainersAPI extends RESTDataSource {
   }
 
   async getContainers(): Promise<Container[]> {
-    const [res, domains] = await Promise.all([
-      this.get(`${this.baseURL!}containers/`),
-      this.domainsAPI.getDomains()
-    ]);
-    const publisherDIDs = new Map(domains.map(d => [String(d.id), d.publisherDID]));
+    const res = await this.get(`${this.baseURL!}containers/`) || [];
 
-    return this.containersReducer(res || [], publisherDIDs);
+    return this.containersReducer(res);
   }
 
   async getContainerID(containerParams: ContainerParams): Promise<string> {
@@ -116,7 +112,7 @@ export class ContainersAPI extends RESTDataSource {
     const containers = await this.getContainers();
     const container = containers.find(c => {
       const imageNameMatch = c.imageName === containerParams.imageName;
-      const domainMatch = c.domainPublisherDID === containerParams.domainId;
+      const domainMatch = c.domainID.toString() === containerParams.domainId;
       const dataVolumesMatch = containerParams.dataVolumeIds.every(dvReq => (c.dataVolumes.map(dv => dv.publisherDID) as string[]).includes(dvReq));
       const userVolumesMatch = containerParams.userVolumeIds.every(uvReq => c.userVolumes.map(uv => uv.toString()).includes(uvReq));
 
@@ -155,18 +151,18 @@ export class ContainersAPI extends RESTDataSource {
   }
 
   // Reducers
-  containersReducer(resContainers: any, publisherDIDs: Map<string, string>): Container[] {
+  containersReducer(resContainers: any): Container[] {
     const conts: Container[] = [];
 
     for (const res of resContainers) {
       if (res.json) {
-        conts.push(this.containerReducer(res, publisherDIDs.get(String(res.domainId)) ?? ''));
+        conts.push(this.containerReducer(res));
       }
     }
     return conts;
   }
 
-  containerReducer(res: any, domainPublisherDID: string): Container {
+  containerReducer(res: any): Container {
     return {
       id: res.id,
       name: res.name,
@@ -176,7 +172,6 @@ export class ContainersAPI extends RESTDataSource {
       imageName: res.json.dockerImageName,
       domainName: res.domainName,
       domainID: res.domainId,
-      domainPublisherDID,
       createdAt: new Date(res.createdAt),
       accessedAt: new Date(res.accessedAt),
       maxSecs: res.maxSecs,
