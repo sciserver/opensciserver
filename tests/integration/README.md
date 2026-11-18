@@ -35,6 +35,29 @@ no longer valid.
   calls. Can consider adding Selenium tests for browser emulation
   in the future.
 
+## Service and test-data dependencies
+
+The dependency maps live in separate documents so the graphs and lifecycle
+details can grow without obscuring these runner instructions:
+
+- [Service dependencies](service-dependencies.md): core APIs,
+  databases, UI dependencies, optional integrations and chart startup ordering.
+- [Toy-data dependencies and lifecycle](toydata/README.md):
+  accounts, groups, memberships, permissions, volumes, files and execution;
+  population/cleanup order; ownership tracking; existing API cleanup gaps; and
+  an inventory of what each current test creates.
+
+The [concrete toy-data plan](toydata/README.md#proposed-concrete-toy-data-layers)
+has three layers: RACM users/groups, NFS-backed fileservice volumes and known
+content, and two compute domains on the deployment's existing Kubernetes cluster
+for testing access separation.
+
+Population and depopulation tooling is not implemented on this branch yet.
+Logout and deletion of a Kubernetes Job do not remove application data. In
+particular, deleting a login account does not cascade across RACM, fileservice
+and compute; cleanup must preserve owner access until its dependent operations
+finish. See the lifecycle document before designing new data-creating tests.
+
 ## Running tests
 
 Run these commands from `tests/integration/`. The requirements are listed in
