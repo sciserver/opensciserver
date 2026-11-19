@@ -7,5 +7,5 @@
 </template>
 
 <script>
-export default { name: 'IntegrationTests' }
+export default { name: 'IntegrationTests' };
 </script>
