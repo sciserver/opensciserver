@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Alert } from '@mui/material';
 
 import { AppContext } from 'context';
-import { DrawerNav, appBarHeight, drawerClosedWidth, drawerOpenWidth } from 'components/common/drawer';
+import { DrawerNav, useRailWidth } from 'components/common/drawer';
 
 export type DrawerOption = {
   name: string
@@ -18,36 +18,44 @@ type Props = {
 }
 
 type StyleProps = {
-  open: boolean
-  appBar: boolean
+  railWidth: number
+  compact: boolean
 }
 
 export const netMargin = 50;
-export const drawerOpenMargin = drawerOpenWidth + netMargin;
-export const drawerClosedMargin = drawerClosedWidth + netMargin;
+// Gap between the rail and the page content. Compact screens have no rail, so only keep room for the menu button.
+const compactTopOffset = 56;
+const compactMargin = 16;
 
 // CSS variable holding the rendered height of the banner (0px when hidden). Views that need
 // to fill the viewport (e.g. the compute session iframe) subtract it from their height.
 export const bannerHeightVar = '--banner-height';
 
+export const railWidthVar = '--rail-width';
+export const contentMarginVar = '--content-margin';
+
 const bannerDismissedKey = 'betaBannerDismissed';
 
 const Styled = styled.div`
-  /* Reserve the fixed app bar's height whether or not the banner is shown */
-  padding-top: ${(props: StyleProps) => props.appBar ? appBarHeight : 0}px;
+  /* Published for full-height views (e.g. the compute session iframe) */
+  ${railWidthVar}: ${(props: StyleProps) => props.railWidth}px;
+  ${contentMarginVar}: ${(props: StyleProps) => props.compact ? compactMargin : props.railWidth + netMargin}px;
+
+  padding-top: ${(props: StyleProps) => props.compact ? compactTopOffset : 0}px;
 
   main {
-    margin-left: ${(props: StyleProps) => props.open ? drawerOpenMargin : drawerClosedMargin}px;
+    margin-left: var(${contentMarginVar});
   }
 
   .alert {
-    margin-left: ${(props: StyleProps) => props.open ? drawerOpenWidth : drawerClosedWidth}px;
+    margin-left: var(${railWidthVar});
   }
 `;
 
 export const Layout: FC<Props> = ({ children }) => {
 
-  const { drawerOpen, showBanner, showAppBar } = useContext(AppContext);
+  const { showBanner } = useContext(AppContext);
+  const { compact, width: railWidth } = useRailWidth();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
@@ -95,7 +103,7 @@ export const Layout: FC<Props> = ({ children }) => {
   }, [bannerVisible]);
 
   return (
-    <Styled {...{ open: drawerOpen, appBar: showAppBar }} ref={containerRef}>
+    <Styled {...{ railWidth, compact }} ref={containerRef}>
       <DrawerNav />
       {bannerVisible &&
         <Alert ref={bannerRef} className="alert" severity="warning" onClose={handleClose}>
