@@ -1,0 +1,22 @@
+{{ if .Values.sciquery.enable -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "sciserver.fullname" . }}-sciquery
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: sciquery
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: sciquery
+  ports:
+  - name: web
+    protocol: TCP
+    port: 80
+    targetPort: web
+{{ end -}}

@@ -1,0 +1,77 @@
+server.port=***
+logging.level.org.sciserver.springapp.sciquery=INFO
+#------------------------------------------------------------------------------------------------------------------------
+# LoginPortal parameters
+# Using spring-app-utils authenticator:  https://github.com/sciserver/spring-app-utils/tree/master/authenticator
+auth.portal.url=https://apps.sciserver.org/login-portal/
+auth.prefetch=false
+auth.cache.expiryms=120000
+auth.cache.size=100
+#------------------------------------------------------------------------------------------------------------------------
+# RACM parameters:
+RACM.endpoint=https://apps.sciserver.org/racm/
+RACM.userGroup.admin=***
+# registered via racm/index_list.html
+# This is tied to the Casjobs RDB compute domain
+# TBD whether SciQuery gets its own service token
+# YES IF SciQuery is going to manage resources.
+RACM.resourceContext.serviceToken=***
+
+#-------------------------------------------------------------------------------------------------------------------------
+
+dbContext.default.server=***
+
+#-------------------------------------------------------------------------------------------------------------------------
+# mydb Parameters
+mydb.default.domain=***
+mydb.default.server=***
+mydb.host=***
+mydb.readonly.username=***
+mydb.readonly.password=***
+mydb.readwrite.username=***
+mydb.readwrite.password=***
+
+#------------------------------------------------------------------------------------------------------------------------
+# CasJobs Parameters
+CasJobs.endpoint=https://skyserver.sdss.org/CasJobs/RestApi/
+
+# Only used by MetadataManager
+CasJobs.UUID=***
+
+#------------------------------------------------------------------------------------------------------------------------
+# File upload parameters:
+file.upload.basePath=***
+# maxFileSize in units of Bytes.
+file.upload.maxFileSize=100000000
+
+#------------------------------------------------------------------------------------------------------------------------
+# FilService parameters:
+File-service.serviceId=***
+#------------------------------------------------------------------------------------------------------------------------
+# Database settings.
+#------------------------------------------------------------------------------------------------------------------------
+# DB.result_fetch_size: Number of rows retrieved at a time when getting results back from a query to any database.
+# DB.query_timeout: default waiting time (in seconds) before a query to a database times out.
+DB.result_fetch_size=1000
+DB.query_timeout=5
+#------------------------------------------------------------------------------------------------------------------------
+# HTTP Response body parameters:
+HTTP.RESPONSE.BODY.numRowsPerFlush=1000
+############################################################################################################
+# sciserver.logging configuration properties:
+# Using spring-app-utils logginginterceptor:  https://github.com/sciserver/spring-app-utils/tree/master/logging-interceptor
+logging.application=SciQuery-API
+logging.console=true
+logging.rabbitmq.host = ***
+logging.rabbitmq.exchange = ***
+logging.rabbitmq.queuename = ***
+############################################################################################################
+# define datasource, also used by flyway
+spring.datasource.url=jdbc:sqlserver://***;databaseName=***
+spring.datasource.username=***
+spring.datasource.password=***
+spring.datasource.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
+spring.jpa.hibernate.dialect=org.hibernate.dialect.SQLServer2012Dialect
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+spring.jpa.properties.hibernate.default_schema=dbo

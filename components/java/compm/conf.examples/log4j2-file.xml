@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+ <Appenders>
+   <RollingFile name="RollingFile" fileName="./compute-manager.log" filePattern="./compute-manager-%d{MM-dd-yyyy}.log.gz" ignoreExceptions="false">
+     <PatternLayout>
+       <Pattern>%d{HH:mm:ss.SSS} [%-5level] %logger %M():%L - %msg%n</Pattern>
+     </PatternLayout>
+     <TimeBasedTriggeringPolicy />
+   </RollingFile>
+ </Appenders>
+ <Loggers>
+   <Root level="info">
+     <AppenderRef ref="RollingFile"/>
+   </Root>
+   <Root level="warn">
+     <AppenderRef ref="RollingFile"/>
+   </Root>
+   <Root level="error">
+     <AppenderRef ref="RollingFile"/>
+   </Root>
+   <Root level="fatal">
+     <AppenderRef ref="RollingFile"/>
+   </Root>
+   <Root level="trace">
+     <AppenderRef ref="RollingFile"/>
+   </Root>
+   <Root level="debug">
+     <AppenderRef ref="RollingFile"/>
+   </Root>
+ </Loggers>
+</Configuration>

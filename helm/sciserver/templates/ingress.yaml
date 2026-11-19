@@ -79,6 +79,15 @@ spec:
               name: web
         path: /{{ include "sciserver.prefix" . }}graphql
         pathType: ImplementationSpecific
+{{ if .Values.sciquery.enable }}
+      - backend:
+          service:
+            name: {{ include "sciserver.fullname" . }}-sciquery
+            port:
+              name: web
+        path: /{{ include "sciserver.prefix" . }}sciquery
+        pathType: ImplementationSpecific
+{{ end }}
       - backend:
           service:
             name: {{ include "sciserver.fullname" . }}-web

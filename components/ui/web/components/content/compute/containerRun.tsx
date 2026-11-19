@@ -15,15 +15,25 @@ import { GET_CONTAINER_ID, PING_CONTAINER } from 'src/graphql/containers';
 
 import { appBarHeight, drawerClosedWidth, drawerOpenWidth } from 'components/common/drawer';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { netMargin } from 'components/common/layout';
+import { bannerHeightVar, netMargin } from 'components/common/layout';
 
+
+type StyleProps = {
+  open: boolean
+  appBar: boolean
+}
 
 const Styled = styled.div`
-  margin-top: -20px;
+  margin-top: ${(props: StyleProps) => props.appBar ? -20 : 0}px;
   margin-left: -${netMargin}px;
 
+  /* Fill the viewport below the app bar (if shown) and banner without scrolling the page.
+     The +20px compensates for the negative margin-top above. */
   iframe {
+    display: block;
     border: none;
+    width: calc(100vw - ${(props: StyleProps) => props.open ? drawerOpenWidth : drawerClosedWidth}px);
+    height: calc(100vh - ${(props: StyleProps) => props.appBar ? appBarHeight - 20 : 0}px - var(${bannerHeightVar}, 0px));
   }
 
   .MuiBackdrop-root {
@@ -74,7 +84,7 @@ export const ContainerRun: FC = ({ }) => {
 
   // Context Management
   const { token } = useContext(UserContext);
-  const { drawerOpen, setMenuOption } = useContext(AppContext);
+  const { drawerOpen, setMenuOption, showAppBar, setShowAppBar } = useContext(AppContext);
 
   // State Management
   const [pingInterval, setPingInterval] = useState<number | null>(Number.parseInt(process.env.NEXT_PUBLIC_COMPUTE_PING_INTERVAL || '300000')); //Try pinging container every 5 minutes
@@ -82,8 +92,6 @@ export const ContainerRun: FC = ({ }) => {
   const [userLastActivity, setUserLastActivity] = useState<number>(Date.now());
   const [path, setPath] = useState<string>('/');
   const [loadingIframe, setLoadingIframe] = useState<boolean>(false);
-  const [iframeWidth, setIframeWidth] = useState<number>(0);
-  const [iframeHeight, setIframeHeight] = useState<number>(0);
 
   const globalLoading = useMemo(() => {
     if (router.isReady) {
@@ -92,22 +100,12 @@ export const ContainerRun: FC = ({ }) => {
     return true;
   }, [loadingContainerID, loadingIframe, router]);
 
-  const handleWindowResize = () => {
-    setIframeWidth(window.innerWidth - (drawerOpen ? drawerOpenWidth : drawerClosedWidth));
-    setIframeHeight(window.innerHeight - appBarHeight);
-  };
-
-  // Listens for drawerOpen state variable and adjusts width when it changes
+  // ON MOUNT: UI config. The session interface fills the viewport, so hide the app bar
+  // while it is mounted and restore it on unmount. The drawer keeps its own toggle and logo.
   useEffect(() => {
-    handleWindowResize();
-  }, [drawerOpen]);
-
-  // ON MOUNT: UI config
-  useEffect(() => {
-    window.addEventListener('resize', handleWindowResize);
     setMenuOption('compute');
-    setIframeWidth(window.innerWidth - (drawerOpen ? drawerOpenWidth : drawerClosedWidth));
-    setIframeHeight(window.innerHeight - appBarHeight);
+    setShowAppBar(false);
+    return () => setShowAppBar(true);
   }, []);
 
   // ON MOUNT: API calling
@@ -220,13 +218,11 @@ export const ContainerRun: FC = ({ }) => {
     }
   }, [containerURL]);
 
-  return <Styled>
+  return <Styled {...{ open: drawerOpen, appBar: showAppBar }}>
     <iframe
       id="container-iframe"
       src={containerURL}
       title="Container rendering"
-      width={iframeWidth}
-      height={iframeHeight}
       onLoad={() => setLoadingIframe(false)}
     />
     {globalLoading &&

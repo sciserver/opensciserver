@@ -125,9 +125,12 @@ Some important variables in the ``applications.properties`` file are related to:
    This includes the timeout for the metadata query (``DB.query_timeout``), the query results fetch size (``DB.result_fetch_size``), 
    and the number of rows per flush when writing the query result set in the streaming HTTP response body returned to the user (``HTTP.RESPONSE.BODY.numRowsPerFlush``).
 
-Since the SciQuery source code is integrated with `Gradle <https://gradle.org>`_ , one can build and run it locally by executing the 
-respective Gradle targets in Visual Studio/Eclipse, or explicitly by executing ``./gradlew build`` or ``./gradlew run``
-on the base level of the project directory. For running it in a production-grade environment, refer to the SciServer Kubernetes setup.
+Since the SciQuery source code is integrated with `Gradle <https://gradle.org>`_ , one can build and run it locally by executing the
+respective Gradle targets in Visual Studio/Eclipse, or explicitly by executing ``./gradlew :sciquery:build``
+from ``components/java``. For running it in a production-grade environment, the Helm chart under ``helm/sciserver``
+deploys the API and its :ref:`sciquery_database` from the ``sciquery`` and ``sciqueryDb`` sections of ``values.yaml``.
+SciQuery is disabled there by default, because it needs values that only exist once RACM has been bootstrapped and the
+databases it federates have been registered. See ``components/java/sciquery/README.md``.
 
 
 .. _sciquery_database:

@@ -1,0 +1,21 @@
+{{ if and .Values.sciquery.enable (not .Values.sciqueryDb.host) (not .Values.dev.nopvc) -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "sciserver.fullname" . }}-sciquery-db
+  labels:
+    app.kubernetes.io/name: {{ include "sciserver.name" . }}
+    helm.sh/chart: {{ include "sciserver.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: sciquery-db
+spec:
+  accessModes:
+    - {{ .Values.sciqueryDb.persistence.accessMode | quote }}
+  {{ if .Values.storageClass -}}
+  storageClassName: {{ .Values.storageClass }}
+  {{ end -}}
+  resources:
+    requests:
+      storage: {{ .Values.sciqueryDb.persistence.size | quote }}
+{{ end -}}
