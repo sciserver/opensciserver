@@ -646,3 +646,24 @@ graphql:
     requests:
       cpu: 100m
       memory: 128Mi
+
+# Administrator account broker; toy-data generation is planned but not implemented.
+# Durable account ownership uses suspended Jobs; no PVC is required.
+testService:
+  enable: true
+  image:
+    repository: <<<IMAGE_REPO>>>/test-service
+    tag: <<<VTAG>>>
+  # Optional existing Secret with a base64-encoded (as the decoded Secret value)
+  # signing-key of at least 32 random bytes. Otherwise Helm creates/reuses one.
+  # Historical name retained to reuse existing broker signing keys on upgrade.
+  reportingSecret: ""
+  # Lifetime for existing runner account leases, not future persistent datasets.
+  accountLeaseSeconds: 1980
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi

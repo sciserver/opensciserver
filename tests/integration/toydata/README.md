@@ -319,17 +319,19 @@ This is a proposed tool contract, not functionality already implemented here:
 
 ## What the imported tests currently create
 
-These are current behavior, not the proposed tool's desired behavior. The imported
-tests do not yet keep the ownership record above or implement comprehensive cleanup.
+These describe the merged broker/runner tests, not the proposed toy-data tool.
+The broker tracks account ownership and retries abandoned account cleanup;
+tests register in-process cleanup hooks, which forced termination can prevent.
+The logical-operation journal and complete cross-service cleanup are not yet implemented.
 
 | File and function | Created or potentially materialized state | Current teardown |
 | --- | --- | --- |
-| `test_register.py`: `TestRegister.test_register` | Random account, per-user project/role assignment and session token. | `test_logout` invalidates the session; does not delete the account/project. |
+| `test_register.py`: `TestRegister.test_register` | Broker-reserved identity registered through login-portal, per-user project/role assignment and session token. | Runner releases the reservation; broker handles verified account cleanup and retries. Partial creation may require reconciliation/manual review. |
 | `test_register.py`: `TestRegister.test_token` and subsequent authenticated RACM calls | RACM profile and public membership on first access. | None. |
-| `test_api.py`: `TestApi.test_fileservice_basic_volumes`, `test_fileservice_tree`, `test_fileservice_upload_file` | Default volumes/directories can materialize on fileservice access. Upload creates a randomly named file under `Storage/{user}/persistent`. | No explicit file/volume cleanup. |
-| `test_api.py`: `TestApi.test_racm_create_group` | Random group and owner membership. | None. |
-| `test_api.py`: `TestApi.test_compute_create_container` | Container in a selected existing domain/image, with `X-Description: NOTEBOOK`. | No explicit delete. Do not treat runtime notebook expiry as verified teardown. |
-| `test_logout.py`: `TestLogout.test_logout` | Ends the current portal session. | Session cleanup only; subsequent authorization is tested separately. |
+| `test_api.py`: `TestApi.test_fileservice_basic_volumes`, `test_fileservice_tree`, `test_fileservice_upload_file` | Default volumes/directories can materialize on fileservice access. Upload creates a randomly named file under `Storage/{user}/persistent`. | Upload registers `deleteCreatedFile` before mutation. Default volumes/directories are not comprehensively removed. |
+| `test_api.py`: `TestApi.test_racm_create_group` | Random group and owner membership. | Registers `deleteCreatedGroup` before creation. |
+| `test_api.py`: `TestApi.test_compute_create_container` | Container in a selected existing domain/image, with `X-Description: NOTEBOOK`. | Registers `deleteCreatedContainer` after a successful response with a parsed ID. Ambiguous creation responses still need reconciliation. |
+| `test_logout.py`: `TestLogout.test_logout` | Ends a separate brokered logout-fixture session. | Revocation is tested without invalidating other fixtures; runner/broker account cleanup is separate. |
 
 The other current tests are read/validation checks, subject to lazy profile or
 volume creation on the authenticated services they contact. Audit events may be

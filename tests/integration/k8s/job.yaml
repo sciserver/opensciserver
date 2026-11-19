@@ -18,9 +18,21 @@ spec:
         - name: tests
           image: ${TEST_IMAGE}
           imagePullPolicy: IfNotPresent
+          terminationMessagePath: /results/delivery.json
           env:
             - name: SCISERVER_BASE_URL
               value: "${SCISERVER_BASE_URL}"
+            - name: TEST_RUN_ID
+              value: "${TEST_RUN_ID}"
+            - name: TEST_ACCOUNT_BROKER_URL
+              value: "${TEST_ACCOUNT_BROKER_URL}"
+            - name: TEST_ACCOUNT_BROKER_TOKEN
+              value: "${TEST_ACCOUNT_BROKER_TOKEN}"
+            - name: TEST_REPORT_PATH
+              value: /results/report.json
+          volumeMounts:
+            - name: results
+              mountPath: /results
           resources:
             requests:
               cpu: 50m
@@ -28,3 +40,7 @@ spec:
             limits:
               cpu: 500m
               memory: 256Mi
+      volumes:
+        - name: results
+          emptyDir:
+            sizeLimit: 32Mi

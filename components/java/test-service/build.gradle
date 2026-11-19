@@ -1,0 +1,19 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.18'
+    id 'java'
+}
+apply plugin: 'io.spring.dependency-management'
+group = 'org.sciserver'
+sourceCompatibility = '17'
+repositories { mavenCentral() }
+dependencies {
+    implementation project(':clients:racm')
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.7.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+test { useJUnitPlatform() }
+bootJar { archiveFileName = 'test-service.jar' }

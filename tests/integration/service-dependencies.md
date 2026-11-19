@@ -3,7 +3,10 @@
 This maps the `scarliles/test-data` branch's Helm configuration and application
 code. It describes service/API dependencies, not Java build dependencies or a
 live cluster inventory. External instances can replace chart-deployed databases
-and services. The paused test-service work is outside this map.
+and services. The diagrams cover the application services exercised by toy data.
+The retained test-service account broker is described in its
+[service README](../../components/java/test-service/README.md); toy-data
+generation and unwinding are not implemented yet.
 
 For accounts, groups, volumes and their population/cleanup order, see the
 [resource dependency and lifecycle map](toydata/README.md). Runner
