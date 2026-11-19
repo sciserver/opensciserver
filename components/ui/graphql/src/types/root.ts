@@ -3,6 +3,7 @@ import { gql } from 'graphql-tag';
 import { typeDefs as Container } from './container';
 import { typeDefs as Dataset } from './dataset';
 import { typeDefs as Domain } from './domain';
+import { typeDefs as Files } from './files';
 import { typeDefs as Account } from './account';
 import { typeDefs as Volume } from './volume';
 import { typeDefs as Job } from './jobs';
@@ -36,6 +37,7 @@ export const typeDefs = [
   Container,
   Dataset,
   Domain,
+  Files,
   Job,
   Volume
 ];

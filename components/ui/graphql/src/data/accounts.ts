@@ -4,7 +4,7 @@ import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
 import type { KeyValueCache } from '@apollo/utils.keyvaluecache';
 
 import { environment } from '../environment';
-import { User } from '../generated/typings';
+import { PrincipalType, SharePrincipal, User } from '../generated/typings';
 
 export class AccountsAPI extends RESTDataSource {
   private loginPortalURL = `${environment.loginPortal.baseUrl}`
@@ -25,6 +25,15 @@ export class AccountsAPI extends RESTDataSource {
     const res = await this.get(`${this.racmURL!}user`);
 
     return this.userReducer(res);
+  }
+
+  async getPublicUsersAndGroups(): Promise<SharePrincipal[]> {
+    const res = await this.get(`${this.racmURL!}users/public`);
+
+    return [
+      ...(res.users || []).map((u: any) => ({ id: u.id, name: u.username, type: PrincipalType.User })),
+      ...(res.groups || []).map((g: any) => ({ id: g.id, name: g.groupName, type: PrincipalType.Group }))
+    ];
   }
 
   // MUTATIONS //

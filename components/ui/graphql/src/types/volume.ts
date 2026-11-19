@@ -23,7 +23,7 @@ export const typeDefs = gql`
     pathOnFileSystem: String
     url: URL
     allowedActions: [String]!
-    sharedWith:[String]!
+    sharedWith: [SharedWith!]!
     owningResourceId: ID
   }
 
@@ -41,7 +41,7 @@ export const typeDefs = gql`
     containsSharedVolumes: Boolean!
     userVolumes: [UserVolume!]!
     allowedActions: [String]!
-    sharedWith:[String]!
+    sharedWith: [SharedWith!]!
     owningResourceId: ID
   }
   
@@ -53,11 +53,30 @@ export const typeDefs = gql`
     relativePath: String
     owner: String!
     allowedActions: [String]!
-    sharedWith:[String]!
+    sharedWith: [SharedWith!]!
     owningResourceId: ID
     rootVolumeName: String!
   }
   
+  type SharedWith {
+    id: ID!
+    name: String!
+    type: PrincipalType!
+    allowedActions: [String!]!
+  }
+
+  input SharedWithInput {
+    id: ID!
+    name: String!
+    type: PrincipalType!
+    allowedActions: [String!]!
+  }
+
+  enum PrincipalType {
+    USER
+    GROUP
+  }
+
   type JobUserVolume {
     id: ID!
     userVolumeId: ID!
@@ -65,35 +84,29 @@ export const typeDefs = gql`
     fullPath: String!
   }
 
-  type JSONTree {
-    root: Root!
-    queryPath: String!
-  }
-
-  type Root {
-    name: String!
-    lastModified: DateTime!
-    creationTime: DateTime!
-    folders: [Folder!]!
-    files: [File!]!
-  }
-
-  type Folder {
-    name: String!
-    lastModified: DateTime!
-    creationTime: DateTime!
-  }
-  
-  type File {
-    name: String!
-    size: Float!
-    lastModified: DateTime!
-    creationTime: DateTime!
+  # Storage usage against a quota. Either a per-user quota on a root volume
+  # (username set) or a quota on one user volume (userVolumeId set).
+  type FileUsage {
+    rootVolumeId: ID
+    userVolumeId: ID
+    username: String
+    type: String
+    numberOfBytesUsed: Float!
+    numberOfBytesQuota: Float!
   }
 
   type Query {
     getVolumes: FileService
-    getJsonTree(volumeName: String!): JSONTree!
+    getFileUsage: [FileUsage!]!
+  }
+
+  type Mutation {
+    createUserVolume(rootVolumeName: String!, owner: String!, name: String!, description: String): Boolean!
+    updateUserVolume(rootVolumeName: String!, owner: String!, name: String!, newName: String!, description: String): Boolean!
+    deleteUserVolume(rootVolumeName: String!, owner: String!, name: String!): Boolean!
+    # Replaces the sharing settings of a user volume. To revoke access, send the
+    # principal with an empty allowedActions list.
+    shareUserVolume(rootVolumeName: String!, owner: String!, name: String!, sharedWith: [SharedWithInput!]!): Boolean!
   }
 
   enum VolumeType {

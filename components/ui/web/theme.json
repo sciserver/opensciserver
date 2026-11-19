@@ -78,6 +78,35 @@
     },
     "appBar": {
       "background": "linear-gradient(90deg, rgb(104, 40, 114, 0.6)0%, rgb(104, 40, 114, 0.6)30%, rgb(74, 107, 174, 1)100%)"
+    },
+    "neutral": {
+      "border": "#e6e9ed",
+      "borderLight": "#f0f2f4",
+      "borderStrong": "#dde2e7",
+      "inputBorder": "#d5dae0",
+      "surface": "#f4f6f8",
+      "surfaceAlt": "#f7f9fb",
+      "surfaceSubtle": "#fbfcfd",
+      "chip": "#eef1f4",
+      "selectionBar": "#e8f1f8",
+      "dropZone": "rgba(232, 241, 248, 0.94)",
+      "muted": "rgba(0, 0, 0, 0.6)",
+      "mutedLight": "rgba(0, 0, 0, 0.5)",
+      "faint": "rgba(0, 0, 0, 0.38)",
+      "rowHover": "rgba(57, 140, 191, 0.08)",
+      "rowSelected": "rgba(57, 140, 191, 0.16)",
+      "accentWash": "rgba(57, 140, 191, 0.1)",
+      "focusRing": "rgba(57, 140, 191, 0.18)"
+    },
+    "chips": {
+      "user": {
+        "background": "rgba(57, 140, 191, 0.14)",
+        "color": "#1F6A96"
+      },
+      "group": {
+        "background": "rgba(32, 161, 131, 0.14)",
+        "color": "#157A63"
+      }
     }
   },
   "overrides": {
