@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Type complex type.
  * 
@@ -30,16 +29,9 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Type", propOrder = {
-    "_extends"
-})
-@XmlSeeAlso({
-    ObjectType.class,
-    ValueType.class
-})
-public abstract class Type
-    extends Element
-{
+@XmlType(name = "Type", propOrder = { "_extends" })
+@XmlSeeAlso({ ObjectType.class, ValueType.class })
+public abstract class Type extends Element {
 
     @XmlElement(name = "extends")
     protected TypeRef _extends;

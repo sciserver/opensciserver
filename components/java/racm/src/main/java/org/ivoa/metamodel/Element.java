@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * <p>Java class for Element complex type.
  * 
@@ -36,19 +35,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Element", propOrder = {
-    "name",
-    "description",
-    "utype"
-})
-@XmlSeeAlso({
-    Profile.class,
-    Package.class,
-    Attribute.class,
-    Relation.class,
-    Type.class,
-    Model.class
-})
+@XmlType(name = "Element", propOrder = { "name", "description", "utype" })
+@XmlSeeAlso({ Profile.class, Package.class, Attribute.class, Relation.class, Type.class, Model.class })
 public abstract class Element {
 
     protected String name;

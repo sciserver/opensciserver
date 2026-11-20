@@ -2,12 +2,8 @@ package org.sciserver.racm.storem.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-
 import org.sciserver.racm.resources.model.NewSharedWithEntity;
 
 /**
@@ -40,25 +36,21 @@ public final class RegisterNewServiceVolumeModel {
      * uuid of the resource on the service that will own the new volume
      */
     private final String owningResourceUUID;
-    
+
     private final String usage;
 
     @JsonCreator
-    public RegisterNewServiceVolumeModel(
-            @JsonProperty("name") String name,
-            @JsonProperty("description") String description,
-            @JsonProperty("relativePath") String relativePath,
-            @JsonProperty("shares") List<NewSharedWithEntity> shares,
-            @JsonProperty("serviceToken") String serviceToken,
-            @JsonProperty("owningResourceUUID") String owningResourceUUID,
-            @JsonProperty("usage") String usage) {
+    public RegisterNewServiceVolumeModel(@JsonProperty("name") String name,
+            @JsonProperty("description") String description, @JsonProperty("relativePath") String relativePath,
+            @JsonProperty("shares") List<NewSharedWithEntity> shares, @JsonProperty("serviceToken") String serviceToken,
+            @JsonProperty("owningResourceUUID") String owningResourceUUID, @JsonProperty("usage") String usage) {
         this.name = Objects.requireNonNull(name);
         this.description = Objects.requireNonNull(description);
         this.relativePath = Objects.requireNonNull(relativePath);
         this.shares = shares;
         this.serviceToken = Objects.requireNonNull(serviceToken);
         this.owningResourceUUID = Objects.requireNonNull(owningResourceUUID);
-        this.usage =Objects.requireNonNull(usage);
+        this.usage = Objects.requireNonNull(usage);
     }
 
     public String getRelativePath() {
@@ -85,7 +77,7 @@ public final class RegisterNewServiceVolumeModel {
         return shares;
     }
 
-	public String getUsage() {
-		return usage;
-	}
+    public String getUsage() {
+        return usage;
+    }
 }

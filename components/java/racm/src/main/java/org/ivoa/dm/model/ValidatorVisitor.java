@@ -13,40 +13,43 @@ import java.util.ArrayList;
  */
 public final class ValidatorVisitor extends MetaDataObjectVisitor {
 
-	private ArrayList<MetadataObject> invalidObjects;
-  /**
-   * Public constructor.<br/>
-   * Not protected and not a singleton for we need to preserve state within a persistence
-   * transaction.
-   *
-   * @param user user name
-   * @param currentTimestamp now
-   */
-  public ValidatorVisitor() {
-  	super(true);
-  	invalidObjects = new ArrayList<>();
-  }
+    private ArrayList<MetadataObject> invalidObjects;
 
-  // ~ Methods
-  // ----------------------------------------------------------------------------------------------------------
-  /**
-   * Process the specified object
-   *
-   * @param object MetadataObject instance
-   * @param argument optional argument
-   */
-  @Override
-  public void process(final MetadataObject object, final Object argument) {
-  	if(!object.isValid())
-  		invalidObjects.add(object);
-  }
+    /**
+     * Public constructor.<br/>
+     * Not protected and not a singleton for we need to preserve state within a persistence
+     * transaction.
+     *
+     * @param user user name
+     * @param currentTimestamp now
+     */
+    public ValidatorVisitor() {
+        super(true);
+        invalidObjects = new ArrayList<>();
+    }
 
-  public boolean foundErrors(){
-  	return invalidObjects.size() > 0;
-  }
-	public ArrayList<MetadataObject> getInvalidObjects() {
-		return invalidObjects;
-	}
+    // ~ Methods
+    // ----------------------------------------------------------------------------------------------------------
+    /**
+     * Process the specified object
+     *
+     * @param object MetadataObject instance
+     * @param argument optional argument
+     */
+    @Override
+    public void process(final MetadataObject object, final Object argument) {
+        if (!object.isValid()) {
+            invalidObjects.add(object);
+        }
+    }
+
+    public boolean foundErrors() {
+        return invalidObjects.size() > 0;
+    }
+
+    public ArrayList<MetadataObject> getInvalidObjects() {
+        return invalidObjects;
+    }
 }
 // ~ End of file
 // --------------------------------------------------------------------------------------------------------

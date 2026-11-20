@@ -11,10 +11,11 @@ public class VOURPException extends Exception {
 
     public VOURPException(int code, String message, Throwable cause) {
         super(message, cause);
-        if (cause != null)
+        if (cause != null) {
             this.errorCode = code | CAUGHT_EXCEPTION;
-        else
+        } else {
             this.errorCode = code;
+        }
     }
 
     public VOURPException(int code, String message) {

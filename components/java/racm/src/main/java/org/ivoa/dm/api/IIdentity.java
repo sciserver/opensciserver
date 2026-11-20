@@ -13,40 +13,42 @@ import java.io.Serializable;
  */
 public interface IIdentity extends Serializable {
 
-  //~ Methods ----------------------------------------------------------------------------------------------------------
-  /**
-   * Returns the primary key
-   *
-   * @return primary key or null if the metadata object is transient
-   */
-  public Long getId();
+    // ~ Methods
+    // ----------------------------------------------------------------------------------------------------------
+    /**
+     * Returns the primary key
+     *
+     * @return primary key or null if the metadata object is transient
+     */
+    public Long getId();
 
-  /**
-   * Returns the external identifier (URI)
-   *
-   * @return external identifier (URI)
-   */
-  public String getIvoId();
+    /**
+     * Returns the external identifier (URI)
+     *
+     * @return external identifier (URI)
+     */
+    public String getIvoId();
 
-  /**
-   * Returns the local xsd:ID for this object
-   *
-   * @return local xsd:ID for this object
-   */
-  public String getXmlId();
+    /**
+     * Returns the local xsd:ID for this object
+     *
+     * @return local xsd:ID for this object
+     */
+    public String getXmlId();
 
-  /**
-   * Returns the URI uniquely specifying the object as it is published in a DMService
-   *
-   * @return URI uniquely specifying the object as it is published in a DMService
-   */
-  public String getPublisherDID();
+    /**
+     * Returns the URI uniquely specifying the object as it is published in a DMService
+     *
+     * @return URI uniquely specifying the object as it is published in a DMService
+     */
+    public String getPublisherDID();
 
-  /**
-   * Sets the URI uniquely specifying the object as it is published in a DMService
-   *
-   * @param pPublisherDID URI uniquely specifying the object as it is published in a DMService
-   */
-  public void setPublisherDID(final String pPublisherDID);
+    /**
+     * Sets the URI uniquely specifying the object as it is published in a DMService
+     *
+     * @param pPublisherDID URI uniquely specifying the object as it is published in a DMService
+     */
+    public void setPublisherDID(final String pPublisherDID);
 }
-//~ End of file --------------------------------------------------------------------------------------------------------
+// ~ End of file
+// --------------------------------------------------------------------------------------------------------

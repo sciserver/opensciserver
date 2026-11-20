@@ -1,21 +1,7 @@
 package org.sciserver.springapp.racm.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.Query;
-
-import org.ivoa.dm.VOURPException;
-import org.ivoa.dm.model.MetadataObject;
-import org.ivoa.dm.model.TransientObjectManager;
-import org.sciserver.racm.resources.model.NewSharedWithEntity;
-import org.sciserver.racm.resources.model.SciServerEntityType;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.jhu.rac.AccessControl;
 import edu.jhu.rac.Action;
 import edu.jhu.rac.ContextClass;
@@ -28,6 +14,15 @@ import edu.jhu.rac.RoleAction;
 import edu.jhu.rac.RoleAssignment;
 import edu.jhu.user.SciserverEntity;
 import edu.jhu.user.ServiceAccount;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.persistence.Query;
+import org.ivoa.dm.VOURPException;
+import org.ivoa.dm.model.MetadataObject;
+import org.ivoa.dm.model.TransientObjectManager;
+import org.sciserver.racm.resources.model.SciServerEntityType;
+import org.springframework.stereotype.Component;
 
 /* Don't add to this class unless you can give it a clear purpose
  * (and then rename the class to reflect that purpose).
@@ -55,9 +50,11 @@ public class RACMUtil {
      */
     public static Action findAction(Resource r, String a) {
         ResourceType rt = r.getResourceType();
-        for (Action action : rt.getAction())
-            if (action.getName().equals(a))
+        for (Action action : rt.getAction()) {
+            if (action.getName().equals(a)) {
                 return action;
+            }
+        }
         return null;
     }
 
@@ -96,12 +93,15 @@ public class RACMUtil {
     }
 
     public static void assignAllPrivileges(Resource r, SciserverEntity e) {
-        if (r.getResourceType() == null)
+        if (r.getResourceType() == null) {
             return;
-        if (r.getResourceType().getAction() == null)
+        }
+        if (r.getResourceType().getAction() == null) {
             return;
-        for (Action a : r.getResourceType().getAction())
+        }
+        for (Action a : r.getResourceType().getAction()) {
             assignPrivilege(a, r, e);
+        }
     }
 
     public void deleteAllPrivileges(TransientObjectManager tom, long entityId, Resource resource) {
@@ -119,10 +119,11 @@ public class RACMUtil {
     public static ContextClass queryContextClass(String name, TransientObjectManager tom) throws VOURPException {
         Query q = tom.createQuery("select cc from ContextClass cc where cc.name=:name").setParameter("name", name);
         List<MetadataObject> l = tom.queryJPA(q, false);
-        if (l.size() == 1)
+        if (l.size() == 1) {
             return (ContextClass) l.get(0);
-        else if (l.size() > 1)
+        } else if (l.size() > 1) {
             throw new VOURPException(String.format("Multiple ContextClass-es found with same name: '%s'", name));
+        }
         return null;
     }
 
@@ -157,15 +158,15 @@ public class RACMUtil {
             SciServerEntityType type) {
         String where = null;
         switch (type) {
-        case USER:
-            where = "username";
-            break;
-        case GROUP:
-            where = "name";
-            break;
-        default: // case SERVICE:
-            where = "serviceToken";
-            break;
+            case USER:
+                where = "username";
+                break;
+            case GROUP:
+                where = "name";
+                break;
+            default: // case SERVICE:
+                where = "serviceToken";
+                break;
         }
         Query q = tom.createQuery(String.format("select s from %s s where s.%s=:name", type.className, where));
         q.setParameter("name", name);
@@ -197,17 +198,19 @@ public class RACMUtil {
      */
     public static Resource addRootContext(ResourceContext rc) {
         ContextClass cc = rc.getContextClass();
-        if (cc == null)
+        if (cc == null) {
             return null; //
+        }
         ResourceType rootResourceType = getRootResourceType(cc);
         Resource r = getRootResource(rc);
-        if (r != null)
+        if (r != null) {
             return r;
+        }
         r = newResource(rc);
         r.setName(RACMNames.CONTEXT_ROOTRESOURCE_PUBDID); // protected name
         r.setDescription(
                 "The root Resource for its container ResourceContext, corresponding to root ResourceType of its ContainerClass. \"\r\n"
-                        + "					+ \"Used for associating privileges having to do with ResourceContext-level actions such as those to create other Resources");
+                        + "\t\t\t\t\t+ \"Used for associating privileges having to do with ResourceContext-level actions such as those to create other Resources");
         r.setResourceType(rootResourceType);
         r.setPublisherDID(RACMNames.CONTEXT_ROOTRESOURCE_PUBDID);
         return r;
@@ -223,9 +226,11 @@ public class RACMUtil {
      */
     public static final Resource getRootResource(ResourceContext c) {
         if (c.getResource() != null) {
-            for (Resource r : c.getResource())
-                if (RACMNames.CONTEXT_ROOTRESOURCE_PUBDID.equals(r.getPublisherDID()))
+            for (Resource r : c.getResource()) {
+                if (RACMNames.CONTEXT_ROOTRESOURCE_PUBDID.equals(r.getPublisherDID())) {
                     return r;
+                }
+            }
         }
         return null;
     }
@@ -246,9 +251,11 @@ public class RACMUtil {
      * @return
      */
     private static final ResourceType getRootResourceType(ContextClass c) {
-        for (ResourceType r : c.getResourceType())
-            if (RACMNames.CONTEXT_ROOTRESOURCE_PUBDID.equals(r.getName()))
+        for (ResourceType r : c.getResourceType()) {
+            if (RACMNames.CONTEXT_ROOTRESOURCE_PUBDID.equals(r.getName())) {
                 return r;
+            }
+        }
 
         throw new IllegalStateException(
                 String.format("ContextClass '%s' has no context Resource detected", c.getName()));
@@ -261,9 +268,11 @@ public class RACMUtil {
      * @return
      */
     private static final Role getRole(String role, ResourceType rt) {
-        for (Role r : rt.getRole())
-            if (r.getName().equals(role))
+        for (Role r : rt.getRole()) {
+            if (r.getName().equals(role)) {
                 return r;
+            }
+        }
 
         throw new IllegalStateException(
                 String.format("ResourceType '%s' has no Role with name '%s'", rt.getName(), role));

@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Profile complex type.
  * 
@@ -29,12 +28,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Profile", propOrder = {
-    "_package"
-})
-public class Profile
-    extends Element
-{
+@XmlType(name = "Profile", propOrder = { "_package" })
+public class Profile extends Element {
 
     @XmlElement(name = "package")
     protected List<Package> _package;

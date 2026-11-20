@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * 
  *     The ID attribute is added here to the TR tag to avoid 
@@ -41,9 +40,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Tr", propOrder = {
-    "tds"
-})
+@XmlType(name = "Tr", propOrder = { "tds" })
 public class Tr {
 
     @XmlElement(name = "TD", required = true)

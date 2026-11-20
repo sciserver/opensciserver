@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for MetadataObject complex type.
  * 
@@ -31,13 +30,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "MetadataObject", propOrder = {
-    "id",
-    "identity"
-})
-@XmlSeeAlso({
-    MetadataRootEntityObject.class
-})
+@XmlType(name = "MetadataObject", propOrder = { "id", "identity" })
+@XmlSeeAlso({ MetadataRootEntityObject.class })
 public abstract class MetadataObject {
 
     protected Long id;

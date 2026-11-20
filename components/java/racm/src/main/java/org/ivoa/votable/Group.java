@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * <p>Java class for Group complex type.
  * 
@@ -47,20 +46,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Group", propOrder = {
-    "description",
-    "fielDrevesAndPARAMrevesAndPARAMS"
-})
+@XmlType(name = "Group", propOrder = { "description", "fielDrevesAndPARAMrevesAndPARAMS" })
 public class Group {
 
     @XmlElement(name = "DESCRIPTION")
     protected AnyTEXT description;
-    @XmlElements({
-        @XmlElement(name = "FIELDref", type = FieldRef.class),
-        @XmlElement(name = "GROUP", type = Group.class),
-        @XmlElement(name = "PARAM", type = Param.class),
-        @XmlElement(name = "PARAMref", type = ParamRef.class)
-    })
+    @XmlElements({ @XmlElement(name = "FIELDref", type = FieldRef.class),
+        @XmlElement(name = "GROUP", type = Group.class), @XmlElement(name = "PARAM", type = Param.class),
+        @XmlElement(name = "PARAMref", type = ParamRef.class) })
     protected List<Object> fielDrevesAndPARAMrevesAndPARAMS;
     @XmlAttribute(name = "ID")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)

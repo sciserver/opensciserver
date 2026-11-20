@@ -46,7 +46,6 @@ public class JsonAPIHelperTests {
 
     @Test
     public void unrecognisedExceptionMapsToInternalServerError() {
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
-                JsonAPIHelper.statusFor(new IllegalStateException("boom")));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, JsonAPIHelper.statusFor(new IllegalStateException("boom")));
     }
 }

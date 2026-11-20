@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * <p>Java class for Values complex type.
  * 
@@ -48,11 +47,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Values", propOrder = {
-    "min",
-    "max",
-    "options"
-})
+@XmlType(name = "Values", propOrder = { "min", "max", "options" })
 public class Values {
 
     @XmlElement(name = "MIN")

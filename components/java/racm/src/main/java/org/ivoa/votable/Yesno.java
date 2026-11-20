@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for yesno.
  * 
@@ -26,9 +25,9 @@ import javax.xml.bind.annotation.XmlType;
 public enum Yesno {
 
     @XmlEnumValue("yes")
-    YES("yes"),
-    @XmlEnumValue("no")
+    YES("yes"), @XmlEnumValue("no")
     NO("no");
+
     private final String value;
 
     Yesno(String v) {
@@ -40,7 +39,7 @@ public enum Yesno {
     }
 
     public static Yesno fromValue(String v) {
-        for (Yesno c: Yesno.values()) {
+        for (Yesno c : Yesno.values()) {
             if (c.value.equals(v)) {
                 return c;
             }

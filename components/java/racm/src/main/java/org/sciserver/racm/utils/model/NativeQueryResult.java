@@ -15,8 +15,9 @@ public class NativeQueryResult {
     }
 
     public NativeQueryResult(String columnsCSV, List<?> rows) {
-        if(columnsCSV != null)
+        if (columnsCSV != null) {
             this.setColumns(columnsCSV);
+        }
         this.setRows(rows);
     }
 
@@ -41,9 +42,8 @@ public class NativeQueryResult {
     }
 
     /*
-     * Since these rows come from native queries, we can't make use of Java's type
-     * system to ensure that the results are type-safe. All code using this class
-     * uses Object arrays though
+     * Since these rows come from native queries, we can't make use of Java's type system to ensure that the results are
+     * type-safe. All code using this class uses Object arrays though
      */
     @SuppressWarnings("unchecked")
     public void setRows(List<?> rows) {

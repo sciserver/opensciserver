@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -36,19 +35,9 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "lastModifiedDate",
-    "created",
-    "version",
-    "author",
-    "title",
-    "profile",
-    "_package"
-})
+@XmlType(name = "", propOrder = { "lastModifiedDate", "created", "version", "author", "title", "profile", "_package" })
 @XmlRootElement(name = "model")
-public class Model
-    extends Element
-{
+public class Model extends Element {
 
     protected long lastModifiedDate;
     @XmlElement(required = true)

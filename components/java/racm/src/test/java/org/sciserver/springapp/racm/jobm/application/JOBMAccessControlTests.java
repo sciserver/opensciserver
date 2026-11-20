@@ -6,13 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import edu.jhu.job.DockerComputeDomain;
+import edu.jhu.rac.ResourceContext;
 import org.junit.jupiter.api.Test;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.RACM;
 import org.sciserver.springapp.racm.utils.RACMNames;
-
-import edu.jhu.job.DockerComputeDomain;
-import edu.jhu.rac.ResourceContext;
 
 public class JOBMAccessControlTests {
     private static final String CONTEXT_UUID = "3f9a1c2e-8b04-4d17-9e55-1a2b3c4d5e6f";

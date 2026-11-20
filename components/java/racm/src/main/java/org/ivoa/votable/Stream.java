@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
  * <p>Java class for Stream complex type.
  * 
@@ -51,9 +50,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Stream", propOrder = {
-    "value"
-})
+@XmlType(name = "Stream", propOrder = { "value" })
 public class Stream {
 
     @XmlValue

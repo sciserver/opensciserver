@@ -7,18 +7,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import edu.jhu.file.RootVolume;
+import edu.jhu.job.DockerComputeDomain;
+import edu.jhu.job.RootVolumeOnComputeDomain;
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
 import org.sciserver.springapp.racm.utils.VOURPContext;
-
-import edu.jhu.file.RootVolume;
-import edu.jhu.job.DockerComputeDomain;
-import edu.jhu.job.RootVolumeOnComputeDomain;
 
 /**
  * Pins the publisherDID round-trip for RootVolumeOnComputeDomain. This pair was the only

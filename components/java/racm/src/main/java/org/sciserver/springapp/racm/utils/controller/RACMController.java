@@ -8,5 +8,5 @@ package org.sciserver.springapp.racm.utils.controller;
  *  A more idiomatic approach would be to implement these classes using AOP.
  */
 public abstract class RACMController {
-	public final JsonAPIHelper jsonAPIHelper = new JsonAPIHelper();
+    public final JsonAPIHelper jsonAPIHelper = new JsonAPIHelper();
 }

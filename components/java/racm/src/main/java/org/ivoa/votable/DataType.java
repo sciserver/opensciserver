@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for dataType.
  * 
@@ -36,29 +35,19 @@ import javax.xml.bind.annotation.XmlType;
 public enum DataType {
 
     @XmlEnumValue("boolean")
-    BOOLEAN("boolean"),
-    @XmlEnumValue("bit")
-    BIT("bit"),
-    @XmlEnumValue("unsignedByte")
-    UNSIGNED_BYTE("unsignedByte"),
-    @XmlEnumValue("short")
-    SHORT("short"),
-    @XmlEnumValue("int")
-    INT("int"),
-    @XmlEnumValue("long")
-    LONG("long"),
-    @XmlEnumValue("char")
-    CHAR("char"),
-    @XmlEnumValue("unicodeChar")
-    UNICODE_CHAR("unicodeChar"),
-    @XmlEnumValue("float")
-    FLOAT("float"),
-    @XmlEnumValue("double")
-    DOUBLE("double"),
-    @XmlEnumValue("floatComplex")
-    FLOAT_COMPLEX("floatComplex"),
-    @XmlEnumValue("doubleComplex")
+    BOOLEAN("boolean"), @XmlEnumValue("bit")
+    BIT("bit"), @XmlEnumValue("unsignedByte")
+    UNSIGNED_BYTE("unsignedByte"), @XmlEnumValue("short")
+    SHORT("short"), @XmlEnumValue("int")
+    INT("int"), @XmlEnumValue("long")
+    LONG("long"), @XmlEnumValue("char")
+    CHAR("char"), @XmlEnumValue("unicodeChar")
+    UNICODE_CHAR("unicodeChar"), @XmlEnumValue("float")
+    FLOAT("float"), @XmlEnumValue("double")
+    DOUBLE("double"), @XmlEnumValue("floatComplex")
+    FLOAT_COMPLEX("floatComplex"), @XmlEnumValue("doubleComplex")
     DOUBLE_COMPLEX("doubleComplex");
+
     private final String value;
 
     DataType(String v) {
@@ -70,7 +59,7 @@ public enum DataType {
     }
 
     public static DataType fromValue(String v) {
-        for (DataType c: DataType.values()) {
+        for (DataType c : DataType.values()) {
             if (c.value.equals(v)) {
                 return c;
             }
