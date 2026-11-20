@@ -104,6 +104,19 @@ spec:
                   key: signing-key
             - name: TEST_ACCOUNT_LEASE_SECONDS
               value: {{ .Values.testService.accountLeaseSeconds | quote }}
+            {{- if .Values.testService.racmCleanup.enabled }}
+            - name: TEST_RACM_CLEANUP_ENABLED
+              value: "true"
+            - name: TEST_RACM_JDBC_URL
+              value: {{ default (printf "jdbc:sqlserver://%s:%v;DatabaseName=%s" (default (printf "%s-racm-db" (include "sciserver.fullname" .)) .Values.racmDb.host) (default 1433 .Values.racmDb.port) (default "RACM" .Values.racmDb.dbname)) .Values.testService.racmCleanup.jdbcUrl | quote }}
+            - name: TEST_RACM_JDBC_USER
+              value: {{ default (default "SA" .Values.racmDb.user) .Values.testService.racmCleanup.user | quote }}
+            - name: TEST_RACM_JDBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-racm-db" (include "sciserver.fullname" .)) .Values.testService.racmCleanup.passwordSecret }}
+                  key: {{ .Values.testService.racmCleanup.passwordKey }}
+            {{- end }}
             - name: TEST_SERVICE_CONTEXT_PATH
               value: "/{{ include "sciserver.prefix" . }}test-service"
           readinessProbe:

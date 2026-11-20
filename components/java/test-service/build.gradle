@@ -13,6 +13,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc:6.4.0.jre8'
+    testImplementation 'com.h2database:h2:2.2.224'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 test { useJUnitPlatform() }

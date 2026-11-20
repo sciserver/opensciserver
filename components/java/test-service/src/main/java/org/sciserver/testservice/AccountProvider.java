@@ -19,17 +19,19 @@ public class AccountProvider {
     private final Settings settings;
     private final ObjectMapper mapper;
     private final RemoteHttp http;
+    private final RacmProfiles profiles;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public AccountProvider(Settings settings, ObjectMapper mapper) {
+    public AccountProvider(Settings settings, ObjectMapper mapper, RacmProfiles profiles) {
         this(settings, mapper, new RemoteHttp(HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5)).build()));
+                .connectTimeout(Duration.ofSeconds(5)).build()), profiles);
     }
 
-    AccountProvider(Settings settings, ObjectMapper mapper, RemoteHttp http) {
+    AccountProvider(Settings settings, ObjectMapper mapper, RemoteHttp http, RacmProfiles profiles) {
         this.settings = settings;
         this.mapper = mapper;
         this.http = http;
+        this.profiles = profiles;
     }
 
     private ResponseStatusException unavailable() {
@@ -145,6 +147,11 @@ public class AccountProvider {
         return value;
     }
 
+    /** Only callers with a broker ownership record may select this identity. */
+    public Map<String, Object> inspectRacm(String username, JsonNode identity) {
+        return profiles.inspect(username, identity.path("userId").asText());
+    }
+
     /** Idempotent deletion uses only the exact IDs already persisted after ownership proof. */
     public void delete(String username, JsonNode identity) {
         if (!identity.path("userId").asText().matches("[A-Za-z0-9-]{1,128}")
@@ -164,6 +171,8 @@ public class AccountProvider {
                 || !identity.path("domainId").asText().equals(project.path("domain_id").asText())))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Recorded account ownership changed");
         }
+        // Do not delete the login account when its RACM dependents still require owner access.
+        profiles.delete(username, identity.path("userId").asText());
         for (String path : new String[] {userPath, projectPath}) {
             RemoteHttp.Reply reply = request(settings.accountKeystoneUrl + path, "DELETE", admin, null);
             if (reply.status != 204 && reply.status != 404) {
@@ -174,5 +183,7 @@ public class AccountProvider {
                 || !getOrMissing(projectPath, "project", admin).isMissingNode()) {
             throw unavailable();
         }
+        // Retry-safe reconciliation for a profile recreated by an already in-flight request.
+        profiles.delete(username, identity.path("userId").asText());
     }
 }

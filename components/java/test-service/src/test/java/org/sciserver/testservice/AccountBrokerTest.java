@@ -168,4 +168,19 @@ class AccountBrokerTest {
         assertThrows(ResponseStatusException.class, () -> broker.reserve(id, "arbitrary-scope", authorization));
     }
 
+    @Test
+    void previewRequiresRecordedIdentityAndNeverAcceptsCallerChosenTargets() {
+        JsonNode reservation = broker.reserve(id, "session", authorization);
+        String username = reservation.path("username").asText();
+        assertThrows(ResponseStatusException.class, () -> broker.inspectRacm(id, "session"));
+        verify(provider, never()).inspectRacm(any(), any());
+        when(provider.identify(eq(username), any())).thenReturn(identity());
+        broker.registered(id, "session", authorization);
+        when(provider.inspectRacm(eq(username), eq(identity())))
+                .thenReturn(java.util.Map.of("state", "deletable"));
+        assertEquals("deletable", broker.inspectRacm(id, "session").path("state").asText());
+        verify(provider).inspectRacm(eq(username), eq(identity()));
+        verify(provider, never()).delete(any(), any());
+    }
+
 }

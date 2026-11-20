@@ -19,6 +19,7 @@ class AccountProviderTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final RemoteHttp http = mock(RemoteHttp.class);
     private AccountProvider provider;
+    private final RacmProfiles profiles = mock(RacmProfiles.class);
     private boolean userExists = true;
     private boolean projectExists = true;
     private boolean proofFails;
@@ -36,7 +37,7 @@ class AccountProviderTest {
                 .withProperty("test.account-admin-user", "cleanup-admin")
                 .withProperty("test.account-admin-password", "admin-secret")
                 .withProperty("test.account-keystone-url", "http://keystone/v3"));
-        provider = new AccountProvider(settings, mapper, http);
+        provider = new AccountProvider(settings, mapper, http, profiles);
         when(http.call(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
             URI uri = invocation.getArgument(0);
             final String method = invocation.getArgument(1);
@@ -113,4 +114,15 @@ class AccountProviderTest {
         assertThrows(ResponseStatusException.class, () -> provider.delete("test-user", identity));
         assertEquals(0, deletes);
     }
+
+    @Test
+    void racmBlockerPreservesKeystoneIdentity() {
+        org.mockito.Mockito.doThrow(new ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT))
+                .when(profiles).delete(any(), any());
+        JsonNode identity = mapper.createObjectNode().put("userId", "user-id")
+                .put("projectId", "project-id").put("domainId", "default");
+        assertThrows(ResponseStatusException.class, () -> provider.delete("test-user", identity));
+        assertEquals(0, deletes);
+    }
+
 }

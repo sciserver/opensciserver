@@ -48,6 +48,13 @@ public class AccountBrokerController {
                 .body(broker.create(access.require(token)));
     }
 
+    @org.springframework.web.bind.annotation.GetMapping("/api/broker/runs/{id}/accounts/{scope}/racm-deletion")
+    public ResponseEntity<JsonNode> inspectRacm(@PathVariable String id, @PathVariable String scope,
+            @RequestHeader(value = "X-Auth-Token", required = false) String token) {
+        access.require(token);
+        return ResponseEntity.ok().header("Cache-Control", "no-store").body(broker.inspectRacm(id, scope));
+    }
+
     @org.springframework.web.bind.annotation.GetMapping("/account-broker/{id}")
     public ResponseEntity<JsonNode> context(@PathVariable String id,
             @RequestHeader(value = "Authorization", required = false) String authorization) {

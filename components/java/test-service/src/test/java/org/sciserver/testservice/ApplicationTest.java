@@ -48,6 +48,8 @@ class ApplicationTest {
         mvc.perform(post("/api/broker/runs")).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/broker/runs").header("Authorization", "Bearer fixture-capability"))
                 .andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/broker/runs/12345678-1234-1234-1234-123456789012/accounts/session/racm-deletion"))
+                .andExpect(status().isUnauthorized());
         mvc.perform(get("/account-broker/12345678-1234-1234-1234-123456789012"))
                 .andExpect(status().isUnauthorized());
     }

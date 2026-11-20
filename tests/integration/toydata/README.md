@@ -272,7 +272,7 @@ to existing services.
 | Resource | Existing cleanup path / implementation | Constraint |
 | --- | --- | --- |
 | Login account and per-user project | `DELETE /login-portal/api/users/{userId}`; `ApiControllerV2.usersDelete`, `KeystoneService.unregisterUser` | Requires a token passing Keystone `isAdmin`; optional CasJobs deletion runs first. Does not invoke RACM/fileservice/compute cleanup. |
-| RACM profile and automatic public membership | `UserProfileSource.getOrCreateUserProfile` creates them lazily. | No corresponding user-profile deletion endpoint was found in the inspected UGM controller. Account deletion is not a substitute. |
+| RACM profile and automatic public membership | `UserProfileSource.getOrCreateUserProfile` creates them lazily. | RACM still has no user-profile deletion endpoint. Test-service now supports opt-in, broker-scoped cleanup of dependency-free profiles; see [RACM deletion](racm-deletion.md). |
 | Ordinary user-owned group | `DELETE /racm/ugm/rest/groups/{groupid}`; `UsersAndGroupsManager.deleteGroup` | Implementation requires the owner; built-in `public`/`admin` groups are protected. Resource-owned groups also check the service token. Group-owned membership rows have ORM cascade/orphan removal; external references still need verification. |
 | File or directory | `DELETE /fileservice/api/data/{topVolume}/...`; `ApiController.deleteData` | Requires access to the target; use the returned/recorded volume identity and exact toy path. File upload uses `/api/file/...`, but deletion uses `/api/data/...`. |
 | Ordinary user volume, including bytes | `DELETE /fileservice/api/volume/{rootVolume}/{ownerName}/{userVolume}`; `ApiController.deleteUserVolume` | Handler requires the authenticated username to equal the owner and RACM's delete action. Default-volume creation can occur during deletion. |
@@ -286,7 +286,8 @@ sort alone**. With existing services unchanged, a practical first dataset can
 reuse designated test accounts and clean up its explicitly owned groups, paths
 and volumes. Strict return-to-baseline, including profiles/defaults/history,
 needs a separately agreed administrative reset strategy or an isolated disposable
-deployment. This document does not prescribe direct SQL deletion.
+deployment. Guarded, broker-scoped SQL profile cleanup is now implemented in test-service;
+see the [deletion dependency investigation](racm-deletion.md).
 
 ## Ownership record for a future population tool
 

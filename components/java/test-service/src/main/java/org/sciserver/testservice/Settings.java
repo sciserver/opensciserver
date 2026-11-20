@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 /** Deployment-controlled settings; API callers cannot change these. */
 @Component
 public class Settings {
+    final boolean racmCleanupEnabled;
+    final String racmJdbcUrl;
+    final String racmJdbcUser;
+    final String racmJdbcPassword;
     final String ledgerImage;
     final int leaseSeconds;
     final String namespace;
@@ -25,6 +29,14 @@ public class Settings {
 
     /** Read and validate deployment-controlled configuration. */
     public Settings(Environment env) {
+        racmCleanupEnabled = env.getProperty("test.racm-cleanup-enabled", Boolean.class, false);
+        racmJdbcUrl = env.getProperty("test.racm-jdbc-url", "");
+        racmJdbcUser = env.getProperty("test.racm-jdbc-user", "");
+        racmJdbcPassword = env.getProperty("test.racm-jdbc-password", "");
+        if (racmCleanupEnabled && (!racmJdbcUrl.startsWith("jdbc:sqlserver://")
+                || racmJdbcUser.isBlank() || racmJdbcPassword.isBlank())) {
+            throw new IllegalArgumentException("RACM cleanup requires SQL Server connection credentials");
+        }
         accountBrokerEnabled = env.getProperty("test.account-broker-enabled", Boolean.class, false);
         accountAdminUser = env.getProperty("test.account-admin-user", "");
         accountAdminPassword = env.getProperty("test.account-admin-password", "");

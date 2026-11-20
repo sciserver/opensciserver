@@ -297,6 +297,16 @@ public class AccountBroker {
         return mapper.createObjectNode().put("contractVersion", "1").put("runId", id).put("state", "deleted");
     }
 
+    /** Administrator preview resolves identities only from a durable ownership record. */
+    public synchronized JsonNode inspectRacm(String id, String scope) {
+        ObjectNode lease = read(job(id), id, scope);
+        if (lease == null || !lease.path("identity").isObject()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "A verified account identity must be recorded first");
+        }
+        return mapper.valueToTree(provider.inspectRacm(lease.path("username").asText(), lease.path("identity")));
+    }
+
     /** Retry expired/closed reservations independently of execution location or process lifetime. */
     @Scheduled(initialDelay = 60000, fixedDelay = 60000)
     public synchronized void sweep() {

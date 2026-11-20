@@ -660,6 +660,14 @@ testService:
   reportingSecret: ""
   # Lifetime for existing runner account leases, not future persistent datasets.
   accountLeaseSeconds: 1980
+  racmCleanup:
+    # Opt-in direct SQL cleanup of broker-owned profiles with no unexpected references.
+    enabled: false
+    # Blank uses the RACM database URL/user and existing database password Secret.
+    jdbcUrl: ""
+    user: ""
+    passwordSecret: ""
+    passwordKey: password
   resources:
     requests:
       cpu: 100m

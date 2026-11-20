@@ -2,8 +2,8 @@
 
 The Java 17 Spring Boot service is being narrowed to toy-data generation and
 unwinding. Account brokerage and administrator authorization remain. Dataset
-operations, the operation journal and RACM profile cleanup are not yet
-implemented. See the [toy-data design](../../../tests/integration/toydata/README.md).
+operations and the operation journal are not yet implemented. Guarded RACM
+profile deletion is available as an opt-in broker cleanup step. See the [toy-data design](../../../tests/integration/toydata/README.md).
 
 Generalized catalog discovery, planning, execution Jobs and report callbacks/storage
 have been removed. The existing dashboard route explains the transition instead
@@ -30,7 +30,8 @@ Ownership survives restarts in suspended Kubernetes Jobs that never start pods.
 The broker retries expired/abandoned reservations and deletes verified, recorded
 identities. Retain these Jobs and the stable signing key until cleanup completes.
 Unverifiable partial registration remains pending for review. This does not erase
-RACM profiles, files, volumes or history. Keep a single service replica while
+files, volumes or history. RACM profiles are removed only when guarded SQL
+cleanup is enabled and no unexpected references remain. Keep a single service replica while
 cleanup coordination is process-local.
 
 Configure a dedicated Keystone administrator for cleanup; RACM admin membership
@@ -86,3 +87,15 @@ make test-service.image REPO=YOUR_REGISTRY/YOUR_PROJECT VTAG=YOUR_TAG
 ```
 
 CI supplies the source URL. Existing Java/image build targets include the service.
+
+## Guarded RACM profile cleanup
+
+Enable `testService.racmCleanup.enabled` to remove dependency-free, broker-owned
+RACM profiles during account release. It is disabled by default and requires
+explicit SQL Server credentials (Helm can reference the existing database Secret).
+The admin preview is `GET /api/broker/runs/{id}/accounts/{scope}/racm-deletion`.
+It reports blockers without deleting data; release rechecks inside a transaction.
+See the [dependency investigation and configuration](../../../tests/integration/toydata/racm-deletion.md)
+for limits, credential settings, and the required SQL Server rehearsal. There is
+no arbitrary-user delete endpoint and no automatic cascade through owned groups,
+volumes, jobs or grants.
