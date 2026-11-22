@@ -10,12 +10,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%! AppSettings appSettings = AppConfig.getInstance().getAppSettings(); %>
+<c:set var="captchaEnabled" value="<%= appSettings.isCaptchaEnabled() %>" />
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <%@ include file="../jspf/banner.jspf" %>
   <title>Welcome</title>
+  <c:if test="${captchaEnabled}">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </c:if>
 </head>
 <body>
 <%@ include file="../jspf/bootstrap-header.jspf" %>
@@ -23,7 +27,7 @@
 <div class="row">
 <div class="center-block">
   <c:if test="${info_message != null}">
-	<div class="alert alert-info" role="alert">${info_message}</div>
+    <div class="alert alert-info" role="alert">${info_message}</div>
   </c:if>
   <h1>Registration</h1>
   <form:form id="form" modelAttribute="registrationInfo" style="max-width:350px;">
@@ -47,6 +51,14 @@
       <form:input path="confirmPassword" type="password" class="form-control" id="confirmPassword"/>
     </div>
     <p><input type="checkbox" required name="terms"> I have read and agree to the <a href="<%=appSettings.getPoliciesUrl()%>" target="_blank"><%= appSettings.getApplicationName() %> Data Storage and Non-Commercial Use Policy</a>.</p>
+    <c:if test="${captchaEnabled}">
+      <div class="form-group">
+        <div class="cf-turnstile" data-sitekey="<%= appSettings.getTurnstileSiteKey() %>"></div>
+        <c:if test="${captcha_error != null}">
+          <div class="alert alert-danger" role="alert">${captcha_error}</div>
+        </c:if>
+      </div>
+    </c:if>
     <div class="row">
       <div class="col-xs-12">
         <button id="submit" type="submit" class="btn btn-success">Create account</button>
@@ -59,7 +71,7 @@
 <%@ include file="../jspf/bootstrap-footer.jspf" %>
 <script>
   window.onload = function() {
-      var input = document.getElementById("username").focus();
+    var input = document.getElementById("username").focus();
   }
 </script>
 <%@ include file="../jspf/validation.jspf" %>
