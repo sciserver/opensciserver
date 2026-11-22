@@ -112,6 +112,11 @@ loginPortal:
   redirectAllowedHosts: .*
   keycloakTrustUser: keycloaktrust
   keycloakTrustProject: keycloaktrust
+  emailFilteringEnabled: false
+  captchaEnabled: false
+  turnstile:
+    siteKey: ""
+    secretKey: ""
   resources:
     limits:
       cpu: 500m
