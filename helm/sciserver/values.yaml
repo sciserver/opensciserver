@@ -662,7 +662,7 @@ testService:
   accountLeaseSeconds: 1980
   racmCleanup:
     # Opt-in direct SQL cleanup of broker-owned profiles with no unexpected references.
-    enabled: false
+    enabled: true
     # Blank uses the RACM database URL/user and existing database password Secret.
     jdbcUrl: ""
     user: ""
