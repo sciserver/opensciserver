@@ -27,6 +27,14 @@ class ApplicationTest {
     @Test
     void probesArePublicButApiRequiresExplicitAuthentication() throws Exception {
         mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+        mvc.perform(get("/api/test-runs")).andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/test-runs").contentType("application/json").content("{}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/test-runs/12345678-1234-1234-1234-123456789012"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .delete("/api/test-runs/12345678-1234-1234-1234-123456789012"))
+                .andExpect(status().isUnauthorized());
         mvc.perform(post("/api/broker/runs")).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/broker/runs").header("Authorization", "Bearer reporting-token"))
                 .andExpect(status().isUnauthorized());

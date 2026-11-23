@@ -42,6 +42,20 @@ public class AccountBrokerController {
         return ResponseEntity.ok().header("Cache-Control", "no-store").body(broker.release(id, authorization));
     }
 
+    @DeleteMapping("/account-broker/{id}/accounts/{scope}")
+    public ResponseEntity<JsonNode> releaseAccount(@PathVariable String id, @PathVariable String scope,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        return ResponseEntity.ok().header("Cache-Control", "no-store")
+                .body(broker.releaseAccount(id, scope, authorization));
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/account-broker/{id}/accounts/{scope}/state")
+    public ResponseEntity<JsonNode> accountState(@PathVariable String id, @PathVariable String scope,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        return ResponseEntity.ok().header("Cache-Control", "no-store")
+                .body(broker.accountState(id, scope, authorization));
+    }
+
     @PostMapping("/api/broker/runs")
     public ResponseEntity<JsonNode> create(@RequestHeader(value = "X-Auth-Token", required = false) String token) {
         return ResponseEntity.status(201).header("Cache-Control", "no-store")

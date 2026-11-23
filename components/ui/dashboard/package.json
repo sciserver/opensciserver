@@ -5,6 +5,7 @@
   "author": "The Institute for Data Intensive Engineering and Science",
   "private": true,
   "scripts": {
+    "check:integration-tests": "node test/integration-tests.cjs",
     "dev": "node build/dev-server.js",
     "start": "npm run dev",
     "build": "node build/build.js && npm run imageLinks",

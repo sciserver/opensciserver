@@ -184,3 +184,18 @@ python -m unittest discover -s runner_checks -p 'check_*.py' -v
 These checks use fake HTTP responses, not a live deployment, and cover graph
 validation, selection, blocking, fixture isolation, real unittest adaptation,
 report schemas, and exit codes.
+
+## Reports in pod logs
+
+Set `TEST_LOG_REPORT=true` to emit exactly one final, single-line record beginning
+with `SCISERVER_REPORT_V1 `, followed by compact JSON matching `report.schema.json`.
+The record is emitted after test execution and fixture cleanup, and redacts known
+credentials. It is bounded to 256 KiB of JSON. An oversized report becomes an
+explicit runner error with no per-test entries; artifact and exit code reflect
+that error too. The on-disk JSON report remains supported.
+
+The lightweight service harness reads at most 2 MiB of logs from the owned runner
+pod, requires exactly one valid report for the run, checks counts and exit code,
+and never infers success from a completed Job. Missing, rotated, deleted, duplicate,
+truncated or invalid records are shown as unavailable/invalid. No report callback,
+report credentials, inbox, PVC or separate report database is used by the harness.

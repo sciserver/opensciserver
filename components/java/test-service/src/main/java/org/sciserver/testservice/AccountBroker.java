@@ -23,7 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class AccountBroker {
     static final String ANNOTATION = "sciserver-test-account";
-    static final java.util.List<String> SCOPES = java.util.List.of("session", "registration", "logout");
+    static final java.util.List<String> SCOPES = java.util.List.of("session", "registration", "logout", "lifecycle");
 
     private String annotation(String scope) {
         if (!SCOPES.contains(scope)) {
@@ -176,7 +176,8 @@ public class AccountBroker {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Broker run is closed or expired");
         }
         return mapper.createObjectNode().put("contractVersion", "1").put("runId", id)
-                .put("baseUrl", settings.baseUrl).put("expiresAt", expires);
+                .put("baseUrl", settings.baseUrl).put("expiresAt", expires)
+                .put("racmCleanupEnabled", settings.racmCleanupEnabled);
     }
 
     /** Persist a reservation before returning credentials for normal registration. */
@@ -295,6 +296,20 @@ public class AccountBroker {
                 "sciserver-test-broker-state", "deleted", "sciserver-test-broker-audit",
                 Long.toString(clock.millis() + 3600000L))))));
         return mapper.createObjectNode().put("contractVersion", "1").put("runId", id).put("state", "deleted");
+    }
+
+    /** Release a single fixture without closing the other accounts in this run. */
+    public synchronized JsonNode releaseAccount(String id, String scope, String authorization) {
+        return clean(id, authorize(id, authorization), scope);
+    }
+
+    /** Read-only provider/SQL inspection; never authenticate as the fixture user. */
+    public synchronized JsonNode accountState(String id, String scope, String authorization) {
+        ObjectNode lease = read(authorize(id, authorization), id, scope);
+        if (lease == null || !lease.path("identity").isObject()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Verified account identity required");
+        }
+        return mapper.valueToTree(provider.state(lease.path("username").asText(), lease.path("identity")));
     }
 
     /** Administrator preview resolves identities only from a durable ownership record. */

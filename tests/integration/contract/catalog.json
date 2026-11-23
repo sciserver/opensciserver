@@ -178,6 +178,15 @@
       "fixtures": [
         "logout"
       ]
+    },
+    {
+      "id": "identity.lifecycle",
+      "name": "Account creation and deletion",
+      "description": "Create a broker-owned account and public RACM profile, then verify Keystone user/project and RACM profile deletion. Requires RACM cleanup enabled.",
+      "dependsOn": [],
+      "after": [],
+      "implementation": "test_register.TestRegister.test_account_lifecycle",
+      "fixtures": []
     }
   ]
 }

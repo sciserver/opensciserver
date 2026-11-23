@@ -12,6 +12,10 @@ public class Settings {
     final String racmJdbcUrl;
     final String racmJdbcUser;
     final String racmJdbcPassword;
+    final String harnessImage;
+    final String harnessBrokerUrl;
+    final String harnessPullSecret;
+    final int harnessDeadline;
     final String ledgerImage;
     final int leaseSeconds;
     final String namespace;
@@ -37,6 +41,10 @@ public class Settings {
                 || racmJdbcUser.isBlank() || racmJdbcPassword.isBlank())) {
             throw new IllegalArgumentException("RACM cleanup requires SQL Server connection credentials");
         }
+        harnessImage = env.getProperty("test.harness-image", "");
+        harnessBrokerUrl = env.getProperty("test.harness-broker-url", "").replaceAll("/+$", "");
+        harnessPullSecret = env.getProperty("test.harness-pull-secret", "");
+        harnessDeadline = env.getProperty("test.harness-deadline-seconds", Integer.class, 600);
         accountBrokerEnabled = env.getProperty("test.account-broker-enabled", Boolean.class, false);
         accountAdminUser = env.getProperty("test.account-admin-user", "");
         accountAdminPassword = env.getProperty("test.account-admin-password", "");
@@ -56,6 +64,15 @@ public class Settings {
         if (!namespace.matches("[a-z0-9][a-z0-9-]{0,62}") || !owner.matches("[a-z0-9][a-z0-9-]{0,40}")
                 || ledgerImage.isBlank() || leaseSeconds < 1 || signingKey.length < 32) {
             throw new IllegalArgumentException("Invalid test-service configuration");
+        }
+        if (!harnessImage.isBlank()) {
+            URI broker = URI.create(harnessBrokerUrl);
+            if (!("http".equals(broker.getScheme()) || "https".equals(broker.getScheme()))
+                    || broker.getHost() == null || broker.getUserInfo() != null || broker.getQuery() != null
+                    || broker.getFragment() != null || harnessDeadline < 30 || harnessDeadline > 1800
+                    || leaseSeconds < harnessDeadline + 60) {
+                throw new IllegalArgumentException("Invalid harness URL, deadline or account lease");
+            }
         }
         if (accountBrokerEnabled && (accountAdminUser.isBlank() || accountAdminPassword.isBlank())) {
             throw new IllegalArgumentException("Account broker requires dedicated cleanup credentials");

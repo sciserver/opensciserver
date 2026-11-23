@@ -660,6 +660,10 @@ testService:
   reportingSecret: ""
   # Lifetime for existing runner account leases, not future persistent datasets.
   accountLeaseSeconds: 1980
+  runnerImage:
+    repository: <<<IMAGE_REPO>>>/integration-tests
+    tag: <<<VTAG>>>
+  harnessDeadlineSeconds: 600
   racmCleanup:
     # Opt-in direct SQL cleanup of broker-owned profiles with no unexpected references.
     enabled: true

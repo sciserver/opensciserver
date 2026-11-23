@@ -2,8 +2,9 @@
 
 Imported from the SciServer integration-test repository. The runner exposes a
 versioned catalog, dependency plan, and structured JSON report for the CLI and
-manually launched pods. Generalized execution through the administrator web UI
-is deferred while test-service is adapted for toy-data generation and cleanup.
+manually launched pods. The dashboard also provides a lightweight fixed-image
+harness: account lifecycle or full suite, status/logs and the final report from
+pod logs. Catalog discovery and dependency previews remain CLI features.
 
 ## Provenance
 
@@ -97,9 +98,8 @@ are reported on tests that need them. Independent tests continue.
 
 ## Pod execution
 
-The service no longer launches runner Jobs. To launch the manual Job template,
-first reserve
-an independent run through the same admin API (requires curl, jq and envsubst):
+The dashboard can launch runner Jobs directly. To launch the manual Job template,
+first reserve an independent run through the same admin API (requires curl, jq and envsubst):
 
 ```sh
 export BROKER_SERVICE_URL=https://sciserver.example.org/test/test-service
@@ -146,3 +146,27 @@ python3 -m unittest discover -s tests/integration/runner_checks -p 'check_*.py'
 ```
 
 These use fake APIs and never mutate a live deployment.
+
+## Account lifecycle check and lightweight UI
+
+The dashboard's **Admin → Integration Tests** page can launch the dedicated account
+check or full suite using the configured image, then render the report collected
+from pod logs. Enable RACM cleanup and configure the broker first; see
+[test-service setup](../../components/java/test-service/README.md#lightweight-dashboard-harness).
+
+To run the same account check locally:
+
+```sh
+python3 tests/integration/runner.py \
+  --broker-url https://sciserver.example.org/test/test-service \
+  --admin-token-file /path/to/protected-session-token --test identity.lifecycle
+```
+
+It uses a dedicated `lifecycle` reservation, checks account/project/profile presence
+and public membership, deletes the fixture, then confirms exact record absence
+using the broker's read-only checks. It does not call authenticated RACM endpoints
+after deletion, which could recreate the profile. Cleanup is attempted again on
+assertion failure. It is included in the full catalog too and fails explicitly if
+RACM cleanup is disabled. Normal registration must not require approval or email
+verification. `TEST_LOG_REPORT=true` enables the bounded final JSON log record;
+see the [log record contract](contract/README.md#reports-in-pod-logs).

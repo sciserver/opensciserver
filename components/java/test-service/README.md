@@ -5,9 +5,9 @@ unwinding. Account brokerage and administrator authorization remain. Dataset
 operations and the operation journal are not yet implemented. Guarded RACM
 profile deletion is available as an opt-in broker cleanup step. See the [toy-data design](../../../tests/integration/toydata/README.md).
 
-Generalized catalog discovery, planning, execution Jobs and report callbacks/storage
-have been removed. The existing dashboard route explains the transition instead
-of calling removed APIs. The Python runner remains usable from the CLI or manually
+Generalized catalog discovery, dependency planning and report callbacks/storage
+remain deferred. A lightweight dashboard harness launches a fixed image and reads
+its final report from pod logs. The same runner also works from the CLI or manually
 launched pods using the account broker.
 
 ## Account broker
@@ -16,7 +16,7 @@ launched pods using the account broker.
 | --- | --- | --- |
 | POST | `/api/broker/runs` | Administrator creates a reservation. |
 | GET | `/account-broker/{id}` | Retrieve its run context. |
-| POST | `/account-broker/{id}/accounts/{scope}` | Reserve a session, registration or logout identity. |
+| POST | `/account-broker/{id}/accounts/{scope}` | Reserve a session, registration, logout or lifecycle identity. |
 | POST | `/account-broker/{id}/accounts/{scope}/registered` | Record the registered identity's ownership. |
 | DELETE | `/account-broker/{id}` | Release accounts and request cleanup. |
 
@@ -47,9 +47,7 @@ and [CLI instructions](../../../tests/integration/README.md).
 
 `testService.enable` controls deployment. Helm supplies namespace, target URL,
 internal RACM URL, ledger image and broker signing key. Ownership Jobs use the
-service image as a required Kubernetes template field; the service no longer
-needs a runner image. Its Role permits Jobs get/list/create/patch, with no pod or
-log access. RBAC cannot restrict Job creation by label; protect the service account.
+service image as a required Kubernetes template field; the harness uses a separately configured runner image. Its Role permits Jobs get/list/create/patch, plus pod get/list and pod-log get for the harness. RBAC cannot restrict Job creation by label; protect the service account.
 
 `testService.accountLeaseSeconds` defaults to 1,980, matching the former runner
 lease duration. It bounds legacy reservations, not future datasets. The historical
@@ -76,8 +74,8 @@ cd components/java
 ```
 
 Tests fake RACM, Keystone and Kubernetes. They cover authorization, ownership,
-cleanup retries/restarts and removal of runner routes without mutating a deployment.
-The service no longer copies runner schemas or uses a schema validator.
+cleanup retries/restarts, fixed runner manifests and validated pod-log reports without
+mutating a deployment. The runner report schema is copied from `tests/integration/contract`.
 
 From the repository root:
 
@@ -99,3 +97,50 @@ See the [dependency investigation and configuration](../../../tests/integration/
 for limits, credential settings, and the required SQL Server rehearsal. There is
 no arbitrary-user delete endpoint and no automatic cascade through owned groups,
 volumes, jobs or grants.
+
+## Lightweight dashboard harness
+
+**Admin → Integration Tests** (`/<prefix>/dashboard/admin/integration-tests`)
+provides Run account lifecycle, Run full suite, recent runs, status, cancel,
+per-test results/failure details and raw logs. The default lifecycle check creates
+a broker-owned identity, materializes its RACM profile/public membership, releases
+that fixture and verifies Keystone user/project and RACM profile absence. It fails
+before creating anything when RACM cleanup is disabled. It requires normal
+registration without email verification/approval and working broker credentials.
+No fileservice or compute fixtures are needed for this check.
+
+The full suite retains its existing fileservice/compute prerequisites and cleanup
+limitations. It is a separate explicit choice, not the default lifecycle check.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/api/test-runs` | `{ "suite": "account-lifecycle" }` (default) or `{ "suite": "full" }`. |
+| GET | `/api/test-runs` | List the most recent 20 service-created Jobs. |
+| GET | `/api/test-runs/{id}` | Poll execution, exit code, cleanup, bounded logs and validated report. |
+| DELETE | `/api/test-runs/{id}` | Suspend the Job; cleanup waits for the pod to stop. |
+
+All require the administrator's current explicit `X-Auth-Token`. Requests cannot
+choose images, commands, deployment targets or namespaces. Pods receive a narrow
+broker capability, never the administrator's session or database credentials.
+The service verifies Job ownership and pod owner UID before reading logs. Report
+schema comes from the runner contract at build time. A completed Job without a
+valid report is never displayed as passing. Reports survive service restart only
+through retained pod logs; pod deletion/log rotation can lose them. Operators own
+Job/log retention. The UI escapes report/log text and stops polling on navigation.
+
+`testService.runnerImage.repository/tag` selects the fixed runner image;
+`testService.harnessDeadlineSeconds` defaults to 600 and must leave at least 60
+seconds before the account lease expires. Keep one service replica: admission
+allows one nonterminal execution Job and is serialized within that replica.
+Independent broker ownership Jobs survive runner Job deletion. Runner cleanup
+runs in `finally`; service-side polling/scheduled cleanup also retries after
+execution ends, including cancellation. Neither is an atomic cross-service
+transaction, and unexpected references can keep cleanup pending.
+
+For local configuration use `TEST_HARNESS_IMAGE`, `TEST_HARNESS_BROKER_URL` (service
+root reachable from runner pods), `TEST_HARNESS_DEADLINE_SECONDS`, and optionally
+`TEST_HARNESS_PULL_SECRET`. Helm supplies these automatically. Rebuild/deploy
+both test-service and integration-tests images plus the dashboard-build image.
+Enable `testService.racmCleanup.enabled` and preserve the broker credentials/key.
+
+Focused UI checks: `cd components/ui/dashboard && npm run check:integration-tests`.

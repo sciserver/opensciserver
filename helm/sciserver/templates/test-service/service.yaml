@@ -27,6 +27,12 @@ rules:
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["get", "list", "create", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -102,6 +108,14 @@ spec:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: signing-key
+            - name: TEST_HARNESS_IMAGE
+              value: "{{ .Values.testService.runnerImage.repository }}:{{ .Values.testService.runnerImage.tag }}"
+            - name: TEST_HARNESS_BROKER_URL
+              value: "http://{{ $name }}.{{ .Release.Namespace }}.svc:8080/{{ include "sciserver.prefix" . }}test-service"
+            - name: TEST_HARNESS_PULL_SECRET
+              value: {{ default "" .Values.imagePullSecret | quote }}
+            - name: TEST_HARNESS_DEADLINE_SECONDS
+              value: {{ .Values.testService.harnessDeadlineSeconds | quote }}
             - name: TEST_ACCOUNT_LEASE_SECONDS
               value: {{ .Values.testService.accountLeaseSeconds | quote }}
             {{- if .Values.testService.racmCleanup.enabled }}

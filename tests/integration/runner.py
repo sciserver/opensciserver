@@ -149,6 +149,21 @@ def write_report(path, report):
     os.replace(tmp, path)
 
 
+REPORT_PREFIX = 'SCISERVER_REPORT_V1 '
+MAX_LOG_REPORT_BYTES = 256 * 1024
+
+
+def emit_log_report(report):
+    """One bounded, redacted record; consumers reject missing/truncated/duplicate records."""
+    payload = redact(json.dumps(report, separators=(',', ':'), ensure_ascii=True))
+    if len(payload.encode('utf-8')) > MAX_LOG_REPORT_BYTES:
+        report.update(outcome='error', tests=[],
+                      counts={s: 0 for s in ('passed', 'failed', 'error', 'skipped', 'blocked')},
+                      runnerError='Report exceeds pod-log size limit; inspect raw logs')
+        payload = json.dumps(report, separators=(',', ':'))
+    print(REPORT_PREFIX + payload, flush=True)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--list', action='store_true', help='Print JSON catalog without running tests')
@@ -236,6 +251,9 @@ def main(argv=None):
     report['finishedAt'] = now()
     write_report(report_path, report)
     print(f"Run {report['runId']}: {report['outcome']}; report: {report_path}", file=sys.stderr)
+    if os.environ.get('TEST_LOG_REPORT') == 'true':
+        emit_log_report(report)
+        write_report(report_path, report)  # Keep artifact, log record and exit code consistent after size limiting.
     return reporting.finish(report_path, report, callback, write_report)
 
 

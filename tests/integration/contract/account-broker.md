@@ -89,3 +89,15 @@ services' resources, or audit history. Existing per-test hooks handle normal fil
 group and container cleanup, but those resources still need brokers for crash
 recovery. Do not use this account broker for CasJobs/external-identity provisioning;
 those additional identities are outside its cleanup scope.
+
+## Dedicated lifecycle check
+
+The additive `lifecycle` scope is reserved for `identity.lifecycle`; it never
+invalidates ordinary session or logout fixtures. A runner may release just that
+fixture using `DELETE /account-broker/{id}/accounts/lifecycle`, and inspect it via
+`GET /account-broker/{id}/accounts/lifecycle/state`. Both require the run capability
+and resolve exact provider IDs exclusively from the recorded ownership proof.
+Inspection returns Keystone user/project absence booleans and RACM SQL preview
+state, without authenticating as the fixture or recreating a profile. The run
+context includes `racmCleanupEnabled`, so the check fails before registration
+when cleanup is disabled. Normal end-of-run release still retries all scopes.

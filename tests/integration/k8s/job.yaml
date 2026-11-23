@@ -28,6 +28,8 @@ spec:
               value: "${TEST_ACCOUNT_BROKER_URL}"
             - name: TEST_ACCOUNT_BROKER_TOKEN
               value: "${TEST_ACCOUNT_BROKER_TOKEN}"
+            - name: TEST_LOG_REPORT
+              value: "true"
             - name: TEST_REPORT_PATH
               value: /results/report.json
           volumeMounts:

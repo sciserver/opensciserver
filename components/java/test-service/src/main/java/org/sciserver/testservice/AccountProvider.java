@@ -152,6 +152,15 @@ public class AccountProvider {
         return profiles.inspect(username, identity.path("userId").asText());
     }
 
+    /** Report exact record presence without using a user session that could recreate a profile. */
+    public Map<String, Object> state(String username, JsonNode identity) {
+        String admin = login(settings.accountAdminUser, settings.accountAdminPassword);
+        return Map.of("keystoneUserAbsent", getOrMissing("/users/" + encode(identity.path("userId").asText()),
+                "user", admin).isMissingNode(),
+                "keystoneProjectAbsent", getOrMissing("/projects/" + encode(identity.path("projectId").asText()),
+                "project", admin).isMissingNode(), "racm", inspectRacm(username, identity));
+    }
+
     /** Idempotent deletion uses only the exact IDs already persisted after ownership proof. */
     public void delete(String username, JsonNode identity) {
         if (!identity.path("userId").asText().matches("[A-Za-z0-9-]{1,128}")
