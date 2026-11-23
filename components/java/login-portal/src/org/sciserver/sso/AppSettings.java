@@ -74,6 +74,10 @@ public class AppSettings {
 	private final String racmUrl;
 	private final String racmSystemRcUuid;
 	
+	private final String turnstileSiteKey;
+	private final String turnstileSecretKey;
+	private final boolean captchaEnabled;
+	
 	public AppSettings(Properties properties) {
 		keystoneUrl = properties.getProperty("keystone.url");
 		keystoneAdminToken = properties.getProperty("keystone.admin_token");
@@ -144,6 +148,10 @@ public class AppSettings {
 		
 		racmUrl = properties.getProperty("RACM.Url");
 		racmSystemRcUuid = properties.getProperty("RACM.systemRcUuid");
+		
+		turnstileSiteKey = properties.getProperty("Turnstile.SiteKey");
+		turnstileSecretKey = properties.getProperty("Turnstile.SecretKey");
+		captchaEnabled = Boolean.parseBoolean(properties.getProperty("captchaEnabled"));
 	}
 
 	public String getKeystoneTrusteeUser() {
@@ -356,5 +364,17 @@ public class AppSettings {
 
 	public String getRacmSystemRcUuid() {
 		return racmSystemRcUuid;
+	}
+	
+	public String getTurnstileSiteKey() {
+		return turnstileSiteKey;
+	}
+	
+	public String getTurnstileSecretKey() {
+		return turnstileSecretKey;
+	}
+	
+	public boolean isCaptchaEnabled() {
+		return captchaEnabled;
 	}
 }

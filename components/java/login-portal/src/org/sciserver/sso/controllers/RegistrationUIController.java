@@ -3,6 +3,7 @@ package org.sciserver.sso.controllers;
 import static org.sciserver.sso.controllers.UiController.LOGIN_INFO_MESSAGE;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.ServletContext;
@@ -29,12 +30,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,8 +86,13 @@ public class RegistrationUIController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@RequestParam(required = false) String callbackUrl,
+			@RequestParam(value = "cf-turnstile-response", required = false) String token,
 			RedirectAttributes redirectAttrs) throws TooManyLoginAttemptsException {
 		try {
+			if (appConfig.getAppSettings().isCaptchaEnabled() && !verifyTurnstile(token, request.getRemoteAddr())) {
+				model.addAttribute("captcha_error", "Please complete the CAPTCHA and try again.");
+				return "register";
+			}
 			String userName = registrationInfo.getUsername();
 			String userPassword = registrationInfo.getPassword();
 			String userEmail = registrationInfo.getEmail();
@@ -280,6 +290,21 @@ public class RegistrationUIController {
 				.put("email", userEmail);
 	}
 
+	private boolean verifyTurnstile(String token, String ip) {
+		if (token == null || token.isEmpty()) return false;
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("secret", appConfig.getAppSettings().getTurnstileSecretKey());
+		body.add("response", token);
+		body.add("remoteip", ip);
+		try {
+			Map<?, ?> res = new RestTemplate().postForObject(
+				"https://challenges.cloudflare.com/turnstile/v0/siteverify", body, Map.class);
+			return res != null && Boolean.TRUE.equals(res.get("success"));
+		} catch (RestClientException e) {
+			return false;
+		}
+	}
+	
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public String exceptionHandler(Model model, Exception ex, HttpServletResponse response) {
