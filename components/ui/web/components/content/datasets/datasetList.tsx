@@ -56,7 +56,7 @@ export const DatasetList: FC = () => {
   const query = router.query;
 
   // Context
-  const { setMenuOption, setShowAppBar } = useContext(AppContext);
+  const { setMenuOption } = useContext(AppContext);
 
   // GRAPHQL Queries
   const errorHandling = (error: ApolloError) => {
@@ -86,7 +86,6 @@ export const DatasetList: FC = () => {
   // ON MOUNT: UI config & Data fetching
   useEffect(() => {
     setMenuOption('datasets');
-    setShowAppBar(true);
 
     getDataVolumeDatasets();
     getUserVolumeDatasets();

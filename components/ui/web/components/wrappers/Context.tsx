@@ -26,11 +26,10 @@ export const ContextWrapper: FC<Props> = ({ children }) => {
 
   const [menuOption, setMenuOption] = useState<string>('datasets');
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const [showAppBar, setShowAppBar] = useState<boolean>(true);
 
   const [showBanner, setShowBanner] = useState<boolean>(true);
 
-  const appValue = { menuOption, setMenuOption, drawerOpen, setDrawerOpen, showAppBar, setShowAppBar, showBanner, setShowBanner };
+  const appValue = { menuOption, setMenuOption, drawerOpen, setDrawerOpen, showBanner, setShowBanner };
 
   useEffect(() => {
     const preloadState = async () => {

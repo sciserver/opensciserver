@@ -13,27 +13,20 @@ import Swal from 'sweetalert2';
 import { AppContext, UserContext } from 'context';
 import { GET_CONTAINER_ID, PING_CONTAINER } from 'src/graphql/containers';
 
-import { appBarHeight, drawerClosedWidth, drawerOpenWidth } from 'components/common/drawer';
 import { LoadingAnimation } from 'components/common/loadingAnimation';
-import { bannerHeightVar, netMargin } from 'components/common/layout';
+import { bannerHeightVar, contentMarginVar, railWidthVar } from 'components/common/layout';
 
-
-type StyleProps = {
-  open: boolean
-  appBar: boolean
-}
 
 const Styled = styled.div`
-  margin-top: ${(props: StyleProps) => props.appBar ? -20 : 0}px;
-  margin-left: -${netMargin}px;
+  /* Undo the layout's content margin so the iframe starts at the rail, then fill the viewport
+     below the banner without scrolling the page. */
+  margin-left: calc(var(${railWidthVar}) - var(${contentMarginVar}));
 
-  /* Fill the viewport below the app bar (if shown) and banner without scrolling the page.
-     The +20px compensates for the negative margin-top above. */
   iframe {
     display: block;
     border: none;
-    width: calc(100vw - ${(props: StyleProps) => props.open ? drawerOpenWidth : drawerClosedWidth}px);
-    height: calc(100vh - ${(props: StyleProps) => props.appBar ? appBarHeight - 20 : 0}px - var(${bannerHeightVar}, 0px));
+    width: calc(100vw - var(${railWidthVar}));
+    height: calc(100vh - var(${bannerHeightVar}, 0px));
   }
 
   .MuiBackdrop-root {
@@ -84,7 +77,7 @@ export const ContainerRun: FC = ({ }) => {
 
   // Context Management
   const { token } = useContext(UserContext);
-  const { drawerOpen, setMenuOption, showAppBar, setShowAppBar } = useContext(AppContext);
+  const { setMenuOption } = useContext(AppContext);
 
   // State Management
   const [pingInterval, setPingInterval] = useState<number | null>(Number.parseInt(process.env.NEXT_PUBLIC_COMPUTE_PING_INTERVAL || '300000')); //Try pinging container every 5 minutes
@@ -100,12 +93,9 @@ export const ContainerRun: FC = ({ }) => {
     return true;
   }, [loadingContainerID, loadingIframe, router]);
 
-  // ON MOUNT: UI config. The session interface fills the viewport, so hide the app bar
-  // while it is mounted and restore it on unmount. The drawer keeps its own toggle and logo.
+  // ON MOUNT: UI config
   useEffect(() => {
     setMenuOption('compute');
-    setShowAppBar(false);
-    return () => setShowAppBar(true);
   }, []);
 
   // ON MOUNT: API calling
@@ -218,7 +208,7 @@ export const ContainerRun: FC = ({ }) => {
     }
   }, [containerURL]);
 
-  return <Styled {...{ open: drawerOpen, appBar: showAppBar }}>
+  return <Styled>
     <iframe
       id="container-iframe"
       src={containerURL}
