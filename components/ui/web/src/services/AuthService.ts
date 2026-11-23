@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { ACCESS_TOKEN_KEY, COMPUTE_ACCESS_TOKEN_KEY, COMPUTE_ACCESS_TOKEN_KEY_2 } from 'src/utils/keys';
+import { ACCESS_TOKEN_KEY, COMPUTE_ACCESS_TOKEN_KEY, COMPUTE_ACCESS_TOKEN_KEY_2 } from 'src/config/keys';
 
 const isSecureCookie = typeof window !== 'undefined' && window.location.protocol === 'https:';
 

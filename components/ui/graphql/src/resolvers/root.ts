@@ -9,7 +9,8 @@ import { queryResolvers as AccountsQuery, mutationResolvers as AccountMutation }
 import { queryResolvers as ContainersQuery, mutationResolvers as ContainersMutation } from './container';
 import { queryResolvers as DatasetsQuery } from './dataset';
 import { queryResolvers as DomainsQuery } from './domain';
-import { queryResolvers as VolumeQuery } from './volume';
+import { queryResolvers as FilesQuery, mutationResolvers as FilesMutation } from './files';
+import { queryResolvers as VolumeQuery, mutationResolvers as VolumeMutation } from './volume';
 import { queryResolvers as JobQuery, mutationResolvers as JobsMutation } from './job';
 
 export const resolvers: any = {
@@ -18,12 +19,15 @@ export const resolvers: any = {
     ...ContainersQuery,
     ...DatasetsQuery,
     ...DomainsQuery,
+    ...FilesQuery,
     ...JobQuery,
     ...VolumeQuery
   },
   Mutation: {
     ...AccountMutation,
     ...ContainersMutation,
+    ...FilesMutation,
+    ...VolumeMutation,
     ...JobsMutation
   },
   JSONObject: JSONObjectResolver,
