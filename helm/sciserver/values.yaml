@@ -660,6 +660,13 @@ testService:
   reportingSecret: ""
   # Lifetime for existing runner account leases, not future persistent datasets.
   accountLeaseSeconds: 1980
+  accountBroker:
+    enabled: true
+    adminUser: admin
+    # Blank uses the release's Keystone Secret and internal Keystone v3 URL.
+    passwordSecret: ""
+    passwordKey: admin-password
+    keystoneUrl: ""
   runnerImage:
     repository: <<<IMAGE_REPO>>>/integration-tests
     tag: <<<VTAG>>>

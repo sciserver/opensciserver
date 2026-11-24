@@ -34,11 +34,15 @@ files, volumes or history. RACM profiles are removed only when guarded SQL
 cleanup is enabled and no unexpected references remain. Keep a single service replica while
 cleanup coordination is process-local.
 
-Configure a dedicated Keystone administrator for cleanup; RACM admin membership
-alone is insufficient. Inject `TEST_ACCOUNT_ADMIN_USER` and
-`TEST_ACCOUNT_ADMIN_PASSWORD` from a protected Secret through your deployment
-overlay, along with `TEST_ACCOUNT_BROKER_ENABLED=true` and
-`TEST_ACCOUNT_KEYSTONE_URL=http://YOUR_RELEASE-keystone:5000/v3`. Runners receive
+Helm enables the account broker by default and uses `admin` with the existing
+release Keystone Secret's `admin-password` key and internal Keystone v3 URL.
+For a dedicated Keystone administrator, override `testService.accountBroker.adminUser`,
+`passwordSecret` and `passwordKey`; `keystoneUrl` supports an external endpoint.
+Set `testService.accountBroker.enabled=false` to disable account operations (test
+launches then cannot reserve accounts). Outside Helm, supply
+`TEST_ACCOUNT_BROKER_ENABLED`, `TEST_ACCOUNT_ADMIN_USER`, `TEST_ACCOUNT_ADMIN_PASSWORD`
+and `TEST_ACCOUNT_KEYSTONE_URL` explicitly. RACM admin membership alone is insufficient.
+Runners receive
 only temporary fixture credentials and run-scoped capabilities. Other services
 remain unchanged. See the [broker protocol](../../../tests/integration/contract/account-broker.md)
 and [CLI instructions](../../../tests/integration/README.md).

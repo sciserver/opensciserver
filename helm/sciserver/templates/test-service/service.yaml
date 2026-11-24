@@ -116,6 +116,19 @@ spec:
               value: {{ default "" .Values.imagePullSecret | quote }}
             - name: TEST_HARNESS_DEADLINE_SECONDS
               value: {{ .Values.testService.harnessDeadlineSeconds | quote }}
+            - name: TEST_ACCOUNT_BROKER_ENABLED
+              value: {{ .Values.testService.accountBroker.enabled | quote }}
+            {{- if .Values.testService.accountBroker.enabled }}
+            - name: TEST_ACCOUNT_ADMIN_USER
+              value: {{ .Values.testService.accountBroker.adminUser | quote }}
+            - name: TEST_ACCOUNT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-keystone" (include "sciserver.fullname" .)) .Values.testService.accountBroker.passwordSecret }}
+                  key: {{ .Values.testService.accountBroker.passwordKey }}
+            - name: TEST_ACCOUNT_KEYSTONE_URL
+              value: {{ default (printf "http://%s-keystone:5000/v3" (include "sciserver.fullname" .)) .Values.testService.accountBroker.keystoneUrl | quote }}
+            {{- end }}
             - name: TEST_ACCOUNT_LEASE_SECONDS
               value: {{ .Values.testService.accountLeaseSeconds | quote }}
             {{- if .Values.testService.racmCleanup.enabled }}
