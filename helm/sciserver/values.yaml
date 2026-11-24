@@ -651,3 +651,43 @@ graphql:
     requests:
       cpu: 100m
       memory: 128Mi
+
+# Administrator account broker; toy-data generation is planned but not implemented.
+# Durable account ownership uses suspended Jobs; no PVC is required.
+testService:
+  enable: true
+  image:
+    repository: <<<IMAGE_REPO>>>/test-service
+    tag: <<<VTAG>>>
+  # Optional existing Secret with a base64-encoded (as the decoded Secret value)
+  # signing-key of at least 32 random bytes. Otherwise Helm creates/reuses one.
+  # Historical name retained to reuse existing broker signing keys on upgrade.
+  reportingSecret: ""
+  # Lifetime for existing runner account leases, not future persistent datasets.
+  accountLeaseSeconds: 1980
+  accountBroker:
+    enabled: true
+    adminUser: admin
+    # Blank uses the release's Keystone Secret and internal Keystone v3 URL.
+    passwordSecret: ""
+    passwordKey: admin-password
+    keystoneUrl: ""
+  runnerImage:
+    repository: <<<IMAGE_REPO>>>/integration-tests
+    tag: <<<VTAG>>>
+  harnessDeadlineSeconds: 600
+  racmCleanup:
+    # Opt-in direct SQL cleanup of broker-owned profiles with no unexpected references.
+    enabled: true
+    # Blank uses the RACM database URL/user and existing database password Secret.
+    jdbcUrl: ""
+    user: ""
+    passwordSecret: ""
+    passwordKey: password
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi

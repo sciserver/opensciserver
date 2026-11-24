@@ -8,6 +8,7 @@ import ActivityLog from '@/components/UserActivityTab';
 import Resource from '@/components/ResourcesTab';
 import Files from '@/components/FilesTab';
 import ComputeAdmin from '@/components/admin/ComputeAdmin';
+import IntegrationTests from '@/components/admin/IntegrationTests';
 import ScienceDomains from '@/components/ScienceTab';
 import Notebook from '@/components/NotebookTab';
 import NotebookDash from '@/components/notebook/NotebookDash';
@@ -45,6 +46,10 @@ const router = new Router({
     {
       path: '/activity_log',
       component: ActivityLog,
+    },
+    {
+      path: '/admin/integration-tests',
+      component: IntegrationTests,
     },
     {
       path: '/admin/compute',

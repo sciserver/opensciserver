@@ -1,0 +1,19 @@
+{
+  "contractVersion": "1",
+  "runId": "example-error",
+  "startedAt": "2026-10-28T12:00:00Z",
+  "finishedAt": "2026-10-28T12:00:01Z",
+  "outcome": "error",
+  "requested": [
+    "preflight.login"
+  ],
+  "tests": [],
+  "counts": {
+    "passed": 0,
+    "failed": 0,
+    "error": 0,
+    "skipped": 0,
+    "blocked": 0
+  },
+  "runnerError": "ValueError: invalid configuration"
+}

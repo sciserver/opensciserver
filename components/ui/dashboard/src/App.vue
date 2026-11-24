@@ -30,6 +30,7 @@
               aria-expanded="false">Admin <span class="caret"></span></a>
             <ul class="dropdown-menu">
               <li><router-link to="/admin/compute">Compute</router-link></li>
+              <li><router-link to="/admin/integration-tests">Integration Tests</router-link></li>
             </ul>
           </li>
           <li><router-link to="/resource" v-if="isAdmin" title="Resources tab">Resources</router-link></li>
