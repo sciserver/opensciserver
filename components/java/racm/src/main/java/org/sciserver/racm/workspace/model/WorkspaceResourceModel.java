@@ -2,76 +2,75 @@ package org.sciserver.racm.workspace.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sciserver.racm.utils.model.RACMBaseModel;
 
-public class WorkspaceResourceModel extends RACMBaseModel{
+public class WorkspaceResourceModel extends RACMBaseModel {
 
-	private String name;
-	private String pubDID;
-	private String contextClass;
-	private String resourceType;
-	private String resourceContextAPIEndpoint;
-	private List<String> actions = new ArrayList<>();
-	public WorkspaceResourceModel() {
-		super();
-	}
+    private String name;
+    private String pubDID;
+    private String contextClass;
+    private String resourceType;
+    private String resourceContextAPIEndpoint;
+    private List<String> actions = new ArrayList<>();
 
-	public WorkspaceResourceModel(Long id) {
-		super(id);
-	}
+    public WorkspaceResourceModel() {
+        super();
+    }
 
-	public String getName() {
-		return name;
-	}
+    public WorkspaceResourceModel(Long id) {
+        super(id);
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getPubDID() {
-		return pubDID;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setPubDID(String pubDID) {
-		this.pubDID = pubDID;
-	}
+    public String getPubDID() {
+        return pubDID;
+    }
 
-	public String getContextClass() {
-		return contextClass;
-	}
+    public void setPubDID(String pubDID) {
+        this.pubDID = pubDID;
+    }
 
-	public void setContextClass(String contextClass) {
-		this.contextClass = contextClass;
-	}
+    public String getContextClass() {
+        return contextClass;
+    }
 
-	public String getResourceType() {
-		return resourceType;
-	}
+    public void setContextClass(String contextClass) {
+        this.contextClass = contextClass;
+    }
 
-	public void setResourceType(String resourceType) {
-		this.resourceType = resourceType;
-	}
+    public String getResourceType() {
+        return resourceType;
+    }
 
-	public List<String> getActions() {
-		return actions;
-	}
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
 
-	public void setActions(List<String> actions) {
-		this.actions = actions;
-	}
+    public List<String> getActions() {
+        return actions;
+    }
 
-	public void addAction(String action){
-		actions.add(action);
-	}
+    public void setActions(List<String> actions) {
+        this.actions = actions;
+    }
 
-	public String getResourceContextAPIEndpoint() {
-		return resourceContextAPIEndpoint;
-	}
+    public void addAction(String action) {
+        actions.add(action);
+    }
 
-	public void setResourceContextAPIEndpoint(String resourceContextAPIEndpoint) {
-		this.resourceContextAPIEndpoint = resourceContextAPIEndpoint;
-	}
+    public String getResourceContextAPIEndpoint() {
+        return resourceContextAPIEndpoint;
+    }
 
+    public void setResourceContextAPIEndpoint(String resourceContextAPIEndpoint) {
+        this.resourceContextAPIEndpoint = resourceContextAPIEndpoint;
+    }
 
 }

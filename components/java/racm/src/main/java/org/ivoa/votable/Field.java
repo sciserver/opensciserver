@@ -16,7 +16,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * <p>Java class for Field complex type.
  * 
@@ -60,14 +59,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Field", propOrder = {
-    "description",
-    "values",
-    "links"
-})
-@XmlSeeAlso({
-    Param.class
-})
+@XmlType(name = "Field", propOrder = { "description", "values", "links" })
+@XmlSeeAlso({ Param.class })
 public class Field {
 
     @XmlElement(name = "DESCRIPTION")

@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * 
  *     Deprecated in Version 1.2
@@ -52,9 +51,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "CoordinateSystem", propOrder = {
-    "value"
-})
+@XmlType(name = "CoordinateSystem", propOrder = { "value" })
 public class CoordinateSystem {
 
     @XmlValue

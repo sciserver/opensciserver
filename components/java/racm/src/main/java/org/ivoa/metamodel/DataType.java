@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for DataType complex type.
  * 
@@ -28,12 +27,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DataType", propOrder = {
-    "attribute"
-})
-public class DataType
-    extends ValueType
-{
+@XmlType(name = "DataType", propOrder = { "attribute" })
+public class DataType extends ValueType {
 
     protected List<Attribute> attribute;
 

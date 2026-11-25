@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Param complex type.
  * 
@@ -26,9 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Param")
-public class Param
-    extends Field
-{
+public class Param extends Field {
 
     @XmlAttribute(name = "value", required = true)
     protected String value;

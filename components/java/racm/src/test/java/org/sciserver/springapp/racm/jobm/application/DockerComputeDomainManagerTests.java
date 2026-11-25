@@ -11,11 +11,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import edu.jhu.file.RootVolume;
+import edu.jhu.job.DockerComputeDomain;
+import edu.jhu.job.RootVolumeOnComputeDomain;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.persistence.Query;
-
 import org.ivoa.dm.VOURPException;
 import org.ivoa.dm.model.TransientObjectManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,10 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.sciserver.racm.jobm.model.RootVolumeOnComputeDomainModel;
 import org.sciserver.springapp.racm.ugm.domain.UserProfile;
 import org.sciserver.springapp.racm.utils.controller.ResourceNotFoundException;
-
-import edu.jhu.file.RootVolume;
-import edu.jhu.job.DockerComputeDomain;
-import edu.jhu.job.RootVolumeOnComputeDomain;
 
 public class DockerComputeDomainManagerTests {
     private static final String RACM_UUID = "3f9a1c2e-8b04-4d17-9e55-1a2b3c4d5e6f";
@@ -190,8 +187,7 @@ public class DockerComputeDomainManagerTests {
     @Test
     public void duplicatePathIsRejected() throws Exception {
         DockerComputeDomain dcd = authorizedDomain();
-        withExistingEntries(dcd,
-                existingEntry(999L, "/home/idies/workspace/Storage", "Other"));
+        withExistingEntries(dcd, existingEntry(999L, "/home/idies/workspace/Storage", "Other"));
 
         assertRejected(validModel());
     }

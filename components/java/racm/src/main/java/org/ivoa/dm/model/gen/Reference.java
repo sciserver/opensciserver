@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * 
  *         This class defines a reference (close to Identity class) as it contains both xmlId 

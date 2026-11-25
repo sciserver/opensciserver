@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlMixed;
 import javax.xml.bind.annotation.XmlType;
 import org.w3c.dom.Element;
 
-
 /**
  * <p>Java class for anyTEXT complex type.
  * 
@@ -31,9 +30,7 @@ import org.w3c.dom.Element;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "anyTEXT", propOrder = {
-    "content"
-})
+@XmlType(name = "anyTEXT", propOrder = { "content" })
 public class AnyTEXT {
 
     @XmlMixed

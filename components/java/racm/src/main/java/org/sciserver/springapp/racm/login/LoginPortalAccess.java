@@ -2,11 +2,12 @@ package org.sciserver.springapp.racm.login;
 
 import static org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter.AUTH_HEADER;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,14 +17,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.sciserver.springapp.racm.auth.SciServerHeaderAuthenticationFilter;
 import org.sciserver.springapp.racm.config.LoginConfig;
 import org.sciserver.springapp.racm.utils.RACMUtil;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class LoginPortalAccess {
@@ -165,8 +162,9 @@ public class LoginPortalAccess {
                     int size = 0;
                     while (it.hasNext()) {
                         size++;
-                        if (size > 1)
+                        if (size > 1) {
                             throw new IllegalStateException("Multiple users in LoginPortal with name " + userName);
+                        }
                         e = it.next();
                     }
                 }

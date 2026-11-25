@@ -2,9 +2,7 @@ package org.sciserver.racm.storem.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,15 +18,15 @@ public final class RootVolumeModel extends FileServiceResourceModel {
             @JsonProperty("containsSharedVolumes") Boolean containsSharedVolumes,
             @JsonProperty("userVolumes") List<UserVolumeModel> userVolumes,
             @JsonProperty("allowedActions") List<String> allowedActions) {
-        
-        this(id,resourceUUID,name,description,pathOnFileSystem,containsSharedVolumes,allowedActions);
+
+        this(id, resourceUUID, name, description, pathOnFileSystem, containsSharedVolumes, allowedActions);
         this.userVolumes = userVolumes;
     }
 
-    public RootVolumeModel(Long id, String resourceUUID, String name, String description,
-            String pathOnFileSystem, Boolean containsSharedVolumes, List<String> allowedActions) {
-        
-        super(id,resourceUUID,name,description,allowedActions, null);
+    public RootVolumeModel(Long id, String resourceUUID, String name, String description, String pathOnFileSystem,
+            Boolean containsSharedVolumes, List<String> allowedActions) {
+
+        super(id, resourceUUID, name, description, allowedActions, null);
         this.pathOnFileSystem = Objects.requireNonNull(pathOnFileSystem);
         this.containsSharedVolumes = Objects.requireNonNull(containsSharedVolumes);
         this.userVolumes = new ArrayList<UserVolumeModel>();
@@ -48,18 +46,17 @@ public final class RootVolumeModel extends FileServiceResourceModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getResourceUUID(), getName(), getDescription(), getPathOnFileSystem(), 
+        return Objects.hash(getId(), getResourceUUID(), getName(), getDescription(), getPathOnFileSystem(),
                 isContainsSharedVolumes(), getUserVolumes(), getAllowedActions());
     }
-    
+
     @Override
     public boolean equals(final Object other) {
         if (!(other instanceof RootVolumeModel)) {
             return false;
         }
         RootVolumeModel castOther = (RootVolumeModel) other;
-        return super.equals(castOther) 
-                && Objects.equals(pathOnFileSystem, castOther.pathOnFileSystem)
+        return super.equals(castOther) && Objects.equals(pathOnFileSystem, castOther.pathOnFileSystem)
                 && Objects.equals(containsSharedVolumes, castOther.containsSharedVolumes)
                 && Objects.equals(userVolumes, castOther.userVolumes);
     }

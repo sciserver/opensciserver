@@ -2,7 +2,6 @@ package org.sciserver.springapp.racm.storem.application;
 
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.validator.routines.UrlValidator;
 import org.ivoa.dm.VOURPException;
 import org.sciserver.racm.storem.model.FileServiceModel;
@@ -34,87 +33,91 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FileServiceManager {
-	private final FileServiceRepository repo;
+    private final FileServiceRepository repo;
 
-	private static final long URL_VALIDATOR_OPTIONS = UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS;
-	private final UrlValidator anyURLValidator = new UrlValidator(URL_VALIDATOR_OPTIONS);
+    private static final long URL_VALIDATOR_OPTIONS = UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS;
+    private final UrlValidator anyURLValidator = new UrlValidator(URL_VALIDATOR_OPTIONS);
 
-	@Autowired
-	public FileServiceManager(FileServiceRepository repo) {
-		this.repo = repo;
-	}
+    @Autowired
+    public FileServiceManager(FileServiceRepository repo) {
+        this.repo = repo;
+    }
 
-	public List<String> getFileServiceEndpoints(UserProfile up) {
-		return repo.getFileServiceEndpoints(up);
-	}
+    public List<String> getFileServiceEndpoints(UserProfile up) {
+        return repo.getFileServiceEndpoints(up);
+    }
 
-	public List<MinimalFileServiceModel> getMinimalFileServices(UserProfile up) {
-		return repo.getMinimalFileServices(up);
-	}
+    public List<MinimalFileServiceModel> getMinimalFileServices(UserProfile up) {
+        return repo.getMinimalFileServices(up);
+    }
 
-	public FileServiceModel getFileService(UserProfile up, String fileServiceIdentifer) {
-		return repo.getFileService(up, fileServiceIdentifer);
-	}
+    public FileServiceModel getFileService(UserProfile up, String fileServiceIdentifer) {
+        return repo.getFileService(up, fileServiceIdentifer);
+    }
 
     public FileServiceModel getFileServiceFAST(UserProfile up, String fileServiceIdentifer) {
         return repo.getFileServiceFAST(up, fileServiceIdentifer);
     }
 
     public RegisteredFileServiceModel getFileServiceFromToken(String token) {
-		return repo.getRegisteredFileServiceFromToken(token);
-	}
+        return repo.getRegisteredFileServiceFromToken(token);
+    }
 
-	public RegisteredFileServiceModel registerFileService(UserProfile up, RegisterNewFileServiceModel fileService) {
-		validateFileService(fileService);
-		fileService.getIdentifier().ifPresent((identifier) -> {
-			if (repo.existsByIdentifier(up, identifier)) {
-				throw new DuplicateIdentifierException();
-			}
-		});
-		if (repo.existsByName(up, fileService.getName())) {
-			throw new RegistrationInvalidException("File Service names must be unique");
-		}
+    public RegisteredFileServiceModel registerFileService(UserProfile up, RegisterNewFileServiceModel fileService) {
+        validateFileService(fileService);
+        fileService.getIdentifier().ifPresent((identifier) -> {
+            if (repo.existsByIdentifier(up, identifier)) {
+                throw new DuplicateIdentifierException();
+            }
+        });
+        if (repo.existsByName(up, fileService.getName())) {
+            throw new RegistrationInvalidException("File Service names must be unique");
+        }
 
-		fileService.getRootVolumes().forEach(this::validateRootVolume);
+        fileService.getRootVolumes().forEach(this::validateRootVolume);
 
-		return repo.registerFileService(up, fileService);
-	}
+        return repo.registerFileService(up, fileService);
+    }
 
-	public RegisteredRootVolumeModel registerRootVolume(UserProfile up, String fileServiceIdentifer, RegisterNewRootVolumeModel rootVolume) {
-		validateRootVolume(rootVolume);
-		return repo.registerRootVolume(up, fileServiceIdentifer, rootVolume);
-	}
+    public RegisteredRootVolumeModel registerRootVolume(UserProfile up, String fileServiceIdentifer,
+            RegisterNewRootVolumeModel rootVolume) {
+        validateRootVolume(rootVolume);
+        return repo.registerRootVolume(up, fileServiceIdentifer, rootVolume);
+    }
 
-	public RegisteredUserVolumeModel registerUserVolume(UserProfile up, String fileServiceIdentifer, 
-	        String rootVolumeName, RegisterNewUserVolumeModel userVolume) throws VOURPException{
-		validateUserVolume(userVolume);
+    public RegisteredUserVolumeModel registerUserVolume(UserProfile up, String fileServiceIdentifer,
+            String rootVolumeName, RegisterNewUserVolumeModel userVolume) throws VOURPException {
+        validateUserVolume(userVolume);
 
         return repo.registerUserVolume(up, fileServiceIdentifer, rootVolumeName, userVolume);
-	}
+    }
 
     public RegisteredDataVolumeModel registerDataVolume(UserProfile up, String fileServiceIdentifer,
-			RegisterNewDataVolumeModel dataVolume) {
-		validateDataVolume(dataVolume);
+            RegisterNewDataVolumeModel dataVolume) {
+        validateDataVolume(dataVolume);
 
-		return repo.registerDataVolume(up, fileServiceIdentifer, dataVolume);
-	}
+        return repo.registerDataVolume(up, fileServiceIdentifer, dataVolume);
+    }
 
-	public Set<String> getRootVolumeActions(UserProfile up, String fileServiceIdentifer, String rootVolumeName) {
-		return repo.getRootVolumeActions(up, fileServiceIdentifer, rootVolumeName);
-	}
+    public Set<String> getRootVolumeActions(UserProfile up, String fileServiceIdentifer, String rootVolumeName) {
+        return repo.getRootVolumeActions(up, fileServiceIdentifer, rootVolumeName);
+    }
 
-	public NativeQueryResult getDataVolumeActions(UserProfile up, String fileServiceIdentifer, String dataVolumeName) {
-		return repo.getDataVolumeActions(up, fileServiceIdentifer, dataVolumeName);
-	}
+    public NativeQueryResult getDataVolumeActions(UserProfile up, String fileServiceIdentifer, String dataVolumeName) {
+        return repo.getDataVolumeActions(up, fileServiceIdentifer, dataVolumeName);
+    }
 
-	public NativeQueryResult getUserVolumeActions(UserProfile up, String fileServiceIdentifer, String rootVolumeName, String userVolumeOwnerName, String userVolumeName) {
-		return repo.getUserVolumeActions(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName);
-	}
+    public NativeQueryResult getUserVolumeActions(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName) {
+        return repo.getUserVolumeActions(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName);
+    }
 
-	public NativeQueryResult getServiceVolumeActions(UserProfile up, String fileServiceIdentifer, String serviceToken, String rootVolumeName, String userVolumeOwnerName, String userVolumeName) {
-		return repo.getServiceVolumeActions(up, fileServiceIdentifer, serviceToken, rootVolumeName, userVolumeOwnerName, userVolumeName);
-	}
-	
+    public NativeQueryResult getServiceVolumeActions(UserProfile up, String fileServiceIdentifer, String serviceToken,
+            String rootVolumeName, String userVolumeOwnerName, String userVolumeName) {
+        return repo.getServiceVolumeActions(up, fileServiceIdentifer, serviceToken, rootVolumeName, userVolumeOwnerName,
+                userVolumeName);
+    }
+
     /** 
      * Remove the privileges the specified UserProfile has on the uservolume owned BY ANOTHE RUSER.<br/>
      * @param up
@@ -123,95 +126,115 @@ public class FileServiceManager {
      * @param userVolumeOwnerName
      * @param userVolumeName
      */
-    public void removeMyShares (UserProfile up, String fileServiceIdentifer, String rootVolumeName, String userVolumeOwnerName, String userVolumeName) {
+    public void removeMyShares(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName) {
         repo.removeMyShares(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName);
     }
-    
-	public void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName, String userVolumeOwnerName, String userVolumeName, UpdateSharedWithEntry[] updatedEntries) {
-		for (UpdateSharedWithEntry updatedEntry : updatedEntries)
-			updateSharing(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, updatedEntry);
-	}
 
-	private void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName, String userVolumeOwnerName, String userVolumeName, UpdateSharedWithEntry updatedEntry) {
-		repo.updateSharing(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, updatedEntry);
-	}
-
-	public void updateSharingOfDataVolumes(UserProfile up, String fileServiceIdentifer, String dataVolumeName, UpdateSharedWithEntry[] updatedEntries) {
-		for (UpdateSharedWithEntry updatedEntry : updatedEntries)
-			updateSharingOfDataVolumes(up, fileServiceIdentifer, dataVolumeName, updatedEntry);
-	}
-
-	private void updateSharingOfDataVolumes(UserProfile up, String fileServiceIdentifer, String dataVolumeName, UpdateSharedWithEntry updatedEntry) {
-		repo.updateSharingOfDataVolumes(up, fileServiceIdentifer, dataVolumeName, updatedEntry);
-	}
-
-	private void validateUserVolume(RegisterNewUserVolumeModel userVolume) {
-		if (userVolume.getName().isEmpty() || userVolume.getName().contains("/"))
-			throw new RegistrationInvalidException("User volume name must be a non-empty path segment, i.e., not contain '/'.");
-	}
-	
-    public void deleteUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName, String userVolumeOwnerName, String userVolumeName) {
-		repo.deleteUserVolume(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName);
-	}
-
-    public void deleteServiceVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName, String userVolumeOwnerName, String userVolumeName, 
-            String serviceToken) {
-        repo.deleteServiceVolume(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, serviceToken);
+    public void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName, UpdateSharedWithEntry[] updatedEntries) {
+        for (UpdateSharedWithEntry updatedEntry : updatedEntries) {
+            updateSharing(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, updatedEntry);
+        }
     }
-    
-	public void deleteRootVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName) {
-		repo.deleteRootVolume(up, fileServiceIdentifer, rootVolumeName);
-	}
 
-	public void deleteDataVolume(UserProfile up, String fileServiceIdentifer, String dataVolumeName) {
-		repo.deleteDataVolume(up, fileServiceIdentifer, dataVolumeName);
-	}
+    private void updateSharing(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName, UpdateSharedWithEntry updatedEntry) {
+        repo.updateSharing(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, updatedEntry);
+    }
 
-	public void deleteFileService(UserProfile up, String fileServiceIdentifer) {
-		repo.deleteFileService(up, fileServiceIdentifer);
-	}
+    public void updateSharingOfDataVolumes(UserProfile up, String fileServiceIdentifer, String dataVolumeName,
+            UpdateSharedWithEntry[] updatedEntries) {
+        for (UpdateSharedWithEntry updatedEntry : updatedEntries) {
+            updateSharingOfDataVolumes(up, fileServiceIdentifer, dataVolumeName, updatedEntry);
+        }
+    }
 
-	public void updateUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
-			String userVolumeOwnerName, String userVolumeName, UpdatedUserVolumeInfo updatedUserVolumeInfo) {
-		repo.updateUserVolume(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName, updatedUserVolumeInfo);
-	}
+    private void updateSharingOfDataVolumes(UserProfile up, String fileServiceIdentifer, String dataVolumeName,
+            UpdateSharedWithEntry updatedEntry) {
+        repo.updateSharingOfDataVolumes(up, fileServiceIdentifer, dataVolumeName, updatedEntry);
+    }
 
-	public void updateRootVolume(UserProfile up, String fileServiceIdentifier, String rootVolumeName,
-			UpdatedRootVolumeInfo updatedRootVolumeInfo) {
-		repo.updateRootVolume(up, fileServiceIdentifier, rootVolumeName, updatedRootVolumeInfo);
-	}
+    private void validateUserVolume(RegisterNewUserVolumeModel userVolume) {
+        if (userVolume.getName().isEmpty() || userVolume.getName().contains("/")) {
+            throw new RegistrationInvalidException(
+                    "User volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
+    }
 
-	public void updateFileService(UserProfile up, String fileServiceIdentifier,
-			UpdatedFileServiceInfo updatedFileServiceInfo) {
+    public void deleteUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName) {
+        repo.deleteUserVolume(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName);
+    }
 
-		repo.updateFileService(up, fileServiceIdentifier, updatedFileServiceInfo);
-	}
+    public void deleteServiceVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName, String serviceToken) {
+        repo.deleteServiceVolume(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName,
+                serviceToken);
+    }
 
-	public void updateDataVolume(UserProfile up, String fileServiceIdentifier, String dataVolumeName,
-			UpdatedDataVolumeInfo updatedDataVolumeInfo) {
-		repo.updateDataVolume(up, fileServiceIdentifier, dataVolumeName, updatedDataVolumeInfo);
-	}
+    public void deleteRootVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName) {
+        repo.deleteRootVolume(up, fileServiceIdentifer, rootVolumeName);
+    }
 
-	private void validateRootVolume(RegisterNewRootVolumeModel rootVolume) {
-		if(rootVolume.getName().isEmpty() || rootVolume.getName().contains("/"))
-			throw new RegistrationInvalidException("Root volume name must be a non-empty path segment, i.e., not contain '/'.");
-	}
+    public void deleteDataVolume(UserProfile up, String fileServiceIdentifer, String dataVolumeName) {
+        repo.deleteDataVolume(up, fileServiceIdentifer, dataVolumeName);
+    }
 
-	private void validateDataVolume(RegisterNewDataVolumeModel dataVolume) {
-		if(dataVolume.getName().isEmpty() || dataVolume.getName().contains("/"))
-			throw new RegistrationInvalidException("Root volume name must be a non-empty path segment, i.e., not contain '/'.");
-	}
+    public void deleteFileService(UserProfile up, String fileServiceIdentifer) {
+        repo.deleteFileService(up, fileServiceIdentifer);
+    }
 
-	private void validateFileService(RegisterNewFileServiceModel fileService) {
-		if(!anyURLValidator.isValid(fileService.getApiEndpoint()))
-			throw new RegistrationInvalidException("File service must be a valid https URL.");
-	}
+    public void updateUserVolume(UserProfile up, String fileServiceIdentifer, String rootVolumeName,
+            String userVolumeOwnerName, String userVolumeName, UpdatedUserVolumeInfo updatedUserVolumeInfo) {
+        repo.updateUserVolume(up, fileServiceIdentifer, rootVolumeName, userVolumeOwnerName, userVolumeName,
+                updatedUserVolumeInfo);
+    }
+
+    public void updateRootVolume(UserProfile up, String fileServiceIdentifier, String rootVolumeName,
+            UpdatedRootVolumeInfo updatedRootVolumeInfo) {
+        repo.updateRootVolume(up, fileServiceIdentifier, rootVolumeName, updatedRootVolumeInfo);
+    }
+
+    public void updateFileService(UserProfile up, String fileServiceIdentifier,
+            UpdatedFileServiceInfo updatedFileServiceInfo) {
+
+        repo.updateFileService(up, fileServiceIdentifier, updatedFileServiceInfo);
+    }
+
+    public void updateDataVolume(UserProfile up, String fileServiceIdentifier, String dataVolumeName,
+            UpdatedDataVolumeInfo updatedDataVolumeInfo) {
+        repo.updateDataVolume(up, fileServiceIdentifier, dataVolumeName, updatedDataVolumeInfo);
+    }
+
+    private void validateRootVolume(RegisterNewRootVolumeModel rootVolume) {
+        if (rootVolume.getName().isEmpty() || rootVolume.getName().contains("/")) {
+            throw new RegistrationInvalidException(
+                    "Root volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
+    }
+
+    private void validateDataVolume(RegisterNewDataVolumeModel dataVolume) {
+        if (dataVolume.getName().isEmpty() || dataVolume.getName().contains("/")) {
+            throw new RegistrationInvalidException(
+                    "Root volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
+    }
+
+    private void validateFileService(RegisterNewFileServiceModel fileService) {
+        if (!anyURLValidator.isValid(fileService.getApiEndpoint())) {
+            throw new RegistrationInvalidException("File service must be a valid https URL.");
+        }
+    }
 
     private void validateServiceVolume(RegisterNewServiceVolumeModel serviceVolume) {
-        if (serviceVolume.getName().isEmpty() || serviceVolume.getName().contains("/"))
-            throw new RegistrationInvalidException("Service volume name must be a non-empty path segment, i.e., not contain '/'.");
+        if (serviceVolume.getName().isEmpty() || serviceVolume.getName().contains("/")) {
+            throw new RegistrationInvalidException(
+                    "Service volume name must be a non-empty path segment, i.e., not contain '/'.");
+        }
     }
-    public RegisteredServiceVolumeModel registerServiceVolume(UserProfile owner, String fileServiceIdentifer, 
+
+    public RegisteredServiceVolumeModel registerServiceVolume(UserProfile owner, String fileServiceIdentifer,
             String rootVolumeName, RegisterNewServiceVolumeModel serviceVolume) throws VOURPException {
         return repo.registerServiceVolume(owner, fileServiceIdentifer, rootVolumeName, serviceVolume);
     }

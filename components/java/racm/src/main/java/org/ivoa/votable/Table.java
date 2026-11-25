@@ -16,7 +16,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
  * 
  *     Added in Version 1.2: INFO for diagnostics
@@ -56,22 +55,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Table", propOrder = {
-    "description",
-    "infosAndFIELDSAndPARAMS"
-})
+@XmlType(name = "Table", propOrder = { "description", "infosAndFIELDSAndPARAMS" })
 public class Table {
 
     @XmlElement(name = "DESCRIPTION")
     protected AnyTEXT description;
-    @XmlElements({
-        @XmlElement(name = "LINK", type = Link.class),
-        @XmlElement(name = "DATA", type = Data.class),
-        @XmlElement(name = "GROUP", type = Group.class),
-        @XmlElement(name = "FIELD", type = Field.class),
-        @XmlElement(name = "PARAM", type = Param.class),
-        @XmlElement(name = "INFO", type = Info.class)
-    })
+    @XmlElements({ @XmlElement(name = "LINK", type = Link.class), @XmlElement(name = "DATA", type = Data.class),
+        @XmlElement(name = "GROUP", type = Group.class), @XmlElement(name = "FIELD", type = Field.class),
+        @XmlElement(name = "PARAM", type = Param.class), @XmlElement(name = "INFO", type = Info.class) })
     protected List<Object> infosAndFIELDSAndPARAMS;
     @XmlAttribute(name = "ID")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)

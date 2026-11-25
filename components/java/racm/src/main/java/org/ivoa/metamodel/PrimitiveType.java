@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for PrimitiveType complex type.
  * 
@@ -24,9 +23,6 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PrimitiveType")
-public class PrimitiveType
-    extends ValueType
-{
-
+public class PrimitiveType extends ValueType {
 
 }

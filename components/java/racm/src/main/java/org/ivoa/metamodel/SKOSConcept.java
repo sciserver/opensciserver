@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for SKOSConcept complex type.
  * 
@@ -31,10 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "SKOSConcept", propOrder = {
-    "broadestSKOSConcept",
-    "vocabularyURI"
-})
+@XmlType(name = "SKOSConcept", propOrder = { "broadestSKOSConcept", "vocabularyURI" })
 public class SKOSConcept {
 
     @XmlElement(required = true)

@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
-
 /**
  * 
  *           The 'encoding' attribute is added here to avoid
@@ -34,9 +33,7 @@ import javax.xml.bind.annotation.XmlValue;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Td", propOrder = {
-    "value"
-})
+@XmlType(name = "Td", propOrder = { "value" })
 public class Td {
 
     @XmlValue

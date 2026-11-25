@@ -1,40 +1,42 @@
 package org.sciserver.racm.rctree.model;
 
+public class RoleAssignmentModel extends AccessControlModel {
 
-public class RoleAssignmentModel extends AccessControlModel{
+    private Long roleId;
+    private String roleName;
 
-	private Long roleId;
-	private String roleName;
-	public RoleAssignmentModel(){
-		super();
-	}
-	public RoleAssignmentModel(Long id){
-		super(id);
-	}
+    public RoleAssignmentModel() {
+        super();
+    }
 
-	/**
-	 * To be used when saving the model to the DB.<br/>
-	 * @param resourceId
-	 * @param scisId
-	 * @param actionId
-	 */
-	public RoleAssignmentModel(Long resourceId, Long scisId, Long roleId){
-		super(resourceId,scisId);
-		this.roleId = roleId;
-	}
-	public Long getRoleId() {
-		return roleId;
-	}
+    public RoleAssignmentModel(Long id) {
+        super(id);
+    }
 
-	public void setRoleId(Long roleId) {
-		this.roleId = roleId;
-	}
+    /**
+     * To be used when saving the model to the DB.<br/>
+     * @param resourceId
+     * @param scisId
+     * @param actionId
+     */
+    public RoleAssignmentModel(Long resourceId, Long scisId, Long roleId) {
+        super(resourceId, scisId);
+        this.roleId = roleId;
+    }
 
-	public String getRoleName() {
-		return roleName;
-	}
+    public Long getRoleId() {
+        return roleId;
+    }
 
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 }

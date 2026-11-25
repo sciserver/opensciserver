@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for Reference complex type.
  * 
@@ -26,9 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Reference")
-public class Reference
-    extends Relation
-{
+public class Reference extends Relation {
 
     @XmlAttribute(name = "isOwned")
     protected Boolean isOwned;

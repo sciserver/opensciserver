@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * 
  *     Added in Version 1.2: INFO for diagnostics
@@ -38,12 +37,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Data", propOrder = {
-    "fits",
-    "binary",
-    "tabledata",
-    "infos"
-})
+@XmlType(name = "Data", propOrder = { "fits", "binary", "tabledata", "infos" })
 public class Data {
 
     @XmlElement(name = "FITS")

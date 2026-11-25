@@ -6,25 +6,28 @@ package org.ivoa.util.text;
  * @author Laurent Bourges (voparis) / Gerard Lemson (mpe)
  */
 public final class StringUtils {
-  //~ Constructors -----------------------------------------------------------------------------------------------------
+    // ~ Constructors
+    // -----------------------------------------------------------------------------------------------------
 
-/**
-   * Forbidden Constructor
-   */
-  private StringUtils() {
-    /* no-op */
-  }
+    /**
+       * Forbidden Constructor
+       */
+    private StringUtils() {
+        /* no-op */
+    }
 
-  //~ Methods ----------------------------------------------------------------------------------------------------------
+    // ~ Methods
+    // ----------------------------------------------------------------------------------------------------------
 
-  /**
-   * Return an encoded string : < > characters replaced by html entities
-   *
-   * @param source input string
-   * @return encoded string
-   */
-  public static final String escapeXml(final String source) {
-    return source.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-  }
+    /**
+     * Return an encoded string : < > characters replaced by html entities
+     *
+     * @param source input string
+     * @return encoded string
+     */
+    public static final String escapeXml(final String source) {
+        return source.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
 }
-//~ End of file --------------------------------------------------------------------------------------------------------
+// ~ End of file
+// --------------------------------------------------------------------------------------------------------

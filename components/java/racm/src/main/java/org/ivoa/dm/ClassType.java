@@ -3,7 +3,6 @@ package org.ivoa.dm;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.ivoa.bean.LogSupport;
 import org.ivoa.metamodel.Attribute;
 import org.ivoa.metamodel.DataType;
@@ -195,4 +194,5 @@ public class ClassType extends LogSupport {
         return attributes.values();
     }
 }
-//~ End of file --------------------------------------------------------------------------------------------------------
+// ~ End of file
+// --------------------------------------------------------------------------------------------------------

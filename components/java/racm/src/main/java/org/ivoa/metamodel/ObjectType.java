@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for ObjectType complex type.
  * 
@@ -34,16 +33,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ObjectType", propOrder = {
-    "container",
-    "referrer",
-    "attribute",
-    "collection",
-    "reference"
-})
-public class ObjectType
-    extends Type
-{
+@XmlType(name = "ObjectType", propOrder = { "container", "referrer", "attribute", "collection", "reference" })
+public class ObjectType extends Type {
 
     protected TypeRef container;
     protected List<TypeRef> referrer;

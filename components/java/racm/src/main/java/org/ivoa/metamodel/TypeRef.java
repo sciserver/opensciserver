@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * <p>Java class for TypeRef complex type.
  * 
@@ -32,9 +31,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TypeRef", propOrder = {
-    "utype"
-})
+@XmlType(name = "TypeRef", propOrder = { "utype" })
 public class TypeRef {
 
     protected String utype;

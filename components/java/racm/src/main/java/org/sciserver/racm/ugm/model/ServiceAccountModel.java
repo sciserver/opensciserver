@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ServiceAccountModel {
     private Long id;
     private String name;
-    
-    public ServiceAccountModel(@JsonProperty("id") Long id, @JsonProperty("name") String name){
+
+    public ServiceAccountModel(@JsonProperty("id") Long id, @JsonProperty("name") String name) {
         this.id = id;
         this.name = name;
     }
