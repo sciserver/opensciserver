@@ -1,0 +1,33 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.18'
+    id 'java'
+}
+apply plugin: 'io.spring.dependency-management'
+group = 'org.sciserver'
+sourceCompatibility = '17'
+repositories { mavenCentral() }
+dependencies {
+    implementation project(':clients:racm')
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.7.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'com.networknt:json-schema-validator:1.0.87'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+test { useJUnitPlatform() }
+bootJar { archiveFileName = 'test-service.jar' }
+// The runner owns these schemas; copy them into the service artifact, never fork them.
+processResources {
+    from('../../../tests/integration/contract') {
+        include '*.schema.json'
+        into 'contract'
+    }
+}
+processTestResources {
+    from('../../../tests/integration/contract') {
+        include 'catalog.json', 'examples/**'
+        into 'contract-fixtures'
+    }
+}

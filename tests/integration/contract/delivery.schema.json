@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Runner delivery receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "runId",
+    "outcome",
+    "reportDelivery"
+  ],
+  "properties": {
+    "contractVersion": {
+      "const": "1"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome": {
+      "enum": [
+        "passed",
+        "failed",
+        "error"
+      ]
+    },
+    "reportDelivery": {
+      "enum": [
+        "not_configured",
+        "received",
+        "failed"
+      ]
+    }
+  }
+}

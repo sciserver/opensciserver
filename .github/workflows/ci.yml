@@ -50,6 +50,8 @@ jobs:
         run:
           echo VTAG=${{ fromJSON(steps.dockermeta.outputs.json).labels['org.opencontainers.image.version'] }} >> $GITHUB_OUTPUT
       - name: Build and push docker images
+        env:
+          SOURCE_REPOSITORY: ${{ github.server_url }}/${{ github.repository }}
         run: make publish-images REPO=${{ env.REGISTRY }}/${{ env.IMAGE_BASE }} VTAG=${{ steps.vtag_output.outputs.VTAG }}
       - uses: actions/upload-artifact@v4
         if: always()
